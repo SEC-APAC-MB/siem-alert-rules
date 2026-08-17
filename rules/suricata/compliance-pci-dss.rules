@@ -1,0 +1,65 @@
+# =============================================================================
+# Suricata Rules — PCI-DSS Network Detection
+# Covers: Requirement 1 (firewall), Requirement 2 (default passwords),
+#          Requirement 3 (stored data), Requirement 4 (encryption),
+#          Requirement 5 (malware), Requirement 6 (secure dev),
+#          Requirement 7 (need-to-know), Requirement 8 (auth/2FA),
+#          Requirement 10 (logging), Requirement 11 (testing),
+#          Requirement 12 (policy), cardholder data detection
+# Total rules: 33
+# SID range: 2306001 - 2306033
+# Reference: PCI-DSS v4.0
+# =============================================================================
+
+# --- Req 1: Network Security Controls / Firewall ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"PCI-DSS R1 - RDP Access from External Network to CDE"; flow:established,to_server; classtype:attempted-admin; sid:2306001; rev:1; metadata:policy pci-dss-1, mitre T1021.001, created_at 2026_08_17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"PCI-DSS R1 - SSH Access from External Network to CDE"; flow:established,to_server; classtype:attempted-admin; sid:2306002; rev:1; metadata:policy pci-dss-1, mitre T1021.004, created_at 2026_08_17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 23 (msg:"PCI-DSS R1 - Telnet Access from External - Unencrypted Protocol in CDE"; flow:established,to_server; classtype:attempted-admin; sid:2306003; rev:1; metadata:policy pci-dss-1, mitre T1048, created_at 2026_08_17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"PCI-DSS R1 - FTP Access from External - Unencrypted File Transfer in CDE"; flow:established,to_server; classtype:attempted-admin; sid:2306004; rev:1; metadata:policy pci-dss-1, mitre T1048, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R1 - Direct Access to Internal Database Port via HTTP Proxy"; flow:established,to_server; pcre:"/\/(proxy|tunnel|connect)\b.*?(3306|5432|1433|1521|27017)\b/i"; http_uri; classtype:attempted-admin; sid:2306005; rev:1; metadata:policy pci-dss-1, mitre T1190, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R1 - DMZ to CDE Unauthorized Lateral Access Attempt"; flow:established,to_server; pcre:"/\/(admin|manage|config|internal-api)\b/i"; http_uri; content:"X-Forwarded-For"; http_header; pcre:"/10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[0-1])\.\d+\.\d+|192\.168\.\d+\.\d+/i"; http_header; classtype:attempted-admin; sid:2306006; rev:1; metadata:policy pci-dss-1, mitre T1190, created_at 2026_08_17;)
+
+# --- Req 2: Default Passwords & Config ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R2 - Default Vendor Credentials Usage Attempt"; flow:established,to_server; content:"POST"; http_method; pcre:"/(user|username|login|email)\s*=\s*(admin|root|default|setup|guest|operator)&(password|passwd|pwd|pass)\s*=\s*(admin|password|default|blank|changeme|welcome|1234|12345|test)/i"; http_client_body; classtype:attempted-login; sid:2306007; rev:1; metadata:policy pci-dss-2, mitre T1078.001, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R2 - SNMP Default Community String Public"; flow:established,to_server; content:"public"; classtype:attempted-admin; sid:2306008; rev:1; metadata:policy pci-dss-2, mitre T1078.001, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R2 - Access to Vendor Documentation or Default Config Page"; flow:established,to_server; pcre:"/\/(readme|changelog|install|setup|config|admin|wp-admin|wp-login|phpinfo|server-status|server-info|\.env|\.git|\.svn)\b/i"; http_uri; classtype:attempted-admin; sid:2306009; rev:1; metadata:policy pci-dss-2, mitre T1592.001, created_at 2026_08_17;)
+
+# --- Req 3: Stored Cardholder Data Protection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R3 - Visa PAN Pattern in HTTP Response Body (4XXXXXXXXXXXXXXD format)"; flow:established,to_client; pcre:"/\b4\d{12}(?=\d{3})\d{3}\b|\b4\d{15}\b|\b4\d{12}\b/"; http_response_body; classtype:web-application-attack; sid:2306010; rev:1; metadata:policy pci-dss-3, mitre T1187, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R3 - Mastercard PAN Pattern in HTTP Response Body"; flow:established,to_client; pcre:"/\b5[1-5]\d{14}\b|\b2[2-7]\d{14}\b/"; http_response_body; classtype:web-application-attack; sid:2306011; rev:1; metadata:policy pci-dss-3, mitre T1187, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R3 - American Express PAN Pattern in HTTP Response Body"; flow:established,to_client; pcre:"/\b3[47]\d{13}\b/"; http_response_body; classtype:web-application-attack; sid:2306012; rev:1; metadata:policy pci-dss-3, mitre T1187, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R3 - CVV/CVC Number Pattern in HTTP Response"; flow:established,to_client; pcre:"/(cvv|cvc|cv2|security\s*code|card\s*verification)\s*[:=]\s*\d{3,4}/i"; http_response_body; classtype:web-application-attack; sid:2306013; rev:1; metadata:policy pci-dss-3, mitre T1187, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R3 - SSN Pattern in HTTP Response Body"; flow:established,to_client; pcre:"/\b\d{3}-\d{2}-\d{4}\b/"; http_response_body; classtype:web-application-attack; sid:2306014; rev:1; metadata:policy pci-dss-3, mitre T1187, created_at 2026_08_17;)
+
+# --- Req 4: Encryption in Transit ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R4 - Credit Card Number Submitted Over HTTP (Not HTTPS)"; flow:established,to_server; content:"POST"; http_method; pcre:"/(card|cc|credit|pan|account)\s*=\s*\d{13,19}/i"; http_client_body; classtype:web-application-attack; sid:2306015; rev:1; metadata:policy pci-dss-4, mitre T1041, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R4 - Password Submitted Over Unencrypted HTTP"; flow:established,to_server; content:"POST"; http_method; pcre:"/(password|passwd|pwd|pass|secret|credential)\s*=\s*\S+/i"; http_client_body; content:! "HTTPS"; classtype:web-application-attack; sid:2306016; rev:1; metadata:policy pci-dss-4, mitre T1041, created_at 2026_08_17;)
+alert tls $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R4 - Weak TLS Version Negotiated in CDE"; tls_version:! 1.2; classtype:web-application-attack; sid:2306017; rev:1; metadata:policy pci-dss-4, mitre T1573, created_at 2026_08_17;)
+
+# --- Req 5: Malware Protection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R5 - Malicious File Upload - Double Extension Evasion"; flow:established,to_server; pcre:"/filename\s*=\s*\"[^\"]+\.(php|jsp|asp|aspx|exe|bat|cmd|ps1|sh)\.\w+\"/i"; http_header; classtype:web-application-attack; sid:2306018; rev:1; metadata:policy pci-dss-5, mitre T1105, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R5 - Malicious File Upload - Executable Content Type Mismatch"; flow:established,to_server; content:"Content-Type"; http_header; content:"application/octet-stream"; http_header; pcre:"/\.exe|\.msi|\.bat|\.cmd|\.ps1|\.vbs|\.js|\.wsf/i"; http_header; classtype:web-application-attack; sid:2306019; rev:1; metadata:policy pci-dss-5, mitre T1105, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R5 - Known Malware Command-and-Control Domain Pattern"; flow:established,to_server; pcre:"/\.onion\b|\.bit\b|\.tk\b|\.ml\b|\.ga\b|\.cf\b/i"; http_host; classtype:trojan-activity; sid:2306020; rev:1; metadata:policy pci-dss-5, mitre T1071, created_at 2026_08_17;)
+
+# --- Req 6: Secure Development ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R6 - SQL Injection Attempt Against CDE Application"; flow:established,to_server; pcre:"/(\b(union\s+select|select\s+.+\s+from|insert\s+into|delete\s+from|drop\s+table|alter\s+table)\b|'(\s*or\s*'|=\s*')\b|--\s*$|\/\*.*\*\/)/i"; http_uri; classtype:web-application-attack; sid:2306021; rev:1; metadata:policy pci-dss-6, mitre T1190, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R6 - XSS Attack Pattern Against CDE Application"; flow:established,to_server; pcre:"/(<script|javascript\s*:|on(error|load|click|mouse|focus|blur)\s*=|<img\s+[^>]*on\w+\s*=|<svg\s+[^>]*on\w+\s*=|<iframe|<object|<embed)/i"; http_uri; classtype:web-application-attack; sid:2306022; rev:1; metadata:policy pci-dss-6, mitre T1059.007, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R6 - Path Traversal Attempt Against CDE Application"; flow:established,to_server; pcre:"/(\.\.\/|\.\.\\|%2e%2e%2f|%2e%2e\/|%252e%252e)/i"; http_uri; classtype:web-application-attack; sid:2306023; rev:1; metadata:policy pci-dss-6, mitre T1083, created_at 2026_08_17;)
+
+# --- Req 7 & 8: Access Control / Authentication ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R8 - Account Lockout Threshold Exceeded - Possible Brute Force"; flow:established,to_server; content:"POST"; http_method; pcre:"/\/(login|signin|auth)\b/i"; http_uri; threshold:type both, track by_src, count 6, seconds 300; classtype:attempted-login; sid:2306024; rev:1; metadata:policy pci-dss-8, mitre T1110, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R8 - Privileged Account Access Without MFA Marker"; flow:established,to_server; pcre:"/\/(admin|root|sudo|manage|config|dashboard)\b/i"; http_uri; content:! "X-MFA-Verified"; http_header; content:"Authorization"; http_header; classtype:attempted-admin; sid:2306025; rev:1; metadata:policy pci-dss-8, mitre T1078, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R8 - Cleartext Password in HTTP Request Body"; flow:established,to_server; content:"POST"; http_method; pcre:"/(password|passwd|pwd|pass|secret|credential)\s*=\s*[^\s&]{6,}/i"; http_client_body; classtype:web-application-attack; sid:2306026; rev:1; metadata:policy pci-dss-8, mitre T1041, created_at 2026_08_17;)
+
+# --- Req 10: Logging & Monitoring ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"PCI-DSS R10 - Cardholder Data Exfiltration via HTTP POST"; flow:established,to_client; content:"POST"; http_method; pcre:"/\b4\d{12}(\d{3})?\b/"; http_client_body; classtype:web-application-attack; sid:2306027; rev:1; metadata:policy pci-dss-10, mitre T1041, created_at 2026_08_17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"PCI-DSS R10 - Cardholder Data Exfiltration via HTTP GET Parameter"; flow:established,to_client; pcre:"/[?&](card|cc|pan|account|credit)=\d{13,19}/i"; http_uri; classtype:web-application-attack; sid:2306028; rev:1; metadata:policy pci-dss-10, mitre T1041, created_at 2026_08_17;)
+
+# --- Req 11: Security Testing ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R11 - Automated Vulnerability Scanner Detection - Nikto"; flow:established,to_server; content:"Nikto"; http_header; classtype:attempted-recon; sid:2306029; rev:1; metadata:policy pci-dss-11, mitre T1595, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R11 - Automated Vulnerability Scanner Detection - Common Security Tools"; flow:established,to_server; pcre:"/(Nikto|sqlmap|Nessus|OpenVAS|BurpSuite|Acunetix|AppScan|ZAP|Arachni|w3af)/i"; http_header; classtype:attempted-recon; sid:2306030; rev:1; metadata:policy pci-dss-11, mitre T1595, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R11 - Penetration Testing Tool - Directory Bruteforce Pattern"; flow:established,to_server; pcre:"/\/(\.git|\.svn|\.env|\.htaccess|\.htpasswd|backup|database\.sql|dump|\.bak|wp-config|config\.php|web\.config)/i"; http_uri; threshold:type both, track by_src, count 5, seconds 30; classtype:attempted-recon; sid:2306031; rev:1; metadata:policy pci-dss-11, mitre T1595, created_at 2026_08_17;)
+
+# --- Req 12: Policy / Awareness ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R12 - Social Engineering Indicator - Credential Harvest Page Pattern"; flow:established,to_server; pcre:"/\/(secure-account|verify-identity|update-payment|confirm-order|unlock-account|suspended-account)\b/i"; http_uri; content:"POST"; http_method; pcre:"/(card|cc|credit|pan|ssn|password|pin)\s*=/i"; http_client_body; classtype:web-application-attack; sid:2306032; rev:1; metadata:policy pci-dss-12, mitre T1189, created_at 2026_08_17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"PCI-DSS R12 - Phishing Kit Domain - Typosquatting on Payment Processors"; flow:established,to_server; pcre:"/(paypa[l1]|stripe|visa|mastercard|amex|square|checkout)[^\.]*\.(xyz|top|buzz|club|info|online|site|live)/i"; http_host; classtype:web-application-attack; sid:2306033; rev:1; metadata:policy pci-dss-12, mitre T1189, created_at 2026_08_17;)
