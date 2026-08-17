@@ -1,0 +1,334 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "QRadar SIEM alert rules — api-security",
+  "total_rules": 16,
+  "rules": [
+    {
+      "rule_id": "QR-API-001",
+      "name": "API1: Broken Object Level Authorization (BOLA)",
+      "description": "Detects sequential or unauthorized access to API objects by ID indicating broken object-level authorization",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%bola%' OR payload ILIKE '%idor%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-001"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1078"
+      },
+      "compliance": [
+        "API1-001",
+        "PCI-DSS-8.5"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-API-002",
+      "name": "API2: Broken Authentication — Default Credentials",
+      "description": "Detects API authentication attempts using default or well-known credentials",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%authentication%' OR payload ILIKE '%default-credentials%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-002"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1078.001"
+      },
+      "compliance": [
+        "API2-002",
+        "PCI-DSS-2.1"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-API-003",
+      "name": "API3: Broken Object Property Level Authorization (BOPLA)",
+      "description": "Detects API responses returning sensitive properties that the user should not access",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%bopla%' OR payload ILIKE '%property-level%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-003"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1078"
+      },
+      "compliance": [
+        "API3-001",
+        "GDPR-25-012"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-API-004",
+      "name": "API4: Unrestricted Resource Consumption — Rate Limiting",
+      "description": "Detects API requests exceeding rate limits indicating denial of service or scraping attacks",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%rate-limiting%' OR payload ILIKE '%resource-consumption%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-004"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1498"
+      },
+      "compliance": [
+        "API4-006"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-API-005",
+      "name": "API5: Broken Function Level Authorization",
+      "description": "Detects access to administrative API endpoints by non-administrative users",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%flba%' OR payload ILIKE '%privilege-escalation%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-005"
+      ],
+      "mitre": {
+        "tactic": "Defense Evasion",
+        "technique": "T1548"
+      },
+      "compliance": [
+        "API5-001",
+        "PCI-DSS-8.5"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-API-006",
+      "name": "API6: Unrestricted Access to Sensitive Business Flows",
+      "description": "Detects automated or excessive access to business-critical API flows like checkout, transfer, or account creation",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%business-flows%' OR payload ILIKE '%automation%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-006"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1498"
+      },
+      "compliance": [
+        "API6-001"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-API-007",
+      "name": "API7: Server-Side Request Forgery via API",
+      "description": "Detects SSRF attempts through API endpoints targeting internal networks or cloud metadata",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%ssrf%' OR payload ILIKE '%server-side%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-007"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "API7-001",
+        "PCI-DSS-6.5"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-API-008",
+      "name": "API8: Security Misconfiguration — Exposed API Documentation",
+      "description": "Detects unauthorized access to API documentation endpoints like Swagger, OpenAPI, or GraphQL introspection",
+      "severity": 5,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%misconfiguration%' OR payload ILIKE '%swagger%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-008"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1592.001"
+      },
+      "compliance": [
+        "API8-001"
+      ],
+      "credibility": 7,
+      "relevance": 5
+    },
+    {
+      "rule_id": "QR-API-009",
+      "name": "API9: Improper Inventory Management — Shadow API",
+      "description": "Detects access to undocumented or deprecated API endpoints not in the API inventory",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%shadow-api%' OR payload ILIKE '%inventory%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-009"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "API9-001"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-API-010",
+      "name": "API10: Unsafe Consumption of API Responses",
+      "description": "Detects API responses containing executable content or unsafe data that could harm downstream systems",
+      "severity": 5,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%unsafe-consumption%' OR payload ILIKE '%response-handling%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-010"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "API10-001"
+      ],
+      "credibility": 7,
+      "relevance": 5
+    },
+    {
+      "rule_id": "QR-API-011",
+      "name": "API — Mass Assignment via Parameter Tampering",
+      "description": "Detects mass assignment attacks where request parameters include unauthorized fields like role, isAdmin, or status",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%mass-assignment%' OR payload ILIKE '%parameter-tampering%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-011"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1078"
+      },
+      "compliance": [
+        "API3-005"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-API-012",
+      "name": "API — GraphQL Query Depth Attack",
+      "description": "Detects GraphQL queries with excessive depth or complexity indicating DoS or data extraction",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%graphql%' OR payload ILIKE '%dos%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-012"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1498"
+      },
+      "compliance": [
+        "API4-008"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-API-013",
+      "name": "API — JWT Token None Algorithm Attack",
+      "description": "Detects JWT tokens with algorithm set to none or missing algorithm indicating authentication bypass",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%jwt%' OR payload ILIKE '%algorithm-none%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-013"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1606"
+      },
+      "compliance": [
+        "API2-008"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-API-014",
+      "name": "API — Excessive Data Exposure in Response",
+      "description": "Detects API responses returning more data than requested including PII, credentials, or internal fields",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%data-exposure%' OR payload ILIKE '%pii%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-014"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1213"
+      },
+      "compliance": [
+        "API3-002",
+        "GDPR-25-012"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-API-015",
+      "name": "API — NoSQL Injection in Request Parameters",
+      "description": "Detects NoSQL injection operators ($where, $regex, $gt) in API request parameters",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%nosql-injection%' OR payload ILIKE '%injection%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-015"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "API3-006"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-API-016",
+      "name": "API — Broken Access Control on API Keys",
+      "description": "Detects API key usage from unauthorized sources or with excessive permissions",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%api-keys%' OR payload ILIKE '%access-control%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "API-016"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1078"
+      },
+      "compliance": [
+        "API2-004"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    }
+  ]
+}

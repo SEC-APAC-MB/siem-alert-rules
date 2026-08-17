@@ -1,0 +1,462 @@
+{
+  "description": "Elastic Security SIEM alert rules — api-security",
+  "version": "1.0.0",
+  "elastic_version": "8.x",
+  "total_rules": 16,
+  "rules": [
+    {
+      "rule_id": "ES-API-001",
+      "name": "API1: Broken Object Level Authorization (BOLA)",
+      "description": "Detects sequential or unauthorized access to API objects by ID indicating broken object-level authorization",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"bola\" OR \"idor\" OR \"authorization\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-001"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "API1-001",
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "api",
+        "bola",
+        "idor",
+        "authorization"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-002",
+      "name": "API2: Broken Authentication — Default Credentials",
+      "description": "Detects API authentication attempts using default or well-known credentials",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"authentication\" OR \"default-credentials\" OR \"brute-force\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-002"
+      ],
+      "mitre": [
+        "T1078.001"
+      ],
+      "compliance": [
+        "API2-002",
+        "PCI-DSS-2.1"
+      ],
+      "tags": [
+        "api",
+        "authentication",
+        "default-credentials",
+        "brute-force"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-003",
+      "name": "API3: Broken Object Property Level Authorization (BOPLA)",
+      "description": "Detects API responses returning sensitive properties that the user should not access",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"bopla\" OR \"property-level\" OR \"authorization\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-003"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "API3-001",
+        "GDPR-25-012"
+      ],
+      "tags": [
+        "api",
+        "bopla",
+        "property-level",
+        "authorization"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-004",
+      "name": "API4: Unrestricted Resource Consumption — Rate Limiting",
+      "description": "Detects API requests exceeding rate limits indicating denial of service or scraping attacks",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"rate-limiting\" OR \"resource-consumption\" OR \"dos\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-004"
+      ],
+      "mitre": [
+        "T1498"
+      ],
+      "compliance": [
+        "API4-006"
+      ],
+      "tags": [
+        "api",
+        "rate-limiting",
+        "resource-consumption",
+        "dos"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-005",
+      "name": "API5: Broken Function Level Authorization",
+      "description": "Detects access to administrative API endpoints by non-administrative users",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"flba\" OR \"privilege-escalation\" OR \"authorization\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-005"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "API5-001",
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "api",
+        "flba",
+        "privilege-escalation",
+        "authorization"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-006",
+      "name": "API6: Unrestricted Access to Sensitive Business Flows",
+      "description": "Detects automated or excessive access to business-critical API flows like checkout, transfer, or account creation",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"business-flows\" OR \"automation\" OR \"abuse\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-006"
+      ],
+      "mitre": [
+        "T1498"
+      ],
+      "compliance": [
+        "API6-001"
+      ],
+      "tags": [
+        "api",
+        "business-flows",
+        "automation",
+        "abuse"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-007",
+      "name": "API7: Server-Side Request Forgery via API",
+      "description": "Detects SSRF attempts through API endpoints targeting internal networks or cloud metadata",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"ssrf\" OR \"server-side\" OR \"injection\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-007"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "API7-001",
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "api",
+        "ssrf",
+        "server-side",
+        "injection"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-008",
+      "name": "API8: Security Misconfiguration — Exposed API Documentation",
+      "description": "Detects unauthorized access to API documentation endpoints like Swagger, OpenAPI, or GraphQL introspection",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"misconfiguration\" OR \"swagger\" OR \"documentation\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-008"
+      ],
+      "mitre": [
+        "T1592.001"
+      ],
+      "compliance": [
+        "API8-001"
+      ],
+      "tags": [
+        "api",
+        "misconfiguration",
+        "swagger",
+        "documentation"
+      ],
+      "risk_score": 50,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-009",
+      "name": "API9: Improper Inventory Management — Shadow API",
+      "description": "Detects access to undocumented or deprecated API endpoints not in the API inventory",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"shadow-api\" OR \"inventory\" OR \"misconfiguration\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-009"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "API9-001"
+      ],
+      "tags": [
+        "api",
+        "shadow-api",
+        "inventory",
+        "misconfiguration"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-010",
+      "name": "API10: Unsafe Consumption of API Responses",
+      "description": "Detects API responses containing executable content or unsafe data that could harm downstream systems",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"unsafe-consumption\" OR \"response-handling\" OR \"injection\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-010"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "API10-001"
+      ],
+      "tags": [
+        "api",
+        "unsafe-consumption",
+        "response-handling",
+        "injection"
+      ],
+      "risk_score": 50,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-011",
+      "name": "API — Mass Assignment via Parameter Tampering",
+      "description": "Detects mass assignment attacks where request parameters include unauthorized fields like role, isAdmin, or status",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"mass-assignment\" OR \"parameter-tampering\" OR \"authorization\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-011"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "API3-005"
+      ],
+      "tags": [
+        "api",
+        "mass-assignment",
+        "parameter-tampering",
+        "authorization"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-012",
+      "name": "API — GraphQL Query Depth Attack",
+      "description": "Detects GraphQL queries with excessive depth or complexity indicating DoS or data extraction",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"graphql\" OR \"dos\" OR \"abuse\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-012"
+      ],
+      "mitre": [
+        "T1498"
+      ],
+      "compliance": [
+        "API4-008"
+      ],
+      "tags": [
+        "api",
+        "graphql",
+        "dos",
+        "abuse"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-013",
+      "name": "API — JWT Token None Algorithm Attack",
+      "description": "Detects JWT tokens with algorithm set to none or missing algorithm indicating authentication bypass",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"jwt\" OR \"algorithm-none\" OR \"authentication\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-013"
+      ],
+      "mitre": [
+        "T1606"
+      ],
+      "compliance": [
+        "API2-008"
+      ],
+      "tags": [
+        "api",
+        "jwt",
+        "algorithm-none",
+        "authentication"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-014",
+      "name": "API — Excessive Data Exposure in Response",
+      "description": "Detects API responses returning more data than requested including PII, credentials, or internal fields",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"data-exposure\" OR \"pii\" OR \"over-fetching\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-014"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "compliance": [
+        "API3-002",
+        "GDPR-25-012"
+      ],
+      "tags": [
+        "api",
+        "data-exposure",
+        "pii",
+        "over-fetching"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-015",
+      "name": "API — NoSQL Injection in Request Parameters",
+      "description": "Detects NoSQL injection operators ($where, $regex, $gt) in API request parameters",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"nosql-injection\" OR \"injection\" OR \"mongodb\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-015"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "API3-006"
+      ],
+      "tags": [
+        "api",
+        "nosql-injection",
+        "injection",
+        "mongodb"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-API-016",
+      "name": "API — Broken Access Control on API Keys",
+      "description": "Detects API key usage from unauthorized sources or with excessive permissions",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"api-keys\" OR \"access-control\" OR \"authorization\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "API-016"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "API2-004"
+      ],
+      "tags": [
+        "api",
+        "api-keys",
+        "access-control",
+        "authorization"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    }
+  ]
+}

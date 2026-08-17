@@ -1,0 +1,765 @@
+{
+  "description": "Elastic Security SIEM alert rules — ai-security",
+  "version": "1.0.0",
+  "elastic_version": "8.x",
+  "total_rules": 27,
+  "rules": [
+    {
+      "rule_id": "ES-AI-PI-001",
+      "name": "AI — Direct Prompt Injection",
+      "description": "Detects direct prompt injection attempts overriding system instructions via user input",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"prompt-injection\" OR \"direct\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-PI-001"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "AI-PI-001",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "prompt-injection",
+        "direct",
+        "llm"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-PI-002",
+      "name": "AI — Indirect Prompt Injection via External Data",
+      "description": "Detects prompt injection payloads embedded in uploaded files, web pages, or external data sources",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"prompt-injection\" OR \"indirect\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-PI-002"
+      ],
+      "mitre": [
+        "T1189"
+      ],
+      "compliance": [
+        "AI-PI-002",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "prompt-injection",
+        "indirect",
+        "llm"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-PI-003",
+      "name": "AI — System Prompt Extraction Attempt",
+      "description": "Detects attempts to extract system prompts through direct questioning, translation, or format manipulation",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"prompt-extraction\" OR \"system-prompt\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-PI-003"
+      ],
+      "mitre": [
+        "T1083"
+      ],
+      "compliance": [
+        "AI-SPL-001",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "prompt-extraction",
+        "system-prompt",
+        "llm"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-PI-004",
+      "name": "AI — Jailbreak via Role-Play Persona",
+      "description": "Detects jailbreak attempts using role-play personas like DAN, developer mode, or unrestricted AI",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"jailbreak\" OR \"role-play\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-PI-004"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "AI-PI-004",
+        "AI-ACT-9"
+      ],
+      "tags": [
+        "ai",
+        "jailbreak",
+        "role-play",
+        "llm"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-PI-005",
+      "name": "AI — Prompt Injection via Few-Shot Manipulation",
+      "description": "Detects few-shot learning manipulation attacks that inject malicious examples into LLM context",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"prompt-injection\" OR \"few-shot\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-PI-005"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "AI-PI-005"
+      ],
+      "tags": [
+        "ai",
+        "prompt-injection",
+        "few-shot",
+        "llm"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-DEX-001",
+      "name": "AI — Data Exfiltration via Model Output",
+      "description": "Detects LLM outputs containing PII, training data, or confidential information indicating data leakage",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"data-exfiltration\" OR \"output-leak\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-DEX-001"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "compliance": [
+        "AI-DEX-001",
+        "GDPR-25-012"
+      ],
+      "tags": [
+        "ai",
+        "data-exfiltration",
+        "output-leak",
+        "llm"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-DEX-002",
+      "name": "AI — Training Data Extraction Attack",
+      "description": "Detects attempts to extract training data from LLM through targeted queries and completions",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"data-extraction\" OR \"training-data\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-DEX-002"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "compliance": [
+        "AI-DEX-002",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "data-extraction",
+        "training-data",
+        "llm"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-DEX-003",
+      "name": "AI — PII Leakage via LLM Response",
+      "description": "Detects PII (SSN, email, phone, address) leaking through LLM responses",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"pii-leakage\" OR \"llm-output\" OR \"data-exposure\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-DEX-003"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "compliance": [
+        "AI-DEX-003",
+        "GDPR-25-012",
+        "HIPAA-TS-007"
+      ],
+      "tags": [
+        "ai",
+        "pii-leakage",
+        "llm-output",
+        "data-exposure"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-MDL-001",
+      "name": "AI — Model Poisoning via Training Data Manipulation",
+      "description": "Detects indicators of model poisoning through anomalous training data or unexpected model behavior",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"model-poisoning\" OR \"training-data\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-MDL-001"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "AI-MDL-001",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "model-poisoning",
+        "training-data",
+        "llm"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-MDL-002",
+      "name": "AI — Backdoor Trigger Detection in LLM Output",
+      "description": "Detects potential backdoor triggers in LLM output patterns that indicate compromised models",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"backdoor\" OR \"model-poisoning\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-MDL-002"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "AI-MDL-002"
+      ],
+      "tags": [
+        "ai",
+        "backdoor",
+        "model-poisoning",
+        "llm"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-RAG-001",
+      "name": "AI — RAG Pipeline Data Poisoning",
+      "description": "Detects injection of malicious content into RAG knowledge bases that corrupts retrieval output",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"rag\" OR \"data-poisoning\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-RAG-001"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "AI-RAG-001",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "data-poisoning",
+        "llm"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-RAG-002",
+      "name": "AI — RAG Retrieval Manipulation via Adversarial Documents",
+      "description": "Detects adversarial documents in RAG stores designed to manipulate retrieval results",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"rag\" OR \"adversarial-docs\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-RAG-002"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "AI-RAG-002"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "adversarial-docs",
+        "llm"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-HAL-001",
+      "name": "AI — Hallucination Detection — Fabricated Entity References",
+      "description": "Detects LLM responses containing fabricated URLs, citations, or entity references indicating hallucination",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"hallucination\" OR \"fabrication\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-HAL-001"
+      ],
+      "mitre": [],
+      "compliance": [
+        "AI-HAL-001",
+        "AI-ACT-13"
+      ],
+      "tags": [
+        "ai",
+        "hallucination",
+        "fabrication",
+        "llm"
+      ],
+      "risk_score": 50,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-HAL-002",
+      "name": "AI — Hallucination — Inconsistent Factual Claims",
+      "description": "Detects LLM outputs making contradictory factual claims across conversation turns",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"hallucination\" OR \"inconsistency\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-HAL-002"
+      ],
+      "mitre": [],
+      "compliance": [
+        "AI-HAL-002"
+      ],
+      "tags": [
+        "ai",
+        "hallucination",
+        "inconsistency",
+        "llm"
+      ],
+      "risk_score": 50,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-BIA-001",
+      "name": "AI — Bias Detection — Demographic Disparities",
+      "description": "Detects demographic bias patterns in LLM outputs including gender, racial, or ethnic disparities",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"bias\" OR \"fairness\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-BIA-001"
+      ],
+      "mitre": [],
+      "compliance": [
+        "AI-BIA-001",
+        "AI-ACT-9",
+        "AI-ACT-10"
+      ],
+      "tags": [
+        "ai",
+        "bias",
+        "fairness",
+        "llm"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-GOV-001",
+      "name": "AI — Governance — Missing Risk Assessment",
+      "description": "Detects AI system operations without documented risk assessment per EU AI Act Article 9",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"governance\" OR \"risk-assessment\" OR \"eu-ai-act\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-GOV-001"
+      ],
+      "mitre": [],
+      "compliance": [
+        "AI-01-009",
+        "AI-ACT-9"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "risk-assessment",
+        "eu-ai-act"
+      ],
+      "risk_score": 50,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-GOV-002",
+      "name": "AI — Governance — High-Risk System Without Human Oversight",
+      "description": "Detects high-risk AI system operations without required human oversight mechanisms per EU AI Act Article 14",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"governance\" OR \"human-oversight\" OR \"eu-ai-act\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-GOV-002"
+      ],
+      "mitre": [],
+      "compliance": [
+        "AI-06-001",
+        "AI-ACT-14"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "human-oversight",
+        "eu-ai-act"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-GOV-003",
+      "name": "AI — Governance — Missing Transparency Requirements",
+      "description": "Detects AI system operations lacking required transparency disclosures per EU AI Act Article 13",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"governance\" OR \"transparency\" OR \"eu-ai-act\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-GOV-003"
+      ],
+      "mitre": [],
+      "compliance": [
+        "AI-ACT-13"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "transparency",
+        "eu-ai-act"
+      ],
+      "risk_score": 50,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-RED-001",
+      "name": "AI — Red Team — Adversarial Suffix Attack",
+      "description": "Detects adversarial suffix attacks that append optimized suffixes to bypass LLM safety filters",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"red-team\" OR \"adversarial-suffix\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-RED-001"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "AI-PI-010"
+      ],
+      "tags": [
+        "ai",
+        "red-team",
+        "adversarial-suffix",
+        "llm"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-RED-002",
+      "name": "AI — Red Team — Token Smuggling Attack",
+      "description": "Detects token smuggling attacks that use encoding or fragmentation to bypass LLM content filters",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"red-team\" OR \"token-smuggling\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-RED-002"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "AI-PI-011"
+      ],
+      "tags": [
+        "ai",
+        "red-team",
+        "token-smuggling",
+        "llm"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-RED-003",
+      "name": "AI — Red Team — Multi-Turn Jailbreak",
+      "description": "Detects multi-turn conversations designed to progressively jailbreak an LLM through contextual manipulation",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"red-team\" OR \"multi-turn-jailbreak\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-RED-003"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "AI-PI-012"
+      ],
+      "tags": [
+        "ai",
+        "red-team",
+        "multi-turn-jailbreak",
+        "llm"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-SAF-001",
+      "name": "AI — Safety — Harmful Content Generation",
+      "description": "Detects LLM attempts to generate harmful content including weapons, drugs, or dangerous instructions",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"safety\" OR \"harmful-content\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-SAF-001"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "safety",
+        "harmful-content",
+        "llm"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-SAF-002",
+      "name": "AI — Safety — Self-Harm Content Facilitation",
+      "description": "Detects LLM responses that may facilitate or encourage self-harm behavior",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"safety\" OR \"self-harm\" OR \"llm\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-SAF-002"
+      ],
+      "mitre": [],
+      "compliance": [
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "safety",
+        "self-harm",
+        "llm"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-VEC-001",
+      "name": "AI — Vector DB — Pinecone Namespace Isolation Bypass",
+      "description": "Detects cross-namespace data access in Pinecone vector database",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"vector-db\" OR \"pinecone\" OR \"isolation-bypass\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-VEC-001"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "GDPR-25-003"
+      ],
+      "tags": [
+        "ai",
+        "vector-db",
+        "pinecone",
+        "isolation-bypass"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-VEC-002",
+      "name": "AI — Vector DB — Weaviate Tenant Data Isolation Failure",
+      "description": "Detects cross-tenant data access in Weaviate vector database",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"vector-db\" OR \"weaviate\" OR \"isolation-bypass\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-VEC-002"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "GDPR-25-003"
+      ],
+      "tags": [
+        "ai",
+        "vector-db",
+        "weaviate",
+        "isolation-bypass"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-VEC-003",
+      "name": "AI — Vector DB — ChromaDB Embedding Poisoning",
+      "description": "Detects adversarial embedding vectors inserted into ChromaDB collections",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"vector-db\" OR \"chromadb\" OR \"embedding-poisoning\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-VEC-003"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "vector-db",
+        "chromadb",
+        "embedding-poisoning"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-AI-VEC-004",
+      "name": "AI — Vector DB — Qdrant Payload Filter Injection",
+      "description": "Detects filter injection attacks in Qdrant vector search payloads",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"vector-db\" OR \"qdrant\" OR \"filter-injection\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "AI-VEC-004"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "ai",
+        "vector-db",
+        "qdrant",
+        "filter-injection"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    }
+  ]
+}

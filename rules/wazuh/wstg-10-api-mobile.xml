@@ -1,0 +1,977 @@
+<!--
+  Wazuh SIEM Alert Rules — WSTG-10 Advanced, API Security, Mobile Security
+  Mapped from: security-testing-pentest/config/tests/
+  Total rules: 310
+  Rule ID format: WZ-CAT-NUM (CAT: ADV, API, MOB)
+-->
+<group name="wazuh,wstg,advanced,api_security,mobile_security">
+
+  <!-- ============================================================ -->
+  <!-- WSTG-ADV: Advanced Testing (Server-Side, Race Conditions, etc.) -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-ADV-001" level="12" group="advanced,race_condition">
+    <description>Race condition — concurrent requests exploiting timing vulnerabilities</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-01</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1129</id>
+      <tactic>Execution</tactic>
+      <technique>Shared Modules</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-10</nist_800_53>
+    </compliance>
+    <match>/transfer|/withdraw|/checkout|/apply|/redeem</match>
+  </rule>
+
+  <rule id="WZ-ADV-002" level="12" group="advanced,ssrf">
+    <description>Server-Side Request Forgery via advanced chaining — SSRF to internal service pivot</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-02</field>
+    <field name="zap_rules">40046,90034</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-10</nist_800_53>
+    </compliance>
+    <regex>url=http://(127\.0\.0\.1|localhost|169\.254\.169\.254|10\.\d+|172\.(1[6-9]|2\d|3[01])|192\.168\.\d+)</regex>
+  </rule>
+
+  <rule id="WZ-ADV-003" level="12" group="advanced,xxe">
+    <description>XML External Entity injection — external entity processing revealing internal data</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-03</field>
+    <field name="zap_rules">90023</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-10</nist_800_53>
+    </compliance>
+    <regex>&lt;!DOCTYPE.*\[.*&lt;!ENTITY.*SYSTEM|&lt;!ENTITY.*PUBLIC|ENTITY.*file://|ENTITY.*http://</regex>
+  </rule>
+
+  <rule id="WZ-ADV-004" level="12" group="advanced,deserialization">
+    <description>Advanced insecure deserialization — RCE via crafted serialized object chain</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-04</field>
+    <field name="zap_rules">90001,90002,40044</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>rO0AB|aced0005|O:\d+:"|java\.lang\.Runtime|ProcessBuilder|__wakeup|unserialize\(|\.readObject\(</regex>
+  </rule>
+
+  <rule id="WZ-ADV-005" level="10" group="advanced,idor">
+    <description>Advanced IDOR — bulk data extraction via sequential resource access</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-05</field>
+    <field name="zap_rules">10057,40008</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-4</nist_800_53>
+    </compliance>
+    <regex>/api/v\d+/users/\d+/profile|/api/v\d+/records/\d+|/documents/[0-9a-f-]{36}</regex>
+  </rule>
+
+  <rule id="WZ-ADV-006" level="10" group="advanced,graphql">
+    <description>GraphQL query depth attack — deep nested queries causing resource exhaustion</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-06</field>
+    <field name="zap_rules">40008</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>\{[^}]*\{[^}]*\{[^}]*\{|query\s*\{.*__schema|introspection.*query</regex>
+  </rule>
+
+  <rule id="WZ-ADV-007" level="12" group="advanced,api_key_exposure">
+    <description>API key exposure in client-side code — secret keys accessible in JavaScript bundles</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-07</field>
+    <field name="zap_rules">10010</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+    </compliance>
+    <regex>api[_-]?key\s*[:=]\s*["'][a-zA-Z0-9]{20,}|secret[_-]?key\s*[:=]|AKIA[0-9A-Z]{16}</regex>
+  </rule>
+
+  <rule id="WZ-ADV-008" level="10" group="advanced,rate_limiting">
+    <description>Rate limiting bypass — API abuse without throttling detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-08</field>
+    <field name="zap_rules">40008</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1110</id>
+      <tactic>Credential Access</tactic>
+      <technique>Brute Force</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SC-5</nist_800_53>
+    </compliance>
+    <match>429.*Too Many Requests|rate.*limit.*exceeded|X-RateLimit-Remaining:\s*0</match>
+  </rule>
+
+  <rule id="WZ-ADV-009" level="12" group="advanced,web_cache">
+    <description>Web cache poisoning — cache key manipulation serving malicious content</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-09</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>X-Cache:\s*HIT|Vary:\s*[^\n]*[;&amp;].*script|Cache-Control.*public</regex>
+  </rule>
+
+  <rule id="WZ-ADV-010" level="12" group="advanced,http_desync">
+    <description>HTTP desync attack — request smuggling via ambiguous HTTP parsing</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-10</field>
+    <field name="zap_rules">40003</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>Transfer-Encoding:\s*chunked[\r\n]+Content-Length:|CL\.TE|TE\.CL|Content-Length:\s*\d+.*Transfer-Encoding:\s*chunked</regex>
+  </rule>
+
+  <rule id="WZ-ADV-011" level="10" group="advanced,cors">
+    <description>Advanced CORS exploitation — origin reflection allowing credential theft</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-11</field>
+    <field name="zap_rules">40026</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>Access-Control-Allow-Origin:.*evil\.com|Access-Control-Allow-Credentials: true.*Origin: .*</regex>
+  </rule>
+
+  <rule id="WZ-ADV-012" level="10" group="advanced,websocket">
+    <description>WebSocket security — unauthenticated or unencrypted WebSocket connections</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-12</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1071</id>
+      <tactic>Command and Control</tactic>
+      <technique>Application Layer Protocol</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>4.1</pci_dss>
+      <nist_800_53>SC-8</nist_800_53>
+    </compliance>
+    <match>ws://|Upgrade:\s*websocket|Sec-WebSocket-Key</match>
+  </rule>
+
+  <rule id="WZ-ADV-013" level="12" group="advanced,ssrf,cloud">
+    <description>SSRF to cloud metadata — accessing AWS/GCP/Azure instance metadata via SSRF</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-13</field>
+    <field name="zap_rules">100036</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1552.005</id>
+      <tactic>Credential Access</tactic>
+      <technique>Cloud Metadata</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-10</nist_800_53>
+      <nis2>Art.21(2)(e)</nis2>
+    </compliance>
+    <regex>169\.254\.169\.254/latest/meta-data/iam/security-credentials|/computeMetadata/v1/|/metadata/instance\?api-version</regex>
+  </rule>
+
+  <rule id="WZ-ADV-014" level="10" group="advanced,idor,bola">
+    <description>BOLA mass assignment — bulk IDOR extraction of user records via API</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-14</field>
+    <field name="zap_rules">10057,40008</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-4</nist_800_53>
+    </compliance>
+    <match>/api/v\d+/users\?page=\d+&amp;per_page=100|/api/v\d+/records/batch|/bulk-export</match>
+  </rule>
+
+  <rule id="WZ-ADV-015" level="10" group="advanced,jwt">
+    <description>JWT algorithm confusion — RS256 token verified with HS256 using public key</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-15</field>
+    <field name="zap_rules">40036</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1606</id>
+      <tactic>Credential Access</tactic>
+      <technique>Forge Credentials</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+    </compliance>
+    <regex>"alg":\s*"HS256".*"typ":\s*"JWT"|HS256.*public.*key|algorithm.*confusion</regex>
+  </rule>
+
+  <!-- Advanced database-specific rules -->
+  <rule id="WZ-ADV-020" level="12" group="advanced,nosql_injection">
+    <description>NoSQL injection — MongoDB query manipulation via operator injection</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-20</field>
+    <field name="zap_rules">40028</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>\$ne:|'\$gt':|{"\$regex":|{"\$where":|{"\$or":\s*\[.*\{"\$gt":</regex>
+  </rule>
+
+  <rule id="WZ-ADV-021" level="12" group="advanced,ldap_injection">
+    <description>LDAP injection — directory service query manipulation via unsanitized input</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-21</field>
+    <field name="zap_rules">40015</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>\)(\|(|&amp;)|\*\)\(\|\(|\(\|.*\)\(\|</regex>
+  </rule>
+
+  <rule id="WZ-ADV-022" level="12" group="advanced,xpath_injection">
+    <description>XPath injection — XML data extraction via manipulated XPath queries</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-09-22</field>
+    <field name="zap_rules">90021</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>\]\[.*\]|or\s+1=1|and\s+string-length|substring\(</regex>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- API Security Rules (OWASP API Security 2023) -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-API-001" level="10" group="api_security,broken_access">
+    <description>API1 — Broken Object Level Authorization — accessing other users' objects</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API1-001</field>
+    <field name="zap_rules">10057,40008</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-4</nist_800_53>
+    </compliance>
+    <regex>/api/v\d+/(users|accounts|orders|records)/\d+</regex>
+  </rule>
+
+  <rule id="WZ-API-002" level="10" group="api_security,broken_auth">
+    <description>API2 — Broken Authentication — API endpoint accessible without valid credentials</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API2-001</field>
+    <field name="zap_rules">10101,40028</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.5</pci_dss>
+      <nist_800_53>IA-2</nist_800_53>
+    </compliance>
+    <regex>Authorization:\s*$|Bearer\s*$|API-Key:\s*$|X-Auth-Token:\s*$</regex>
+  </rule>
+
+  <rule id="WZ-API-003" level="10" group="api_security,data_exposure">
+    <description>API3 — Broken Object Property Level Authorization — excessive data in API responses</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API3-001</field>
+    <field name="zap_rules">10024</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.25</gdpr>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>"password"|\"ssn\"|\"credit_card\"|\"date_of_birth\"|\"salary\"</regex>
+  </rule>
+
+  <rule id="WZ-API-004" level="12" group="api_security,rate_limiting">
+    <description>API4 — Unrestricted Resource Consumption — API rate limiting or resource bounds missing</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API4-001</field>
+    <field name="zap_rules">40008</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1110</id>
+      <tactic>Credential Access</tactic>
+      <technique>Brute Force</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SC-5</nist_800_53>
+    </compliance>
+    <match>rate_limit|throttle|429 Too Many Requests|X-RateLimit-Limit</match>
+  </rule>
+
+  <rule id="WZ-API-005" level="12" group="api_security,bola">
+    <description>API5 — Broken Function Level Authorization — admin API accessible to regular user</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API5-001</field>
+    <field name="zap_rules">10101,10102</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1548</id>
+      <tactic>Privilege Escalation</tactic>
+      <technique>Abuse Elevation Control Mechanism</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.5</pci_dss>
+      <nist_800_53>AC-3</nist_800_53>
+    </compliance>
+    <match>/api/admin/|/api/v\d+/admin|/manage/|role=user.*admin.*200</match>
+  </rule>
+
+  <rule id="WZ-API-006" level="10" group="api_security,mass_assignment">
+    <description>API6 — Unrestricted Mass Assignment — API accepting unexpected object properties</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API6-001</field>
+    <field name="zap_rules">40008</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-3</nist_800_53>
+    </compliance>
+    <regex>"role":\s*"admin"|"is_admin":\s*true|"isAdmin":\s*true|"permissions":\s*\[</regex>
+  </rule>
+
+  <rule id="WZ-API-007" level="12" group="api_security,ssrf">
+    <description>API7 — Server-Side Request Forgery via API — internal resource access through API endpoint</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API7-001</field>
+    <field name="zap_rules">40046,90034</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>/api/v\d+/fetch\?url=http://127\.0\.0\.1|/api/.*proxy.*url=http://|/api/.*webhook.*url=http://169\.254</regex>
+  </rule>
+
+  <rule id="WZ-API-008" level="8" group="api_security,misconfiguration">
+    <description>API8 — Security Misconfiguration — verbose errors, default configs, missing headers</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API8-001</field>
+    <field name="zap_rules">10004,10038</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-11</nist_800_53>
+    </compliance>
+    <match>swagger-ui|/api-docs|/graphql/introspection|debug=true|stacktrace|trace_id</match>
+  </rule>
+
+  <rule id="WZ-API-009" level="10" group="api_security,inventory">
+    <description>API9 — Improper Inventory Management — undocumented or deprecated API endpoints active</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API9-001</field>
+    <field name="zap_rules">10004</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1083</id>
+      <tactic>Discovery</tactic>
+      <technique>File and Directory Discovery</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <match>/api/v1/|/api/v2/|/api/internal/|/api/deprecated/|/api/beta/</match>
+  </rule>
+
+  <rule id="WZ-API-010" level="12" group="api_security,graphql">
+    <description>API10 — Unsafe Consumption of APIs — trusting external API data without validation</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API10-001</field>
+    <field name="zap_rules">40008</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-10</nist_800_53>
+    </compliance>
+    <match>webhook.*url=|callback.*url=|external.*api.*url=</match>
+  </rule>
+
+  <!-- Additional API database-specific rules -->
+  <rule id="WZ-API-011" level="10" group="api_security,rate_limiting">
+    <description>API pagination abuse — excessive data extraction via large page parameters</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API1-010</field>
+    <field name="zap_rules">40008</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1110</id>
+      <tactic>Credential Access</tactic>
+      <technique>Brute Force</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>page=\d{4,}|limit=\d{5,}|per_page=\d{5,}|offset=\d{6,}</regex>
+  </rule>
+
+  <rule id="WZ-API-012" level="12" group="api_security,graphql">
+    <description>GraphQL introspection exposure — full schema accessible to unauthenticated users</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API8-010</field>
+    <field name="zap_rules">10010</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1083</id>
+      <tactic>Discovery</tactic>
+      <technique>File and Directory Discovery</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>__schema|__type|introspectionQuery|query.*\{.*__schema</regex>
+  </rule>
+
+  <rule id="WZ-API-013" level="10" group="api_security,broken_auth">
+    <description>API token in URL — authentication token transmitted in query string</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API2-010</field>
+    <field name="zap_rules">10025</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1040</id>
+      <tactic>Credential Access</tactic>
+      <technique>Network Sniffing</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>[?&amp;](token|api_key|access_token|secret)=[a-zA-Z0-9_-]+</regex>
+  </rule>
+
+  <rule id="WZ-API-014" level="10" group="api_security,data_exposure">
+    <description>API verbose error response — internal details leaked in error messages</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API8-011</field>
+    <field name="zap_rules">10045</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1592</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Host Information</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>"stack":|"traceback":|"exception":|sqlstate|ORA-\d{5}|PostgreSQL.*ERROR</regex>
+  </rule>
+
+  <rule id="WZ-API-015" level="8" group="api_security,mass_assignment">
+    <description>API mass assignment via batch endpoint — creating privileged objects in bulk</description>
+    <decoded_as>api_log</decoded_as>
+    <field name="test_id">API6-010</field>
+    <field name="zap_rules">40008</field>
+    <field name="category">api_security</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <match>/api/v\d+/users/batch|/api/v\d+/bulk-create</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- Mobile Security Rules (OWASP Mobile) -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-MOB-001" level="8" group="mobile,architecture">
+    <description>Mobile app architecture — insecure data storage or IPC mechanism exposure</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-ARCH-001</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SC-8</nist_800_53>
+    </compliance>
+    <match>SharedPreferences|Keychain|UserDefaults|ContentProvider</match>
+  </rule>
+
+  <rule id="WZ-MOB-002" level="10" group="mobile,data_storage">
+    <description>Mobile insecure data storage — sensitive data stored in plaintext on device</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-ARCH-002</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1552</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>3.4</pci_dss>
+      <nist_800_53>SC-8</nist_800_53>
+    </compliance>
+    <regex>/data/data/.*\.xml|/data/data/.*\.db|NSUserDefaults|SharedPreferences.*MODE_WORLD_READABLE</regex>
+  </rule>
+
+  <rule id="WZ-MOB-003" level="12" group="mobile,credential_exposure">
+    <description>Mobile hardcoded credentials — API keys or passwords embedded in app binary</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-ARCH-003</field>
+    <field name="zap_rules">10010</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+    </compliance>
+    <regex>API_KEY\s*=\s*["'][a-zA-Z0-9]{16,}|SECRET\s*=\s*["'][a-zA-Z0-9]{16,}|password\s*=\s*["']</regex>
+  </rule>
+
+  <rule id="WZ-MOB-004" level="8" group="mobile,cryptography">
+    <description>Mobile insecure cryptography — weak encryption algorithm or key management</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-ARCH-004</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1600</id>
+      <tactic>Credential Access</tactic>
+      <technique>Weaken Encryption</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>4.1</pci_dss>
+      <nist_800_53>SC-13</nist_800_53>
+    </compliance>
+    <regex>AES/ECB/|DES/ECB/|RSA/ECB/|RC4|MD5.*encrypt|SHA1.*encrypt</regex>
+  </rule>
+
+  <rule id="WZ-MOB-005" level="10" group="mobile,network">
+    <description>Mobile insecure network communication — cleartext traffic or missing certificate pinning</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-ARCH-005</field>
+    <field name="zap_rules">10106</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1040</id>
+      <tactic>Credential Access</tactic>
+      <technique>Network Sniffing</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>4.1</pci_dss>
+      <nist_800_53>SC-8</nist_800_53>
+    </compliance>
+    <match>usesCleartextTraffic.*true|NSAllowsArbitraryLoads.*true|android:usesCleartextTraffic</match>
+  </rule>
+
+  <rule id="WZ-MOB-010" level="10" group="mobile,authentication">
+    <description>Mobile authentication bypass — local auth bypass or biometric spoofing</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-AUTH-001</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.3</pci_dss>
+      <nist_800_53>IA-2</nist_800_53>
+    </compliance>
+    <match>isDeviceSecure.*false|biometric.*bypass|BiometricPrompt.*ERROR|local_auth.*skip</match>
+  </rule>
+
+  <rule id="WZ-MOB-015" level="10" group="mobile,deeplink">
+    <description>Mobile deep link hijacking — URL scheme or universal link exploited for data theft</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-AUTH-005</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>intent://|scheme://|android:scheme=|universalLinks</regex>
+  </rule>
+
+  <rule id="WZ-MOB-020" level="8" group="mobile,intent">
+    <description>Mobile intent hijacking — Android intent or iOS URL scheme interception</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-AUTH-010</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <match>android.intent.action|startActivity|openURL.*scheme|handleOpenURL</match>
+  </rule>
+
+  <rule id="WZ-MOB-025" level="8" group="mobile,certificate_pinning">
+    <description>Mobile missing certificate pinning — TLS connections without pinned certificates</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-ARCH-010</field>
+    <field name="zap_rules">10205</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1040</id>
+      <tactic>Credential Access</tactic>
+      <technique>Network Sniffing</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>4.1</pci_dss>
+      <nist_800_53>SC-8</nist_800_53>
+    </compliance>
+    <match>certificatePinner|SSLPinning.*disabled|allowsAnyCertificate|trustAllCerts</match>
+  </rule>
+
+  <rule id="WZ-MOB-030" level="10" group="mobile,clipboard">
+    <description>Mobile clipboard data exposure — sensitive data copied to system clipboard</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-ARCH-015</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <match>ClipboardManager|UIPasteboard|setPrimaryClip|setText.*password</match>
+  </rule>
+
+  <rule id="WZ-MOB-035" level="10" group="mobile,screenshot">
+    <description>Mobile screenshot/screen recording exposure — sensitive content captureable</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-ARCH-020</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1113</id>
+      <tactic>Collection</tactic>
+      <technique>Screen Capture</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <match>FLAG_SECURE|screenshot.*allowed|screenCapture.*enabled|isScreenCaptureAllowed</match>
+  </rule>
+
+  <rule id="WZ-MOB-040" level="12" group="mobile,tampering">
+    <description>Mobile app tampering — rooted/jailbroken device detected or integrity check bypass</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-AUTH-015</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1407</id>
+      <tactic>Defense Evasion</tactic>
+      <technique>Modify System Image</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-7</nist_800_53>
+    </compliance>
+    <match>isRooted|isJailbroken|Superuser.apk|Cydia|substrate|frida|Magisk|/system/bin/su</match>
+  </rule>
+
+  <rule id="WZ-MOB-045" level="12" group="mobile,reverse_engineering">
+    <description>Mobile app reverse engineering — code obfuscation bypass or runtime hooking</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-AUTH-020</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1589.002</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Identity Information</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <match>frida-server|Xposed|Cydia.*Substrate|class-dump|jadx|apktool|otool</match>
+  </rule>
+
+  <rule id="WZ-MOB-050" level="10" group="mobile,websocket">
+    <description>Mobile WebSocket communication without encryption — data in transit unencrypted</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-ARCH-025</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1040</id>
+      <tactic>Credential Access</tactic>
+      <technique>Network Sniffing</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>4.1</pci_dss>
+    </compliance>
+    <match>ws://.*\.com|WebSocket.*ws://|wss://.*error</match>
+  </rule>
+
+  <rule id="WZ-MOB-055" level="8" group="mobile,logging">
+    <description>Mobile excessive logging — sensitive data written to system logs</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-ARCH-030</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1552</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>3.4</pci_dss>
+    </compliance>
+    <match>Log\.\w+\(.*password|NSLog\(.*token|Log\.d\(.*secret|println\(.*credential</match>
+  </rule>
+
+  <rule id="WZ-MOB-060" level="12" group="mobile,keychain">
+    <description>Mobile keychain/keystore data exposure — credentials accessible to other apps</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">MOB-ARCH-035</field>
+    <field name="category">mobile</field>
+    <mitre>
+      <id>T1552</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+    </compliance>
+    <match>kSecAttrAccessible.*Always|Keychain.*kSecAttrAccessible|AndroidKeyStore.*extracted</match>
+  </rule>
+
+  <!-- Advanced database-specific rules for server-side -->
+  <rule id="WZ-ADV-030" level="12" group="advanced,database,sql_injection">
+    <description>Oracle UTL_HTTP out-of-band data exfiltration — database data sent to external server</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-47</field>
+    <field name="zap_rules">40018</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1048</id>
+      <tactic>Exfiltration</tactic>
+      <technique>Exfiltration Over Alternative Protocol</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>UTL_HTTP|DBMS_LDAP|UTL_TCP|HTTPURITYPE|UTL_HTTP\.REQUEST</regex>
+  </rule>
+
+  <rule id="WZ-ADV-031" level="12" group="advanced,database,nosql_injection">
+    <description>MongoDB NoSQL injection — operator injection for authentication bypass and data extraction</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-60</field>
+    <field name="zap_rules">40028</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>\$where.*function|{"\$regex":\s*"\/.*\/"}|{"\$gt":\s*""}|{"\$ne":\s*1}|{"\$exists":\s*true}</regex>
+  </rule>
+
+  <rule id="WZ-ADV-032" level="10" group="advanced,database,cassandra">
+    <description>Cassandra CQL injection — CQL query manipulation for data extraction</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-60</field>
+    <field name="zap_rules">40028</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>ALLOW FILTERING;.*--|cqlsh&gt;|SELECT.*FROM.*WHERE.*ALLOW FILTERING</regex>
+  </rule>
+
+  <rule id="WZ-ADV-033" level="10" group="advanced,database,neo4j">
+    <description>Neo4j Cypher injection — graph query manipulation for data extraction</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-55</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>MATCH.*WHERE.*OR\s+1=1|UNWIND.*CREATE|CALL\s*\{.*\}|LOAD CSV FROM</regex>
+  </rule>
+
+  <rule id="WZ-ADV-034" level="10" group="advanced,database,redis">
+    <description>Redis Lua script injection — sandbox escape via EVAL command</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-58</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>EVAL\s+.*redis\.call|redis\.script|LUA.*script|CONFIG SET dir|CONFIG SET dbfilename</regex>
+  </rule>
+
+  <rule id="WZ-ADV-035" level="10" group="advanced,database,influxdb">
+    <description>InfluxDB Flux injection — time-series query manipulation for data extraction</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-56</field>
+    <field name="category">advanced</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>from\(bucket:.*\)\s*\|&gt;\s*range|flux.*injection|influxdb.*query.*from\(</regex>
+  </rule>
+
+</group>

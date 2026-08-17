@@ -1,0 +1,729 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "Azure Monitor and Policy rules — database-security",
+  "total_rules": 30,
+  "rules": [
+    {
+      "rule_id": "AZ-DB-PG-001",
+      "name": "PostgreSQL — Privilege Escalation via SET ROLE",
+      "description": "Detects PostgreSQL SET ROLE attempts for privilege escalation",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'postgresql' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "database",
+        "postgresql",
+        "privilege-escalation",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-PG-002",
+      "name": "PostgreSQL — pg_dump Data Exfiltration",
+      "description": "Detects PostgreSQL pg_dump commands indicating potential data exfiltration",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'postgresql' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1213"
+      ],
+      "compliance": [
+        "GDPR-25-008"
+      ],
+      "tags": [
+        "database",
+        "postgresql",
+        "data-exfiltration",
+        "sql"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-DB-PG-003",
+      "name": "PostgreSQL — Row-Level Security Bypass",
+      "description": "Detects PostgreSQL queries bypassing row-level security policies",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'postgresql' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "GDPR-25-003"
+      ],
+      "tags": [
+        "database",
+        "postgresql",
+        "rls-bypass",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-MY-001",
+      "name": "MySQL — UNION-Based SQL Injection",
+      "description": "Detects UNION-based SQL injection attacks against MySQL databases",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'mysql' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "mysql",
+        "sql-injection",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-MY-002",
+      "name": "MySQL — Root Account Remote Login",
+      "description": "Detects remote login attempts to MySQL root account from non-localhost",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'mysql' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1078.001"
+      ],
+      "compliance": [
+        "PCI-DSS-2.1"
+      ],
+      "tags": [
+        "database",
+        "mysql",
+        "default-account",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-MSS-001",
+      "name": "SQL Server — xp_cmdshell Execution",
+      "description": "Detects execution of xp_cmdshell stored procedure enabling OS command execution",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'sqlserver' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1059"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "sqlserver",
+        "command-execution",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-MSS-002",
+      "name": "SQL Server — SUSPENDED Login State Anomaly",
+      "description": "Detects SQL Server logins in SUSPENDED state indicating potential credential abuse",
+      "severity": 2,
+      "query": "AzureDiagnostics | where Category contains 'sqlserver' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "database",
+        "sqlserver",
+        "login-anomaly",
+        "sql"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AZ-DB-ORA-001",
+      "name": "Oracle — DBA Privilege Escalation",
+      "description": "Detects Oracle DBA privilege escalation attempts via GRANT DBA or ALTER USER",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'oracle' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "database",
+        "oracle",
+        "privilege-escalation",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-SQLITE-001",
+      "name": "SQLite — Direct File Access from Web",
+      "description": "Detects direct SQLite database file access from web applications",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'sqlite' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1083"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "sqlite",
+        "file-access",
+        "sql"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-DB-MONGO-001",
+      "name": "MongoDB — NoSQL Injection via $where",
+      "description": "Detects MongoDB $where operator injection for JavaScript execution",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'mongodb' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "mongodb",
+        "nosql-injection",
+        "nosql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-MONGO-002",
+      "name": "MongoDB — admin Database Unauthorized Access",
+      "description": "Detects unauthorized access to MongoDB admin database",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'mongodb' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1078.001"
+      ],
+      "compliance": [
+        "PCI-DSS-2.1"
+      ],
+      "tags": [
+        "database",
+        "mongodb",
+        "default-account",
+        "nosql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-DYNAMO-001",
+      "name": "DynamoDB — Excessive Scan Operations",
+      "description": "Detects excessive DynamoDB Scan operations indicating potential data exfiltration",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'dynamodb' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1213"
+      ],
+      "compliance": [
+        "GDPR-25-008"
+      ],
+      "tags": [
+        "database",
+        "dynamodb",
+        "data-exfiltration",
+        "nosql"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-DB-CASS-001",
+      "name": "Cassandra — Unauthorized CQL Command Execution",
+      "description": "Detects unauthorized CQL commands including ALTER, DROP, and GRANT operations",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'cassandra' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "database",
+        "cassandra",
+        "privilege-escalation",
+        "nosql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-COUCH-001",
+      "name": "CouchDB — Admin Party Mode",
+      "description": "Detects CouchDB admin party mode or unauthorized admin access",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'couchdb' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1078.001"
+      ],
+      "compliance": [
+        "PCI-DSS-2.1"
+      ],
+      "tags": [
+        "database",
+        "couchdb",
+        "default-account",
+        "nosql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-FIRE-001",
+      "name": "Firestore — Overly Permissive Security Rules",
+      "description": "Detects Firestore security rules allowing unauthenticated read/write access",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'firestore' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "firestore",
+        "misconfiguration",
+        "nosql"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-DB-NEO4J-001",
+      "name": "Neo4j — Cypher Injection Attack",
+      "description": "Detects Cypher injection attacks in Neo4j graph database queries",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'neo4j' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "neo4j",
+        "cypher-injection",
+        "graph"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-ARANGO-001",
+      "name": "ArangoDB — AQL Injection Detection",
+      "description": "Detects AQL injection attacks in ArangoDB queries",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'arangodb' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "arangodb",
+        "aql-injection",
+        "graph"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-DB-NEPTUNE-001",
+      "name": "Neptune — Gremlin/SPARQL Injection",
+      "description": "Detects Gremlin or SPARQL injection attacks against Amazon Neptune",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'neptune' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "neptune",
+        "graph-injection",
+        "graph"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-DB-INFLUX-001",
+      "name": "InfluxDB — Unauthorized Data Deletion",
+      "description": "Detects DROP DATABASE or DELETE SERIES commands in InfluxDB",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'influxdb' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1485"
+      ],
+      "compliance": [
+        "PCI-DSS-3.4"
+      ],
+      "tags": [
+        "database",
+        "influxdb",
+        "data-destruction",
+        "timeseries"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-TSCALE-001",
+      "name": "TimescaleDB — Hypertable Data Exfiltration",
+      "description": "Detects bulk data extraction from TimescaleDB hypertables",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'timescaledb' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1213"
+      ],
+      "compliance": [
+        "GDPR-25-008"
+      ],
+      "tags": [
+        "database",
+        "timescaledb",
+        "data-exfiltration",
+        "timeseries"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-DB-PROM-001",
+      "name": "Prometheus — Unauthorized Metric Scraping",
+      "description": "Detects unauthorized metric scraping from Prometheus endpoints revealing infrastructure details",
+      "severity": 2,
+      "query": "AzureDiagnostics | where Category contains 'prometheus' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1592"
+      ],
+      "compliance": [
+        "NIST-CM-7"
+      ],
+      "tags": [
+        "database",
+        "prometheus",
+        "information-disclosure",
+        "timeseries"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AZ-DB-PINE-001",
+      "name": "Pinecone — Namespace Isolation Bypass",
+      "description": "Detects cross-namespace data access in Pinecone vector database",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'pinecone' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1078"
+      ],
+      "compliance": [
+        "GDPR-25-003"
+      ],
+      "tags": [
+        "database",
+        "pinecone",
+        "vector",
+        "isolation-bypass"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-WEAV-001",
+      "name": "Weaviate — Tenant Data Isolation Failure",
+      "description": "Detects cross-tenant data access in Weaviate vector database",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'weaviate' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1078"
+      ],
+      "compliance": [
+        "GDPR-25-003"
+      ],
+      "tags": [
+        "database",
+        "weaviate",
+        "vector",
+        "isolation-bypass"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-MILV-001",
+      "name": "Milvus — Collection-Level Access Bypass",
+      "description": "Detects unauthorized collection access in Milvus vector database",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'milvus' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "database",
+        "milvus",
+        "vector",
+        "access-bypass"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-DB-CHROMA-001",
+      "name": "ChromaDB — Embedding Poisoning Detection",
+      "description": "Detects adversarial embedding vectors inserted into ChromaDB collections",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'chromadb' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1190"
+      ],
+      "compliance": [
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "database",
+        "chromadb",
+        "vector",
+        "embedding-poisoning"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-DB-QDRANT-001",
+      "name": "Qdrant — Payload Filter Injection",
+      "description": "Detects filter injection attacks in Qdrant vector search payloads",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'qdrant' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "qdrant",
+        "vector",
+        "filter-injection"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-DB-REDIS-001",
+      "name": "Redis — CONFIG GET Credential Exposure",
+      "description": "Detects Redis CONFIG commands targeting credentials or authentication configuration",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'redis' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS-3.4"
+      ],
+      "tags": [
+        "database",
+        "redis",
+        "credential-exposure",
+        "key-value"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-REDIS-002",
+      "name": "Redis — FLUSHALL/FLUSHDB Data Destruction",
+      "description": "Detects Redis FLUSHALL or FLUSHDB commands indicating potential data destruction",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'redis' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1485"
+      ],
+      "compliance": [
+        "PCI-DSS-3.4"
+      ],
+      "tags": [
+        "database",
+        "redis",
+        "data-destruction",
+        "key-value"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-DB-MEMC-001",
+      "name": "Memcached — Amplification Attack",
+      "description": "Detects Memcached amplification attacks via stats or get requests from external IPs",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'memcached' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1498"
+      ],
+      "compliance": [
+        "NIST-SC-5"
+      ],
+      "tags": [
+        "database",
+        "memcached",
+        "amplification",
+        "key-value"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-DB-HBASE-001",
+      "name": "HBase — Unauthorized ACL Modification",
+      "description": "Detects unauthorized ACL modifications in HBase including grant and revoke operations",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'hbase' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "database",
+        "hbase",
+        "acl-modification",
+        "column-family"
+      ],
+      "risk_score": 90
+    }
+  ]
+}

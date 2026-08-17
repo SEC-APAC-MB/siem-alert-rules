@@ -1,0 +1,1024 @@
+<!-- FortiSIEM SIEM Alert Rules — AI/LLM Security -->
+<rules>
+  <rule id="FSIEM-AISEC-001" severity="CRITICAL" enabled="true">
+    <name>LLM Prompt Injection - Direct</name>
+    <description>Detects direct prompt injection attempts targeting LLM interfaces</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt|ask|query|ai|llm|gpt|claude).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(ignore previous instructions|disregard above|forget everything|new instructions|you are now|pretend you are|act as if|system prompt|override).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-01</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-002" severity="CRITICAL" enabled="true">
+    <name>LLM Prompt Injection - Indirect</name>
+    <description>Detects indirect prompt injection via external data sources</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt|ask|query|ai|llm).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(\[\[INST\]\]|\[\/INST\]|&lt;|im_start|&lt;/s&gt;|&lt;s&gt;|### Instruction|### System|### Human|### Assistant).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-01</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-003" severity="HIGH" enabled="true">
+    <name>LLM Sensitive Data Extraction</name>
+    <description>Detects attempts to extract training data or system prompts from LLM</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt|ask|query|ai|llm).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(repeat your instructions|what are your instructions|show me your prompt|what were you told|output your system prompt|reveal your training data|what data were you trained on).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-02</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-004" severity="HIGH" enabled="true">
+    <name>LLM Data Poisoning Input</name>
+    <description>Detects potential data poisoning inputs to AI training pipelines</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(train|feedback|label|annotate|dataset|upload-data|ingest).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(ignore|disregard|override|bypass|skip validation|malicious|poison).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1562</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-03</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-005" severity="CRITICAL" enabled="true">
+    <name>LLM Unauthorized Tool/Function Call</name>
+    <description>Detects attempts to invoke unauthorized functions through LLM</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt|function-call|tool-use).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(execute|run_command|shell|os\.system|subprocess|eval\(|exec\(|import os|__import__|delete_files|rm -rf|format_disk|drop_table|TRUNCATE).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Execution</tactic>
+      <technique>T1059</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-06</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-006" severity="HIGH" enabled="true">
+    <name>AI Model Evasion - Adversarial Input</name>
+    <description>Detects adversarial inputs designed to evade AI content moderation</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|moderate|classify|analyze).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(base64|rot13|hex_encode|unicode_escape|zero-width|homoglyph|confusable|l33tsp34k|character substitution|character splitting).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1562</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-04</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-007" severity="MEDIUM" enabled="true">
+    <name>AI Model DoS - Excessive Token Consumption</name>
+    <description>Detects denial of service through excessive LLM token consumption</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt).*</url>
+        <http_method>POST</http_method>
+        <content_length regex="true">>50000</content_length>
+        <count regex="true">>10</count>
+        <time_window>60</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>OWASP-LLM-05</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-008" severity="HIGH" enabled="true">
+    <name>LLM Supply Chain - Untrusted Plugin</name>
+    <description>Detects use of untrusted or unauthorized LLM plugins/extensions</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(plugin|extension|tool|integration|connector|addon).*</url>
+        <http_method regex="true">POST|PUT</http_method>
+        <content regex="true">.*"(source|url|repository|download)".*(untrusted|unknown|third.party|external).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SA-12</control>
+    </compliance>
+    <references>OWASP-LLM-05</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-009" severity="HIGH" enabled="true">
+    <name>PII Leakage via LLM Response</name>
+    <description>Detects potential PII leakage in LLM responses</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt).*</url>
+        <http_method>POST</http_method>
+        <response_code>200</response_code>
+        <response_content regex="true">.*(\b\d{3}[-.]?\d{2}[-.]?\d{4}\b|\b\d{3}-\d{2}-\d{4}\b|\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b|\b\d{16}\b|\b4\d{3}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b).*</response_content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+    </compliance>
+    <references>OWASP-LLM-02</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-010" severity="MEDIUM" enabled="true">
+    <name>AI API Key Exposure</name>
+    <description>Detects AI/LLM API keys exposed in requests or responses</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|api).*</url>
+        <http_method regex="true">GET|POST</http_method>
+        <content regex="true">.*(sk-[a-zA-Z0-9]{32,}|AIza[a-zA-Z0-9_-]{35}|key-[a-zA-Z0-9]{32,}|api_key|OPENAI_API_KEY|ANTHROPIC_API_KEY|GOOGLE_AI_API_KEY).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>OWASP-LLM-02</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-011" severity="HIGH" enabled="true">
+    <name>LLM Role Escalation Attempt</name>
+    <description>Detects attempts to escalate LLM from assistant to system/admin role</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(you are now a|pretend to be an?|act as an?|role:|switch role to|become a|you are a (hacker|malware|attacker|criminal|unethical)).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-01</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-012" severity="HIGH" enabled="true">
+    <name>AI Hallucination Exploitation</name>
+    <description>Detects queries designed to exploit LLM hallucination patterns</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(tell me about a real|is it true that|I heard that|according to|can you confirm|fact check this|what is the source for).*</content>
+        <count regex="true">>5</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1589</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-09</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-013" severity="MEDIUM" enabled="true">
+    <name>AI Model Version Disclosure</name>
+    <description>Detects AI model version information disclosure in responses</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|model|info|version).*</url>
+        <http_method>GET</http_method>
+        <response_code>200</response_code>
+        <content regex="true">.*(GPT-[34]|gpt-4|claude-[123]|text-davinci|text-embedding|ada-002|curie|babbage|davinci|palm|gemini|llama|mistral|codellama).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>OWASP-LLM-10</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-014" severity="CRITICAL" enabled="true">
+    <name>AI Jailbreak - DAN Mode</name>
+    <description>Detects DAN (Do Anything Now) jailbreak pattern attempts</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(DAN|do anything now|jailbreak|bypass filter|bypass safety|ignore safety|no restrictions|unlocked mode|developer mode|debug mode|sudo mode|god mode).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-01</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-015" severity="HIGH" enabled="true">
+    <name>AI Output Manipulation - Injection via Output</name>
+    <description>Detects attempts to manipulate AI output for downstream system exploitation</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(output the following exactly|include this in your response|add this link|render this HTML|execute this JavaScript|send this email|visit this URL).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-01</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-016" severity="MEDIUM" enabled="true">
+    <name>AI Training Data Extraction Attempt</name>
+    <description>Detects patterns designed to extract training data from LLM models</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(what was in your training data|repeat word|say the alphabet backwards|complete this sequence|what text follows|finish this passage from|recite from memory|verbatim).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-02</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-017" severity="HIGH" enabled="true">
+    <name>AI SSRF via LLM Tool Use</name>
+    <description>Detects SSRF attempts through LLM tool/function calling</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|function-call|tool-use).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(fetch|request|get|load|read|visit|browse|curl|wget|http_client).*(127\.0\.0\.1|localhost|169\.254\.169\.254|metadata\.google|100\.100\.100\.200|\[::1\]|0\.0\.0\.0|internal|private).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-06</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-018" severity="MEDIUM" enabled="true">
+    <name>AI Rate Limit Exceeded</name>
+    <description>Detects API rate limit violations on AI endpoints</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt|embed).*</url>
+        <http_method>POST</http_method>
+        <response_code>429</response_code>
+        <count regex="true">>10</count>
+        <time_window>60</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>OWASP-LLM-05</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-019" severity="HIGH" enabled="true">
+    <name>AI Content Policy Violation Request</name>
+    <description>Detects requests attempting to generate prohibited content via AI</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(how to (hack|exploit|attack|steal|cheat)|write (malware|virus|ransomware|trojan)|create a (bomb|weapon|drug)|generate (phishing|spam|fraud)|bypass (security|authentication|encryption|filter|firewall)).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1589</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-09</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-020" severity="MEDIUM" enabled="true">
+    <name>AI Model Input Token Limit Exceeded</name>
+    <description>Detects inputs exceeding AI model token limits indicating abuse</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|embed).*</url>
+        <http_method>POST</http_method>
+        <content_length regex="true">>100000</content_length>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>OWASP-LLM-05</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-021" severity="HIGH" enabled="true">
+    <name>AI Prompt Leakage via System Message</name>
+    <description>Detects attempts to extract system prompts through probing</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(what is your system prompt|what are your rules|what constraints|what are you not allowed|what can't you do|what is your personality|what is your character|output everything above|repeat the instructions).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-02</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-022" severity="MEDIUM" enabled="true">
+    <name>AI Embedding Poisoning Detection</name>
+    <description>Detects potential embedding/vector store poisoning attempts</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(embed|vector|knowledge|ingest|train|upload|add-document).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(malicious|poisoned|adversarial|backdoor|trigger word|hidden instruction|invisible text).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1562</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-03</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-023" severity="HIGH" enabled="true">
+    <name>AI Unauthorized Access to Internal Systems</name>
+    <description>Detects LLM attempts to access internal systems via tool calls</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|function-call|tool-use).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(database_query|run_sql|execute_query|file_read|system_command|shell_exec|api_call|internal_request|admin_panel|backend_access).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-06</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-024" severity="MEDIUM" enabled="true">
+    <name>AI Agent Loop Detection</name>
+    <description>Detects infinite or excessive AI agent loops</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|agent|execute).*</url>
+        <http_method>POST</http_method>
+        <same_conversation_turns regex="true">>20</same_conversation_turns>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>OWASP-LLM-05</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-025" severity="CRITICAL" enabled="true">
+    <name>AI RAG Data Exfiltration</name>
+    <description>Detects attempts to exfiltrate data from RAG (Retrieval Augmented Generation) systems</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|query|search|retrieve).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(show me all|list all|dump all|export all|download|give me the full document|repeat verbatim|copy the entire|output everything you know about).*</content>
+        <response_contains regex="true">.*(SSN|social security|credit card|password|API key|secret|private key|internal memo|confidential).*</response_contains>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1567</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+    </compliance>
+    <references>OWASP-LLM-02</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-026" severity="MEDIUM" enabled="true">
+    <name>AI Model Metadata Exposure</name>
+    <description>Detects AI model metadata endpoints accessible without authentication</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(models|v1/models|model/info|model/config|health|metrics|debug|config|info|status|version).*</url>
+        <http_method>GET</http_method>
+        <response_code>200</response_code>
+        <content regex="true">.*(model_name|model_version|model_id|training_data|parameters|weights|architecture).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>OWASP-LLM-10</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-027" severity="HIGH" enabled="true">
+    <name>AI Prompt Smuggling</name>
+    <description>Detects hidden prompts embedded in data meant for LLM processing</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|summarize|analyze|translate).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(\x00|\x01|\x1b|\u200b|\u200c|\u200d|\ufeff|zero.width|invisible.letter|soft.hyphen).*(ignore|disregard|override|new instruction|system:).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-01</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-028" severity="MEDIUM" enabled="true">
+    <name>AI Excessive Automation Requests</name>
+    <description>Detects automated/bot-like interaction patterns with AI endpoints</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|prompt).*</url>
+        <http_method>POST</http_method>
+        <count regex="true">>30</count>
+        <time_window>60</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>OWASP-LLM-05</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-029" severity="HIGH" enabled="true">
+    <name>AI Cross-Tenant Data Access</name>
+    <description>Detects AI system responses containing data from other tenants</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|query).*</url>
+        <http_method>POST</http_method>
+        <response_code>200</response_code>
+        <tenant_mismatch regex="true">true</tenant_mismatch>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>HIPAA</standard>
+      <control>164.312(a)</control>
+      <standard>NIST</standard>
+      <control>AC-4</control>
+    </compliance>
+    <references>OWASP-LLM-07</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-030" severity="MEDIUM" enabled="true">
+    <name>AI Model Denial of Service - Resource Exhaustion</name>
+    <description>Detects AI resource exhaustion attacks targeting GPU/compute</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|embed).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">503|504|429</response_code>
+        <count regex="true">>5</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>OWASP-LLM-05</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-031" severity="HIGH" enabled="true">
+    <name>AI Generated Malicious Content Output</name>
+    <description>Detects AI-generated outputs containing malicious code or exploit material</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate).*</url>
+        <http_method>POST</http_method>
+        <response_code>200</response_code>
+        <response_content regex="true">.*(eval\s*\(|exec\s*\(|os\.system|subprocess|shell_exec|passthru|system\(|Runtime\.getRuntime|ProcessBuilder|&lt;script.*&gt;|onerror\s*=|onload\s*=|document\.cookie).*</response_content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Execution</tactic>
+      <technique>T1059</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-09</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-032" severity="MEDIUM" enabled="true">
+    <name>AI Bias Exploitation Attempt</name>
+    <description>Detects attempts to exploit AI model biases for discriminatory outputs</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate|classify|score).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(which (race|gender|ethnicity|religion|nationality) is|are (women|men|muslims|christians|jews|asians|blacks|whites) more likely|stereotype about|discriminatory|biased against).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1589</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>22</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-09</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-033" severity="MEDIUM" enabled="true">
+    <name>AI API Unauthorized Model Access</name>
+    <description>Detects access to AI model endpoints by unauthorized users</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(v1|v2|api)\/(models|chat|completions|embeddings|images|audio|moderations).*</url>
+        <http_method regex="true">GET|POST</http_method>
+        <response_code regex="true">200|201</response_code>
+        <user_role regex="true">!(user|admin|developer)</user_role>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>AC-3</control>
+    </compliance>
+    <references>OWASP-LLM-07</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-034" severity="HIGH" enabled="true">
+    <name>AI Supply Chain - Compromised Plugin Execution</name>
+    <description>Detects execution of AI plugins with suspicious behavior patterns</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(plugin|tool|function|action|execute|run).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(file_system|network_access|database_query|shell_exec|process_create|registry_modify|install_package|download_file).*</content>
+        <response_code regex="true">200|201</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Execution</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-05</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-035" severity="MEDIUM" enabled="true">
+    <name>AI Response Manipulation Detection</name>
+    <description>Detects manipulated AI responses cached or stored for downstream use</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(cache|response|store|save).*</url>
+        <http_method regex="true">POST|PUT</http_method>
+        <content regex="true">.*( tampered|modified|injected|malicious).*</content>
+        <integrity_check regex="true">failed</integrity_check>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1562</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-09</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-036" severity="HIGH" enabled="true">
+    <name>AI Context Window Exhaustion Attack</name>
+    <description>Detects attacks designed to exhaust AI context windows for information leakage</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate).*</url>
+        <http_method>POST</http_method>
+        <content_length regex="true">>200000</content_length>
+        <same_source_ip regex="true">true</same_source_ip>
+        <count regex="true">>3</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>OWASP-LLM-05</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-037" severity="MEDIUM" enabled="true">
+    <name>AI Hallucinated Citation Detection</name>
+    <description>Detects AI responses containing fabricated citations or references</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate).*</url>
+        <http_method>POST</http_method>
+        <response_code>200</response_code>
+        <response_content regex="true">.*(doi:|arXiv:|ISBN|PMID:|US Patent|according to (study|research|paper|report)).*</response_content>
+        <citation_verified regex="true">false</citation_verified>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1589</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-09</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-038" severity="CRITICAL" enabled="true">
+    <name>AI System Prompt Extraction via Multi-Turn</name>
+    <description>Detects multi-turn conversations designed to extract system prompts</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(chat|completion|generate).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(summarize your instructions|list your rules|what can't you|what are your limitations|what were you told not to|what is the first thing you were told|repeat everything above this line).*</content>
+        <conversation_turn regex="true">>3</conversation_turn>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-LLM-02</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-039" severity="MEDIUM" enabled="true">
+    <name>AI Data Retention Policy Violation</name>
+    <description>Detects AI conversations retained beyond policy limits</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(conversations?|history|sessions?|logs?).*</url>
+        <http_method>GET</http_method>
+        <response_code>200</response_code>
+        <data_age_days regex="true">>90</data_age_days>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>5</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>OWASP-LLM-07</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+
+  <rule id="FSIEM-AISEC-040" severity="HIGH" enabled="true">
+    <name>AI Shadow IT Model Usage</name>
+    <description>Detects unauthorized AI/ML model endpoints in the environment</description>
+    <pattern>
+      <event>
+        <product>Network</product>
+        <destination_port regex="true">8000|8080|8081|8888|9000|5000|5001|4000|11434</destination_port>
+        <url regex="true">.*\/(v1|api)\/(chat|completions|generate|embed).*</url>
+        <http_method>POST</http_method>
+        <unauthorized_endpoint regex="true">true</unauthorized_endpoint>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>OWASP-LLM-05</references>
+    <action>ALERT</action>
+    <group>ai_security</group>
+  </rule>
+</rules>

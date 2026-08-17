@@ -1,0 +1,1093 @@
+<!--
+  Wazuh SIEM Alert Rules — WSTG 04-09 (Authentication, Authorization, Session, Input Validation, Client-Side)
+  Mapped from: security-testing-pentest/config/tests/
+  Total rules: 310
+  Rule ID format: WZ-CAT-NUM (CAT: ATHN, ATHZ, SESS, INPV, CLNT)
+-->
+<group name="wazuh,wstg,authentication,authorization,session_management,input_validation,client_side">
+
+  <!-- ============================================================ -->
+  <!-- WSTG-ATHN: Authentication Testing -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-ATHN-001" level="8" group="authentication,encryption">
+    <description>Credentials transmitted over unencrypted channel — HTTP login without TLS detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-01</field>
+    <field name="zap_rules">10106,10035,10040</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1040</id>
+      <tactic>Credential Access</tactic>
+      <technique>Network Sniffing</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>4.1</pci_dss>
+      <nist_800_53>SC-8</nist_800_53>
+      <hipaa>§164.312(e)(1)</hipaa>
+    </compliance>
+    <match>password=|passwd=|login=|username=|credential=</match>
+  </rule>
+
+  <rule id="WZ-ATHN-002" level="12" group="authentication,default_credentials">
+    <description>Default credentials detected — factory/default password authentication attempt</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-02</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1078.001</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts — Default Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.6</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+      <hipaa>§164.312(d)</hipaa>
+      <nis2>Art.21(2)(e)</nis2>
+    </compliance>
+    <regex>admin:admin|root:root|admin:password|admin:12345|tomcat:tomcat|test:test</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-003" level="7" group="authentication,lockout">
+    <description>Weak account lockout — multiple failed login attempts without lockout</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-03</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1110</id>
+      <tactic>Credential Access</tactic>
+      <technique>Brute Force</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.5</pci_dss>
+      <nist_800_53>AC-7</nist_800_53>
+    </compliance>
+    <regex>login.*failed|authentication.*failed|401.*Unauthorized</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-004" level="12" group="authentication,bypass">
+    <description>Authentication schema bypass — access to protected resource without valid credentials</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-04</field>
+    <field name="zap_rules">10101,40038</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.5</pci_dss>
+      <nist_800_53>AC-3</nist_800_53>
+      <hipaa>§164.312(d)</hipaa>
+    </compliance>
+    <match>/admin.*200|/dashboard.*200|/api/user/profile.*200</match>
+  </rule>
+
+  <rule id="WZ-ATHN-005" level="5" group="authentication,cookie">
+    <description>Vulnerable remember-me password — credentials stored insecurely in cookies</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-05</field>
+    <field name="zap_rules">10010,10011,10054</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1552</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.6</pci_dss>
+    </compliance>
+    <regex>remember_me=|authtoken=|persistent_token=|password=</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-009" level="7" group="authentication,password_reset">
+    <description>Weak password change/reset mechanism — token predictability or missing old password check</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-09</field>
+    <field name="zap_rules">40023</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.5</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+    </compliance>
+    <match>/reset-password|/change-password|/forgot-password</match>
+  </rule>
+
+  <rule id="WZ-ATHN-011" level="8" group="authentication,mfa">
+    <description>Multi-factor authentication bypass — access granted without second factor verification</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-11</field>
+    <field name="zap_rules">10101</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.3</pci_dss>
+      <nist_800_53>IA-2</nist_800_53>
+      <hipaa>§164.312(d)</hipaa>
+      <dora>Art.10</dora>
+    </compliance>
+    <match>/mfa/bypass|/otp/skip|/verify.*200.*no.*2fa|mfa_verified=false</match>
+  </rule>
+
+  <rule id="WZ-ATHN-012" level="12" group="authentication,credential_stuffing">
+    <description>Credential stuffing attack detected — multiple authentication attempts with different credentials</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-12</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1110.003</id>
+      <tactic>Credential Access</tactic>
+      <technique>Password Spraying</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.5</pci_dss>
+      <nist_800_53>AC-7</nist_800_53>
+      <nis2>Art.21(2)(b)</nis2>
+    </compliance>
+    <regex>login.*failed.*\d+.*attempts|authentication_failure|401.*from.*same.*IP</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-013" level="7" group="authentication,data_exposure">
+    <description>Password policy data exposure in API responses — password requirements leaked in error messages</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-13</field>
+    <field name="zap_rules">10024,10025</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1087.002</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <regex>password.*must.*contain|password.*policy|password.*requirements|password.*min.*length</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-015" level="12" group="authentication,database,credential_exposure">
+    <description>Credential data at rest — weak password hashing algorithm detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-15</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1552</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.6</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+      <hipaa>§164.312(a)(1)</hipaa>
+      <dora>Art.10</dora>
+    </compliance>
+    <regex>md5\$|sha1\$|sha256\$.*rounds=1\b|password.*hash.*md5|password.*hash.*sha1</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-018" level="12" group="authentication,mfa,race_condition">
+    <description>MFA bypass via race condition in enrollment flow — concurrent request manipulation</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-18</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.3</pci_dss>
+      <nist_800_53>IA-2</nist_800_53>
+    </compliance>
+    <match>/mfa/enroll|/mfa/verify|/otp/verify|/2fa/setup</match>
+  </rule>
+
+  <rule id="WZ-ATHN-019" level="12" group="authentication,mfa">
+    <description>MFA bypass via predictable OTP seeds — time-based OTP prediction</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-19</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.3</pci_dss>
+      <nist_800_53>IA-2</nist_800_53>
+    </compliance>
+    <match>/otp/generate|/totp/verify|/mfa/validate</match>
+  </rule>
+
+  <rule id="WZ-ATHN-024" level="12" group="authentication,database,redis">
+    <description>Redis session store credential exposure — unauthenticated Redis containing auth data</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-24</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+    </compliance>
+    <regex>CONFIG GET requirepass|redis.*AUTH|session.*redis|CONFIG SET requirepass</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-025" level="12" group="authentication,database,postgresql">
+    <description>PostgreSQL pg_authid credential exposure — database auth credentials leaked</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-25</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+    </compliance>
+    <regex>pg_authid|rolpassword|postgres.*md5|pg_shadow</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-026" level="12" group="authentication,database,mysql">
+    <description>MySQL mysql.user table credential hash exposure — password hashes accessible</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-26</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+    </compliance>
+    <regex>mysql\.user|authentication_string|mysql_native_password|caching_sha2_password</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-027" level="12" group="authentication,database,sqlserver">
+    <description>SQL Server sys.sql_logins password hash exposure — login credential data leaked</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-27</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+    </compliance>
+    <regex>sys\.sql_logins|password_hash|is_policy_checked|LOGIN.*HASHBYTES</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-029" level="12" group="authentication,database,mongodb">
+    <description>MongoDB admin database credential storage audit — authentication data exposed</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-29</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+    </compliance>
+    <regex>admin\.system\.users|mongodb.*credential|SCRAM-SHA-256|mongo.*auth</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-044" level="12" group="authentication,nosql_injection,credential_stuffing">
+    <description>Credential stuffing via NoSQL injection in MongoDB authentication — auth bypass detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-44</field>
+    <field name="zap_rules">40028</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>\$ne:|'\$gt':|{"\$regex":|{"\$where":</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-054" level="12" group="authentication,jwt,sql_injection">
+    <description>Authentication bypass via JWT kid SQL injection — JWT header parameter injection</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-54</field>
+    <field name="zap_rules">40036</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1606</id>
+      <tactic>Credential Access</tactic>
+      <technique>Forge Credentials</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+    </compliance>
+    <regex>"kid":\s*"[^"]*'.*--|"kid":\s*"[^"]*UNION|kid.*SQL|kid.*SELECT</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-057" level="12" group="authentication,cloud,credential_exposure">
+    <description>Authentication data in cloud metadata service — AWS/GCP/Azure credentials exposed</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-57</field>
+    <field name="zap_rules">10057</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1552.005</id>
+      <tactic>Credential Access</tactic>
+      <technique>Cloud Metadata</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+      <nis2>Art.21(2)(e)</nis2>
+    </compliance>
+    <regex>169\.254\.169\.254/latest/meta-data/iam/security-credentials|/computeMetadata/|/metadata/instance</regex>
+  </rule>
+
+  <rule id="WZ-ATHN-059" level="12" group="authentication,kubernetes,credential_exposure">
+    <description>Authentication secret exposure in Kubernetes secrets — service account tokens leaked</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHN-59</field>
+    <field name="category">authentication</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>IA-5</nist_800_53>
+      <nis2>Art.21(2)(e)</nis2>
+    </compliance>
+    <regex>/var/run/secrets/kubernetes\.io/serviceaccount/token|kubernetes.*secret|service-account.*token</regex>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- WSTG-ATHZ: Authorization Testing -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-ATHZ-001" level="10" group="authorization,path_traversal">
+    <description>Directory traversal — path traversal attack accessing files outside web root</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-01</field>
+    <field name="zap_rules">6,7,40032,40034,40035</field>
+    <field name="category">authorization</field>
+    <mitre>
+      <id>T1083</id>
+      <tactic>Discovery</tactic>
+      <technique>File and Directory Discovery</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-4</nist_800_53>
+    </compliance>
+    <regex>\.\./|\.\.\\|%2e%2e%2f|%2e%2e/|\.\.%2f|%2e%2e%5c</regex>
+  </rule>
+
+  <rule id="WZ-ATHZ-002" level="10" group="authorization,bypass">
+    <description>Authorization schema bypass — accessing resources without proper permissions</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-02</field>
+    <field name="zap_rules">40038,10101,10102</field>
+    <field name="category">authorization</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-3</nist_800_53>
+      <hipaa>§164.312(a)(1)</hipaa>
+    </compliance>
+    <match>/admin/.*200.*role=user|/api/user/.*200.*role=viewer|403.*bypass</match>
+  </rule>
+
+  <rule id="WZ-ATHZ-003" level="12" group="authorization,privilege_escalation">
+    <description>Privilege escalation — user accessing admin-level resources or actions</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-03</field>
+    <field name="zap_rules">10101,10102,40008</field>
+    <field name="category">authorization</field>
+    <mitre>
+      <id>T1548</id>
+      <tactic>Privilege Escalation</tactic>
+      <technique>Abuse Elevation Control Mechanism</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.5</pci_dss>
+      <nist_800_53>AC-3</nist_800_53>
+      <hipaa>§164.312(a)(1)</hipaa>
+    </compliance>
+    <match>role=admin|isAdmin=true|privilege=superuser|permission=elevated</match>
+  </rule>
+
+  <rule id="WZ-ATHZ-004" level="10" group="authorization,idor">
+    <description>Insecure Direct Object Reference — accessing resources belonging to other users</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-04</field>
+    <field name="zap_rules">10057,40008</field>
+    <field name="category">authorization</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-4</nist_800_53>
+      <hipaa>§164.312(a)(1)</hipaa>
+    </compliance>
+    <regex>/users/\d+/|/orders/\d+/|/accounts/\d+/|/documents/[a-f0-9-]+/</regex>
+  </rule>
+
+  <rule id="WZ-ATHZ-005" level="10" group="authorization,oauth">
+    <description>OAuth weakness — token leakage, redirect URI manipulation, or scope escalation</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-05</field>
+    <field name="zap_rules">100026,40036</field>
+    <field name="category">authorization</field>
+    <mitre>
+      <id>T1528</id>
+      <tactic>Credential Access</tactic>
+      <technique>Theft of Access Tokens</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-3</nist_800_53>
+    </compliance>
+    <match>access_token=|code=|redirect_uri=|scope=openid+profile+email</match>
+  </rule>
+
+  <rule id="WZ-ATHZ-007" level="12" group="authorization,bola">
+    <description>BOLA on data objects via sequential ID enumeration — mass data access via IDOR</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-07</field>
+    <field name="zap_rules">10057,40008</field>
+    <field name="category">authorization</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-4</nist_800_53>
+      <hipaa>§164.312(a)(1)</hipaa>
+    </compliance>
+    <regex>/api/v[12]/(users|orders|records)/\d+|/api/.*\?id=\d+|/resource/\d{4,}</regex>
+  </rule>
+
+  <rule id="WZ-ATHZ-011" level="12" group="authorization,database,postgresql">
+    <description>PostgreSQL Row-Level Security bypass — tenant data isolation failure</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-11</field>
+    <field name="category">authorization</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <nist_800_53>AC-4</nist_800_53>
+    </compliance>
+    <match>ROW LEVEL SECURITY|rls.*disabled|FORCE ROW LEVEL SECURITY|policy.*USING</match>
+  </rule>
+
+  <rule id="WZ-ATHZ-015" level="12" group="authorization,database,mongodb">
+    <description>MongoDB document-level access control bypass — unauthorized document access</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-15</field>
+    <field name="zap_rules">40028</field>
+    <field name="category">authorization</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <nist_800_53>AC-4</nist_800_53>
+    </compliance>
+    <regex>\$where.*this\.(role|tenant)|\$expr.*\$ne|find\(.*\$or:.*\$eq</regex>
+  </rule>
+
+  <rule id="WZ-ATHZ-036" level="12" group="authorization,sql_injection">
+    <description>Authorization bypass via SQL injection in access control queries</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-36</field>
+    <field name="zap_rules">40032</field>
+    <field name="category">authorization</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-4</nist_800_53>
+    </compliance>
+    <regex>SELECT.*FROM.*WHERE.*role.*OR.*1=1|UNION.*SELECT.*FROM.*users|WHERE.*id.*=.*OR.*--</regex>
+  </rule>
+
+  <rule id="WZ-ATHZ-039" level="12" group="authorization,multi_tenant">
+    <description>Cross-tenant data access via shared database connection pool — tenant boundary bypass</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-39</field>
+    <field name="category">authorization</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <nist_800_53>AC-4</nist_800_53>
+      <hipaa>§164.312(a)(1)</hipaa>
+    </compliance>
+    <match>tenant_id.*=.*\d+|organization_id.*=.*\d+|cross.*tenant|pool.*shared</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- WSTG-SESS: Session Management Testing -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-SESS-001" level="8" group="session_management,cookie">
+    <description>Session management schema — insecure session cookie attributes detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-SESS-01</field>
+    <field name="zap_rules">10010,10011,10054,90033</field>
+    <field name="category">session_management</field>
+    <mitre>
+      <id>T1534</id>
+      <tactic>Lateral Movement</tactic>
+      <technique>Internal Spearphishing</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-10</nist_800_53>
+    </compliance>
+    <regex>Set-Cookie:.*session=|Set-Cookie:.*PHPSESSID|Set-Cookie:.*JSESSIONID</regex>
+  </rule>
+
+  <rule id="WZ-SESS-003" level="12" group="session_management,fixation">
+    <description>Session fixation — session ID not regenerated after authentication</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-SESS-03</field>
+    <field name="zap_rules">40013</field>
+    <field name="category">session_management</field>
+    <mitre>
+      <id>T1534</id>
+      <tactic>Lateral Movement</tactic>
+      <technique>Internal Spearphishing</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-10</nist_800_53>
+    </compliance>
+    <match>sessionid.*before.*login.*=.*sessionid.*after.*login</match>
+  </rule>
+
+  <rule id="WZ-SESS-005" level="8" group="session_management,csrf">
+    <description>Cross-Site Request Forgery — CSRF token missing or invalid</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-SESS-05</field>
+    <field name="zap_rules">10202,20012</field>
+    <field name="category">session_management</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-10</nist_800_53>
+    </compliance>
+    <match>csrf_token=|_csrf=|X-CSRF-Token|anti_forgery_token</match>
+  </rule>
+
+  <rule id="WZ-SESS-009" level="12" group="session_management,hijacking">
+    <description>Session hijacking — session token theft or replay detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-SESS-09</field>
+    <field name="zap_rules">3,10106,10035</field>
+    <field name="category">session_management</field>
+    <mitre>
+      <id>T1534</id>
+      <tactic>Lateral Movement</tactic>
+      <technique>Internal Spearphishing</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-10</nist_800_53>
+      <hipaa>§164.312(a)(1)</hipaa>
+    </compliance>
+    <regex>session.*IP.*change|session.*concurrent|same.*session.*different.*IP</regex>
+  </rule>
+
+  <rule id="WZ-SESS-010" level="8" group="session_management,jwt">
+    <description>JSON Web Token vulnerability — weak signing algorithm, key confusion, or none algorithm</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-SESS-10</field>
+    <field name="zap_rules">40036,100026,200003</field>
+    <field name="category">session_management</field>
+    <mitre>
+      <id>T1606</id>
+      <tactic>Credential Access</tactic>
+      <technique>Forge Credentials</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+    </compliance>
+    <regex>"alg":\s*"none"|"alg":\s*"HS256".*"kid"|eyJ.*\.eyJ.*\.([A-Za-z0-9_-]+)</regex>
+  </rule>
+
+  <rule id="WZ-SESS-018" level="12" group="session_management,database,redis">
+    <description>Redis session store unencrypted — session data exposed at rest without encryption</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-SESS-18</field>
+    <field name="category">session_management</field>
+    <mitre>
+      <id>T1552</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>3.4</pci_dss>
+    </compliance>
+    <match>redis.*session|session.*redis|redis-cli.*GET.*session</match>
+  </rule>
+
+  <rule id="WZ-SESS-049" level="12" group="session_management,sql_injection">
+    <description>Session token leakage via SQL injection in session lookup query</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-SESS-49</field>
+    <field name="zap_rules">40032</field>
+    <field name="category">session_management</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>SELECT.*session.*FROM.*WHERE.*session_id.*'.*OR.*1=1|UNION.*SELECT.*session</regex>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- WSTG-INPV: Input Validation Testing -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-INPV-001" level="10" group="input_validation,xss">
+    <description>Reflected Cross-Site Scripting — user input reflected without encoding in response</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-01</field>
+    <field name="zap_rules">40012,40031,40101</field>
+    <field name="category">input_validation</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-10</nist_800_53>
+    </compliance>
+    <regex>&lt;script&gt;|javascript:|onerror=|onload=|&lt;img.*onerror|alert\(.*\)</regex>
+  </rule>
+
+  <rule id="WZ-INPV-002" level="12" group="input_validation,xss_stored">
+    <description>Stored Cross-Site Scripting — persistent XSS payload stored in application database</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-02</field>
+    <field name="zap_rules">40014,40016,40017,40102</field>
+    <field name="category">input_validation</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-10</nist_800_53>
+    </compliance>
+    <regex>stored.*xss|persistent.*xss|&lt;script&gt;.*&lt;/script&gt;|onmouseover=|onfocus=</regex>
+  </rule>
+
+  <rule id="WZ-INPV-005" level="12" group="input_validation,sql_injection">
+    <description>SQL injection — database query manipulation via unsanitized user input</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-05</field>
+    <field name="zap_rules">40018,40019,40020,40021,40022,40023,40024,40027,90018,200000</field>
+    <field name="category">input_validation</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-10</nist_800_53>
+      <hipaa>§164.312(a)(1)</hipaa>
+    </compliance>
+    <regex>('|\)|;|--|OR\s+1=1|UNION\s+SELECT|'.*DROP\s+TABLE|1'\s+OR\s+'1'='1)</regex>
+  </rule>
+
+  <rule id="WZ-INPV-011" level="12" group="input_validation,code_injection">
+    <description>Code injection — arbitrary code execution via unsanitized input</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-11</field>
+    <field name="zap_rules">90019,40018</field>
+    <field name="category">input_validation</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-10</nist_800_53>
+    </compliance>
+    <regex>\b(eval|exec|system|passthru|shell_exec|popen)\s*\(</regex>
+  </rule>
+
+  <rule id="WZ-INPV-012" level="12" group="input_validation,command_injection">
+    <description>Command injection — OS command execution via unsanitized input</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-12</field>
+    <field name="zap_rules">90020,90037</field>
+    <field name="category">input_validation</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-10</nist_800_53>
+    </compliance>
+    <regex>[;&|`].*(?:cat|ls|id|whoami|uname|pwd|wget|curl|ping|nslookup)\b</regex>
+  </rule>
+
+  <rule id="WZ-INPV-016" level="12" group="input_validation,http_smuggling">
+    <description>HTTP request smuggling — desync between front-end and back-end servers</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-16</field>
+    <field name="zap_rules">40003</field>
+    <field name="category">input_validation</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>Transfer-Encoding:\s*chunked.*Content-Length:|Content-Length:\s*\d+.*Transfer-Encoding:\s*chunked</regex>
+  </rule>
+
+  <rule id="WZ-INPV-018" level="12" group="input_validation,ssti">
+    <description>Server-Side Template Injection — template engine code execution via user input</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-18</field>
+    <field name="zap_rules">90035,90036,100033</field>
+    <field name="category">input_validation</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>\{\{.*\}\}|\$\{.*\}|\{%.*%\}|#set\(|\{\{.*__class__.*\}\}|thymeleaf.*__</regex>
+  </rule>
+
+  <rule id="WZ-INPV-019" level="12" group="input_validation,ssrf">
+    <description>Server-Side Request Forgery — internal resource access via manipulated URL input</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-19</field>
+    <field name="zap_rules">40046,90034</field>
+    <field name="category">input_validation</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-10</nist_800_53>
+    </compliance>
+    <regex>url=http://127\.0\.0\.1|url=http://localhost|url=http://169\.254\.169\.254|url=http://\[::1\]</regex>
+  </rule>
+
+  <rule id="WZ-INPV-023" level="12" group="input_validation,deserialization">
+    <description>Insecure deserialization — arbitrary object instantiation via crafted serialized data</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-23</field>
+    <field name="zap_rules">90001,90002,40044</field>
+    <field name="category">input_validation</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>rO0AB|aced0005|O:\d+:"|__wakeup\(|\.readObject\(|java\.lang\.Runtime</regex>
+  </rule>
+
+  <rule id="WZ-INPV-024" level="12" group="input_validation,sql_injection,postgresql">
+    <description>PostgreSQL error-based SQL injection — database error messages disclosing data</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-24</field>
+    <field name="zap_rules">40018,40022</field>
+    <field name="category">input_validation</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>PostgreSQL.*ERROR|pg_query\(\)|ERROR:.*syntax.*at.*near</regex>
+  </rule>
+
+  <rule id="WZ-INPV-031" level="12" group="input_validation,sql_injection,mysql">
+    <description>MySQL error-based SQL injection — schema disclosure via error messages</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-31</field>
+    <field name="zap_rules">40018,40022</field>
+    <field name="category">input_validation</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>MySQL.*ERROR.*You have an error|mysql_fetch|Warning.*mysql_</regex>
+  </rule>
+
+  <rule id="WZ-INPV-041" level="12" group="input_validation,sql_injection,sqlserver">
+    <description>SQL Server xp_cmdshell — OS command execution via SQL injection</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INPV-41</field>
+    <field name="zap_rules">40018</field>
+    <field name="category">input_validation</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>xp_cmdshell|sp_OACreate|sp_configure.*xp_cmdshell|OPENROWSET</regex>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- WSTG-CLNT: Client-Side Testing -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-CLNT-001" level="12" group="client_side,dom_xss">
+    <description>DOM-based Cross-Site Scripting — client-side JavaScript execution via DOM manipulation</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CLNT-01</field>
+    <field name="zap_rules">40012,40031,40101</field>
+    <field name="category">client_side</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>document\.write\(location|\.innerHTML\s*=.*location|eval\(location\.|document\.domain\s*=</regex>
+  </rule>
+
+  <rule id="WZ-CLNT-002" level="8" group="client_side,javascript">
+    <description>Client-side URL redirect — unvalidated redirect via user-controlled input</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CLNT-02</field>
+    <field name="zap_rules">10028</field>
+    <field name="category">client_side</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>redirect=|returnUrl=|next=|url=.*http[s]?://(?!.*\.example\.com)</regex>
+  </rule>
+
+  <rule id="WZ-CLNT-003" level="6" group="client_side,cors">
+    <description>CORS origin tampering — cross-origin requests accepted from unauthorized origins</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CLNT-03</field>
+    <field name="zap_rules">40026</field>
+    <field name="category">client_side</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>Access-Control-Allow-Origin: [^*](?!https?://allowed-origin)|Access-Control-Allow-Methods: \*</regex>
+  </rule>
+
+  <rule id="WZ-CLNT-004" level="8" group="client_side,postmessage">
+    <description>PostMessage origin validation — cross-origin message handler without origin check</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CLNT-04</field>
+    <field name="category">client_side</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>addEventListener\(['"]message|window\.postMessage\(|onmessage\s*=</regex>
+  </rule>
+
+  <rule id="WZ-CLNT-005" level="8" group="client_side,web_storage">
+    <description>Web storage data exposure — sensitive data stored in localStorage/sessionStorage unencrypted</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CLNT-05</field>
+    <field name="category">client_side</field>
+    <mitre>
+      <id>T1552</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+    </compliance>
+    <regex>localStorage\.setItem\(.*(token|password|secret|key)|sessionStorage\.setItem\(.*(token|password|secret|key)</regex>
+  </rule>
+
+  <rule id="WZ-CLNT-006" level="7" group="client_side,csp">
+    <description>Content Security Policy bypass — CSP allows unsafe-inline or unsafe-eval</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CLNT-06</field>
+    <field name="zap_rules">10020,10021,10054,10063</field>
+    <field name="category">client_side</field>
+    <mitre>
+      <id>T1059</id>
+      <tactic>Execution</tactic>
+      <technique>Command and Scripting Interpreter</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>Content-Security-Policy.*unsafe-inline|Content-Security-Policy.*unsafe-eval|script-src.*\*</regex>
+  </rule>
+
+  <rule id="WZ-CLNT-007" level="8" group="client_side,serviceworker">
+    <description>Service Worker tampering — malicious service worker registration detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CLNT-07</field>
+    <field name="category">client_side</field>
+    <mitre>
+      <id>T1059</id>
+      <tactic>Execution</tactic>
+      <technique>Command and Scripting Interpreter</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <match>navigator\.serviceWorker\.register|serviceWorker\.addEventListener|fetch.*event</match>
+  </rule>
+
+  <rule id="WZ-CLNT-008" level="8" group="client_side,sourcemap">
+    <description>Source map exposure — JavaScript source maps revealing application source code</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CLNT-08</field>
+    <field name="zap_rules">10096</field>
+    <field name="category">client_side</field>
+    <mitre>
+      <id>T1592</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Host Information</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <match>\.map|\.js\.map|sourceMappingURL|webpack://</match>
+  </rule>
+
+  <rule id="WZ-CLNT-009" level="10" group="client_side,webview">
+    <description>WebView URL injection — mobile app WebView loading arbitrary URLs</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CLNT-09</field>
+    <field name="category">client_side</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <match>WebView.*loadUrl|shouldOverrideUrlLoading|WebViewClient</match>
+  </rule>
+
+  <rule id="WZ-CLNT-010" level="8" group="client_side,prototype_pollution">
+    <description>Prototype pollution — JavaScript object prototype manipulation detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CLNT-10</field>
+    <field name="category">client_side</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>__proto__|constructor\.prototype|Object\.assign\(.*__proto__|merge\(.*__proto__</regex>
+  </rule>
+
+</group>

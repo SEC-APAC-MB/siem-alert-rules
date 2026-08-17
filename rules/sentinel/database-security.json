@@ -1,0 +1,909 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "Microsoft Sentinel analytics rules — database-security",
+  "total_rules": 30,
+  "rules": [
+    {
+      "rule_id": "MS-DB-PG-001",
+      "name": "PostgreSQL — Privilege Escalation via SET ROLE",
+      "description": "Detects PostgreSQL SET ROLE attempts for privilege escalation",
+      "severity": "High",
+      "query": "let threshold = 5;\npostgresql_events\n| where postgresql has_any(\"database\", \"postgresql\", \"privilege-escalation\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "PrivilegeEscalation"
+      ],
+      "techniques": [
+        "T1548"
+      ],
+      "references": [
+        "DB-PG-001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "database",
+        "postgresql",
+        "privilege-escalation",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-PG-002",
+      "name": "PostgreSQL — pg_dump Data Exfiltration",
+      "description": "Detects PostgreSQL pg_dump commands indicating potential data exfiltration",
+      "severity": "Medium",
+      "query": "let threshold = 5;\npostgresql_events\n| where postgresql has_any(\"database\", \"postgresql\", \"data-exfiltration\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1213"
+      ],
+      "references": [
+        "DB-PG-002"
+      ],
+      "compliance": [
+        "GDPR-25-008"
+      ],
+      "tags": [
+        "database",
+        "postgresql",
+        "data-exfiltration",
+        "sql"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-DB-PG-003",
+      "name": "PostgreSQL — Row-Level Security Bypass",
+      "description": "Detects PostgreSQL queries bypassing row-level security policies",
+      "severity": "High",
+      "query": "let threshold = 5;\npostgresql_events\n| where postgresql has_any(\"database\", \"postgresql\", \"rls-bypass\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078"
+      ],
+      "references": [
+        "DB-PG-003"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "GDPR-25-003"
+      ],
+      "tags": [
+        "database",
+        "postgresql",
+        "rls-bypass",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-MY-001",
+      "name": "MySQL — UNION-Based SQL Injection",
+      "description": "Detects UNION-based SQL injection attacks against MySQL databases",
+      "severity": "High",
+      "query": "let threshold = 5;\nmysql_events\n| where mysql has_any(\"database\", \"mysql\", \"sql-injection\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "DB-MY-001"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "mysql",
+        "sql-injection",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-MY-002",
+      "name": "MySQL — Root Account Remote Login",
+      "description": "Detects remote login attempts to MySQL root account from non-localhost",
+      "severity": "High",
+      "query": "let threshold = 5;\nmysql_events\n| where mysql has_any(\"database\", \"mysql\", \"default-account\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078.001"
+      ],
+      "references": [
+        "DB-MY-002"
+      ],
+      "compliance": [
+        "PCI-DSS-2.1"
+      ],
+      "tags": [
+        "database",
+        "mysql",
+        "default-account",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-MSS-001",
+      "name": "SQL Server — xp_cmdshell Execution",
+      "description": "Detects execution of xp_cmdshell stored procedure enabling OS command execution",
+      "severity": "High",
+      "query": "let threshold = 5;\nsqlserver_events\n| where sqlserver has_any(\"database\", \"sqlserver\", \"command-execution\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Execution"
+      ],
+      "techniques": [
+        "T1059"
+      ],
+      "references": [
+        "DB-MSS-001"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "sqlserver",
+        "command-execution",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-MSS-002",
+      "name": "SQL Server — SUSPENDED Login State Anomaly",
+      "description": "Detects SQL Server logins in SUSPENDED state indicating potential credential abuse",
+      "severity": "Low",
+      "query": "let threshold = 5;\nsqlserver_events\n| where sqlserver has_any(\"database\", \"sqlserver\", \"login-anomaly\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078"
+      ],
+      "references": [
+        "DB-MSS-002"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "database",
+        "sqlserver",
+        "login-anomaly",
+        "sql"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "MS-DB-ORA-001",
+      "name": "Oracle — DBA Privilege Escalation",
+      "description": "Detects Oracle DBA privilege escalation attempts via GRANT DBA or ALTER USER",
+      "severity": "High",
+      "query": "let threshold = 5;\noracle_events\n| where oracle has_any(\"database\", \"oracle\", \"privilege-escalation\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "PrivilegeEscalation"
+      ],
+      "techniques": [
+        "T1548"
+      ],
+      "references": [
+        "DB-ORA-001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "database",
+        "oracle",
+        "privilege-escalation",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-SQLITE-001",
+      "name": "SQLite — Direct File Access from Web",
+      "description": "Detects direct SQLite database file access from web applications",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nsqlite_events\n| where sqlite has_any(\"database\", \"sqlite\", \"file-access\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1083"
+      ],
+      "references": [
+        "DB-SQLITE-001"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "sqlite",
+        "file-access",
+        "sql"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-DB-MONGO-001",
+      "name": "MongoDB — NoSQL Injection via $where",
+      "description": "Detects MongoDB $where operator injection for JavaScript execution",
+      "severity": "High",
+      "query": "let threshold = 5;\nmongodb_events\n| where mongodb has_any(\"database\", \"mongodb\", \"nosql-injection\", \"nosql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "DB-MONGO-001"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "mongodb",
+        "nosql-injection",
+        "nosql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-MONGO-002",
+      "name": "MongoDB — admin Database Unauthorized Access",
+      "description": "Detects unauthorized access to MongoDB admin database",
+      "severity": "High",
+      "query": "let threshold = 5;\nmongodb_events\n| where mongodb has_any(\"database\", \"mongodb\", \"default-account\", \"nosql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078.001"
+      ],
+      "references": [
+        "DB-MONGO-002"
+      ],
+      "compliance": [
+        "PCI-DSS-2.1"
+      ],
+      "tags": [
+        "database",
+        "mongodb",
+        "default-account",
+        "nosql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-DYNAMO-001",
+      "name": "DynamoDB — Excessive Scan Operations",
+      "description": "Detects excessive DynamoDB Scan operations indicating potential data exfiltration",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ndynamodb_events\n| where dynamodb has_any(\"database\", \"dynamodb\", \"data-exfiltration\", \"nosql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1213"
+      ],
+      "references": [
+        "DB-DYNAMO-001"
+      ],
+      "compliance": [
+        "GDPR-25-008"
+      ],
+      "tags": [
+        "database",
+        "dynamodb",
+        "data-exfiltration",
+        "nosql"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-DB-CASS-001",
+      "name": "Cassandra — Unauthorized CQL Command Execution",
+      "description": "Detects unauthorized CQL commands including ALTER, DROP, and GRANT operations",
+      "severity": "High",
+      "query": "let threshold = 5;\ncassandra_events\n| where cassandra has_any(\"database\", \"cassandra\", \"privilege-escalation\", \"nosql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "PrivilegeEscalation"
+      ],
+      "techniques": [
+        "T1548"
+      ],
+      "references": [
+        "DB-CASS-001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "database",
+        "cassandra",
+        "privilege-escalation",
+        "nosql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-COUCH-001",
+      "name": "CouchDB — Admin Party Mode",
+      "description": "Detects CouchDB admin party mode or unauthorized admin access",
+      "severity": "High",
+      "query": "let threshold = 5;\ncouchdb_events\n| where couchdb has_any(\"database\", \"couchdb\", \"default-account\", \"nosql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078.001"
+      ],
+      "references": [
+        "DB-COUCH-001"
+      ],
+      "compliance": [
+        "PCI-DSS-2.1"
+      ],
+      "tags": [
+        "database",
+        "couchdb",
+        "default-account",
+        "nosql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-FIRE-001",
+      "name": "Firestore — Overly Permissive Security Rules",
+      "description": "Detects Firestore security rules allowing unauthenticated read/write access",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nfirestore_events\n| where firestore has_any(\"database\", \"firestore\", \"misconfiguration\", \"nosql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "DB-FIRE-001"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "firestore",
+        "misconfiguration",
+        "nosql"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-DB-NEO4J-001",
+      "name": "Neo4j — Cypher Injection Attack",
+      "description": "Detects Cypher injection attacks in Neo4j graph database queries",
+      "severity": "High",
+      "query": "let threshold = 5;\nneo4j_events\n| where neo4j has_any(\"database\", \"neo4j\", \"cypher-injection\", \"graph\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "DB-NEO4J-001"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "neo4j",
+        "cypher-injection",
+        "graph"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-ARANGO-001",
+      "name": "ArangoDB — AQL Injection Detection",
+      "description": "Detects AQL injection attacks in ArangoDB queries",
+      "severity": "Medium",
+      "query": "let threshold = 5;\narangodb_events\n| where arangodb has_any(\"database\", \"arangodb\", \"aql-injection\", \"graph\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "DB-ARANGO-001"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "arangodb",
+        "aql-injection",
+        "graph"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-DB-NEPTUNE-001",
+      "name": "Neptune — Gremlin/SPARQL Injection",
+      "description": "Detects Gremlin or SPARQL injection attacks against Amazon Neptune",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nneptune_events\n| where neptune has_any(\"database\", \"neptune\", \"graph-injection\", \"graph\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "DB-NEPTUNE-001"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "neptune",
+        "graph-injection",
+        "graph"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-DB-INFLUX-001",
+      "name": "InfluxDB — Unauthorized Data Deletion",
+      "description": "Detects DROP DATABASE or DELETE SERIES commands in InfluxDB",
+      "severity": "High",
+      "query": "let threshold = 5;\ninfluxdb_events\n| where influxdb has_any(\"database\", \"influxdb\", \"data-destruction\", \"timeseries\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1485"
+      ],
+      "references": [
+        "DB-INFLUX-001"
+      ],
+      "compliance": [
+        "PCI-DSS-3.4"
+      ],
+      "tags": [
+        "database",
+        "influxdb",
+        "data-destruction",
+        "timeseries"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-TSCALE-001",
+      "name": "TimescaleDB — Hypertable Data Exfiltration",
+      "description": "Detects bulk data extraction from TimescaleDB hypertables",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ntimescaledb_events\n| where timescaledb has_any(\"database\", \"timescaledb\", \"data-exfiltration\", \"timeseries\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1213"
+      ],
+      "references": [
+        "DB-TSCALE-001"
+      ],
+      "compliance": [
+        "GDPR-25-008"
+      ],
+      "tags": [
+        "database",
+        "timescaledb",
+        "data-exfiltration",
+        "timeseries"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-DB-PROM-001",
+      "name": "Prometheus — Unauthorized Metric Scraping",
+      "description": "Detects unauthorized metric scraping from Prometheus endpoints revealing infrastructure details",
+      "severity": "Low",
+      "query": "let threshold = 5;\nprometheus_events\n| where prometheus has_any(\"database\", \"prometheus\", \"information-disclosure\", \"timeseries\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1592"
+      ],
+      "references": [
+        "DB-PROM-001"
+      ],
+      "compliance": [
+        "NIST-CM-7"
+      ],
+      "tags": [
+        "database",
+        "prometheus",
+        "information-disclosure",
+        "timeseries"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "MS-DB-PINE-001",
+      "name": "Pinecone — Namespace Isolation Bypass",
+      "description": "Detects cross-namespace data access in Pinecone vector database",
+      "severity": "High",
+      "query": "let threshold = 5;\npinecone_events\n| where pinecone has_any(\"database\", \"pinecone\", \"vector\", \"isolation-bypass\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078"
+      ],
+      "references": [
+        "DB-PINE-001"
+      ],
+      "compliance": [
+        "GDPR-25-003"
+      ],
+      "tags": [
+        "database",
+        "pinecone",
+        "vector",
+        "isolation-bypass"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-WEAV-001",
+      "name": "Weaviate — Tenant Data Isolation Failure",
+      "description": "Detects cross-tenant data access in Weaviate vector database",
+      "severity": "High",
+      "query": "let threshold = 5;\nweaviate_events\n| where weaviate has_any(\"database\", \"weaviate\", \"vector\", \"isolation-bypass\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078"
+      ],
+      "references": [
+        "DB-WEAV-001"
+      ],
+      "compliance": [
+        "GDPR-25-003"
+      ],
+      "tags": [
+        "database",
+        "weaviate",
+        "vector",
+        "isolation-bypass"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-MILV-001",
+      "name": "Milvus — Collection-Level Access Bypass",
+      "description": "Detects unauthorized collection access in Milvus vector database",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nmilvus_events\n| where milvus has_any(\"database\", \"milvus\", \"vector\", \"access-bypass\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078"
+      ],
+      "references": [
+        "DB-MILV-001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "database",
+        "milvus",
+        "vector",
+        "access-bypass"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-DB-CHROMA-001",
+      "name": "ChromaDB — Embedding Poisoning Detection",
+      "description": "Detects adversarial embedding vectors inserted into ChromaDB collections",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nchromadb_events\n| where chromadb has_any(\"database\", \"chromadb\", \"vector\", \"embedding-poisoning\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "DB-CHROMA-001"
+      ],
+      "compliance": [
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "database",
+        "chromadb",
+        "vector",
+        "embedding-poisoning"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-DB-QDRANT-001",
+      "name": "Qdrant — Payload Filter Injection",
+      "description": "Detects filter injection attacks in Qdrant vector search payloads",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nqdrant_events\n| where qdrant has_any(\"database\", \"qdrant\", \"vector\", \"filter-injection\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "DB-QDRANT-001"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "database",
+        "qdrant",
+        "vector",
+        "filter-injection"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-DB-REDIS-001",
+      "name": "Redis — CONFIG GET Credential Exposure",
+      "description": "Detects Redis CONFIG commands targeting credentials or authentication configuration",
+      "severity": "High",
+      "query": "let threshold = 5;\nredis_events\n| where redis has_any(\"database\", \"redis\", \"credential-exposure\", \"key-value\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1552"
+      ],
+      "references": [
+        "DB-REDIS-001"
+      ],
+      "compliance": [
+        "PCI-DSS-3.4"
+      ],
+      "tags": [
+        "database",
+        "redis",
+        "credential-exposure",
+        "key-value"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-REDIS-002",
+      "name": "Redis — FLUSHALL/FLUSHDB Data Destruction",
+      "description": "Detects Redis FLUSHALL or FLUSHDB commands indicating potential data destruction",
+      "severity": "High",
+      "query": "let threshold = 5;\nredis_events\n| where redis has_any(\"database\", \"redis\", \"data-destruction\", \"key-value\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1485"
+      ],
+      "references": [
+        "DB-REDIS-002"
+      ],
+      "compliance": [
+        "PCI-DSS-3.4"
+      ],
+      "tags": [
+        "database",
+        "redis",
+        "data-destruction",
+        "key-value"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-DB-MEMC-001",
+      "name": "Memcached — Amplification Attack",
+      "description": "Detects Memcached amplification attacks via stats or get requests from external IPs",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nmemcached_events\n| where memcached has_any(\"database\", \"memcached\", \"amplification\", \"key-value\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1498"
+      ],
+      "references": [
+        "DB-MEMC-001"
+      ],
+      "compliance": [
+        "NIST-SC-5"
+      ],
+      "tags": [
+        "database",
+        "memcached",
+        "amplification",
+        "key-value"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-DB-HBASE-001",
+      "name": "HBase — Unauthorized ACL Modification",
+      "description": "Detects unauthorized ACL modifications in HBase including grant and revoke operations",
+      "severity": "High",
+      "query": "let threshold = 5;\nhbase_events\n| where hbase has_any(\"database\", \"hbase\", \"acl-modification\", \"column-family\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "PrivilegeEscalation"
+      ],
+      "techniques": [
+        "T1548"
+      ],
+      "references": [
+        "DB-HBASE-001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "database",
+        "hbase",
+        "acl-modification",
+        "column-family"
+      ],
+      "risk_score": 90
+    }
+  ]
+}

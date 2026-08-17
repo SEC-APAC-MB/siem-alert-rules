@@ -1,0 +1,1040 @@
+<!-- FortiSIEM SIEM Alert Rules — Database Security -->
+<rules>
+  <rule id="FSIEM-DBSC-001" severity="CRITICAL" enabled="true">
+    <name>SQL Injection - Classic</name>
+    <description>Detects classic SQL injection attacks against databases</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(\bUNION\b.*\bSELECT\b|\bOR\b\s+1\s*=\s*1|'\s*OR\s*'|;\s*DROP\s|\bSLEEP\s*\(|\bBENCHMARK\s*\().*</query>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INPV-01</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-002" severity="CRITICAL" enabled="true">
+    <name>SQL Injection - Error Based</name>
+    <description>Detects error-based SQL injection via database error messages</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <error_message regex="true">.*(ORA-\d{5}|Microsoft OLE DB|PostgreSQL query failed|mysql_fetch|SQLSTATE|Supplied argument is not a valid|Warning: mysql_|SQL error|ODBC SQL Server|Unclosed quotation mark).*</error_message>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INPV-01</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-003" severity="HIGH" enabled="true">
+    <name>Unauthorized Database Access</name>
+    <description>Detects database connections from unauthorized hosts or users</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>connection</event_type>
+        <source_ip regex="true">!^(192\.168\.1\.|10\.0\.|172\.(1[6-9]|2[0-9]|3[01])\.)</source_ip>
+        <user regex="true">!(app_user|read_only|reporting|service)</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-3</control>
+    </compliance>
+    <references>CIS-DB-01</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-004" severity="CRITICAL" enabled="true">
+    <name>Database Privilege Escalation</name>
+    <description>Detects attempts to escalate database privileges</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(GRANT\s+(ALL|DBA|SUPERUSER|ADMIN)|ALTER\s+USER.*WITH\s+(SUPERUSER|CREATEDB|CREATEROLE)|EXECUTE\s+AS\s+(OWNER|CALLER)|SET\s+ROLE\s+(dbo|sysadmin|root)).*</query>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(a)</control>
+      <standard>NIST</standard>
+      <control>AC-6</control>
+    </compliance>
+    <references>CIS-DB-02</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-005" severity="CRITICAL" enabled="true">
+    <name>Database Data Exfiltration - Bulk Export</name>
+    <description>Detects bulk data export operations from databases</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(\bINTO\s+OUTFILE\b|\bINTO\s+DUMPFILE\b|\bCOPY\b.*\bTO\b|\bmysqldump\b|\bpg_dump\b|\bexp\b.*\btables?\b|\bSQLCMD\b.*\b-b\b|\bbcp\b.*\bout\b).*</query>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1567</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>CIS-DB-03</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-006" severity="HIGH" enabled="true">
+    <name>Database Schema Modification - Unauthorized</name>
+    <description>Detects unauthorized DDL operations on production databases</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(\bCREATE\s+(TABLE|DATABASE|SCHEMA|USER|ROLE|FUNCTION|PROCEDURE|TRIGGER|VIEW)|\bALTER\s+(TABLE|DATABASE|SCHEMA|USER|ROLE)|\bDROP\s+(TABLE|DATABASE|SCHEMA|USER|ROLE|FUNCTION|PROCEDURE|TRIGGER|VIEW)|\bTRUNCATE\s).*</query>
+        <user regex="true">!(dba|admin|migration_service|schema_owner)</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1485</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-3</control>
+    </compliance>
+    <references>CIS-DB-04</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-007" severity="HIGH" enabled="true">
+    <name>Database Brute Force - Failed Logins</name>
+    <description>Detects brute force login attempts against databases</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>login_failed</event_type>
+        <count regex="true">>10</count>
+        <time_window>300</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>CIS-DB-05</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-008" severity="MEDIUM" enabled="true">
+    <name>Database Default Credentials Usage</name>
+    <description>Detects usage of default database credentials</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>login_success</event_type>
+        <user regex="true">^(sa|root|admin|postgres|dba|sys|system|master|dbo|mysql|oracle|test|guest)$</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(d)</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>CIS-DB-06</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-009" severity="CRITICAL" enabled="true">
+    <name>Database Unauthorized Data Modification</name>
+    <description>Detects unauthorized UPDATE/DELETE operations on sensitive tables</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*\b(UPDATE|DELETE)\s+(users?|accounts?|transactions?|payments?|customers?|patients?|employees?|financial).*\b(WHERE|SET).*</query>
+        <rows_affected regex="true">>100</rows_affected>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1485</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(c)</control>
+      <standard>NIST</standard>
+      <control>AC-3</control>
+    </compliance>
+    <references>CIS-DB-07</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-010" severity="HIGH" enabled="true">
+    <name>Database Stored Procedure Abuse</name>
+    <description>Detects execution of dangerous stored procedures</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(xp_cmdshell|sp_OACreate|sp_OAMethod|sp_executesql|EXEC\s+master\.\.\.|DBMS_SCHEDULER|UTL_FILE|UTL_HTTP|UTL_TCP|DBMS_LOB).*</query>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Execution</tactic>
+      <technique>T1059</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>CIS-DB-08</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-011" severity="HIGH" enabled="true">
+    <name>Database OS Command Execution</name>
+    <description>Detects attempts to execute OS commands through database</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(xp_cmdshell|sys_exec|sys_eval|LOAD_FILE|INTO OUTFILE|COPY\s+.*FROM\s+PROGRAM|\!\s*\(|\\\\\s*!|dbms_scheduler|CREATE\s+EXTERNAL\s+TABLE).*</query>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Execution</tactic>
+      <technique>T1059</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>CIS-DB-08</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-012" severity="MEDIUM" enabled="true">
+    <name>Database Unencrypted Connection</name>
+    <description>Detects database connections without encryption</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>connection</event_type>
+        <encryption regex="true">none|disabled|plaintext</encryption>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1040</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>4.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(e)</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>CIS-DB-09</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-013" severity="MEDIUM" enabled="true">
+    <name>Database Excessive Privileges</name>
+    <description>Detects database users with excessive privileges</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>privilege_check</event_type>
+        <privileges regex="true">.*((ALL|SUPERUSER|DBA|SYSADMIN|UNLIMITED|GRANT\s+OPTION).*)</privileges>
+        <user regex="true">!(dba|admin|postgres|sa|root)</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-6</control>
+    </compliance>
+    <references>CIS-DB-10</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-014" severity="HIGH" enabled="true">
+    <name>Database Time-Based Blind SQL Injection</name>
+    <description>Detects time-based blind SQL injection by abnormal query duration</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(\bSLEEP\s*\(|\bWAITFOR\s+DELAY\b|\bBENCHMARK\s*\(|\bpg_sleep\s*\(|\bdbms_pipe\.receive_message\b).*</query>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INPV-01</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-015" severity="MEDIUM" enabled="true">
+    <name>Database Unused or Dormant Accounts</name>
+    <description>Detects database accounts with no recent activity</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>account_audit</event_type>
+        <last_login regex="true">>90d</last_login>
+        <account_status>active</account_status>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-2</control>
+    </compliance>
+    <references>CIS-DB-11</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-016" severity="HIGH" enabled="true">
+    <name>Database Abnormal Query Volume</name>
+    <description>Detects unusual volume of database queries from a single source</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query_count regex="true">>1000</query_count>
+        <time_window>60</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1567</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>CIS-DB-12</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-017" severity="HIGH" enabled="true">
+    <name>Database Sensitive Table Access - Non-Business Hours</name>
+    <description>Detects access to sensitive tables outside business hours</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*\bSELECT\b.*\bFROM\b\s+(users?|accounts?|transactions?|payments?|credit_cards?|ssn|patients?|employees?|financial|pii|health_records).*</query>
+        <time_outside_business_hours regex="true">true</time_outside_business_hours>
+        <user regex="true">!(admin|dba|reporting_service|backup_service)</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+      <standard>NIST</standard>
+      <control>AC-3</control>
+    </compliance>
+    <references>CIS-DB-13</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-018" severity="MEDIUM" enabled="true">
+    <name>Database Weak Password Policy</name>
+    <description>Detects database accounts with weak password policies</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>password_policy</event_type>
+        <password_length regex="true">&lt;8</password_length>
+        <complexity regex="true">disabled|none</complexity>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.2</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>CIS-DB-14</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-019" severity="HIGH" enabled="true">
+    <name>Database NoSQL Injection</name>
+    <description>Detects NoSQL injection attacks against document databases</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(\$where|\$gt|\$gte|\$lt|\$lte|\$ne|\$in|\$nin|\$regex|\$expr|\$jsonSchema).*</query>
+        <source regex="true">!^(app_server|api_gateway)</source>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INPV-05</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-020" severity="CRITICAL" enabled="true">
+    <name>Database Credential Dumping</name>
+    <description>Detects attempts to dump database credentials</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(\bSELECT\b.*\bFROM\b\s+(mysql\.user|pg_shadow|sys\.sql_logins|sys\.database_principals|dba_users|sys\.login_token)|\bSELECT\b.*password_hash\b|\bSELECT\b.*\bFROM\b\s+information_schema\.\s*).*</query>
+        <user regex="true">!(admin|dba|security_audit)</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>CIS-DB-15</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-021" severity="MEDIUM" enabled="true">
+    <name>Database Audit Logging Disabled</name>
+    <description>Detects when database audit logging is disabled or tampered</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(\bALTER\s+SYSTEM\s+SET\s+audit|SET\s+audit_trail\s*=\s*FALSE|sp_configure\s+'audit'|ALTER\s+DATABASE\s+.*\bSET\s+.*audit_off|TRUNCATE\s+audit_log).*</query>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1562</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>10.2</control>
+      <standard>NIST</standard>
+      <control>AU-2</control>
+    </compliance>
+    <references>CIS-DB-16</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-022" severity="HIGH" enabled="true">
+    <name>Database Error Message Information Disclosure</name>
+    <description>Detects database error messages exposing sensitive information</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <error_message regex="true">.*(table.*doesn't exist|column.*not found|relation.*does not exist|invalid column name|incorrect syntax near|unclosed quotation mark|string or binary data would be truncated|cannot insert duplicate key|violation of.*constraint).*</error_message>
+        <source regex="true">external</source>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Discovery</tactic>
+      <technique>T1082</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-ERRH-01</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-023" severity="MEDIUM" enabled="true">
+    <name>Database Unused Feature Enabled</name>
+    <description>Detects unnecessary database features that increase attack surface</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>feature_check</event_type>
+        <feature regex="true">xp_cmdshell|OLE Automation|Database Mail|external scripts|LOAD DATA LOCAL INFILE|COPY FROM STDIN|dblink|foreign data wrapper</feature>
+        <enabled regex="true">true</enabled>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>CIS-DB-17</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-024" severity="HIGH" enabled="true">
+    <name>Database Data Exfiltration - Large Result Set</name>
+    <description>Detects SELECT queries returning abnormally large result sets</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*\bSELECT\b.*\bFROM\b.*</query>
+        <rows_returned regex="true">>10000</rows_returned>
+        <user regex="true">!(admin|dba|reporting_service|backup_service)</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1567</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>AC-4</control>
+    </compliance>
+    <references>CIS-DB-18</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-025" severity="HIGH" enabled="true">
+    <name>Database Schema Enumeration</name>
+    <description>Detects database schema enumeration attempts</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(\bSELECT\b.*\bFROM\b\s+information_schema\.|SHOW\s+(TABLES|DATABASES|COLUMNS|INDEX)|\bDESCRIBE\b\s+\w+|\bEXPLAIN\b\s+|SELECT\s+table_name\s+FROM|SELECT\s+column_name\s+FROM).*</query>
+        <count regex="true">>20</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Discovery</tactic>
+      <technique>T1082</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>CIS-DB-19</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-026" severity="MEDIUM" enabled="true">
+    <name>Database Shared Accounts Usage</name>
+    <description>Detects use of shared database accounts from multiple sources</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>connection</event_type>
+        <distinct_source_ip_count regex="true">>3</distinct_source_ip_count>
+        <same_user regex="true">true</same_user>
+        <time_window>3600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>IA-2</control>
+    </compliance>
+    <references>CIS-DB-20</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-027" severity="HIGH" enabled="true">
+    <name>Database Stored XSS via Data Insertion</name>
+    <description>Detects XSS payloads inserted into database fields</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*\b(INSERT|UPDATE)\b.*(&lt;script|javascript:|onerror\s*=|onload\s*=|&lt;img\s|&lt;svg\s|&lt;iframe\s|document\.cookie|document\.location).*</query>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INPV-02</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-028" severity="MEDIUM" enabled="true">
+    <name>Database Backup Not Encrypted</name>
+    <description>Detects database backups created without encryption</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>backup</event_type>
+        <encryption regex="true">none|disabled</encryption>
+        <data_classification regex="true">sensitive|confidential|pii|phi</data_classification>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>4.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(e)</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>CIS-DB-21</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-029" severity="HIGH" enabled="true">
+    <name>Database Anomalous Access Pattern</name>
+    <description>Detects unusual database access patterns based on baseline</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*\bSELECT\b.*</query>
+        <query_count regex="true">>baseline*3</query_count>
+        <time_window>3600</time_window>
+        <same_user regex="true">true</same_user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1567</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>CIS-DB-22</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-030" severity="HIGH" enabled="true">
+    <name>Database Unauthorized Administrative Command</name>
+    <description>Detects unauthorized execution of database administrative commands</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(SHUTDOWN|KILL\s+\d+|DBCC|CHECKPOINT|RECONFIGURE|ALTER\s+SERVER|CREATE\s+LINKED\s+SERVER|GRANT\s+ALL).*</query>
+        <user regex="true">!(dba|admin|postgres|sa|root)</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1489</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-6</control>
+    </compliance>
+    <references>CIS-DB-23</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-031" severity="MEDIUM" enabled="true">
+    <name>Database Connection from Unusual Geography</name>
+    <description>Detects database connections from unusual geographic locations</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>connection</event_type>
+        <source_geography regex="true">!(US|NL|DE|UK)</source_geography>
+        <source_ip regex="true">!^(192\.168|10\.|172\.(1[6-9]|2[0-9]|3[01]))</source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-17</control>
+    </compliance>
+    <references>CIS-DB-24</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-032" severity="HIGH" enabled="true">
+    <name>Database Lateral Movement via Linked Server</name>
+    <description>Detects lateral movement through database linked servers</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(\bOPENQUERY\b|\bOPENROWSET\b|\bOPENDATASOURCE\b|\bOPENJSON\b|EXEC\s+AT\s+\w+|SELECT\s+.*\s+FROM\s+\w+\.\w+\.\w+).*</query>
+        <target_server regex="true">true</target_server>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>CIS-DB-25</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-033" severity="MEDIUM" enabled="true">
+    <name>Database Audit Log Modification</name>
+    <description>Detects modification or deletion of database audit logs</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(TRUNCATE\s+(audit|log|history)|DELETE\s+FROM\s+(audit|log|history)|ALTER\s+(audit|log)|DROP\s+TABLE\s+(audit|log)).*</query>
+        <user regex="true">!(system|audit_service)</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1562</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>10.2</control>
+      <standard>NIST</standard>
+      <control>AU-2</control>
+    </compliance>
+    <references>CIS-DB-26</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-034" severity="MEDIUM" enabled="true">
+    <name>Database Password in Configuration</name>
+    <description>Detects plaintext passwords in database configuration files</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>config_check</event_type>
+        <content regex="true">.*(password\s*=\s*[^\s\"']{4,}|ConnectionString.*Password=|jdbc:.*password=|DB_PASSWORD=).*</content>
+        <encryption regex="true">none|plaintext</encryption>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>CIS-DB-27</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-035" severity="CRITICAL" enabled="true">
+    <name>Database Ransomware Activity</name>
+    <description>Detects database ransomware patterns - mass encryption or table dropping</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(DROP\s+TABLE|DROP\s+DATABASE|ALTER\s+TABLE\s+\w+\s+ENCRYPT|ALTER\s+DATABASE\s+\w+\s+SET\s+ENCRYPTION|CREATE\s+TABLE\s+\w+_locked|CREATE\s+TABLE\s+\w+_encrypted|UPDATE\s+\w+\s+SET\s+\w+\s*=.*YOUR_DATA_HAS_BEEN_LOCKED).*</query>
+        <count regex="true">>3</count>
+        <time_window>60</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1486</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>HIPAA</standard>
+      <control>164.312(c)</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>CIS-DB-28</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-036" severity="HIGH" enabled="true">
+    <name>Database Privileged Account Outside Maintenance Window</name>
+    <description>Detects privileged database account access outside maintenance windows</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>connection</event_type>
+        <user regex="true">^(sa|root|postgres|dba|admin|sys|system)$</user>
+        <time_outside_maintenance regex="true">true</time_outside_maintenance>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-6</control>
+    </compliance>
+    <references>CIS-DB-29</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-037" severity="MEDIUM" enabled="true">
+    <name>Database Unused Index Monitoring</name>
+    <description>Detects performance anomalies that may indicate malicious enumeration</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*\bSELECT\b.*\bFROM\b.*</query>
+        <query_duration regex="true">>30000</query_duration>
+        <full_table_scan regex="true">true</full_table_scan>
+        <user regex="true">!(admin|dba|reporting_service)</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Discovery</tactic>
+      <technique>T1082</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>CIS-DB-30</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-038" severity="HIGH" enabled="true">
+    <name>Database Error-Based Data Extraction</name>
+    <description>Detects error-based data extraction via conditional queries</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(\bCASE\b.*\bWHEN\b.*\bTHEN\b|\bIF\b\s*\(.*\bTHEN\b|\bCOALESCE\b.*\bSELECT\b|\bCAST\b.*\bAS\b.*\bCONVERT\b|SELECT\s+.*\s+FROM\s+\w+\s+WHERE\s+.*=\s*\d+\s+AND\s+.*=\s*.*).*</query>
+        <error_count regex="true">>5</error_count>
+        <time_window>60</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1567</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INPV-01</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-039" severity="MEDIUM" enabled="true">
+    <name>Database Excessive Failed Login Attempts</name>
+    <description>Detects excessive failed login attempts to database</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <event_type>login_failed</event_type>
+        <count regex="true">>5</count>
+        <time_window>300</time_window>
+        <same_user regex="true">true</same_user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>CIS-DB-31</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+
+  <rule id="FSIEM-DBSC-040" severity="HIGH" enabled="true">
+    <name>Database Temp Table Abuse</name>
+    <description>Detects abuse of temporary tables for data staging/exfiltration</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <query regex="true">.*(\bCREATE\s+(TEMP|TEMPORARY)\s+TABLE\b|\bINSERT\s+INTO\s+#\w+|\bSELECT\s+.*\s+INTO\s+(TEMP|TMP|#)|\bCREATE\s+TABLE\s+tmp_\w+).*</query>
+        <user regex="true">!(admin|dba|etl_service)</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1567</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>CIS-DB-32</references>
+    <action>ALERT</action>
+    <group>database_security</group>
+  </rule>
+</rules>

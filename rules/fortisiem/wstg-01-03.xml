@@ -1,0 +1,1184 @@
+<!-- FortiSIEM SIEM Alert Rules — WSTG 01-03: Information Gathering, Configuration, Identity -->
+<rules>
+  <rule id="FSIEM-INFO-001" severity="HIGH" enabled="true">
+    <name>Search Engine Discovery - Sensitive Content Indexed</name>
+    <description>Detects sensitive content indexed by search engines</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*(\/admin|\/wp-admin|\/\.git|\/\.env|\/backup|\/config).*</url>
+        <response_code regex="true">200|301|302</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INFO-01</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-002" severity="MEDIUM" enabled="true">
+    <name>Robots.txt Sensitive Path Disclosure</name>
+    <description>Detects access to robots.txt revealing sensitive directories</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\/robots\.txt</url>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INFO-01</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-003" severity="HIGH" enabled="true">
+    <name>Directory Listing Enabled - Sensitive Files Exposed</name>
+    <description>Detects directory listing exposing sensitive files</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\/(\.git|\.svn|\.env|backup|db_dump|conf).*</url>
+        <response_code>200</response_code>
+        <content regex="true">.*Index of.*|.*Parent Directory.*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>WSTG-INFO-01</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-004" severity="CRITICAL" enabled="true">
+    <name>Git Repository Exposed</name>
+    <description>Detects access to .git directory revealing source code</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\/\.git\/(HEAD|config|index|logs).*</url>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INFO-01</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-005" severity="MEDIUM" enabled="true">
+    <name>Web Server Fingerprinting - Server Header Disclosure</name>
+    <description>Detects server headers revealing version information</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <response_code regex="true">200|301|302|404</response_code>
+        <header regex="true">.*Server:\s*(Apache|nginx|IIS|Microsoft).*[0-9]+\.[0-9]+.*</header>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INFO-02</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-006" severity="MEDIUM" enabled="true">
+    <name>HTTP Methods Enumeration</name>
+    <description>Detects HTTP OPTIONS revealing allowed methods including dangerous ones</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <http_method>OPTIONS</http_method>
+        <response_code>200</response_code>
+        <header regex="true">.*Allow:\s*(.*)(PUT|DELETE|TRACE|CONNECT).*</header>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>WSTG-INFO-02</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-007" severity="HIGH" enabled="true">
+    <name>TRACE Method Enabled - XST Vulnerability</name>
+    <description>Detects HTTP TRACE method enabled allowing Cross-Site Tracing attacks</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <http_method>TRACE</http_method>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>WSTG-INFO-02</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-008" severity="MEDIUM" enabled="true">
+    <name>Backup File Discovery</name>
+    <description>Detects access to backup files that may contain sensitive data</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\.(bak|old|backup|orig|save|swp|tmp|~).*</url>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+    </compliance>
+    <references>WSTG-INFO-02</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-009" severity="HIGH" enabled="true">
+    <name>Environment File Exposure</name>
+    <description>Detects access to .env files containing credentials and configuration</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\/\.env(\.local|\.production|\.staging)?</url>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INFO-02</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-010" severity="MEDIUM" enabled="true">
+    <name>DNS Zone Transfer Attempt</name>
+    <description>Detects DNS zone transfer attempts that reveal internal network topology</description>
+    <pattern>
+      <event>
+        <product>DNS Server</product>
+        <dns_query_type>AXFR</dns_query_type>
+        <response_code>0</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1590</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+    </compliance>
+    <references>WSTG-INFO-03</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-011" severity="MEDIUM" enabled="true">
+    <name>DNS Reverse Lookup Enumeration</name>
+    <description>Detects reverse DNS lookups enumerating internal hosts</description>
+    <pattern>
+      <event>
+        <product>DNS Server</product>
+        <dns_query_type>PTR</dns_query_type>
+        <count regex="true">>100</count>
+        <time_window>60</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1590</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INFO-03</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-012" severity="HIGH" enabled="true">
+    <name>Web Application Source Code Disclosure</name>
+    <description>Detects source code exposure through misconfigured servers</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\.(php|jsp|asp|aspx|rb|py|cs).*</url>
+        <content regex="true">.*(&lt;\?php|&lt;%|import |require |def ).*</content>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INFO-02</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-001" severity="MEDIUM" enabled="true">
+    <name>Apache Status Page Access</name>
+    <description>Detects access to Apache server-status page exposing internal info</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\/server-(status|info).*</url>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>WSTG-CONF-01</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-002" severity="MEDIUM" enabled="true">
+    <name>PHP Info Page Exposure</name>
+    <description>Detects access to phpinfo() page revealing system configuration</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\/phpinfo\.(php|phtml).*|.*\/test\/phpinfo.*</url>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>WSTG-CONF-02</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-003" severity="HIGH" enabled="true">
+    <name>Default Credentials - Admin Panel Access</name>
+    <description>Detects access to admin panels with potential default credentials</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\/(admin|administrator|manager|console|cpanel|webadmin|wp-admin|wp-login).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">200|301|302</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(d)</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>WSTG-CONF-02</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-004" severity="HIGH" enabled="true">
+    <name>Old Backup and Unreferenced Files</name>
+    <description>Detects access to unreferenced backup files containing sensitive data</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\/(backup|db_dump|database|dump|sql_dump).*(\.sql|\.bak|\.zip|\.tar|\.gz|\.tgz).*</url>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>WSTG-CONF-03</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-005" severity="MEDIUM" enabled="true">
+    <name>Web Application Debug Mode Enabled</name>
+    <description>Detects application debug mode exposing stack traces and variables</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <response_code>500</response_code>
+        <content regex="true">.*(stack trace|debug mode|traceback|Exception|error details).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Discovery</tactic>
+      <technique>T1082</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-CONF-02</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-006" severity="HIGH" enabled="true">
+    <name>CORS Misconfiguration - Overly Permissive Origin</name>
+    <description>Detects CORS headers allowing wildcard or untrusted origins</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <header regex="true">.*Access-Control-Allow-Origin:\s*\*.*</header>
+        <response_code regex="true">200|204</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-CONF-07</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-007" severity="MEDIUM" enabled="true">
+    <name>Security Headers Missing - HSTS</name>
+    <description>Detects responses missing Strict-Transport-Security header</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <response_code regex="true">200|301|302</response_code>
+        <header_not_present>Strict-Transport-Security</header_not_present>
+        <url regex="true">https://.*</url>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>WSTG-CONF-07</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-008" severity="HIGH" enabled="true">
+    <name>Clickjacking - X-Frame-Options Missing</name>
+    <description>Detects responses missing X-Frame-Options or CSP frame-ancestors</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <response_code>200</response_code>
+        <header_not_present>X-Frame-Options</header_not_present>
+        <content_type regex="true">text/html.*</content_type>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-CONF-07</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-009" severity="MEDIUM" enabled="true">
+    <name>Subdomain Takeover - CNAME Dangling</name>
+    <description>Detects DNS CNAME records pointing to unclaimed external services</description>
+    <pattern>
+      <event>
+        <product>DNS Server</product>
+        <dns_cname regex="true">.*(\.herokuapp\.com|\.s3\.amazonaws\.com|\.cloudapp\.net|\.azurewebsites\.net|\.github\.io|\.shopify\.com).*</dns_cname>
+        <http_response_code>404</http_response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>CM-4</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+    </compliance>
+    <references>WSTG-CONF-05</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-010" severity="HIGH" enabled="true">
+    <name>Content-Type Sniffing Enabled</name>
+    <description>Detects responses missing X-Content-Type-Options: nosniff header</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <response_code>200</response_code>
+        <header_not_present>X-Content-Type-Options</header_not_present>
+        <content_type regex="true">text/html.*</content_type>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-CONF-07</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-IDNT-001" severity="MEDIUM" enabled="true">
+    <name>User Enumeration - Login Error Messages</name>
+    <description>Detects login error messages that reveal whether username exists</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(login|signin|auth).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">200|401</response_code>
+        <content regex="true">.*(user not found|username does not exist|no account found|invalid username|user doesn't exist).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1589</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+    </compliance>
+    <references>WSTG-IDNT-01</references>
+    <action>ALERT</action>
+    <group>identity</group>
+  </rule>
+
+  <rule id="FSIEM-IDNT-002" severity="HIGH" enabled="true">
+    <name>Account Enumeration - Registration</name>
+    <description>Detects registration responses revealing existing accounts</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(register|signup|create-account).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">200|409</response_code>
+        <content regex="true">.*(already exists|already registered|email taken|username taken|duplicate).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1589</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-IDNT-02</references>
+    <action>ALERT</action>
+    <group>identity</group>
+  </rule>
+
+  <rule id="FSIEM-IDNT-003" severity="MEDIUM" enabled="true">
+    <name>Password Reset Enumeration</name>
+    <description>Detects password reset responses revealing valid accounts</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(forgot-password|reset-password|password-reset).*</url>
+        <http_method>POST</http_method>
+        <response_code>200</response_code>
+        <content regex="true">.*(password reset sent|we found your account|email sent to|if an account exists).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1589</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-IDNT-03</references>
+    <action>ALERT</action>
+    <group>identity</group>
+  </rule>
+
+  <rule id="FSIEM-IDNT-004" severity="HIGH" enabled="true">
+    <name>Broken Authentication - Weak Password Policy</name>
+    <description>Detects registration with weak password requirements</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(register|signup|change-password|set-password).*</url>
+        <http_method>POST</http_method>
+        <response_code>200</response_code>
+        <password_length regex="true">.{1,5}</password_length>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.2</control>
+      <standard>HIPAA</standard>
+      <control>164.312(d)</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>WSTG-IDNT-04</references>
+    <action>ALERT</action>
+    <group>identity</group>
+  </rule>
+
+  <rule id="FSIEM-IDNT-005" severity="MEDIUM" enabled="true">
+    <name>Username Enumeration via Timing Attack</name>
+    <description>Detects authentication timing differences revealing valid usernames</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(login|auth|signin).*</url>
+        <http_method>POST</http_method>
+        <response_time_regex>true</response_time_regex>
+        <response_time_diff regex="true">>500</response_time_diff>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1589</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-IDNT-01</references>
+    <action>ALERT</action>
+    <group>identity</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-013" severity="MEDIUM" enabled="true">
+    <name>WSDL File Exposure</name>
+    <description>Detects access to WSDL files revealing web service interfaces</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\?wsdl|.*\.wsdl</url>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INFO-02</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-014" severity="LOW" enabled="true">
+    <name>Swagger/OpenAPI Documentation Exposure</name>
+    <description>Detects access to Swagger/OpenAPI documentation in production</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\/(swagger|swagger-ui|api-docs|swagger-resources|swagger\.json|openapi\.json).*</url>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>WSTG-INFO-02</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-015" severity="HIGH" enabled="true">
+    <name>GraphQL Introspection Query Enabled</name>
+    <description>Detects GraphQL introspection queries exposing schema in production</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/graphql.*|.*\/graphiql.*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*__schema.*|.*__type.*|.*introspection.*</content>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>WSTG-INFO-02</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-016" severity="MEDIUM" enabled="true">
+    <name>Technology Stack Fingerprinting</name>
+    <description>Detects responses revealing technology stack details</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <header regex="true">.*(X-Powered-By|X-AspNet-Version|X-Runtime).*</header>
+        <response_code regex="true">200|301|404</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>WSTG-INFO-02</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-011" severity="MEDIUM" enabled="true">
+    <name>Path Traversal Attempt</name>
+    <description>Detects path traversal attempts targeting configuration files</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*(\.\.\/|\.\.\\|%2e%2e%2f|%2e%2e\/|..%2f).*(etc\/passwd|etc\/shadow|windows\/system32).*</url>
+        <response_code regex="true">200|403</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>WSTG-CONF-05</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-012" severity="MEDIUM" enabled="true">
+    <name>Default Installation Files Present</name>
+    <description>Detects access to default installation or test pages</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\/(test|phpmyadmin|adminer|wp-install|install\.php|setup\.php|install\.asp).*</url>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>WSTG-CONF-02</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-013" severity="MEDIUM" enabled="true">
+    <name>Cookie Without Secure Flag</name>
+    <description>Detects session cookies transmitted without Secure flag</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <response_code regex="true">200|302</response_code>
+        <header regex="true">.*Set-Cookie:.*(?i:session|login|auth|token).*(?!Secure).*</header>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1539</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>WSTG-CONF-06</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-014" severity="MEDIUM" enabled="true">
+    <name>Cookie Without HttpOnly Flag</name>
+    <description>Detects session cookies missing HttpOnly flag</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <response_code regex="true">200|302</response_code>
+        <header regex="true">.*Set-Cookie:.*(?i:session|auth|token).*(?!HttpOnly).*</header>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1539</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>WSTG-CONF-06</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-015" severity="HIGH" enabled="true">
+    <name>Insecure HTTP Method - PUT Enabled</name>
+    <description>Detects PUT method allowing unauthorized file uploads</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <http_method>PUT</http_method>
+        <response_code regex="true">200|201|204</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>WSTG-CONF-06</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-016" severity="HIGH" enabled="true">
+    <name>Insecure HTTP Method - DELETE Enabled</name>
+    <description>Detects DELETE method allowing unauthorized resource deletion</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <http_method>DELETE</http_method>
+        <response_code regex="true">200|204</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1485</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>WSTG-CONF-06</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-IDNT-006" severity="MEDIUM" enabled="true">
+    <name>Insecure Remember Me Implementation</name>
+    <description>Detects insecure remember-me cookies with predictable values</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <header regex="true">.*Set-Cookie:.*remember_me=.*(admin|root|true|1|yes).*</header>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.2</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>WSTG-IDNT-04</references>
+    <action>ALERT</action>
+    <group>identity</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-017" severity="MEDIUM" enabled="true">
+    <name>Sitemap.xml Disclosure</name>
+    <description>Detects access to sitemap.xml revealing application structure</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\/sitemap(\-[0-9]+)?\.xml</url>
+        <response_code>200</response_code>
+        <source_ip regex="true">!^(192\.168|10\.|172\.(1[6-9]|2[0-9]|3[01]))</source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INFO-01</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-018" severity="LOW" enabled="true">
+    <name>Client Error Rate - Scanning Indicator</name>
+    <description>Detects high rate of 404 errors indicating directory scanning</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <response_code>404</response_code>
+        <count regex="true">>50</count>
+        <time_window>60</time_window>
+        <source_ip regex="true">.*</source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-INFO-01</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-019" severity="MEDIUM" enabled="true">
+    <name>WP-Content Directory Listing</name>
+    <description>Detects WordPress content directory listing exposing plugins and themes</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\/wp-content\/(plugins|themes|uploads).*</url>
+        <content regex="true">.*Index of.*|.*Parent Directory.*</content>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>WSTG-INFO-02</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-INFO-020" severity="MEDIUM" enabled="true">
+    <name>CGI-BIN Directory Access</name>
+    <description>Detects access to CGI-BIN directory potentially exposing scripts</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\/cgi-bin\/.*</url>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>WSTG-INFO-02</references>
+    <action>ALERT</action>
+    <group>information_gathering</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-017" severity="HIGH" enabled="true">
+    <name>Server-Side Request Forgery Attempt</name>
+    <description>Detects SSRF attempts targeting internal resources</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(fetch|proxy|preview|render|load|url|dest|redirect|next|return).*</url>
+        <content regex="true">.*(127\.0\.0\.1|localhost|169\.254\.169\.254|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|0\.0\.0\.0).*</content>
+        <response_code regex="true">200|301|302</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-CONF-05</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-018" severity="MEDIUM" enabled="true">
+    <name>Insecure Content Security Policy</name>
+    <description>Detects weak Content-Security-Policy headers allowing unsafe-inline or unsafe-eval</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <header regex="true">.*Content-Security-Policy:.*unsafe-inline.*|.*Content-Security-Policy:.*unsafe-eval.*</header>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-CONF-07</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-019" severity="MEDIUM" enabled="true">
+    <name>Information Leakage via Error Pages</name>
+    <description>Detects detailed error pages exposing application internals</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <response_code regex="true">500|501|502|503</response_code>
+        <content regex="true">.*(stack trace|exception details|SQL error|ORA-\d{5}|Microsoft OLE DB|PostgreSQL query failed|mysql_fetch).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Discovery</tactic>
+      <technique>T1082</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-CONF-04</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+
+  <rule id="FSIEM-CONF-020" severity="MEDIUM" enabled="true">
+    <name>Cacheable HTTPS Responses with Sensitive Data</name>
+    <description>Detects HTTPS responses with sensitive content marked as cacheable</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">https://.*</url>
+        <header regex="true">.*Cache-Control:.*(public|max-age=[0-9]{6,}).*</header>
+        <content_type regex="true">text/html.*</content_type>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1539</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>HIPAA</standard>
+      <control>164.312(e)</control>
+    </compliance>
+    <references>WSTG-CONF-06</references>
+    <action>ALERT</action>
+    <group>configuration</group>
+  </rule>
+</rules>

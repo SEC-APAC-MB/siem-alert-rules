@@ -1,0 +1,551 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "AWS CloudWatch, EventBridge, and GuardDuty rules — mobile-security",
+  "total_rules": 10,
+  "rules": [
+    {
+      "rule_id": "AWS-MOB-001",
+      "name": "Mobile — Insecure Data Storage on Device",
+      "description": "Detects mobile app data storage issues including unencrypted SQLite databases and shared preferences",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "data_storage",
+        "dimensions": {
+          "RuleId": "AWS-MOB-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "data_storage"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "DATA_STORAGE"
+      },
+      "references": [
+        "MASVS-L2-2.1",
+        "GDPR-32A"
+      ],
+      "mitre": [
+        "T1552.001"
+      ],
+      "tags": [
+        "mobile",
+        "data-storage",
+        "masvs",
+        "encryption"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-MOB-002",
+      "name": "Mobile — Insecure Network Communication",
+      "description": "Detects mobile apps communicating over HTTP, using weak TLS, or accepting self-signed certificates",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "network",
+        "dimensions": {
+          "RuleId": "AWS-MOB-002"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "network"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "NETWORK"
+      },
+      "references": [
+        "MASVS-L2-3.1",
+        "PCI-DSS-4.1"
+      ],
+      "mitre": [
+        "T1041"
+      ],
+      "tags": [
+        "mobile",
+        "network",
+        "masvs",
+        "encryption"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-MOB-003",
+      "name": "Mobile — Hardcoded Credentials in Binary",
+      "description": "Detects hardcoded credentials, API keys, or tokens in mobile app binaries or configuration files",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authentication",
+        "dimensions": {
+          "RuleId": "AWS-MOB-003"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authentication"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "AUTHENTICATION"
+      },
+      "references": [
+        "MASVS-L2-4.1"
+      ],
+      "mitre": [
+        "T1552.001"
+      ],
+      "tags": [
+        "mobile",
+        "authentication",
+        "hardcoded",
+        "credentials"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-MOB-004",
+      "name": "Mobile — Local Privilege Escalation (Root/Jailbreak)",
+      "description": "Detects mobile app authorization bypass through rooted or jailbroken devices or debug modes",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authorization",
+        "dimensions": {
+          "RuleId": "AWS-MOB-004"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authorization"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "AUTHORIZATION"
+      },
+      "references": [
+        "MASVS-L2-5.1"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "tags": [
+        "mobile",
+        "authorization",
+        "root-detection",
+        "jailbreak"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-MOB-005",
+      "name": "Mobile — Intent Spoofing and Deep Link Abuse",
+      "description": "Detects Android intent spoofing or iOS deep link abuse for unauthorized actions",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "intent_spoofing",
+        "dimensions": {
+          "RuleId": "AWS-MOB-005"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "intent_spoofing"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "INTENT_SPOOFING"
+      },
+      "references": [
+        "MASVS-L2-7.1"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "mobile",
+        "intent-spoofing",
+        "deep-link",
+        "authorization"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-MOB-006",
+      "name": "Mobile — Certificate Pinning Bypass",
+      "description": "Detects SSL/TLS certificate pinning bypass attempts on mobile applications",
+      "severity": "medium",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "certificate_pinning",
+        "dimensions": {
+          "RuleId": "AWS-MOB-006"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "certificate_pinning"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 5,
+        "type": "CERTIFICATE_PINNING"
+      },
+      "references": [
+        "MASVS-L2-3.5"
+      ],
+      "mitre": [
+        "T1557"
+      ],
+      "tags": [
+        "mobile",
+        "certificate-pinning",
+        "ssl",
+        "network"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AWS-MOB-007",
+      "name": "Mobile — Sensitive Data in Logs",
+      "description": "Detects sensitive data such as tokens, passwords, or PII logged by mobile applications in cleartext",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "logging",
+        "dimensions": {
+          "RuleId": "AWS-MOB-007"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "logging"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "LOGGING"
+      },
+      "references": [
+        "MASVS-L2-2.8",
+        "GDPR-32A"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "tags": [
+        "mobile",
+        "logging",
+        "data-exposure",
+        "pii"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-MOB-008",
+      "name": "Mobile — Clipboard Data Exposure",
+      "description": "Detects mobile apps exposing sensitive data through the system clipboard",
+      "severity": "medium",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "clipboard",
+        "dimensions": {
+          "RuleId": "AWS-MOB-008"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "clipboard"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 5,
+        "type": "CLIPBOARD"
+      },
+      "references": [
+        "MASVS-L2-2.6"
+      ],
+      "mitre": [
+        "T1187"
+      ],
+      "tags": [
+        "mobile",
+        "clipboard",
+        "data-exposure",
+        "masvs"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AWS-MOB-009",
+      "name": "Mobile — Biometric Authentication Bypass",
+      "description": "Detects attempts to bypass biometric authentication on mobile devices",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "biometric",
+        "dimensions": {
+          "RuleId": "AWS-MOB-009"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "biometric"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "BIOMETRIC"
+      },
+      "references": [
+        "MASVS-L2-4.7"
+      ],
+      "mitre": [
+        "T1111"
+      ],
+      "tags": [
+        "mobile",
+        "biometric",
+        "auth-bypass",
+        "authentication"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-MOB-010",
+      "name": "Mobile — Screenshot and Screen Recording Detection",
+      "description": "Detects screen capture or recording while sensitive content is displayed on mobile devices",
+      "severity": "medium",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "screen_capture",
+        "dimensions": {
+          "RuleId": "AWS-MOB-010"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "screen_capture"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 5,
+        "type": "SCREEN_CAPTURE"
+      },
+      "references": [
+        "MASVS-L2-2.5"
+      ],
+      "mitre": [
+        "T1113"
+      ],
+      "tags": [
+        "mobile",
+        "screen-capture",
+        "data-theft",
+        "masvs"
+      ],
+      "risk_score": 50
+    }
+  ]
+}

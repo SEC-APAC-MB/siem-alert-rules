@@ -1,0 +1,797 @@
+<!-- FortiSIEM SIEM Alert Rules — API Security -->
+<rules>
+  <rule id="FSIEM-APIS-001" severity="HIGH" enabled="true">
+    <name>API Authentication Bypass - Missing Token</name>
+    <description>Detects API requests without authentication tokens</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*</url>
+        <http_method regex="true">GET|POST|PUT|DELETE|PATCH</http_method>
+        <header_not_present>Authorization</header_not_present>
+        <response_code regex="true">200|201|204</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>IA-2</control>
+    </compliance>
+    <references>OWASP-API-01</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-002" severity="CRITICAL" enabled="true">
+    <name>API Broken Object Level Authorization</name>
+    <description>Detects API BOLA - accessing resources belonging to other users</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/(users?|accounts?|orders?|records?|documents?)\/[a-zA-Z0-9_-]+.*</url>
+        <http_method>GET</http_method>
+        <response_code>200</response_code>
+        <resource_owner_mismatch regex="true">true</resource_owner_mismatch>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>HIPAA</standard>
+      <control>164.312(a)</control>
+      <standard>NIST</standard>
+      <control>AC-4</control>
+    </compliance>
+    <references>OWASP-API-01</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-003" severity="HIGH" enabled="true">
+    <name>API Excessive Data Exposure</name>
+    <description>Detects API responses returning more data than requested</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/(users?|accounts?|profiles?).*\?fields=(name|id)$</url>
+        <http_method>GET</http_method>
+        <response_code>200</response_code>
+        <response_fields regex="true">>5</response_fields>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>AC-4</control>
+    </compliance>
+    <references>OWASP-API-03</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-004" severity="HIGH" enabled="true">
+    <name>API Mass Assignment</name>
+    <description>Detects mass assignment attacks modifying sensitive API fields</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/(users?|accounts?|profiles?).*</url>
+        <http_method regex="true">PUT|PATCH</http_method>
+        <content regex="true">.*"(role|isAdmin|is_admin|admin|permission|privilege|user_type|account_type|balance|credit)".*</content>
+        <response_code regex="true">200|204</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>AC-4</control>
+    </compliance>
+    <references>OWASP-API-06</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-005" severity="HIGH" enabled="true">
+    <name>API Rate Limiting Missing</name>
+    <description>Detects high-frequency API requests indicating missing rate limits</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*</url>
+        <http_method regex="true">GET|POST|PUT|DELETE</http_method>
+        <count regex="true">>100</count>
+        <time_window>60</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>OWASP-API-04</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-006" severity="MEDIUM" enabled="true">
+    <name>API GraphQL Depth Attack</name>
+    <description>Detects deeply nested GraphQL queries indicating DoS attempts</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(graphql|graphiql|query).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(\{[^}]*\{[^}]*\{[^}]*\{).*</content>
+        <content_length regex="true">>10000</content_length>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>OWASP-API-04</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-007" severity="MEDIUM" enabled="true">
+    <name>API GraphQL Introspection in Production</name>
+    <description>Detects GraphQL introspection queries in production environment</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(graphql|graphiql).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(__schema|__type|__typename|introspection).*</content>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>OWASP-API-08</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-008" severity="HIGH" enabled="true">
+    <name>API Broken Function Level Authorization</name>
+    <description>Detects regular user accessing admin-only API functions</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/(admin|manage|delete-all|export|system|config|internal).*</url>
+        <http_method regex="true">GET|POST|PUT|DELETE</http_method>
+        <response_code regex="true">200|201|204</response_code>
+        <user_role regex="true">!(admin|superuser|system)</user_role>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-3</control>
+    </compliance>
+    <references>OWASP-API-05</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-009" severity="HIGH" enabled="true">
+    <name>API Unrestricted Resource Consumption</name>
+    <description>Detects API requests consuming excessive resources</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*\?(limit|per_page|page_size|count)=([0-9]{4,}|all).*</url>
+        <http_method>GET</http_method>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>OWASP-API-04</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-010" severity="MEDIUM" enabled="true">
+    <name>API Security Misconfiguration - Verbose Errors</name>
+    <description>Detects verbose error messages in API responses</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*</url>
+        <response_code regex="true">400|401|403|404|500</response_code>
+        <content regex="true">.*(stacktrace|stack trace|debug|traceback|SQLException|OracleError|PostgreSQL.*error|MySQL.*error|PDOException|MongoDB.*error).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Discovery</tactic>
+      <technique>T1082</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>OWASP-API-08</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-011" severity="HIGH" enabled="true">
+    <name>API JWT Token Tampering</name>
+    <description>Detects JWT tokens with modified payloads or invalid signatures</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*</url>
+        <header regex="true">.*Authorization:\s*Bearer\s*eyJ.*</header>
+        <jwt_signature_valid regex="true">false</jwt_signature_valid>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>IA-2</control>
+    </compliance>
+    <references>OWASP-API-02</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-012" severity="MEDIUM" enabled="true">
+    <name>API Improper Inventory Management</name>
+    <description>Detects access to undocumented or deprecated API versions</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/v[0-3]\/.*|.*\/api\/(beta|alpha|test|debug|internal|staging)\/.*</url>
+        <http_method regex="true">GET|POST|PUT|DELETE</http_method>
+        <response_code regex="true">200|201|204</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>OWASP-API-09</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-013" severity="HIGH" enabled="true">
+    <name>API SQL Injection</name>
+    <description>Detects SQL injection patterns in API requests</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*(\bUNION\b.*\bSELECT\b|\bOR\b\s+1\s*=\s*1|'\s*OR\s*'|;\s*DROP\s|SLEEP\s*\(|BENCHMARK\s*\().*</url>
+        <http_method regex="true">GET|POST|PUT|DELETE</http_method>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-API-08</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-014" severity="MEDIUM" enabled="true">
+    <name>API CORS Misconfiguration</name>
+    <description>Detects permissive CORS headers in API responses</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*</url>
+        <header regex="true">.*Access-Control-Allow-Origin:\s*\*.*|.*Access-Control-Allow-Credentials:\s*true.*Access-Control-Allow-Origin:\s*https?://[^ ]*.*</header>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-API-08</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-015" severity="HIGH" enabled="true">
+    <name>API SSRF Attempt</name>
+    <description>Detects SSRF attempts through API endpoints</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*(fetch|proxy|preview|render|url|redirect|callback|webhook).*</url>
+        <content regex="true">.*(127\.0\.0\.1|localhost|169\.254\.169\.254|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|0\.0\.0\.0|\[::1\]).*</content>
+        <http_method regex="true">GET|POST</http_method>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-API-08</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-016" severity="MEDIUM" enabled="true">
+    <name>API Key in URL Query Parameter</name>
+    <description>Detects API keys transmitted in URL query parameters</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*\?(.*&amp;)?(api_key|apikey|key|token|access_token|secret)=[a-zA-Z0-9_-]{16,}.*</url>
+        <http_method regex="true">GET|POST|PUT|DELETE</http_method>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>OWASP-API-02</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-017" severity="MEDIUM" enabled="true">
+    <name>API Response Headers Information Leakage</name>
+    <description>Detects sensitive information in API response headers</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*</url>
+        <header regex="true">.*(X-Powered-By|X-AspNet-Version|Server:.*[0-9]|X-Debug-Token|X-Debug-Token-Link|X-Request-ID).*</header>
+        <response_code regex="true">200|201|204</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>OWASP-API-08</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-018" severity="HIGH" enabled="true">
+    <name>API NoSQL Injection</name>
+    <description>Detects NoSQL injection patterns in API requests</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*</url>
+        <http_method regex="true">GET|POST|PUT|DELETE</http_method>
+        <content regex="true">.*(\$where|\$gt|\$gte|\$lt|\$lte|\$ne|\$in|\$nin|\$regex|\$expr|\$jsonSchema|\$not).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-API-08</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-019" severity="MEDIUM" enabled="true">
+    <name>API Batch Abuse - Mass Data Extraction</name>
+    <description>Detects API requests designed to extract bulk data</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*(users?|records?|data|export|download|report|list).*\?(limit|per_page|page_size|count)=(1000|5000|10000|all|-1).*</url>
+        <http_method>GET</http_method>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1567</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>AC-4</control>
+    </compliance>
+    <references>OWASP-API-03</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-020" severity="HIGH" enabled="true">
+    <name>API IDOR - Sequential Enumeration</name>
+    <description>Detects IDOR through sequential resource enumeration in APIs</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/(users?|accounts?|orders?|documents?|records?)\/[0-9]+.*</url>
+        <http_method>GET</http_method>
+        <count regex="true">>20</count>
+        <time_window>60</time_window>
+        <sequential_ids regex="true">true</sequential_ids>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>HIPAA</standard>
+      <control>164.312(a)</control>
+      <standard>NIST</standard>
+      <control>AC-4</control>
+    </compliance>
+    <references>OWASP-API-01</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-021" severity="MEDIUM" enabled="true">
+    <name>API Content-Type Mismatch</name>
+    <description>Detects API requests with mismatched Content-Type headers</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*</url>
+        <http_method>POST</http_method>
+        <header regex="true">.*Content-Type:\s*(?!application/json).*</header>
+        <accept regex="true">.*application/json.*</accept>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-API-08</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-022" severity="HIGH" enabled="true">
+    <name>API Token Replay Attack</name>
+    <description>Detects the same API token used from multiple IPs or after revocation</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*</url>
+        <distinct_source_ip_count regex="true">>2</distinct_source_ip_count>
+        <same_token regex="true">true</same_token>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>OWASP-API-02</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-023" severity="MEDIUM" enabled="true">
+    <name>API Missing Rate Limit Response Headers</name>
+    <description>Detects API responses missing rate limiting headers</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*</url>
+        <response_code>200</response_code>
+        <header_not_present>X-RateLimit-Limit</header_not_present>
+        <header_not_present>X-RateLimit-Remaining</header_not_present>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>OWASP-API-04</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-024" severity="CRITICAL" enabled="true">
+    <name>API Sensitive Data in Response</name>
+    <description>Detects sensitive data exposed in API responses</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/(users?|accounts?|profiles?|patients?|customers?).*</url>
+        <http_method>GET</http_method>
+        <response_code>200</response_code>
+        <content regex="true">.*"(ssn|social_security|credit_card|card_number|cvv|password|secret|api_key|private_key)".*"[^"]{4,}".*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>OWASP-API-03</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-025" severity="HIGH" enabled="true">
+    <name>API Broken Authentication - Token Not Revoked</name>
+    <description>Detects API tokens used after password change or logout</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*</url>
+        <header regex="true">.*Authorization:\s*Bearer\s*.{16,}.*</header>
+        <token_revoked regex="true">true</token_revoked>
+        <response_code regex="true">200|201|204</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>OWASP-API-02</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-026" severity="MEDIUM" enabled="true">
+    <name>API Swagger/OpenAPI Exposure in Production</name>
+    <description>Detects API documentation endpoints accessible in production</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(swagger-ui|swagger-ui\.html|api-docs|swagger-resources|swagger\.json|openapi\.json|openapi\.yaml|v[0-9]+/docs|redoc).*</url>
+        <http_method>GET</http_method>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>OWASP-API-09</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-027" severity="HIGH" enabled="true">
+    <name>API Webhook URL Manipulation</name>
+    <description>Detects manipulation of webhook URLs in API requests</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*(webhook|callback|notify|hook).*</url>
+        <http_method regex="true">POST|PUT|PATCH</http_method>
+        <content regex="true">.*"(url|endpoint|callback|webhook_url)".*(127\.0\.0\.1|localhost|169\.254\.169\.254|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|internal|private).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-API-08</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-028" severity="MEDIUM" enabled="true">
+    <name>API Deprecated Endpoint Usage</name>
+    <description>Detects usage of deprecated API endpoints</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/v[0-2]\/.*</url>
+        <http_method regex="true">GET|POST|PUT|DELETE</http_method>
+        <header regex="true">.*Deprecation:.*|.*Sunset:.*</header>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>OWASP-API-09</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-029" severity="HIGH" enabled="true">
+    <name>API Injection via Batch Operation</name>
+    <description>Detects injection attempts in batch API operations</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*(batch|bulk|import|sync).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(\$where|\$gt|\$ne|UNION\s+SELECT|&lt;script|javascript:|eval\s*\(|exec\s*\(|system\s*\().*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-API-08</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+
+  <rule id="FSIEM-APIS-030" severity="MEDIUM" enabled="true">
+    <name>API Unencrypted Communication</name>
+    <description>Detects API calls over unencrypted HTTP</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">http://.*/api/.*</url>
+        <http_method regex="true">GET|POST|PUT|DELETE|PATCH</http_method>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1040</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>4.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(e)</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>OWASP-API-08</references>
+    <action>ALERT</action>
+    <group>api_security</group>
+  </rule>
+</rules>

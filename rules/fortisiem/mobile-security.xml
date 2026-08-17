@@ -1,0 +1,657 @@
+<!-- FortiSIEM SIEM Alert Rules — Mobile Security -->
+<rules>
+  <rule id="FSIEM-MOBL-001" severity="HIGH" enabled="true">
+    <name>Mobile App Certificate Pinning Bypass</name>
+    <description>Detects attempts to bypass SSL/TLS certificate pinning on mobile apps</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>certificate_pinning_bypass</event_type>
+        <app_state regex="true">.*debug_mode.*|.*proxy_detected.*|.*root_detected.*</app_state>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1040</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>4.1</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>OWASP-MASTG-01</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-002" severity="CRITICAL" enabled="true">
+    <name>Mobile App Insecure Data Storage</name>
+    <description>Detects sensitive data stored in cleartext on mobile device</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>data_storage</event_type>
+        <storage_type regex="true">shared_preferences|keychain_unprotected|nsuserdefaults|sqlite_unencrypted|file_cleartext</storage_type>
+        <data_type regex="true">password|token|api_key|ssn|credit_card|pii</data_type>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>OWASP-MASTG-02</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-003" severity="HIGH" enabled="true">
+    <name>Mobile Rooted/Jailbroken Device Detection</name>
+    <description>Detects mobile app running on rooted or jailbroken device</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>device_integrity</event_type>
+        <device_state regex="true">rooted|jailbroken|superuser|cydia|substrate|xposed|magisk</device_state>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-MASTG-03</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-004" severity="HIGH" enabled="true">
+    <name>Mobile App Insecure Network Communication</name>
+    <description>Detects mobile app sending data over unencrypted channel</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <network_protocol>HTTP</network_protocol>
+        <url regex="true">http://.*/(login|auth|api|user|account|payment|token).*</url>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1040</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>4.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(e)</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>OWASP-MASTG-04</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-005" severity="MEDIUM" enabled="true">
+    <name>Mobile App Debug Build in Production</name>
+    <description>Detects mobile app running in debug mode in production environment</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>app_configuration</event_type>
+        <build_type regex="true">debug|development|test</build_type>
+        <environment regex="true">production</environment>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Discovery</tactic>
+      <technique>T1082</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>CM-7</control>
+    </compliance>
+    <references>OWASP-MASTG-05</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-006" severity="HIGH" enabled="true">
+    <name>Mobile App Sensitive Data in Logs</name>
+    <description>Detects sensitive data written to mobile app logs</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>log_output</event_type>
+        <content regex="true">.*(password|token|api_key|secret|ssn|credit_card|cvv|pin|otp|auth_code).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>OWASP-MASTG-06</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-007" severity="HIGH" enabled="true">
+    <name>Mobile App Tampering Detection</name>
+    <description>Detects mobile app binary tampering or re-signing</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>integrity_check</event_type>
+        <signature_verification regex="true">failed|mismatch|invalid</signature_verification>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1400</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-MASTG-07</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-008" severity="MEDIUM" enabled="true">
+    <name>Mobile App Clipboard Data Leak</name>
+    <description>Detects sensitive data copied to mobile device clipboard</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>clipboard_access</event_type>
+        <data_type regex="true">password|token|credit_card|ssn|api_key|otp|pin</data_type>
+        <app_in_foreground regex="true">false</app_in_foreground>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>OWASP-MASTG-08</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-009" severity="HIGH" enabled="true">
+    <name>Mobile App Screenshot Data Exposure</name>
+    <description>Detects sensitive data exposure through mobile app screenshots</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>screenshot</event_type>
+        <screen_content regex="true">.*(balance|account|ssn|credit_card|password|otp|transaction).*</screen_content>
+        <app_state>background</app_state>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>OWASP-MASTG-08</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-010" severity="HIGH" enabled="true">
+    <name>Mobile Deep Link Hijacking</name>
+    <description>Detects potentially malicious deep link intents targeting mobile apps</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>deep_link</event_type>
+        <url regex="true">.*://.*(login|auth|token|payment|transfer|password|reset).*(\?|&amp;)(redirect|next|url|continue|return)=.*(http|javascript|data).*</url>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1200</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-MASTG-09</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-011" severity="MEDIUM" enabled="true">
+    <name>Mobile App Keyboard Data Leakage</name>
+    <description>Detects third-party keyboard accessing sensitive input fields</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>keyboard_input</event_type>
+        <input_type regex="true">password|credit_card|ssn|pin|otp</input_type>
+        <keyboard_type regex="true">third_party</keyboard_type>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1417</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+    </compliance>
+    <references>OWASP-MASTG-06</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-012" severity="HIGH" enabled="true">
+    <name>Mobile Biometric Auth Bypass</name>
+    <description>Detects biometric authentication bypass attempts on mobile</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>biometric_auth</event_type>
+        <auth_result regex="true">bypass|fallback_used|error_override|device_compromised</auth_result>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3</control>
+      <standard>NIST</standard>
+      <control>IA-2</control>
+    </compliance>
+    <references>OWASP-MASTG-10</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-013" severity="MEDIUM" enabled="true">
+    <name>Mobile App Intent Sniffing</name>
+    <description>Detects broadcast intents containing sensitive data on Android</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>broadcast_intent</event_type>
+        <intent_data regex="true">.*(password|token|session|api_key|secret|ssn|credit_card).*</intent_data>
+        <permission regex="true">none|world_readable|unprotected</permission>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+    </compliance>
+    <references>OWASP-MASTG-06</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-014" severity="HIGH" enabled="true">
+    <name>Mobile App Content Provider Data Leak</name>
+    <description>Detects exposed content providers leaking sensitive data</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>content_provider</event_type>
+        <exported regex="true">true</exported>
+        <data_type regex="true">contacts|messages|location|credentials|tokens</data_type>
+        <permission regex="true">none|default</permission>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>AC-4</control>
+    </compliance>
+    <references>OWASP-MASTG-06</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-015" severity="MEDIUM" enabled="true">
+    <name>Mobile App WebView Vulnerability</name>
+    <description>Detects WebView with JavaScript enabled and file access</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>webview_config</event_type>
+        <javascript_enabled regex="true">true</javascript_enabled>
+        <file_access_enabled regex="true">true</file_access_enabled>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-MASTG-05</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-016" severity="HIGH" enabled="true">
+    <name>Mobile Push Notification Data Leak</name>
+    <description>Detects sensitive data in push notification payloads</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>push_notification</event_type>
+        <content regex="true">.*(password|pin|otp|token|ssn|credit_card|account_number|balance).*</content>
+        <visibility regex="true">notification_center|lock_screen</visibility>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>OWASP-MASTG-08</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-017" severity="MEDIUM" enabled="true">
+    <name>Mobile App Hardcoded Secrets</name>
+    <description>Detects hardcoded secrets in mobile app binary or configuration</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>static_analysis</event_type>
+        <content regex="true">.*(api_key|secret|password|token|private_key|encryption_key|aws_secret|database_password).*=.*['\"][a-zA-Z0-9+/=]{16,}['\"].*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>OWASP-MASTG-02</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-018" severity="HIGH" enabled="true">
+    <name>Mobile App URL Scheme Hijacking</name>
+    <description>Detects URL scheme registration conflicts enabling app impersonation</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>url_scheme</event_type>
+        <scheme_conflict regex="true">true</scheme_conflict>
+        <priority regex="true">lower|unprotected</priority>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1200</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-MASTG-09</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-019" severity="MEDIUM" enabled="true">
+    <name>Mobile App Insufficient Cryptography</name>
+    <description>Detects use of weak or deprecated cryptographic algorithms in mobile apps</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>crypto_operation</event_type>
+        <algorithm regex="true">.*((?i)md5|sha1|des|3des|rc4|rc2|blowfish|ecb|rsa_1024).*</algorithm>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1040</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>4.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(e)</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>OWASP-MASTG-11</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-020" severity="MEDIUM" enabled="true">
+    <name>Mobile App Key Store Misconfiguration</name>
+    <description>Detects insecure keystore usage on mobile platforms</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>keystore</event_type>
+        <protection_level regex="true">none|default|unprotected</protection_level>
+        <key_usage regex="true">encryption|signing|authentication</key_usage>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>OWASP-MASTG-11</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-021" severity="HIGH" enabled="true">
+    <name>Mobile Supply Chain - Third-Party SDK Vulnerability</name>
+    <description>Detects known vulnerable third-party SDKs in mobile applications</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>dependency_scan</event_type>
+        <vulnerability regex="true">.*CVE-\d{4}-\d{4,}.*|.*critical.*|.*high.*severity.*</vulnerability>
+        <sdk_type regex="true">analytics|advertising|social|push_notification|crash_reporting</sdk_type>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SA-12</control>
+    </compliance>
+    <references>OWASP-MASTG-12</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-022" severity="MEDIUM" enabled="true">
+    <name>Mobile App Data Backup Exposure</name>
+    <description>Detects mobile app allowing backup of sensitive data</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>backup</event_type>
+        <allow_backup regex="true">true</allow_backup>
+        <data_classification regex="true">sensitive|confidential|pii|phi</data_classification>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>OWASP-MASTG-02</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-023" severity="HIGH" enabled="true">
+    <name>Mobile App Screen Overlay Attack</name>
+    <description>Detects potential screen overlay attacks on mobile apps</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>overlay_detected</event_type>
+        <overlay_package regex="true">.*(?!(com\.google|com\.android|com\.samsung)).*</overlay_package>
+        <foreground_app regex="true">banking|payment|authentication</foreground_app>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1417</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>OWASP-MASTG-05</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-024" severity="MEDIUM" enabled="true">
+    <name>Mobile App Location Data Exfiltration</name>
+    <description>Detects unauthorized location data collection by mobile apps</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>location_access</event_type>
+        <permission regex="true">background|always</permission>
+        <data_transmission regex="true">true</data_transmission>
+        <user_consent regex="true">false</user_consent>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1213</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>5</control>
+      <standard>NIST</standard>
+      <control>AC-4</control>
+    </compliance>
+    <references>OWASP-MASTG-06</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+
+  <rule id="FSIEM-MOBL-025" severity="HIGH" enabled="true">
+    <name>Mobile App Authentication Token Storage Insecure</name>
+    <description>Detects authentication tokens stored insecurely on mobile device</description>
+    <pattern>
+      <event>
+        <product>Mobile App</product>
+        <event_type>token_storage</event_type>
+        <storage_type regex="true">shared_preferences|nsuserdefaults|local_storage|cookie|plain_file</storage_type>
+        <encryption regex="true">none|disabled</encryption>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>OWASP-MASTG-02</references>
+    <action>ALERT</action>
+    <group>mobile_security</group>
+  </rule>
+</rules>

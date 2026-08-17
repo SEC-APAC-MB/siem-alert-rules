@@ -1,0 +1,767 @@
+<!--
+  Wazuh SIEM Alert Rules — Compliance (GDPR, PCI-DSS, HIPAA, NIST, DORA, NIS2, Data Act, AI Act)
+  Mapped from: security-testing-pentest/config/tests/
+  Total rules: 310
+  Rule ID format: WZ-CAT-NUM (CAT: GDPR, PCI, HIP, NIST, DORA, NIS2, DATA, AIC)
+-->
+<group name="wazuh,compliance,gdpr,pci_dss,hipaa,nist,dora,nis2,data_act,ai_act">
+
+  <!-- ============================================================ -->
+  <!-- GDPR Compliance Rules -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-GDPR-001" level="12" group="compliance,gdpr,data_breach">
+    <description>GDPR Article 32 — personal data breach detected — unauthorized access to PII</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">GDPR-25-001</field>
+    <field name="category">compliance_gdpr</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32,Art.33</gdpr>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>\b\d{3}-\d{2}-\d{4}\b|SSN.*exposed|PII.*breach|personal.*data.*leak|data.*breach.*detected</regex>
+  </rule>
+
+  <rule id="WZ-GDPR-002" level="10" group="compliance,gdpr,consent">
+    <description>GDPR Article 7 — consent mechanism failure — processing without valid consent</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">GDPR-25-002</field>
+    <field name="category">compliance_gdpr</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.6,Art.7</gdpr>
+    </compliance>
+    <match>consent.*not.*obtained|processing.*without.*consent|consent.*withdrawn.*not.*honored|cookie.*consent.*failure</match>
+  </rule>
+
+  <rule id="WZ-GDPR-003" level="10" group="compliance,gdpr,right_to_erasure">
+    <description>GDPR Article 17 — right to erasure failure — data not deleted upon request</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">GDPR-25-003</field>
+    <field name="category">compliance_gdpr</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.17</gdpr>
+    </compliance>
+    <match>deletion.*request.*not.*processed|data.*erasure.*failure|right.*to.*be.*forgotten.*denied|retention.*period.*violation</match>
+  </rule>
+
+  <rule id="WZ-GDPR-004" level="8" group="compliance,gdpr,data_minimization">
+    <description>GDPR Article 5 — data minimization violation — excessive data collection</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">GDPR-25-004</field>
+    <field name="category">compliance_gdpr</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.5(1)(c)</gdpr>
+    </compliance>
+    <match>excessive.*data.*collection|unnecessary.*PII.*processed|data.*minimization.*violation|purpose.*limitation.*exceeded</match>
+  </rule>
+
+  <rule id="WZ-GDPR-005" level="10" group="compliance,gdpr,encryption">
+    <description>GDPR Article 32 — encryption failure — personal data transmitted or stored without encryption</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">GDPR-32A-001</field>
+    <field name="zap_rules">10106,10035,10040</field>
+    <field name="category">compliance_gdpr</field>
+    <mitre>
+      <id>T1040</id>
+      <tactic>Credential Access</tactic>
+      <technique>Network Sniffing</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>4.1</pci_dss>
+    </compliance>
+    <match>HTTP.*without.*TLS|unencrypted.*personal.*data|data.*at.*rest.*not.*encrypted|SSL.*certificate.*expired</match>
+  </rule>
+
+  <rule id="WZ-GDPR-006" level="10" group="compliance,gdpr,data_access">
+    <description>GDPR Article 15 — data access request failure — subject access request not processed</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">GDPR-25-005</field>
+    <field name="category">compliance_gdpr</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.15</gdpr>
+    </compliance>
+    <match>SAR.*not.*processed|data.*access.*request.*delayed|subject.*access.*request.*timeout|data.*portability.*failure</match>
+  </rule>
+
+  <rule id="WZ-GDPR-007" level="10" group="compliance,gdpr,cross_border">
+    <description>GDPR Article 44 — cross-border data transfer without adequate safeguards</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">GDPR-25-006</field>
+    <field name="category">compliance_gdpr</field>
+    <mitre>
+      <id>T1048</id>
+      <tactic>Exfiltration</tactic>
+      <technique>Exfiltration Over Alternative Protocol</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.44,Art.45,Art.46</gdpr>
+    </compliance>
+    <match>data.*transfer.*non.*adequate.*country|cross.*border.*without.*safeguards|SCC.*not.*in.*place|adequacy.*decision.*missing</match>
+  </rule>
+
+  <rule id="WZ-GDPR-008" level="8" group="compliance,gdpr,logging">
+    <description>GDPR Article 30 — processing activity records missing or incomplete</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">GDPR-25-007</field>
+    <field name="category">compliance_gdpr</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.30</gdpr>
+    </compliance>
+    <match>processing.*activity.*record.*missing|ROPA.*incomplete|DPIA.*not.*conducted|processing.*record.*gap</match>
+  </rule>
+
+  <rule id="WZ-GDPR-009" level="10" group="compliance,gdpr,dpo">
+    <description>GDPR Article 37 — Data Protection Officer not designated for required processing</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">GDPR-25-008</field>
+    <field name="category">compliance_gdpr</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.37</gdpr>
+    </compliance>
+    <match>DPO.*not.*designated|data.*protection.*officer.*missing|DPO.*contact.*not.*published</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- PCI-DSS Compliance Rules -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-PCI-001" level="12" group="compliance,pci_dss,card_data">
+    <description>PCI-DSS 3.4 — cleartext credit card number detected in logs or responses</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">PCI-1.1-001</field>
+    <field name="category">compliance_pci</field>
+    <mitre>
+      <id>T1552</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>3.4</pci_dss>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <regex>\b4\d{3}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b|\b5[1-5]\d{2}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b|\b3[47]\d{2}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}\b</regex>
+  </rule>
+
+  <rule id="WZ-PCI-002" level="12" group="compliance,pci_dss,card_data">
+    <description>PCI-DSS 3.4 — PAN stored in cleartext — primary account number unmasked</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">PCI-1.2-001</field>
+    <field name="category">compliance_pci</field>
+    <mitre>
+      <id>T1552</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>3.4</pci_dss>
+    </compliance>
+    <regex>PAN.*cleartext|card_number.*not.*masked|primary.*account.*number.*exposed|credit_card.*unencrypted</regex>
+  </rule>
+
+  <rule id="WZ-PCI-003" level="10" group="compliance,pci_dss,network">
+    <description>PCI-DSS 1.3 — unauthorized network access to cardholder data environment</description>
+    <decoded_as>firewall_log</decoded_as>
+    <field name="test_id">PCI-1.3-001</field>
+    <field name="category">compliance_pci</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>1.3</pci_dss>
+      <nist_800_53>SC-7</nist_800_53>
+    </compliance>
+    <match>CDE.*unauthorized.*access|cardholder.*environment.*breach|firewall.*rule.*violation|network.*segmentation.*failure</match>
+  </rule>
+
+  <rule id="WZ-PCI-004" level="10" group="compliance,pci_dss,encryption">
+    <description>PCI-DSS 4.1 — weak encryption for cardholder data transmission</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">PCI-4.1-001</field>
+    <field name="zap_rules">10106,10035</field>
+    <field name="category">compliance_pci</field>
+    <mitre>
+      <id>T1040</id>
+      <tactic>Credential Access</tactic>
+      <technique>Network Sniffing</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>4.1</pci_dss>
+    </compliance>
+    <match>TLS.*1\.0|SSL.*3\.0|weak.*cipher|cardholder.*data.*unencrypted</match>
+  </rule>
+
+  <rule id="WZ-PCI-005" level="10" group="compliance,pci_dss,access">
+    <description>PCI-DSS 8.5 — insufficient access controls for cardholder data systems</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">PCI-8.5-001</field>
+    <field name="category">compliance_pci</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.5</pci_dss>
+      <nist_800_53>AC-2</nist_800_53>
+    </compliance>
+    <match>shared.*credentials.*CDE|default.*password.*cardholder|no.*2FA.*admin.*access|MFA.*not.*required</match>
+  </rule>
+
+  <rule id="WZ-PCI-006" level="10" group="compliance,pci_dss,vulnerability">
+    <description>PCI-DSS 11.3 — vulnerability scanning failure for cardholder data environment</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">PCI-11.3-001</field>
+    <field name="zap_rules">10003,10004</field>
+    <field name="category">compliance_pci</field>
+    <mitre>
+      <id>T1595</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Active Scanning</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>11.3</pci_dss>
+    </compliance>
+    <match>vulnerability.*scan.*overdue|pen.*test.*not.*performed|scan.*results.*not.*remediated|CDE.*vulnerability.*found</match>
+  </rule>
+
+  <rule id="WZ-PCI-007" level="8" group="compliance,pci_dss,logging">
+    <description>PCI-DSS 10.2 — audit logging failure — insufficient logging of CDE access</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">PCI-10.2-001</field>
+    <field name="category">compliance_pci</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>10.2</pci_dss>
+      <nist_800_53>AU-2</nist_800_53>
+    </compliance>
+    <match>audit.*log.*not.*captured|CDE.*access.*not.*logged|log.*review.*not.*performed|audit.*trail.*gap</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- HIPAA Compliance Rules -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-HIP-001" level="12" group="compliance,hipaa,phi">
+    <description>HIPAA §164.312(a)(1) — PHI access control failure — unauthorized access to ePHI</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">HIPAA-IAM-004</field>
+    <field name="category">compliance_hipaa</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <hipaa>§164.312(a)(1)</hipaa>
+      <nist_800_53>AC-3</nist_800_53>
+    </compliance>
+    <regex>ePHI.*unauthorized.*access|patient.*record.*access.*violation|PHI.*access.*without.*authorization|medical.*record.*breach</regex>
+  </rule>
+
+  <rule id="WZ-HIP-002" level="10" group="compliance,hipaa,encryption">
+    <description>HIPAA §164.312(e)(1) — PHI transmitted without encryption — ePHI in transit exposed</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">HIPAA-ADMIN-005</field>
+    <field name="zap_rules">10106</field>
+    <field name="category">compliance_hipaa</field>
+    <mitre>
+      <id>T1040</id>
+      <tactic>Credential Access</tactic>
+      <technique>Network Sniffing</technique>
+    </mitre>
+    <compliance>
+      <hipaa>§164.312(e)(1)</hipaa>
+      <pci_dss>4.1</pci_dss>
+    </compliance>
+    <match>ePHI.*transmitted.*without.*encryption|patient.*data.*HTTP|medical.*record.*unencrypted|TLS.*not.*enforced.*ePHI</match>
+  </rule>
+
+  <rule id="WZ-HIP-003" level="10" group="compliance,hipaa,audit">
+    <description>HIPAA §164.312(b) — audit log failure — ePHI access not properly logged</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">HIPAA-IAM-008</field>
+    <field name="category">compliance_hipaa</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <hipaa>§164.312(b)</hipaa>
+      <nist_800_53>AU-2</nist_800_53>
+    </compliance>
+    <match>ePHI.*access.*not.*logged|audit.*trail.*incomplete|PHI.*access.*log.*missing|patient.*record.*access.*not.*recorded</match>
+  </rule>
+
+  <rule id="WZ-HIP-004" level="10" group="compliance,hipaa,breach">
+    <description>HIPAA §164.402 — breach notification — unsecured PHI breach requiring notification</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">HIPAA-INC-002</field>
+    <field name="category">compliance_hipaa</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <hipaa>§164.402,§164.408</hipaa>
+    </compliance>
+    <match>PHI.*breach.*notification|unsecured.*PHI.*breach|breach.*affecting.*500.*individuals|ePHI.*compromise.*report</match>
+  </rule>
+
+  <rule id="WZ-HIP-005" level="8" group="compliance,hipaa,access">
+    <description>HIPAA §164.312(a)(2)(iv) — IDOR in ePHI — accessing patient records without authorization</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">HIPAA-IAM-004</field>
+    <field name="zap_rules">10057,40008</field>
+    <field name="category">compliance_hipaa</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <hipaa>§164.312(a)(1)</hipaa>
+      <nist_800_53>AC-4</nist_800_53>
+    </compliance>
+    <regex>/patient/\d+/.*200.*role=nurse|/ehr/.*access.*unauthorized|medical.*record.*IDOR|cross.*patient.*data.*access</regex>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- NIST 800-53 Compliance Rules -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-NIST-001" level="8" group="compliance,nist,access_control">
+    <description>NIST AC-2 — account management failure — unused accounts not reviewed</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">NIST-AC-010</field>
+    <field name="category">compliance_nist</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>AC-2</nist_800_53>
+      <hipaa>§164.312(a)(2)(i)</hipaa>
+    </compliance>
+    <match>dormant.*account.*active|unused.*account.*not.*disabled|account.*review.*overdue|orphaned.*account.*detected</match>
+  </rule>
+
+  <rule id="WZ-NIST-002" level="10" group="compliance,nist,access_control">
+    <description>NIST AC-3 — access enforcement failure — unauthorized access to system resources</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">NIST-AC-015</field>
+    <field name="zap_rules">10101</field>
+    <field name="category">compliance_nist</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>AC-3</nist_800_53>
+      <hipaa>§164.312(a)(1)</hipaa>
+    </compliance>
+    <match>access.*denied.*bypass|unauthorized.*resource.*access|permission.*enforcement.*failure|RBAC.*violation</match>
+  </rule>
+
+  <rule id="WZ-NIST-003" level="8" group="compliance,nist,access_control">
+    <description>NIST AC-6 — least privilege violation — user with excessive permissions detected</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">NIST-AC-016</field>
+    <field name="category">compliance_nist</field>
+    <mitre>
+      <id>T1548</id>
+      <tactic>Privilege Escalation</tactic>
+      <technique>Abuse Elevation Control Mechanism</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>AC-6</nist_800_53>
+    </compliance>
+    <match>least.*privilege.*violation|excessive.*permissions.*user|admin.*role.*unnecessary|privilege.*accumulation.*detected</match>
+  </rule>
+
+  <rule id="WZ-NIST-004" level="10" group="compliance,nist,audit">
+    <description>NIST AU-2 — audit events not captured — security-relevant events missing from logs</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">NIST-AC-008</field>
+    <field name="category">compliance_nist</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>AU-2</nist_800_53>
+      <pci_dss>10.2</pci_dss>
+    </compliance>
+    <match>audit.*event.*not.*captured|log.*source.*missing|security.*event.*not.*logged|audit.*trail.*gap</match>
+  </rule>
+
+  <rule id="WZ-NIST-005" level="8" group="compliance,nist,encryption">
+    <description>NIST SC-8 — data in transit not encrypted — sensitive data transmitted over HTTP</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">NIST-AC-021</field>
+    <field name="zap_rules">10106</field>
+    <field name="category">compliance_nist</field>
+    <mitre>
+      <id>T1040</id>
+      <tactic>Credential Access</tactic>
+      <technique>Network Sniffing</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>SC-8</nist_800_53>
+      <pci_dss>4.1</pci_dss>
+    </compliance>
+    <match>HTTP.*without.*TLS|unencrypted.*data.*transmission|sensitive.*data.*HTTP|TLS.*not.*enforced</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- DORA Compliance Rules -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-DORA-001" level="10" group="compliance,dora,risk_management">
+    <description>DORA Article 5 — ICT risk management framework not established</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">DORA-05-001</field>
+    <field name="category">compliance_dora</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <dora>Art.5,Art.8</dora>
+    </compliance>
+    <match>ICT.*risk.*framework.*missing|risk.*management.*policy.*absent|risk.*assessment.*not.*performed|risk.*register.*not.*maintained</match>
+  </rule>
+
+  <rule id="WZ-DORA-002" level="10" group="compliance,dora,incident">
+    <description>DORA Article 17 — ICT incident management process not established</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">DORA-17-001</field>
+    <field name="category">compliance_dora</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <dora>Art.17</dora>
+    </compliance>
+    <match>incident.*response.*plan.*missing|ICT.*incident.*process.*not.*defined|incident.*classification.*absent|escalation.*procedure.*gap</match>
+  </rule>
+
+  <rule id="WZ-DORA-003" level="10" group="compliance,dora,business_continuity">
+    <description>DORA Article 21 — business continuity and disaster recovery plans not tested</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">DORA-21-019</field>
+    <field name="category">compliance_dora</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <dora>Art.21(2)(c)</dora>
+    </compliance>
+    <match>BCP.*not.*tested|DR.*plan.*outdated|RTO.*not.*met|RPO.*not.*achieved|business.*continuity.*test.*overdue</match>
+  </rule>
+
+  <rule id="WZ-DORA-004" level="10" group="compliance,dora,third_party">
+    <description>DORA Article 28 — ICT third-party risk not assessed — critical vendor without oversight</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">DORA-21-026</field>
+    <field name="category">compliance_dora</field>
+    <mitre>
+      <id>T1195</id>
+      <tactic>Initial Access</tactic>
+      <technique>Supply Chain Compromise</technique>
+    </mitre>
+    <compliance>
+      <dora>Art.28</dora>
+      <nis2>Art.21(2)(d)</nis2>
+    </compliance>
+    <match>third.*party.*risk.*not.*assessed|critical.*vendor.*no.*oversight|ICT.*provider.*risk.*gap|contract.*not.*compliant.*DORA</match>
+  </rule>
+
+  <rule id="WZ-DORA-005" level="10" group="compliance,dora,vulnerability">
+    <description>DORA Article 10 — ICT vulnerability management and patch management failure</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">DORA-10-010</field>
+    <field name="zap_rules">40012,40018</field>
+    <field name="category">compliance_dora</field>
+    <mitre>
+      <id>T1595</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Active Scanning</technique>
+    </mitre>
+    <compliance>
+      <dora>Art.10</dora>
+    </compliance>
+    <match>critical.*vulnerability.*unpatched|patch.*management.*failure|CVE.*not.*remediated.*within.*SLA|vulnerability.*scan.*overdue</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- NIS2 Compliance Rules -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-NIS2-001" level="10" group="compliance,nis2,risk_management">
+    <description>NIS2 Article 21(2)(a) — risk analysis and information system security not established</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">NIS2-21-001</field>
+    <field name="category">compliance_nis2</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <nis2>Art.21(2)(a)</nis2>
+    </compliance>
+    <match>risk.*assessment.*not.*documented|asset.*inventory.*incomplete|risk.*treatment.*plan.*absent|threat.*landscape.*not.*assessed</match>
+  </rule>
+
+  <rule id="WZ-NIS2-002" level="10" group="compliance,nis2,incident">
+    <description>NIS2 Article 21(2)(b) — incident handling procedures not established</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">NIS2-21-009</field>
+    <field name="category">compliance_nis2</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <nis2>Art.21(2)(b)</nis2>
+    </compliance>
+    <match>incident.*response.*plan.*missing|incident.*classification.*absent|24.*7.*monitoring.*not.*established|incident.*notification.*process.*gap</match>
+  </rule>
+
+  <rule id="WZ-NIS2-003" level="10" group="compliance,nis2,supply_chain">
+    <description>NIS2 Article 21(2)(d) — supply chain security not assessed</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">NIS2-21-026</field>
+    <field name="category">compliance_nis2</field>
+    <mitre>
+      <id>T1195</id>
+      <tactic>Initial Access</tactic>
+      <technique>Supply Chain Compromise</technique>
+    </mitre>
+    <compliance>
+      <nis2>Art.21(2)(d)</nis2>
+    </compliance>
+    <match>supplier.*security.*not.*assessed|SBOM.*not.*available|third.*party.*access.*controls.*gap|supply.*chain.*risk.*not.*documented</match>
+  </rule>
+
+  <rule id="WZ-NIS2-004" level="10" group="compliance,nis2,network">
+    <description>NIS2 Article 21(2)(e) — network and information system security measures inadequate</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">NIS2-21-036</field>
+    <field name="category">compliance_nis2</field>
+    <mitre>
+      <id>T1595</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Active Scanning</technique>
+    </mitre>
+    <compliance>
+      <nis2>Art.21(2)(e)</nis2>
+    </compliance>
+    <match>network.*segmentation.*failure|firewall.*rules.*not.*reviewed|intrusion.*detection.*not.*deployed|network.*monitoring.*gap</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- Data Act Compliance Rules -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-DATA-001" level="10" group="compliance,data_act,data_access">
+    <description>Data Act Article 4 — user data access API not available or not responsive</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">DATA-04-001</field>
+    <field name="category">compliance_data_act</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <data_act>Art.4</data_act>
+    </compliance>
+    <match>data.*access.*API.*unavailable|user.*data.*request.*timeout|access.*without.*discrimination.*failed|data.*portability.*endpoint.*error</match>
+  </rule>
+
+  <rule id="WZ-DATA-002" level="10" group="compliance,data_act,data_sharing">
+    <description>Data Act Article 5 — third-party data sharing mechanism not implemented</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">DATA-05-001</field>
+    <field name="category">compliance_data_act</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <data_act>Art.5</data_act>
+    </compliance>
+    <match>data.*sharing.*mechanism.*not.*implemented|consent.*management.*failure|data.*sharing.*revocation.*not.*working|third.*party.*data.*access.*denied</match>
+  </rule>
+
+  <rule id="WZ-DATA-003" level="8" group="compliance,data_act,switching">
+    <description>Data Act Article 6 — cloud switching barriers detected — data portability restricted</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">DATA-06-001</field>
+    <field name="category">compliance_data_act</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <data_act>Art.6</data_act>
+    </compliance>
+    <match>cloud.*switching.*barrier|data.*portability.*restricted|vendor.*lock-in.*detected|switching.*cost.*excessive|data.*export.*not.*available</match>
+  </rule>
+
+  <rule id="WZ-DATA-004" level="10" group="compliance,data_act,iot">
+    <description>Data Act Article 3 — connected product data not accessible by design</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">DATA-03-003</field>
+    <field name="category">compliance_data_act</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <data_act>Art.3</data_act>
+    </compliance>
+    <match>connected.*product.*data.*not.*accessible|IoT.*data.*access.*barrier|product.*data.*not.*available|sensor.*data.*not.*exposed</match>
+  </rule>
+
+  <!-- Additional GDPR rules -->
+  <rule id="WZ-GDPR-010" level="10" group="compliance,gdpr,data_portability">
+    <description>GDPR Article 20 — data portability failure — data export not provided in machine-readable format</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">GDPR-25-010</field>
+    <field name="category">compliance_gdpr</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.20</gdpr>
+    </compliance>
+    <match>data.*portability.*request.*denied|export.*format.*not.*machine.*readable|structured.*data.*not.*provided|data.*transfer.*obstructed</match>
+  </rule>
+
+  <rule id="WZ-GDPR-011" level="8" group="compliance,gdpr,privacy_by_design">
+    <description>GDPR Article 25 — privacy by design failure — default settings not privacy-protective</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">GDPR-25-011</field>
+    <field name="category">compliance_gdpr</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.25</gdpr>
+    </compliance>
+    <match>privacy.*by.*design.*violation|default.*settings.*not.*privacy|opt-in.*not.*default|data.*maximization.*default</match>
+  </rule>
+
+  <rule id="WZ-GDPR-012" level="10" group="compliance,gdpr,automated_decision">
+    <description>GDPR Article 22 — automated decision-making without human review — profiling impact detected</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">GDPR-25-012</field>
+    <field name="category">compliance_gdpr</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.22</gdpr>
+      <ai_act>Art.14</ai_act>
+    </compliance>
+    <match>automated.*decision.*without.*review|profiling.*without.*consent|algorithmic.*decision.*no.*appeal|AI.*decision.*no.*human.*override</match>
+  </rule>
+
+  <!-- Additional PCI-DSS rules -->
+  <rule id="WZ-PCI-008" level="10" group="compliance,pci_dss,penetration_testing">
+    <description>PCI-DSS 11.4 — penetration testing not performed or findings not remediated</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">PCI-11.4-001</field>
+    <field name="category">compliance_pci</field>
+    <mitre>
+      <id>T1595</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Active Scanning</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>11.4</pci_dss>
+    </compliance>
+    <match>penetration.*test.*not.*performed|pen.*test.*findings.*not.*remediated|annual.*pentest.*overdue|CDE.*segmentation.*test.*failure</match>
+  </rule>
+
+  <rule id="WZ-PCI-009" level="8" group="compliance,pci_dss,wireless">
+    <description>PCI-DSS 1.2 — wireless access point in cardholder data environment without authorization</description>
+    <decoded_as>syslog</decoded_as>
+    <field name="test_id">PCI-1.2-001</field>
+    <field name="category">compliance_pci</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>1.2</pci_dss>
+    </compliance>
+    <match>rogue.*wireless.*AP.*CDE|unauthorized.*WiFi.*cardholder|wireless.*scanner.*alert|CDE.*wireless.*violation</match>
+  </rule>
+
+</group>

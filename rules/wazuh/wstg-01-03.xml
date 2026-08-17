@@ -1,0 +1,1135 @@
+<!--
+  Wazuh SIEM Alert Rules — WSTG 01-03 (Information Gathering, Configuration, Identity Management)
+  Mapped from: security-testing-pentest/config/tests/
+  Total rules: 313
+  Rule ID format: WZ-CAT-NUM (CAT: INFO, CONF, IDM)
+-->
+<group name="wazuh,wstg,information_gathering,configuration,identity_management">
+
+  <!-- ============================================================ -->
+  <!-- WSTG-INFO: Information Gathering (WSTG-INFO-01 through WSTG-INFO-80 + LM) -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-INFO-001" level="6" group="information_gathering,reconnaissance">
+    <description>Search engine discovery — sensitive content indexed by search engines</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-01</field>
+    <field name="zap_rules">10004,10009,10027</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1592</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Search Open Technical Databases</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.25,Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <match>site: \.php|filetype:|inurl:admin|intitle:"index of"|cache:</match>
+  </rule>
+
+  <rule id="WZ-INFO-002" level="6" group="information_gathering,reconnaissance">
+    <description>Web server fingerprinting — server version disclosed in HTTP headers</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-02</field>
+    <field name="zap_rules">10036,10037,10004,10061</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1592.001</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Host Information</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>Server: (Apache|nginx|IIS|Tomcat|Jetty)/\d+\.\d+</regex>
+  </rule>
+
+  <rule id="WZ-INFO-003" level="5" group="information_gathering,reconnaissance">
+    <description>Metafiles review — robots.txt or sitemap.xml leaking sensitive paths</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-03</field>
+    <field name="zap_rules">10003,10045</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1592.001</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Discover Victim Host Information</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.25</gdpr>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <match>/robots.txt|/sitemap.xml|/security.txt|/.well-known/</match>
+  </rule>
+
+  <rule id="WZ-INFO-004" level="6" group="information_gathering,reconnaissance">
+    <description>Attack surface identification — exposed admin paths or hidden endpoints discovered</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-04</field>
+    <field name="zap_rules">10004,10022,10030</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1046</id>
+      <tactic>Discovery</tactic>
+      <technique>Network Service Discovery</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <match>/admin|/console|/debug|/swagger|/api-docs|/graphql</match>
+  </rule>
+
+  <rule id="WZ-INFO-005" level="6" group="information_gathering,reconnaissance">
+    <description>Page content information leakage — credentials or internal URLs in client-side code</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-05</field>
+    <field name="zap_rules">10009,10023,10027,10094,10095,10096,10097</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1590</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Network Information</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>password\s*=|api_key\s*=|secret\s*=|AKIA[0-9A-Z]{16}|internal\.|staging\.</regex>
+  </rule>
+
+  <rule id="WZ-INFO-006" level="5" group="information_gathering,reconnaissance">
+    <description>Application entry point enumeration — undocumented API endpoints discovered</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-06</field>
+    <field name="zap_rules">10004</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1590</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Host Information</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <match>/api/v|/api/v2|/v1/|/v2/|/rest/</match>
+  </rule>
+
+  <rule id="WZ-INFO-007" level="5" group="information_gathering,reconnaissance">
+    <description>Execution path mapping — multi-step process bypass attempt detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-07</field>
+    <field name="zap_rules">10004</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1595.001</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Active Scanning</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <match>/step/|/wizard/|/checkout/|/register/</match>
+  </rule>
+
+  <rule id="WZ-INFO-008" level="5" group="information_gathering,reconnaissance">
+    <description>Web application framework fingerprinting — framework version disclosed</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-08</field>
+    <field name="zap_rules">10004</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1592</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Discover Victim Infrastructure</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>X-Powered-By|X-AspNet-Version|JSESSIONID|PHPSESSID|ASP.NET_SessionId</regex>
+  </rule>
+
+  <rule id="WZ-INFO-009" level="5" group="information_gathering,reconnaissance">
+    <description>Web application fingerprinting — application version or default content detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-09</field>
+    <field name="zap_rules">10004,10009,10061</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1083</id>
+      <tactic>Discovery</tactic>
+      <technique>File and Directory Discovery</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>generator.*WordPress|generator.*Drupal|generator.*Joomla|generator.*Magento</regex>
+  </rule>
+
+  <rule id="WZ-INFO-010" level="5" group="information_gathering,reconnaissance">
+    <description>Application architecture mapping — internal architecture headers leaked</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-10</field>
+    <field name="zap_rules">10004</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1592.001</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Host Information</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>X-Forwarded-For|X-Served-By|X-Cache|CF-Ray|X-Amz-Cf-Id</regex>
+  </rule>
+
+  <rule id="WZ-INFO-011" level="8" group="information_gathering,cloud,data_exposure">
+    <description>Cloud storage bucket enumeration — public S3/Azure/GCS bucket data exposure</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-11</field>
+    <field name="zap_rules">100036</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1530</id>
+      <tactic>Collection</tactic>
+      <technique>Data from Cloud Storage</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>3.1</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+      <nis2>Art.21(2)(a)</nis2>
+    </compliance>
+    <match>s3\.amazonaws\.com|blob\.core\.windows\.net|storage\.googleapis\.com|\.s3\.</match>
+  </rule>
+
+  <rule id="WZ-INFO-012" level="6" group="information_gathering,data_exposure">
+    <description>Document metadata extraction — PII leaked in document metadata</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-12</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1589</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Identity Information</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.25,Art.32</gdpr>
+    </compliance>
+    <match>\.pdf|\.docx?|\.xlsx?|\.pptx?|metadata|author</match>
+  </rule>
+
+  <rule id="WZ-INFO-013" level="6" group="information_gathering,data_exposure">
+    <description>EXIF and GPS data exposure in uploaded images</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-13</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1592.002</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Host Information</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.25</gdpr>
+    </compliance>
+    <match>GPS|EXIF|geolocation|latitude|longitude|camera</match>
+  </rule>
+
+  <rule id="WZ-INFO-014" level="8" group="information_gathering,credential_exposure">
+    <description>Source code repository credential scanning — leaked credentials in repositories</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-14</field>
+    <field name="zap_rules">10010</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+    </compliance>
+    <regex>password\s*[:=]|secret\s*[:=]|token\s*[:=]|AKIA[0-9A-Z]{16}|private_key</regex>
+  </rule>
+
+  <rule id="WZ-INFO-015" level="5" group="information_gathering,osint">
+    <description>Pastebin and code sharing site monitoring — data leaks on external platforms</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-15</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1592</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Search Open Technical Databases</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <match>pastebin\.com|gist\.github\.com|codepen\.io|repl\.it</match>
+  </rule>
+
+  <rule id="WZ-INFO-016" level="5" group="information_gathering,dns">
+    <description>DNS zone data exposure — TXT record or zone transfer information leakage</description>
+    <decoded_as>dns_log</decoded_as>
+    <field name="test_id">WSTG-INFO-16</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1590.002</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Network Information</technique>
+    </mitre>
+    <compliance>
+      <nis2>Art.21(2)(e)</nis2>
+    </compliance>
+    <match>AXFR|zone transfer|TXT|SPF|_dmarc</match>
+  </rule>
+
+  <rule id="WZ-INFO-017" level="3" group="information_gathering,osint">
+    <description>WHOIS data mining — organizational PII exposure through WHOIS records</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-17</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1591</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Org Information</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.5</gdpr>
+    </compliance>
+    <match>whois|registrant|admin-contact|tech-contact</match>
+  </rule>
+
+  <rule id="WZ-INFO-018" level="6" group="information_gathering,certificate">
+    <description>SSL certificate transparency log mining — internal infrastructure disclosed</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-18</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1592.001</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Host Information</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <match>crt\.sh|cert Transparency|certificate_transparency_log</match>
+  </rule>
+
+  <rule id="WZ-INFO-019" level="8" group="information_gathering,cloud,data_exposure">
+    <description>Cloud storage permission auditing — public data exposure in cloud buckets</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-19</field>
+    <field name="zap_rules">100036</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1530</id>
+      <tactic>Collection</tactic>
+      <technique>Data from Cloud Storage</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>3.1</pci_dss>
+      <nis2>Art.21(2)(e)</nis2>
+    </compliance>
+    <match>AccessDenied|PublicAccessBlock|ListBucketResult|<Contents></match>
+  </rule>
+
+  <rule id="WZ-INFO-020" level="6" group="information_gathering,osint">
+    <description>Shodan/Censys query — exposed services and data discovered via search engines</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-20</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1592</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Search Open Technical Databases</technique>
+    </mitre>
+    <compliance>
+      <nis2>Art.21(2)(a)</nis2>
+    </compliance>
+    <match>shodan\.io|censys\.io|fofa\.info|zoomeye\.org</match>
+  </rule>
+
+  <rule id="WZ-INFO-021" level="8" group="information_gathering,credential_exposure">
+    <description>GitHub secret scanning — organization repository credential leaks</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-21</field>
+    <field name="zap_rules">10010</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+      <dora>Art.10</dora>
+    </compliance>
+    <regex>github\.com.*commit|secret.*push|credential.*leak|token.*exposed</regex>
+  </rule>
+
+  <rule id="WZ-INFO-025" level="8" group="information_gathering,credential_exposure">
+    <description>JavaScript bundle hardcoded API keys and secrets detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-25</field>
+    <field name="zap_rules">10009</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>api[_-]?key\s*[:=]\s*["'][a-zA-Z0-9]{20,}|secret[_-]?key\s*[:=]</regex>
+  </rule>
+
+  <rule id="WZ-INFO-029" level="8" group="information_gathering,data_exposure">
+    <description>Error message stack trace analysis — data path disclosure in error messages</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-29</field>
+    <field name="zap_rules">10045</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1592</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Host Information</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>Traceback|at\s+\w+\.\w+\(|\.py.*line\s+\d+|\.java:\d+|stack trace</regex>
+  </rule>
+
+  <rule id="WZ-INFO-031" level="8" group="information_gathering,api,data_exposure">
+    <description>GraphQL introspection query — schema and data field exposure detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-31</field>
+    <field name="zap_rules">10010</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1590</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Network Information</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.25</gdpr>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>__schema|__type|introspection|query\s*\{.*__schema</regex>
+  </rule>
+
+  <rule id="WZ-INFO-034" level="5" group="information_gathering,reconnaissance">
+    <description>Robots.txt disallowed path analysis — sensitive routes discovered via robots.txt</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-34</field>
+    <field name="zap_rules">10003</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1592.001</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Discover Victim Host Information</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <match>/robots.txt</match>
+  </rule>
+
+  <rule id="WZ-INFO-035" level="12" group="information_gathering,ssrf,cloud">
+    <description>Cloud metadata endpoint exposure via SSRF — AWS/GCP/Azure credentials at risk</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-35</field>
+    <field name="zap_rules">100036</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1552.005</id>
+      <tactic>Credential Access</tactic>
+      <technique>Cloud Metadata</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+      <nis2>Art.21(2)(e)</nis2>
+    </compliance>
+    <regex>169\.254\.169\.254|/latest/meta-data/|/metadata/instance|/computeMetadata/</regex>
+  </rule>
+
+  <rule id="WZ-INFO-038" level="12" group="information_gathering,container,data_exposure">
+    <description>Kubernetes API server exposure — cluster secrets and config enumeration</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-38</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>SI-4</nist_800_53>
+      <nis2>Art.21(2)(e)</nis2>
+    </compliance>
+    <regex>/api/v1/(secrets|configmaps|pods)|kubernetes.*token|/var/run/secrets/kubernetes</regex>
+  </rule>
+
+  <rule id="WZ-INFO-040" level="12" group="information_gathering,database,data_exposure">
+    <description>MongoDB/Redis public instance exposure — unauthenticated database access detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-40</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>1.3</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>MongoDB.*27017|Redis.*6379|unauthenticated|no auth required</regex>
+  </rule>
+
+  <rule id="WZ-INFO-041" level="12" group="information_gathering,database,data_exposure">
+    <description>Firebase database public read access detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-41</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1530</id>
+      <tactic>Collection</tactic>
+      <technique>Data from Cloud Storage</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>firebaseio\.com/\.json|firebase.*public|rules.*\.read.*true</regex>
+  </rule>
+
+  <rule id="WZ-INFO-042" level="8" group="information_gathering,cloud,data_exposure">
+    <description>AWS S3 bucket ACL and policy enumeration — data leak via misconfigured bucket</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-42</field>
+    <field name="zap_rules">100036</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1530</id>
+      <tactic>Collection</tactic>
+      <technique>Data from Cloud Storage</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>3.1</pci_dss>
+    </compliance>
+    <match>s3\.amazonaws\.com|AccessControlPolicy|BucketPolicy|ListBucket</match>
+  </rule>
+
+  <rule id="WZ-INFO-051" level="8" group="information_gathering,data_exposure">
+    <description>Google dorking — exposed database dump files detected via search engine</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-51</field>
+    <field name="zap_rules">10009</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1592</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Search Open Technical Databases</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>3.1</pci_dss>
+    </compliance>
+    <regex>\.sql\.gz|\.sql\.zip|database.*dump|backup.*\.sql|\.bak.*database</regex>
+  </rule>
+
+  <rule id="WZ-INFO-053" level="8" group="information_gathering,credential_exposure">
+    <description>Public code repository — hardcoded database connection strings detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-53</field>
+    <field name="zap_rules">10010</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+      <dora>Art.10</dora>
+    </compliance>
+    <regex>jdbc:|mongodb://|postgres://|mysql://|redis://.*:.*@|connection_string</regex>
+  </rule>
+
+  <rule id="WZ-INFO-064" level="8" group="information_gathering,cors">
+    <description>CORS origin reflection — cross-origin data exfiltration risk detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-64</field>
+    <field name="zap_rules">40026</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>Access-Control-Allow-Origin: \*|Access-Control-Allow-Credentials: true.*Origin: evil</regex>
+  </rule>
+
+  <rule id="WZ-INFO-067" level="8" group="information_gathering,data_exposure">
+    <description>JIRA/Confluence public instance — internal data exposure detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-66</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1592</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Search Open Technical Databases</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <match>jira.*dashboard|confluence.*display|/secure/Dashboard|/wiki/display/</match>
+  </rule>
+
+  <rule id="WZ-INFO-068" level="10" group="information_gathering,cicd,data_exposure">
+    <description>Jenkins/CI-CD public exposure — build secrets leakage risk</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-67</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1552</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+      <dora>Art.10</dora>
+    </compliance>
+    <match>/job/|/script|/credentials|jenkins.*build|/pipeline|/console</match>
+  </rule>
+
+  <rule id="WZ-INFO-071" level="8" group="information_gathering,credential_exposure">
+    <description>Environment configuration file — database credentials exposure detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-71</field>
+    <field name="zap_rules">10095</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+      <dora>Art.10</dora>
+    </compliance>
+    <regex>\.env|\.env\.bak|DB_PASSWORD|DATABASE_URL|SECRET_KEY_BASE</regex>
+  </rule>
+
+  <rule id="WZ-INFO-072" level="12" group="information_gathering,cloud,credential_exposure">
+    <description>Terraform state file exposure — cloud infrastructure secrets leaked</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-INFO-72</field>
+    <field name="zap_rules">10095</field>
+    <field name="category">information_gathering</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>terraform\.tfstate|tfstate\.backup|terraform.*resource.*aws_</regex>
+  </rule>
+
+  <!-- INFO Lateral Movement -->
+  <rule id="WZ-INFO-LM01" level="10" group="lateral_movement,reconnaissance">
+    <description>Reconnaissance-to-initial-access chain — DNS enumeration to exposed admin panel exploit</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">INFO-LM-001</field>
+    <field name="zap_rules">10004,10010</field>
+    <field name="category">lateral_movement</field>
+    <mitre>
+      <id>T1595</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Active Scanning</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>SI-4</nist_800_53>
+      <nis2>Art.21(2)(a)</nis2>
+    </compliance>
+    <match>/admin|staging\.|dev\.|test\.|\.internal</match>
+  </rule>
+
+  <rule id="WZ-INFO-LM03" level="12" group="lateral_movement,credential_access">
+    <description>Metadata leakage to credential harvesting — JavaScript/API key exploitation chain</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">INFO-LM-003</field>
+    <field name="zap_rules">10004,10010</field>
+    <field name="category">lateral_movement</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+    </compliance>
+    <regex>api_key.*泄露|secret.*=.*["'][a-zA-Z0-9]{16,}|AWS_ACCESS_KEY</regex>
+  </rule>
+
+  <rule id="WZ-INFO-LM05" level="12" group="lateral_movement,subdomain_takeover">
+    <description>Subdomain takeover to lateral movement — dangling CNAME to OAuth redirect hijack</description>
+    <decoded_as>dns_log</decoded_as>
+    <field name="test_id">INFO-LM-005</field>
+    <field name="zap_rules">10004,40026</field>
+    <field name="category">lateral_movement</field>
+    <mitre>
+      <id>T1584</id>
+      <tactic>Resource Development</tactic>
+      <technique>Compromise Infrastructure</technique>
+    </mitre>
+    <compliance>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <match>NXDOMAIN|CNAME.*herokuapp|CNAME.*s3-website|CNAME.*github\.io</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- WSTG-CONF: Configuration and Deployment Management (WSTG-CONF-01 through WSTG-CONF-84 + LM) -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-CONF-001" level="6" group="configuration,network">
+    <description>Network infrastructure configuration — private IP disclosed in responses</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CONF-01</field>
+    <field name="zap_rules">10013,10002</field>
+    <field name="category">configuration</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>1.3</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>10\.\d{1,3}\.\d{1,3}\.\d{1,3}|172\.(1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}</regex>
+  </rule>
+
+  <rule id="WZ-CONF-002" level="8" group="configuration,server">
+    <description>Application platform misconfiguration — server version or debug info leaked</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CONF-02</field>
+    <field name="zap_rules">10023,10036,10037,10038,10055</field>
+    <field name="category">configuration</field>
+    <mitre>
+      <id>T1070</id>
+      <tactic>Defense Evasion</tactic>
+      <technique>Indicator Removal</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>X-Powered-By|Server:.*Apache|Server:.*nginx|Server:.*IIS|debug.*mode</regex>
+  </rule>
+
+  <rule id="WZ-CONF-004" level="8" group="configuration,backup_files">
+    <description>Old backup and unreferenced files — source code or configuration exposed</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CONF-04</field>
+    <field name="zap_rules">10095,10099,40035</field>
+    <field name="category">configuration</field>
+    <mitre>
+      <id>T1070</id>
+      <tactic>Defense Evasion</tactic>
+      <technique>Indicator Removal</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>\.bak|\.old|\.orig|\.save|\.swp|\.tmp|~$|\.env\.bak|\.git/config</regex>
+  </rule>
+
+  <rule id="WZ-CONF-005" level="8" group="configuration,admin">
+    <description>Admin interface accessible — management console without proper authentication</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CONF-05</field>
+    <field name="zap_rules">10033,40028,40029,40042</field>
+    <field name="category">configuration</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>AC-3</nist_800_53>
+    </compliance>
+    <match>/admin|/phpmyadmin|/manager/html|/actuator|/solr/|/wp-admin</match>
+  </rule>
+
+  <rule id="WZ-CONF-007" level="8" group="configuration,hsts">
+    <description>HSTS missing — HTTP Strict Transport Security not configured</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CONF-07</field>
+    <field name="zap_rules">10035,10205</field>
+    <field name="category">configuration</field>
+    <mitre>
+      <id>T1118</id>
+      <tactic>Defense Evasion</tactic>
+      <technique>Install Root Certificate</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>4.1</pci_dss>
+      <nist_800_53>SC-8</nist_800_53>
+    </compliance>
+    <match>Strict-Transport-Security MISSING</match>
+  </rule>
+
+  <rule id="WZ-CONF-012" level="8" group="configuration,csp">
+    <description>Content Security Policy missing or misconfigured — wildcard directives detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CONF-12</field>
+    <field name="zap_rules">10038,10055</field>
+    <field name="category">configuration</field>
+    <mitre>
+      <id>T1140</id>
+      <tactic>Defense Evasion</tactic>
+      <technique>Deobfuscate/Decode Files</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>Content-Security-Policy.*\*|unsafe-inline|unsafe-eval|CSP MISSING</regex>
+  </rule>
+
+  <rule id="WZ-CONF-014" level="7" group="configuration,security_headers">
+    <description>Multiple security headers missing — X-Frame-Options, X-Content-Type-Options, HSTS</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CONF-14</field>
+    <field name="zap_rules">10020,10021,10035,10038,10054,10063,10117</field>
+    <field name="category">configuration</field>
+    <mitre>
+      <id>T1140</id>
+      <tactic>Defense Evasion</tactic>
+      <technique>Deobfuscate/Decode Files</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>X-Frame-Options.*MISSING|X-Content-Type-Options.*MISSING|Permissions-Policy.*MISSING</regex>
+  </rule>
+
+  <rule id="WZ-CONF-016" level="10" group="configuration,cors">
+    <description>CORS misconfiguration — overly permissive cross-origin policy allowing data exfiltration</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CONF-16</field>
+    <field name="zap_rules">40026,10057</field>
+    <field name="category">configuration</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>Access-Control-Allow-Origin: (null|\*)|Access-Control-Allow-Credentials: true.*Origin: .*</regex>
+  </rule>
+
+  <rule id="WZ-CONF-054" level="8" group="configuration,error_disclosure">
+    <description>Error page stack trace disclosure — internal paths and data leaked in error messages</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CONF-54</field>
+    <field name="zap_rules">10045</field>
+    <field name="category">configuration</field>
+    <mitre>
+      <id>T1592</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Host Information</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>at\s+\w+\.\w+\(|\.py", line|\.java:\d+|/var/www/|/usr/share/|stack trace</regex>
+  </rule>
+
+  <rule id="WZ-CONF-057" level="8" group="configuration,spring">
+    <description>Spring Boot Actuator endpoint exposure — sensitive data disclosed via /actuator</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CONF-57</field>
+    <field name="zap_rules">40042</field>
+    <field name="category">configuration</field>
+    <mitre>
+      <id>T1590</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Network Information</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <match>/actuator/env|/actuator/health|/actuator/mappings|/actuator/configprops|/actuator/beans</match>
+  </rule>
+
+  <rule id="WZ-CONF-062" level="12" group="configuration,spring,credential_exposure">
+    <description>Spring Boot Actuator env endpoint — secret variable exposure detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CONF-62</field>
+    <field name="zap_rules">40042</field>
+    <field name="category">configuration</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+    </compliance>
+    <match>/actuator/env|spring.*password|DATABASE_URL|SECRET_KEY</match>
+  </rule>
+
+  <rule id="WZ-CONF-063" level="12" group="configuration,cloud,ssrf">
+    <description>Cloud provider metadata endpoint — AWS/GCP/Azure metadata accessible without SSRF</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-CONF-63</field>
+    <field name="zap_rules">100036</field>
+    <field name="category">configuration</field>
+    <mitre>
+      <id>T1552.005</id>
+      <tactic>Credential Access</tactic>
+      <technique>Cloud Metadata</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>169\.254\.169\.254/latest/meta-data/|/metadata/instance|/computeMetadata/</regex>
+  </rule>
+
+  <!-- CONF Lateral Movement -->
+  <rule id="WZ-CONF-LM01" level="12" group="lateral_movement,cors">
+    <description>CORS misconfiguration to cross-origin pivot — data exfiltration chain via permissive CORS</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">CONF-LM-001</field>
+    <field name="zap_rules">40026,10057</field>
+    <field name="category">lateral_movement</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>6.5</pci_dss>
+      <nist_800_53>SI-4</nist_800_53>
+    </compliance>
+    <regex>Access-Control-Allow-Origin: .*(evil|attacker)|Origin: .*(evil|attacker)</regex>
+  </rule>
+
+  <rule id="WZ-CONF-LM07" level="12" group="lateral_movement,credential_access">
+    <description>Default credentials to infrastructure pivot — admin panel default login to database access</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">CONF-LM-007</field>
+    <field name="zap_rules">10057,40028</field>
+    <field name="category">lateral_movement</field>
+    <mitre>
+      <id>T1078.001</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts — Default Accounts</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.6</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+    </compliance>
+    <match>admin:admin|root:root|tomcat:tomcat|default.*password</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- WSTG-IDM: Identity Management (WSTG-IDM-01 through WSTG-IDM-65 + LM) -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-IDM-001" level="8" group="identity_management,roles">
+    <description>Role definition misconfiguration — improper role hierarchy or privilege overlap detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-IDM-01</field>
+    <field name="zap_rules">10101,10102</field>
+    <field name="category">identity_management</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.5</pci_dss>
+      <nist_800_53>AC-2</nist_800_53>
+      <hipaa>§164.312(a)(1)</hipaa>
+    </compliance>
+    <match>role=|group=|permission=|isAdmin=true</match>
+  </rule>
+
+  <rule id="WZ-IDM-004" level="7" group="identity_management,enumeration">
+    <description>Account enumeration — user existence revealed through login or registration responses</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-IDM-04</field>
+    <field name="zap_rules">40023,10057</field>
+    <field name="category">identity_management</field>
+    <mitre>
+      <id>T1087.002</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.25</gdpr>
+      <pci_dss>8.5</pci_dss>
+    </compliance>
+    <regex>user.*not found|account.*does not exist|invalid username|email.*already registered</regex>
+  </rule>
+
+  <rule id="WZ-IDM-008" level="7" group="identity_management,enumeration">
+    <description>Password reset timing analysis — account enumeration via response timing</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-IDM-08</field>
+    <field name="zap_rules">40023,10057</field>
+    <field name="category">identity_management</field>
+    <mitre>
+      <id>T1087.002</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.25</gdpr>
+    </compliance>
+    <match>/reset-password|/forgot-password|password.*reset|token.*expired</match>
+  </rule>
+
+  <rule id="WZ-IDM-020" level="10" group="identity_management,data_destruction">
+    <description>Account deletion verification failure — identity data not properly destroyed</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-IDM-20</field>
+    <field name="category">identity_management</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.17</gdpr>
+      <pci_dss>3.1</pci_dss>
+      <nist_800_53>AC-2</nist_800_53>
+      <hipaa>§164.312(c)</hipaa>
+    </compliance>
+    <match>/delete-account|account.*deleted|/users/.+/delete|anonymize</match>
+  </rule>
+
+  <rule id="WZ-IDM-042" level="12" group="identity_management,credential_exposure">
+    <description>Password hash exposure in authentication response — credential data leaked</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-IDM-42</field>
+    <field name="zap_rules">10057</field>
+    <field name="category">identity_management</field>
+    <mitre>
+      <id>T1552</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+      <hipaa>§164.312(a)(1)</hipaa>
+    </compliance>
+    <regex>password_hash|passwordHash|pw_hash|bcrypt|sha256|md5.*\$.*\$</regex>
+  </rule>
+
+  <rule id="WZ-IDM-053" level="12" group="identity_management,multi_tenant">
+    <description>Cross-tenant identity data isolation failure — tenant boundary bypass detected</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-IDM-53</field>
+    <field name="zap_rules">10057</field>
+    <field name="category">identity_management</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.5</pci_dss>
+      <nist_800_53>AC-4</nist_800_53>
+      <hipaa>§164.312(a)(1)</hipaa>
+    </compliance>
+    <match>tenant_id=|organization_id=|cross.*tenant|tenant.*bypass</match>
+  </rule>
+
+  <!-- IDM Lateral Movement -->
+  <rule id="WZ-IDM-LM01" level="12" group="lateral_movement,credential_access">
+    <description>Account enumeration to credential stuffing cascade — enumeration leads to credential reuse attack</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">IDM-LM-001</field>
+    <field name="zap_rules">10057,40028</field>
+    <field name="category">lateral_movement</field>
+    <mitre>
+      <id>T1110</id>
+      <tactic>Credential Access</tactic>
+      <technique>Brute Force</technique>
+    </mitre>
+    <compliance>
+      <pci_dss>8.5</pci_dss>
+      <nist_800_53>IA-5</nist_800_53>
+    </compliance>
+    <regex>401.*Unauthorized|login.*failed|invalid.*credential|authentication.*failure</regex>
+  </rule>
+
+  <rule id="WZ-IDM-LM05" level="12" group="lateral_movement,federation">
+    <description>Identity provider federation trust exploitation — SAML/OIDC assertion forgery chain</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">IDM-LM-005</field>
+    <field name="zap_rules">40028,10057</field>
+    <field name="category">lateral_movement</field>
+    <mitre>
+      <id>T1606</id>
+      <tactic>Credential Access</tactic>
+      <technique>Forge Credentials</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <nist_800_53>IA-5</nist_800_53>
+      <dora>Art.10</dora>
+    </compliance>
+    <match>SAMLResponse|SAML.*assertion|oauth.*token|openid.*id_token</match>
+  </rule>
+
+</group>

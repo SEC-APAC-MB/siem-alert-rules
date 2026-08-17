@@ -1,0 +1,983 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "Microsoft Sentinel analytics rules — wstg-07-09",
+  "total_rules": 32,
+  "rules": [
+    {
+      "rule_id": "MS-WSTG07-001",
+      "name": "SQL Injection Attack Detected",
+      "description": "Detects SQL injection patterns in HTTP requests including UNION SELECT, OR 1=1, and comment-based injection",
+      "severity": "High",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"sql-injection\", \"injection\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG07-001"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-SI-10"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "sql-injection",
+        "injection"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-WSTG07-002",
+      "name": "Cross-Site Scripting (XSS) Reflected",
+      "description": "Detects reflected XSS patterns in HTTP request parameters including script tags and event handlers",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"xss\", \"reflected-xss\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1059.007"
+      ],
+      "references": [
+        "WSTG07-002"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "xss",
+        "reflected-xss"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG07-003",
+      "name": "Cross-Site Scripting (XSS) Stored",
+      "description": "Detects stored XSS patterns where malicious scripts are persisted and served to other users",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"xss\", \"stored-xss\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1059.007"
+      ],
+      "references": [
+        "WSTG07-003"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "xss",
+        "stored-xss"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG07-004",
+      "name": "Command Injection Detection",
+      "description": "Detects OS command injection patterns including pipe, semicolon, backtick, and dollar-paren command substitution",
+      "severity": "High",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"command-injection\", \"injection\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess",
+        "Execution"
+      ],
+      "techniques": [
+        "T1190",
+        "T1059"
+      ],
+      "references": [
+        "WSTG07-004"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-SI-10"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "command-injection",
+        "injection"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-WSTG07-005",
+      "name": "LDAP Injection Attack",
+      "description": "Detects LDAP injection patterns in authentication and search parameters using LDAP special characters",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"ldap-injection\", \"injection\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG07-005"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "ldap-injection",
+        "injection"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG07-006",
+      "name": "XML External Entity (XXE) Injection",
+      "description": "Detects XXE attack patterns in XML request bodies including SYSTEM and PUBLIC external entity declarations",
+      "severity": "High",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"xxe\", \"injection\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG07-006"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "xxe",
+        "injection"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-WSTG07-007",
+      "name": "Server-Side Request Forgery (SSRF)",
+      "description": "Detects SSRF attempts targeting internal networks, cloud metadata, and localhost services",
+      "severity": "High",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"ssrf\", \"server-side\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG07-007"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-AC-4"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "ssrf",
+        "server-side"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-WSTG07-008",
+      "name": "Server-Side Template Injection (SSTI)",
+      "description": "Detects template injection patterns including Jinja2, Twig, Freemarker, and Velocity expressions",
+      "severity": "High",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"ssti\", \"template-injection\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG07-008"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "ssti",
+        "template-injection"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-WSTG07-009",
+      "name": "NoSQL Injection Attack",
+      "description": "Detects NoSQL injection patterns including MongoDB $where, $regex, and $gt operators",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"nosql-injection\", \"injection\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG07-009"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "nosql-injection",
+        "injection"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG07-010",
+      "name": "Insecure Deserialization Attack",
+      "description": "Detects insecure deserialization of Java, Python, PHP, and .NET serialized objects",
+      "severity": "High",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"deserialization\", \"injection\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG07-010"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "deserialization",
+        "injection"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-WSTG07-011",
+      "name": "HTTP Parameter Pollution",
+      "description": "Detects HTTP parameter pollution attacks where duplicate parameters bypass validation",
+      "severity": "Low",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"hpp\", \"parameter-pollution\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG07-011"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "hpp",
+        "parameter-pollution"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "MS-WSTG07-012",
+      "name": "File Upload Attack — Malicious File Type",
+      "description": "Detects upload of potentially malicious file types including webshells, executables, and script files",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"file-upload\", \"webshell\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess",
+        "CommandAndControl"
+      ],
+      "techniques": [
+        "T1190",
+        "T1105"
+      ],
+      "references": [
+        "WSTG07-012"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "file-upload",
+        "webshell"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG07-013",
+      "name": "Host Header Injection",
+      "description": "Detects Host header injection attacks used for password reset poisoning, cache poisoning, and SSRF",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"host-header\", \"injection\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG07-013"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "host-header",
+        "injection"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG07-014",
+      "name": "GraphQL Injection and Introspection Abuse",
+      "description": "Detects GraphQL injection, excessive introspection queries, and depth-based DoS attacks",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"graphql\", \"injection\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG07-014"
+      ],
+      "compliance": [
+        "API3-009"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "graphql",
+        "injection"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG07-015",
+      "name": "Buffer Overflow via HTTP Request",
+      "description": "Detects unusually long HTTP requests that may trigger buffer overflow vulnerabilities",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ninput_validation_events\n| where input_validation has_any(\"wstg\", \"input-validation\", \"buffer-overflow\", \"overflow\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG07-015"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "input-validation",
+        "buffer-overflow",
+        "overflow"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG08-001",
+      "name": "DOM-Based Cross-Site Scripting",
+      "description": "Detects DOM-based XSS patterns where client-side JavaScript renders user input unsafely",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nclient_side_events\n| where client_side has_any(\"wstg\", \"client-side\", \"dom-xss\", \"xss\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1059.007"
+      ],
+      "references": [
+        "WSTG08-001"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "client-side",
+        "dom-xss",
+        "xss"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG08-002",
+      "name": "JavaScript Execution via eval or document.write",
+      "description": "Detects unsafe JavaScript patterns including eval(), document.write(), and innerHTML with untrusted input",
+      "severity": "Low",
+      "query": "let threshold = 5;\nclient_side_events\n| where client_side has_any(\"wstg\", \"client-side\", \"js-execution\", \"xss\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1059.007"
+      ],
+      "references": [
+        "WSTG08-002"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "client-side",
+        "js-execution",
+        "xss"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "MS-WSTG08-003",
+      "name": "Client-Side URL Redirect (Open Redirect)",
+      "description": "Detects open redirect vulnerabilities where client-side JavaScript redirects to untrusted URLs",
+      "severity": "Low",
+      "query": "let threshold = 5;\nclient_side_events\n| where client_side has_any(\"wstg\", \"client-side\", \"open-redirect\", \"url-redirect\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1189"
+      ],
+      "references": [
+        "WSTG08-003"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "client-side",
+        "open-redirect",
+        "url-redirect"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "MS-WSTG08-004",
+      "name": "CSS Injection via Style Attribute",
+      "description": "Detects CSS injection patterns through style attributes or CSS files that could exfiltrate data",
+      "severity": "Informational",
+      "query": "let threshold = 5;\nclient_side_events\n| where client_side has_any(\"wstg\", \"client-side\", \"css-injection\", \"data-theft\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1189"
+      ],
+      "references": [
+        "WSTG08-004"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "client-side",
+        "css-injection",
+        "data-theft"
+      ],
+      "risk_score": 30
+    },
+    {
+      "rule_id": "MS-WSTG08-005",
+      "name": "PostMessage API Abuse — Wildcard Origin",
+      "description": "Detects PostMessage API usage with wildcard origins enabling cross-origin data theft",
+      "severity": "Low",
+      "query": "let threshold = 5;\nclient_side_events\n| where client_side has_any(\"wstg\", \"client-side\", \"postmessage\", \"cross-origin\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1189"
+      ],
+      "references": [
+        "WSTG08-005"
+      ],
+      "compliance": [
+        "NIST-CM-7"
+      ],
+      "tags": [
+        "wstg",
+        "client-side",
+        "postmessage",
+        "cross-origin"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "MS-WSTG08-006",
+      "name": "Web Storage (localStorage/sessionStorage) Data Leakage",
+      "description": "Detects sensitive data stored in browser web storage accessible to XSS attacks",
+      "severity": "Low",
+      "query": "let threshold = 5;\nclient_side_events\n| where client_side has_any(\"wstg\", \"client-side\", \"web-storage\", \"data-exposure\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1539"
+      ],
+      "references": [
+        "WSTG08-006"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "client-side",
+        "web-storage",
+        "data-exposure"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "MS-WSTG08-007",
+      "name": "Service Worker Registration Abuse",
+      "description": "Detects unauthorized service worker registration that could intercept network requests",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nclient_side_events\n| where client_side has_any(\"wstg\", \"client-side\", \"service-worker\", \"interception\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1189"
+      ],
+      "references": [
+        "WSTG08-007"
+      ],
+      "compliance": [
+        "NIST-CM-7"
+      ],
+      "tags": [
+        "wstg",
+        "client-side",
+        "service-worker",
+        "interception"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG08-008",
+      "name": "CORS Wildcard Configuration",
+      "description": "Detects CORS configurations with wildcard origins or origin reflection enabling data theft",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nclient_side_events\n| where client_side has_any(\"wstg\", \"client-side\", \"cors\", \"misconfiguration\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1189"
+      ],
+      "references": [
+        "WSTG08-008"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "client-side",
+        "cors",
+        "misconfiguration"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG09-001",
+      "name": "SSRF to Internal Services and Cloud Metadata",
+      "description": "Detects SSRF requests targeting internal services, localhost, and cloud metadata endpoints",
+      "severity": "High",
+      "query": "let threshold = 5;\nserver_side_events\n| where server_side has_any(\"wstg\", \"server-side\", \"ssrf\", \"cloud-metadata\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG09-001"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-AC-4"
+      ],
+      "tags": [
+        "wstg",
+        "server-side",
+        "ssrf",
+        "cloud-metadata"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-WSTG09-002",
+      "name": "HTTP Request Smuggling",
+      "description": "Detects HTTP request smuggling via CL.TE or TE.CL content-length/transfer-encoding discrepancies",
+      "severity": "High",
+      "query": "let threshold = 5;\nserver_side_events\n| where server_side has_any(\"wstg\", \"server-side\", \"request-smuggling\", \"http-protocol\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG09-002"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "server-side",
+        "request-smuggling",
+        "http-protocol"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-WSTG09-003",
+      "name": "Race Condition — Concurrent Request Exploitation",
+      "description": "Detects concurrent requests exploiting race conditions in financial or state-changing operations",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nserver_side_events\n| where server_side has_any(\"wstg\", \"server-side\", \"race-condition\", \"concurrency\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Execution"
+      ],
+      "techniques": [
+        "T1129"
+      ],
+      "references": [
+        "WSTG09-003"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "server-side",
+        "race-condition",
+        "concurrency"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG09-004",
+      "name": "File Inclusion (LFI/RFI)",
+      "description": "Detects local and remote file inclusion attacks via path traversal or URL inclusion",
+      "severity": "High",
+      "query": "let threshold = 5;\nserver_side_events\n| where server_side has_any(\"wstg\", \"server-side\", \"file-inclusion\", \"lfi-rfi\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG09-004"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "server-side",
+        "file-inclusion",
+        "lfi-rfi"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-WSTG09-005",
+      "name": "Server-Side Code Injection",
+      "description": "Detects server-side code injection through eval, exec, system calls, and expression language abuse",
+      "severity": "High",
+      "query": "let threshold = 5;\nserver_side_events\n| where server_side has_any(\"wstg\", \"server-side\", \"code-injection\", \"rce\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess",
+        "Execution"
+      ],
+      "techniques": [
+        "T1190",
+        "T1059"
+      ],
+      "references": [
+        "WSTG09-005"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "server-side",
+        "code-injection",
+        "rce"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-WSTG09-006",
+      "name": "Denial of Service via Resource Exhaustion",
+      "description": "Detects denial of service attacks through resource exhaustion including CPU, memory, and connection limits",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nserver_side_events\n| where server_side has_any(\"wstg\", \"server-side\", \"dos\", \"resource-exhaustion\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1498",
+        "T1499"
+      ],
+      "references": [
+        "WSTG09-006"
+      ],
+      "compliance": [
+        "NIST-SC-5"
+      ],
+      "tags": [
+        "wstg",
+        "server-side",
+        "dos",
+        "resource-exhaustion"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG09-007",
+      "name": "Unsafe File Upload — Webshell",
+      "description": "Detects upload of webshell files (PHP, JSP, ASP) through file upload functionality",
+      "severity": "High",
+      "query": "let threshold = 5;\nserver_side_events\n| where server_side has_any(\"wstg\", \"server-side\", \"file-upload\", \"webshell\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess",
+        "CommandAndControl"
+      ],
+      "techniques": [
+        "T1190",
+        "T1105"
+      ],
+      "references": [
+        "WSTG09-007"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "server-side",
+        "file-upload",
+        "webshell"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-WSTG09-008",
+      "name": "Cryptography — Weak TLS Cipher Suite",
+      "description": "Detects negotiation of weak or deprecated TLS cipher suites during connection setup",
+      "severity": "Low",
+      "query": "let threshold = 5;\ncryptography_events\n| where cryptography has_any(\"wstg\", \"cryptography\", \"weak-tls\", \"encryption\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "CommandAndControl"
+      ],
+      "techniques": [
+        "T1573"
+      ],
+      "references": [
+        "WSTG09-008"
+      ],
+      "compliance": [
+        "PCI-DSS-4.1",
+        "HIPAA-TS-001"
+      ],
+      "tags": [
+        "wstg",
+        "cryptography",
+        "weak-tls",
+        "encryption"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "MS-WSTG09-009",
+      "name": "Cryptography — Hardcoded Encryption Keys",
+      "description": "Detects hardcoded encryption keys in source code or configuration files",
+      "severity": "High",
+      "query": "let threshold = 5;\ncryptography_events\n| where cryptography has_any(\"wstg\", \"cryptography\", \"hardcoded-keys\", \"encryption\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1552"
+      ],
+      "references": [
+        "WSTG09-009"
+      ],
+      "compliance": [
+        "PCI-DSS-3.5",
+        "HIPAA-ADM-006"
+      ],
+      "tags": [
+        "wstg",
+        "cryptography",
+        "hardcoded-keys",
+        "encryption"
+      ],
+      "risk_score": 90
+    }
+  ]
+}

@@ -1,0 +1,211 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "QRadar SIEM alert rules — mobile-security",
+  "total_rules": 10,
+  "rules": [
+    {
+      "rule_id": "QR-MOB-001",
+      "name": "Mobile — Insecure Data Storage on Device",
+      "description": "Detects mobile app data storage issues including unencrypted SQLite databases and shared preferences",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%data-storage%' OR payload ILIKE '%masvs%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "MOB-001"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1552.001"
+      },
+      "compliance": [
+        "MASVS-L2-2.1",
+        "GDPR-32A"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-MOB-002",
+      "name": "Mobile — Insecure Network Communication",
+      "description": "Detects mobile apps communicating over HTTP, using weak TLS, or accepting self-signed certificates",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%network%' OR payload ILIKE '%masvs%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "MOB-002"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1041"
+      },
+      "compliance": [
+        "MASVS-L2-3.1",
+        "PCI-DSS-4.1"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-MOB-003",
+      "name": "Mobile — Hardcoded Credentials in Binary",
+      "description": "Detects hardcoded credentials, API keys, or tokens in mobile app binaries or configuration files",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%authentication%' OR payload ILIKE '%hardcoded%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "MOB-003"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1552.001"
+      },
+      "compliance": [
+        "MASVS-L2-4.1"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-MOB-004",
+      "name": "Mobile — Local Privilege Escalation (Root/Jailbreak)",
+      "description": "Detects mobile app authorization bypass through rooted or jailbroken devices or debug modes",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%authorization%' OR payload ILIKE '%root-detection%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "MOB-004"
+      ],
+      "mitre": {
+        "tactic": "Defense Evasion",
+        "technique": "T1548"
+      },
+      "compliance": [
+        "MASVS-L2-5.1"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-MOB-005",
+      "name": "Mobile — Intent Spoofing and Deep Link Abuse",
+      "description": "Detects Android intent spoofing or iOS deep link abuse for unauthorized actions",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%intent-spoofing%' OR payload ILIKE '%deep-link%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "MOB-005"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "MASVS-L2-7.1"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-MOB-006",
+      "name": "Mobile — Certificate Pinning Bypass",
+      "description": "Detects SSL/TLS certificate pinning bypass attempts on mobile applications",
+      "severity": 5,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%certificate-pinning%' OR payload ILIKE '%ssl%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "MOB-006"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1557"
+      },
+      "compliance": [
+        "MASVS-L2-3.5"
+      ],
+      "credibility": 7,
+      "relevance": 5
+    },
+    {
+      "rule_id": "QR-MOB-007",
+      "name": "Mobile — Sensitive Data in Logs",
+      "description": "Detects sensitive data such as tokens, passwords, or PII logged by mobile applications in cleartext",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%logging%' OR payload ILIKE '%data-exposure%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "MOB-007"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1213"
+      },
+      "compliance": [
+        "MASVS-L2-2.8",
+        "GDPR-32A"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-MOB-008",
+      "name": "Mobile — Clipboard Data Exposure",
+      "description": "Detects mobile apps exposing sensitive data through the system clipboard",
+      "severity": 5,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%clipboard%' OR payload ILIKE '%data-exposure%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "MOB-008"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1187"
+      },
+      "compliance": [
+        "MASVS-L2-2.6"
+      ],
+      "credibility": 7,
+      "relevance": 5
+    },
+    {
+      "rule_id": "QR-MOB-009",
+      "name": "Mobile — Biometric Authentication Bypass",
+      "description": "Detects attempts to bypass biometric authentication on mobile devices",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%biometric%' OR payload ILIKE '%auth-bypass%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "MOB-009"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1111"
+      },
+      "compliance": [
+        "MASVS-L2-4.7"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-MOB-010",
+      "name": "Mobile — Screenshot and Screen Recording Detection",
+      "description": "Detects screen capture or recording while sensitive content is displayed on mobile devices",
+      "severity": 5,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%screen-capture%' OR payload ILIKE '%data-theft%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "MOB-010"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1113"
+      },
+      "compliance": [
+        "MASVS-L2-2.5"
+      ],
+      "credibility": 7,
+      "relevance": 5
+    }
+  ]
+}

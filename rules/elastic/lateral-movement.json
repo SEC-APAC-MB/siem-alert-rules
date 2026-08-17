@@ -1,0 +1,222 @@
+[
+  {
+    "id": "ES-LAT-0700",
+    "name": "Lateral Movement: RDP Followed by Credential Access",
+    "description": "Detects lateral movement: rdp followed by credential access \u2014 lateral movement chain correlation",
+    "severity": "critical",
+    "category": "lateral-movement",
+    "mitre_attack": [
+      "T1021",
+      "T1550",
+      "T1557",
+      "T1558"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8"
+    ],
+    "query": "sequence by user.name with maxspan=30m [authentication where event.outcome:success and network.protocol:rdp] [process where process.name:procdump.exe and process.args:*lsass*]",
+    "rule_type": "eql",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-LAT-0701",
+    "name": "Lateral Movement: SSH Followed by Privilege Escalation",
+    "description": "Detects lateral movement: ssh followed by privilege escalation \u2014 lateral movement chain correlation",
+    "severity": "critical",
+    "category": "lateral-movement",
+    "mitre_attack": [
+      "T1021",
+      "T1550",
+      "T1557",
+      "T1558"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8"
+    ],
+    "query": "sequence by user.name with maxspan=15m [authentication where event.outcome:success and network.protocol:ssh and source.ip:*] [process where process.name:sudo and process.args:*root*]",
+    "rule_type": "eql",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-LAT-0702",
+    "name": "Lateral Movement: SMB Share Access Followed by File Encryption",
+    "description": "Detects lateral movement: smb share access followed by file encryption \u2014 lateral movement chain correlation",
+    "severity": "critical",
+    "category": "lateral-movement",
+    "mitre_attack": [
+      "T1021",
+      "T1550",
+      "T1557",
+      "T1558"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8"
+    ],
+    "query": "sequence by user.name with maxspan=30m [file where event.action:accessed and network.protocol:smb] [process where process.args:(\"-encrypt\" OR \"gpg --encrypt\")]",
+    "rule_type": "eql",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-LAT-0703",
+    "name": "Lateral Movement: WMI Remote Execution Followed by Persistence",
+    "description": "Detects lateral movement: wmi remote execution followed by persistence \u2014 lateral movement chain correlation",
+    "severity": "high",
+    "category": "lateral-movement",
+    "mitre_attack": [
+      "T1021",
+      "T1550",
+      "T1557",
+      "T1558"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8"
+    ],
+    "query": "sequence by host.name with maxspan=20m [process where process.name:wmic.exe and process.args:*exec*] [registry where registry.path:*\\\\Run\\\\*]",
+    "rule_type": "eql",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-LAT-0704",
+    "name": "Lateral Movement: PsExec Followed by Discovery",
+    "description": "Detects lateral movement: psexec followed by discovery \u2014 lateral movement chain correlation",
+    "severity": "high",
+    "category": "lateral-movement",
+    "mitre_attack": [
+      "T1021",
+      "T1550",
+      "T1557",
+      "T1558"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8"
+    ],
+    "query": "sequence by user.name with maxspan=15m [process where process.name:psexec.exe or process.name:psexec64.exe] [process where process.name:(systeminfo OR ipconfig OR net.exe)]",
+    "rule_type": "eql",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-LAT-0705",
+    "name": "Lateral Movement: PowerShell Remoting Followed by Credential Dumping",
+    "description": "Detects lateral movement: powershell remoting followed by credential dumping \u2014 lateral movement chain correlation",
+    "severity": "critical",
+    "category": "lateral-movement",
+    "mitre_attack": [
+      "T1021",
+      "T1550",
+      "T1557",
+      "T1558"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8"
+    ],
+    "query": "sequence by user.name with maxspan=10m [process where process.name:powershell.exe and process.args:*-remoting*] [process where process.name:(procdump.exe OR taskmgr.exe) and process.args:*lsass*]",
+    "rule_type": "eql",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-LAT-0706",
+    "name": "Lateral Movement: WinRM Followed by Defense Evasion",
+    "description": "Detects lateral movement: winrm followed by defense evasion \u2014 lateral movement chain correlation",
+    "severity": "critical",
+    "category": "lateral-movement",
+    "mitre_attack": [
+      "T1021",
+      "T1550",
+      "T1557",
+      "T1558"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8"
+    ],
+    "query": "sequence by user.name with maxspan=20m [authentication where event.outcome:success and network.protocol:winrm] [process where process.name:powershell.exe and process.args:(\"-enc\" OR \"FromBase64String\")]",
+    "rule_type": "eql",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-LAT-0707",
+    "name": "Lateral Movement: Kerberoasting Followed by Lateral Movement",
+    "description": "Detects lateral movement: kerberoasting followed by lateral movement \u2014 lateral movement chain correlation",
+    "severity": "critical",
+    "category": "lateral-movement",
+    "mitre_attack": [
+      "T1021",
+      "T1550",
+      "T1557",
+      "T1558"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8"
+    ],
+    "query": "sequence by user.name with maxspan=30m [process where process.name:powershell.exe and process.args:*Kerberoast*] [authentication where event.outcome:success and source.ip:*]",
+    "rule_type": "eql",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-LAT-0708",
+    "name": "Lateral Movement: DCSync Attack Chain",
+    "description": "Detects lateral movement: dcsync attack chain \u2014 lateral movement chain correlation",
+    "severity": "critical",
+    "category": "lateral-movement",
+    "mitre_attack": [
+      "T1021",
+      "T1550",
+      "T1557",
+      "T1558"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8"
+    ],
+    "query": "sequence by user.name with maxspan=10m [process where process.name:mimikatz.exe or process.args:*lsadump*] [process where process.args:*dcsync*]",
+    "rule_type": "eql",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-LAT-0709",
+    "name": "Lateral Movement: Pass-the-Hash Detection",
+    "description": "Detects lateral movement: pass-the-hash detection \u2014 lateral movement chain correlation",
+    "severity": "critical",
+    "category": "lateral-movement",
+    "mitre_attack": [
+      "T1021",
+      "T1550",
+      "T1557",
+      "T1558"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8"
+    ],
+    "query": "authentication where event.outcome:success and user.name:* AND NOT source.ip:(10.0.0.0/8 OR 172.16.0.0/12 OR 192.168.0.0/16) and process.name:* and process.hash.*:known_hash",
+    "rule_type": "eql",
+    "interval": "5m"
+  }
+]

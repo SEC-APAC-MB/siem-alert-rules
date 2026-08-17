@@ -1,0 +1,820 @@
+<!-- FortiSIEM SIEM Alert Rules — WSTG 10: Business Logic -->
+<rules>
+  <rule id="FSIEM-BIZL-001" severity="HIGH" enabled="true">
+    <name>Price Manipulation - Negative Amount</name>
+    <description>Detects transactions with negative price or amount values</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(cart|checkout|order|purchase|payment|transaction).*</url>
+        <http_method regex="true">POST|PUT|PATCH</http_method>
+        <content regex="true">.*"(price|amount|total|cost|value|quantity)".*-[0-9]+.*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-01</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-002" severity="HIGH" enabled="true">
+    <name>Quantity Manipulation - Excessive Quantity</name>
+    <description>Detects orders with abnormally large quantities</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(cart|order|checkout|purchase).*</url>
+        <http_method regex="true">POST|PUT</http_method>
+        <content regex="true">.*"quantity".*([0-9]{6,}|999999|2147483647).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-01</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-003" severity="HIGH" enabled="true">
+    <name>Bypass Payment - Zero Amount Transaction</name>
+    <description>Detects transactions processed with zero amount</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(checkout|payment|process|charge|transaction).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*"(amount|total|price|cost)".*[":]\s*(0|0\.00|0,00).*</content>
+        <response_code regex="true">200|201</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-02</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-004" severity="HIGH" enabled="true">
+    <name>Coupon Abuse - Multiple Redemptions</name>
+    <description>Detects coupon or discount codes used more than allowed</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(apply-coupon|discount|promo|voucher).*</url>
+        <http_method>POST</http_method>
+        <same_coupon_count regex="true">>1</same_coupon_count>
+        <time_window>3600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-02</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-005" severity="MEDIUM" enabled="true">
+    <name>Workflow Bypass - Skip Steps</name>
+    <description>Detects workflow step bypass by accessing later stages directly</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(checkout|confirm|complete|finalize|submit).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">200|201</response_code>
+        <previous_step_completed regex="true">false</previous_step_completed>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-03</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-006" severity="HIGH" enabled="true">
+    <name>Refund Abuse - Excessive Refund Requests</name>
+    <description>Detects users submitting excessive refund requests</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(refund|return|cancel).*</url>
+        <http_method>POST</http_method>
+        <same_user_count regex="true">>5</same_user_count>
+        <time_window>86400</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-04</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-007" severity="MEDIUM" enabled="true">
+    <name>Account Balance Manipulation</name>
+    <description>Detects direct modification of account balance or credit parameters</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(api|v[0-9])\/(user|account|profile|wallet|balance).*</url>
+        <http_method regex="true">PUT|PATCH</http_method>
+        <content regex="true">.*"(balance|credit|wallet|account_balance|funds|money)".*</content>
+        <user_role regex="true">!(admin|superuser|system)</user_role>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-01</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-008" severity="HIGH" enabled="true">
+    <name>Race Condition - Concurrent Transaction</name>
+    <description>Detects concurrent requests that may exploit race conditions</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(transfer|withdraw|purchase|checkout|redeem).*</url>
+        <http_method>POST</http_method>
+        <same_user_concurrent regex="true">>3</same_user_concurrent>
+        <time_window>5</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-05</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-009" severity="MEDIUM" enabled="true">
+    <name>Parameter Tampering - Hidden Field Modification</name>
+    <description>Detects modification of hidden form fields affecting business logic</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(order|checkout|purchase|payment).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*"(price|total|discount|tax|shipping|fee|amount)".*[":]\s*[0-9]+.*</content>
+        <price_changed regex="true">true</price_changed>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-01</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-010" severity="HIGH" enabled="true">
+    <name>Anti-Automation Bypass - Rate Limit Violation</name>
+    <description>Detects automated requests exceeding rate limits</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(register|signup|reset-password|forgot-password|verify|login).*</url>
+        <http_method>POST</http_method>
+        <count regex="true">>10</count>
+        <time_window>60</time_window>
+        <source_ip regex="true">.*</source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1589</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>WSTG-BIZL-06</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-011" severity="MEDIUM" enabled="true">
+    <name>File Upload Bypass - Content Type Mismatch</name>
+    <description>Detects file uploads where declared content type doesn't match actual content</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(upload|file|attachment|document|media).*</url>
+        <http_method>POST</http_method>
+        <content_type regex="true">.*image/(jpeg|png|gif|webp).*</content_type>
+        <file_content regex="true">.*(&lt;\?php|&lt;script|&lt;html|MZ|#!/|&lt;%.*)</file_content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-07</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-012" severity="MEDIUM" enabled="true">
+    <name>File Upload Bypass - Double Extension</name>
+    <description>Detects file uploads with double extensions attempting bypass</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(upload|file|attachment).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*\.(jpg|png|gif|jpeg|doc|pdf)\.(php|jsp|asp|aspx|exe|sh|py|rb|pl).*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-07</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-013" severity="HIGH" enabled="true">
+    <name>Email Bombing - Mass Email Send</name>
+    <description>Detects mass email send operations indicating email bombing</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(send|email|notify|subscribe|newsletter|forgot-password).*</url>
+        <http_method>POST</http_method>
+        <count regex="true">>20</count>
+        <time_window>300</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>WSTG-BIZL-06</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-014" severity="MEDIUM" enabled="true">
+    <name>OTP Bypass - Excessive Verification Attempts</name>
+    <description>Detects excessive OTP verification attempts indicating brute force</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(verify|otp|2fa|mfa|two-factor|confirm).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">401|403</response_code>
+        <count regex="true">>5</count>
+        <time_window>300</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3</control>
+      <standard>NIST</standard>
+      <control>IA-2</control>
+    </compliance>
+    <references>WSTG-BIZL-08</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-015" severity="HIGH" enabled="true">
+    <name>Transaction Amount Mismatch</name>
+    <description>Detects discrepancy between displayed and processed transaction amounts</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(checkout|payment|process|charge).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*"(amount|total)".*[0-9]+.*</content>
+        <displayed_amount regex="true">true</displayed_amount>
+        <processed_amount_mismatch regex="true">true</processed_amount_mismatch>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-01</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-016" severity="MEDIUM" enabled="true">
+    <name>Shipping Address Manipulation</name>
+    <description>Detects changes to shipping address after payment confirmation</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(shipping|address|delivery).*</url>
+        <http_method regex="true">PUT|PATCH</http_method>
+        <content regex="true">.*"(address|city|state|zip|country)".*</content>
+        <order_status regex="true">paid|confirmed|processing</order_status>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-03</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-017" severity="HIGH" enabled="true">
+    <name>Refund Amount Exceeds Purchase</name>
+    <description>Detects refund amounts exceeding original purchase price</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(refund|return|credit).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*"refund_amount".*</content>
+        <refund_exceeds_purchase regex="true">true</refund_exceeds_purchase>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-04</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-018" severity="MEDIUM" enabled="true">
+    <name>Inventory Manipulation - Negative Stock</name>
+    <description>Detects inventory quantities going negative</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(inventory|stock|product).*</url>
+        <http_method regex="true">PUT|PATCH</http_method>
+        <content regex="true">.*"(stock|quantity|inventory|available)".*[":]\s*-[0-9]+.*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-01</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-019" severity="HIGH" enabled="true">
+    <name>Time-Based Attack - Outside Business Hours</name>
+    <description>Detects transactions processed outside expected business hours</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(approve|authorize|transfer|payment).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">200|201</response_code>
+        <time_outside_business_hours regex="true">true</time_outside_business_hours>
+        <amount regex="true">>10000</amount>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-09</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-020" severity="MEDIUM" enabled="true">
+    <name>Subscription Bypass - Tier Upgrade Without Payment</name>
+    <description>Detects tier upgrades without corresponding payment</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(subscription|plan|tier|upgrade|membership).*</url>
+        <http_method regex="true">PUT|PATCH</http_method>
+        <content regex="true">.*"(plan|tier|level|subscription)".*"(premium|pro|enterprise|vip|gold|platinum)".*</content>
+        <payment_verified regex="true">false</payment_verified>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-03</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-021" severity="HIGH" enabled="true">
+    <name>Interest Rate Manipulation</name>
+    <description>Detects modification of interest rate parameters in financial transactions</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(loan|mortgage|interest|rate|credit).*</url>
+        <http_method regex="true">PUT|PATCH</http_method>
+        <content regex="true">.*"(interest_rate|rate|apr|apy)".*</content>
+        <user_role regex="true">!(admin|system)</user_role>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+    </compliance>
+    <references>WSTG-BIZL-01</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-022" severity="MEDIUM" enabled="true">
+    <name>Data Export Limit Bypass</name>
+    <description>Detects data export exceeding configured limits</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(export|download|report|csv|pdf).*</url>
+        <http_method regex="true">GET|POST</http_method>
+        <response_code>200</response_code>
+        <data_volume regex="true">>100MB</data_volume>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1567</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-10</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-023" severity="HIGH" enabled="true">
+    <name>Multi-Factor Authentication Bypass in Transaction</name>
+    <description>Detects high-value transactions completed without MFA verification</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(transfer|payment|withdraw|send).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">200|201</response_code>
+        <amount regex="true">>5000</amount>
+        <mfa_verified regex="true">false</mfa_verified>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3</control>
+      <standard>NIST</standard>
+      <control>IA-2</control>
+    </compliance>
+    <references>WSTG-BIZL-08</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-024" severity="MEDIUM" enabled="true">
+    <name>Account Creation Rate Limit Bypass</name>
+    <description>Detects mass account creation exceeding rate limits</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(register|signup|create-account|new-user).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">200|201</response_code>
+        <count regex="true">>5</count>
+        <time_window>300</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1589</technique>
+    </mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>WSTG-BIZL-06</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-025" severity="HIGH" enabled="true">
+    <name>API Key Exposure in Response</name>
+    <description>Detects API keys or secrets exposed in API responses</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(api|v[0-9])\/.*</url>
+        <http_method>GET</http_method>
+        <response_code>200</response_code>
+        <content regex="true">.*"(api_key|secret|token|password|credential|private_key|access_key)".*"[a-zA-Z0-9+/=]{20,}".*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>WSTG-BIZL-07</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-026" severity="MEDIUM" enabled="true">
+    <name>Date/Time Manipulation - Future Dating</name>
+    <description>Detects transactions with future-dated timestamps</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(schedule|book|reserve|appointment|order).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*"(date|time|schedule|start)".*</content>
+        <future_date regex="true">true</future_date>
+        <future_offset_days regex="true">>365</future_offset_days>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-09</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-027" severity="MEDIUM" enabled="true">
+    <name>IDOR Pattern - Sequential Resource Access</name>
+    <description>Detects sequential access to resources indicating IDOR testing</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(api|v[0-9])\/(user|order|document|record|invoice|ticket)\/[0-9]+.*</url>
+        <http_method>GET</http_method>
+        <count regex="true">>20</count>
+        <time_window>300</time_window>
+        <sequential_pattern regex="true">true</sequential_pattern>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>AC-4</control>
+    </compliance>
+    <references>WSTG-BIZL-10</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-028" severity="HIGH" enabled="true">
+    <name>Gift Card Balance Drain</name>
+    <description>Detects rapid sequential gift card balance checks or redemptions</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(gift-card|voucher|coupon|redeem|balance-check).*</url>
+        <http_method>POST</http_method>
+        <count regex="true">>10</count>
+        <time_window>300</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-BIZL-04</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-029" severity="MEDIUM" enabled="true">
+    <name>Two-Factor Skip - MFA Step Bypass</name>
+    <description>Detects access to MFA-protected endpoints without MFA completion</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(dashboard|account|settings|profile|transaction).*</url>
+        <http_method>GET</http_method>
+        <response_code>200</response_code>
+        <auth_steps_completed regex="true">1</auth_steps_completed>
+        <auth_steps_required regex="true">2</auth_steps_required>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3</control>
+      <standard>NIST</standard>
+      <control>IA-2</control>
+    </compliance>
+    <references>WSTG-BIZL-08</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+
+  <rule id="FSIEM-BIZL-030" severity="HIGH" enabled="true">
+    <name>Privilege Escalation via Business Flow</name>
+    <description>Detects privilege escalation through business process manipulation</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(approve|escalate|grant|promote|upgrade|assign-role).*</url>
+        <http_method regex="true">POST|PUT|PATCH</http_method>
+        <response_code regex="true">200|201|204</response_code>
+        <user_role regex="true">user|viewer|member</user_role>
+        <target_role regex="true">admin|superuser|manager</target_role>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(a)</control>
+      <standard>NIST</standard>
+      <control>AC-6</control>
+    </compliance>
+    <references>WSTG-BIZL-03</references>
+    <action>ALERT</action>
+    <group>business_logic</group>
+  </rule>
+</rules>

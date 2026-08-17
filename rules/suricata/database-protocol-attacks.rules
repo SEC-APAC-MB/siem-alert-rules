@@ -1,0 +1,86 @@
+# =============================================================================
+# Suricata Rules — Database Protocol Attacks
+# Covers: MySQL, PostgreSQL, MongoDB, Redis, ElasticSearch, Memcached,
+#          Microsoft SQL Server, Oracle, Cassandra, Neo4j, InfluxDB
+# Total rules: 55
+# SID range: 2302001 - 2302055
+# =============================================================================
+
+# --- MySQL Protocol Attacks ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3306 (msg:"DB ATTACK - MySQL - Authentication Brute Force"; flow:established,to_server; content:"|00 00 00|"; depth:4; content:"|01|"; within:1; distance:1; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-login; sid:2302001; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3306 (msg:"DB ATTACK - MySQL - Root Login Attempt"; flow:established,to_server; content:"root"; within:30; content:"|00|"; distance:0; classtype:attempted-login; sid:2302002; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3306 (msg:"DB ATTACK - MySQL - Default Account Login - Empty Password"; flow:established,to_server; content:"|00 00 00 00 00|"; classtype:attempted-login; sid:2302003; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3306 (msg:"DB ATTACK - MySQL - UNION SELECT Injection in Query"; flow:established,to_server; content:"UNION"; nocase:true; content:"SELECT"; nocase:true; distance:0; within:50; classtype:web-application-attack; sid:2302004; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3306 (msg:"DB ATTACK - MySQL - LOAD_FILE Data Exfiltration"; flow:established,to_server; content:"LOAD_FILE"; nocase:true; classtype:web-application-attack; sid:2302005; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3306 (msg:"DB ATTACK - MySQL - INTO OUTFILE File Write"; flow:established,to_server; content:"INTO"; nocase:true; content:"OUTFILE"; nocase:true; distance:0; within:20; classtype:web-application-attack; sid:2302006; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3306 (msg:"DB ATTACK - MySQL - SLEEP Benchmark DoS"; flow:established,to_server; content:"SLEEP"; nocase:true; content:"("; distance:0; within:5; classtype:web-application-attack; sid:2302007; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3306 (msg:"DB ATTACK - MySQL - INFORMATION_SCHEMA Access"; flow:established,to_server; content:"INFORMATION_SCHEMA"; nocase:true; classtype:web-application-attack; sid:2302008; rev:1; metadata:created_at 2026-08-17;)
+
+# --- PostgreSQL Protocol Attacks ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5432 (msg:"DB ATTACK - PostgreSQL - Authentication Brute Force"; flow:established,to_server; content:"|00 03 00 00|"; depth:4; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-login; sid:2302009; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5432 (msg:"DB ATTACK - PostgreSQL - Superuser Login Attempt - postgres"; flow:established,to_server; content:"postgres"; within:64; classtype:attempted-login; sid:2302010; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5432 (msg:"DB ATTACK - PostgreSQL - SET ROLE Privilege Escalation"; flow:established,to_server; content:"SET"; nocase:true; content:"ROLE"; nocase:true; distance:0; within:10; classtype:attempted-admin; sid:2302011; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5432 (msg:"DB ATTACK - PostgreSQL - COPY Command Data Exfiltration"; flow:established,to_server; content:"COPY"; nocase:true; content:"TO"; nocase:true; distance:0; within:20; classtype:web-application-attack; sid:2302012; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5432 (msg:"DB ATTACK - PostgreSQL - pg_dump Large Data Export"; flow:established,to_server; content:"pg_dump"; nocase:true; classtype:web-application-attack; sid:2302013; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5432 (msg:"DB ATTACK - PostgreSQL - CREATE EXTENSION Code Execution"; flow:established,to_server; content:"CREATE"; nocase:true; content:"EXTENSION"; nocase:true; distance:0; within:20; classtype:attempted-admin; sid:2302014; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5432 (msg:"DB ATTACK - PostgreSQL - LO_IMPORT File Read"; flow:established,to_server; content:"lo_import"; nocase:true; classtype:web-application-attack; sid:2302015; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5432 (msg:"DB ATTACK - PostgreSQL - pg_read_file Data Access"; flow:established,to_server; content:"pg_read_file"; nocase:true; classtype:web-application-attack; sid:2302016; rev:1; metadata:created_at 2026-08-17;)
+
+# --- MongoDB Protocol Attacks ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 27017 (msg:"DB ATTACK - MongoDB - NoSQL Injection $where Operator"; flow:established,to_server; content:"$where"; classtype:web-application-attack; sid:2302017; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 27017 (msg:"DB ATTACK - MongoDB - NoSQL Injection $ne Operator"; flow:established,to_server; content:"$ne"; classtype:web-application-attack; sid:2302018; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 27017 (msg:"DB ATTACK - MongoDB - NoSQL Injection $regex Operator"; flow:established,to_server; content:"$regex"; classtype:web-application-attack; sid:2302019; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 27017 (msg:"DB ATTACK - MongoDB - admin Database Unauthorized Access"; flow:established,to_server; content:"admin"; within:20; content:"authenticate"; nocase:true; distance:0; classtype:attempted-login; sid:2302020; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 27017 (msg:"DB ATTACK - MongoDB - Unauthenticated Access Attempt"; flow:established,to_server; content:"ismaster"; nocase:true; content:"|00 00 00 00 00|"; classtype:attempted-login; sid:2302021; rev:1; metadata:created_at 2026-08-17;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"DB ATTACK - MongoDB - HTTP REST API Unauthenticated Access"; flow:established,to_server; pcre:"/\/(admin|config|local)\//i"; http_uri; content:"application/json"; http_header; classtype:attempted-login; sid:2302022; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Redis Protocol Attacks ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6379 (msg:"DB ATTACK - Redis - CONFIG GET Credential Exposure"; flow:established,to_server; content:"CONFIG"; nocase:true; content:"GET"; nocase:true; distance:0; within:20; classtype:attempted-admin; sid:2302023; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6379 (msg:"DB ATTACK - Redis - CONFIG SET Module Loading"; flow:established,to_server; content:"CONFIG"; nocase:true; content:"SET"; nocase:true; distance:0; within:20; content:"loadmodule"; nocase:true; classtype:attempted-admin; sid:2302024; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6379 (msg:"DB ATTACK - Redis - FLUSHALL Data Destruction"; flow:established,to_server; content:"FLUSHALL"; nocase:true; classtype:attempted-admin; sid:2302025; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6379 (msg:"DB ATTACK - Redis - FLUSHDB Data Destruction"; flow:established,to_server; content:"FLUSHDB"; nocase:true; classtype:attempted-admin; sid:2302026; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6379 (msg:"DB ATTACK - Redis - SLAVEOF Command Abuse for RCE"; flow:established,to_server; content:"SLAVEOF"; nocase:true; classtype:attempted-admin; sid:2302027; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6379 (msg:"DB ATTACK - Redis - REPLICAOF Command Abuse"; flow:established,to_server; content:"REPLICAOF"; nocase:true; classtype:attempted-admin; sid:2302028; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6379 (msg:"DB ATTACK - Redis - EVAL Command Lua Script Execution"; flow:established,to_server; content:"EVAL"; nocase:true; content:"redis.call"; distance:0; classtype:attempted-admin; sid:2302029; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6379 (msg:"DB ATTACK - Redis - Unauthenticated PING Response"; flow:established,to_server; content:"PING"; within:8; flowbits:set,redis.unauth.ping; classtype:attempted-login; sid:2302030; rev:1; metadata:created_at 2026-08-17;)
+
+# --- ElasticSearch Protocol Attacks ---
+alert http $EXTERNAL_NET any -> $HOME_NET 9200 (msg:"DB ATTACK - ElasticSearch - Unauthenticated Access Attempt"; flow:established,to_server; content:"GET"; http_method; pcre:"/^\/(_cat|_cluster|_nodes|_search|_mapping|_aliases)/i"; http_uri; classtype:attempted-login; sid:2302031; rev:1; metadata:created_at 2026-08-17;)
+alert http $EXTERNAL_NET any -> $HOME_NET 9200 (msg:"DB ATTACK - ElasticSearch - Cluster Health Recon"; flow:established,to_server; content:"/_cluster/health"; http_uri; classtype:attempted-recon; sid:2302032; rev:1; metadata:created_at 2026-08-17;)
+alert http $EXTERNAL_NET any -> $HOME_NET 9200 (msg:"DB ATTACK - ElasticSearch - Index Deletion"; flow:established,to_server; content:"DELETE"; http_method; pcre:"/\/[a-z_][a-z0-9_-]*/i"; http_uri; classtype:attempted-admin; sid:2302033; rev:1; metadata:created_at 2026-08-17;)
+alert http $EXTERNAL_NET any -> $HOME_NET 9200 (msg:"DB ATTACK - ElasticSearch - Script Injection via _search"; flow:established,to_server; content:"/_search"; http_uri; pcre:"/\"script\".*\"source\"/i"; http_client_body; classtype:web-application-attack; sid:2302034; rev:1; metadata:created_at 2026-08-17;)
+alert http $EXTERNAL_NET any -> $HOME_NET 9200 (msg:"DB ATTACK - ElasticSearch - Sensitive Index Access - .security"; flow:established,to_server; content:"/.security"; http_uri; classtype:attempted-admin; sid:2302035; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Microsoft SQL Server ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1433 (msg:"DB ATTACK - MSSQL - xp_cmdshell Execution"; flow:established,to_server; content:"xp_cmdshell"; nocase:true; classtype:attempted-admin; sid:2302036; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1433 (msg:"DB ATTACK - MSSQL - OPENROWSET Data Exfiltration"; flow:established,to_server; content:"OPENROWSET"; nocase:true; classtype:web-application-attack; sid:2302037; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1433 (msg:"DB ATTACK - MSSQL - sp_OACreate Command Execution"; flow:established,to_server; content:"sp_OACreate"; nocase:true; classtype:attempted-admin; sid:2302038; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1433 (msg:"DB ATTACK - MSSQL - sa Account Login Attempt"; flow:established,to_server; content:"sa"; within:20; classtype:attempted-login; sid:2302039; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1433 (msg:"DB ATTACK - MSSQL - BULK INSERT File Read"; flow:established,to_server; content:"BULK"; nocase:true; content:"INSERT"; nocase:true; distance:0; within:15; classtype:web-application-attack; sid:2302040; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Oracle Database ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"DB ATTACK - Oracle - Default Account Login - SYSTEM"; flow:established,to_server; content:"SYSTEM"; within:30; classtype:attempted-login; sid:2302041; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"DB ATTACK - Oracle - DBA Privilege Escalation Attempt"; flow:established,to_server; content:"GRANT"; nocase:true; content:"DBA"; nocase:true; distance:0; within:30; classtype:attempted-admin; sid:2302042; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"DB ATTACK - Oracle - UTL_HTTP Data Exfiltration"; flow:established,to_server; content:"UTL_HTTP"; nocase:true; classtype:web-application-attack; sid:2302043; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"DB ATTACK - Oracle - DBMS_LOB File Read"; flow:established,to_server; content:"DBMS_LOB"; nocase:true; content:"READ"; nocase:true; distance:0; classtype:web-application-attack; sid:2302044; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Cassandra ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 9042 (msg:"DB ATTACK - Cassandra - Unauthorized CQL Command"; flow:established,to_server; content:"ALTER"; nocase:true; content:"KEYSPACE"; nocase:true; distance:0; within:20; classtype:attempted-admin; sid:2302045; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 9042 (msg:"DB ATTACK - Cassandra - DROP KEYSPACE Attempt"; flow:established,to_server; content:"DROP"; nocase:true; content:"KEYSPACE"; nocase:true; distance:0; within:20; classtype:attempted-admin; sid:2302046; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Neo4j ---
+alert http $EXTERNAL_NET any -> $HOME_NET 7474 (msg:"DB ATTACK - Neo4j - Cypher Injection - UNION Attack"; flow:established,to_server; pcre:"/UNION\s+ALL\s+MATCH|UNION\s+RETURN/i"; http_client_body; classtype:web-application-attack; sid:2302047; rev:1; metadata:created_at 2026-08-17;)
+alert http $EXTERNAL_NET any -> $HOME_NET 7474 (msg:"DB ATTACK - Neo4j - LOAD CSV External Data Access"; flow:established,to_server; content:"LOAD"; nocase:true; content:"CSV"; nocase:true; distance:0; within:15; content:"FROM"; nocase:true; distance:0; within:15; classtype:web-application-attack; sid:2302048; rev:1; metadata:created_at 2026-08-17;)
+alert http $EXTERNAL_NET any -> $HOME_NET 7474 (msg:"DB ATTACK - Neo4j - APOC Procedure Abuse"; flow:established,to_server; content:"apoc"; nocase:true; pcre:"/apoc\.(load|text|math|coll|date|graph|path)\./i"; http_client_body; classtype:web-application-attack; sid:2302049; rev:1; metadata:created_at 2026-08-17;)
+
+# --- InfluxDB ---
+alert http $EXTERNAL_NET any -> $HOME_NET 8086 (msg:"DB ATTACK - InfluxDB - DROP DATABASE Destruction"; flow:established,to_server; content:"DROP"; http_method; content:"DATABASE"; http_uri; classtype:attempted-admin; sid:2302050; rev:1; metadata:created_at 2026-08-17;)
+alert http $EXTERNAL_NET any -> $HOME_NET 8086 (msg:"DB ATTACK - InfluxDB - DELETE Data Manipulation"; flow:established,to_server; content:"DELETE"; http_method; pcre:"/^\/(query|write|api\/v2\/delete)/i"; http_uri; classtype:attempted-admin; sid:2302051; rev:1; metadata:created_at 2026-08-17;)
+alert http $EXTERNAL_NET any -> $HOME_NET 8086 (msg:"DB ATTACK - InfluxDB - Unauthenticated Query Access"; flow:established,to_server; content:"GET"; http_method; content:"/query"; http_uri; content:! "Authorization"; http_header; classtype:attempted-login; sid:2302052; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Memcached ---
+alert udp $EXTERNAL_NET any -> $HOME_NET 11211 (msg:"DB ATTACK - Memcached - Amplification Attack - STATS"; content:"stats"; nocase:true; dsize:<100; threshold:type both, track by_src, count 1, seconds 60; classtype:attempted-dos; sid:2302053; rev:1; metadata:created_at 2026-08-17;)
+alert udp $EXTERNAL_NET any -> $HOME_NET 11211 (msg:"DB ATTACK - Memcached - Amplification Attack - VERSION"; content:"version"; nocase:true; dsize:<20; classtype:attempted-dos; sid:2302054; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Generic Database Protocol ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"DB ATTACK - Generic - SQL Error Information Disclosure"; flow:established,to_client; pcre:"/(You have an error in your SQL syntax|ORA-\d{5}|PostgreSQL.*ERROR|Microsoft OLE DB Provider|ODBC SQL Server Driver|SQLSTATE\[\w+\]|mysqli_error|sqlite_query\(\))/i"; http_server_body; classtype:web-application-attack; sid:2302055; rev:1; metadata:created_at 2026-08-17;)

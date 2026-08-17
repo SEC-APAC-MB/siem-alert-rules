@@ -1,0 +1,1110 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "AWS CloudWatch, EventBridge, and GuardDuty rules — wstg-04-06",
+  "total_rules": 20,
+  "rules": [
+    {
+      "rule_id": "AWS-WSTG04-001",
+      "name": "Credentials Transmitted Over Unencrypted Channel",
+      "description": "Detects login or credential submission over HTTP instead of HTTPS exposing credentials to interception",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authentication",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authentication"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "AUTHENTICATION"
+      },
+      "references": [
+        "PCI-DSS-4.1",
+        "GDPR-32A-002",
+        "HIPAA-TS-001"
+      ],
+      "mitre": [
+        "T1041"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "cleartext-credentials",
+        "encryption"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-WSTG04-002",
+      "name": "Default Credentials Usage on Login",
+      "description": "Detects successful logins using common default usernames like admin, root, or test across services",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authentication",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-002"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authentication"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "AUTHENTICATION"
+      },
+      "references": [
+        "PCI-DSS-2.1",
+        "HIPAA-ADM-006"
+      ],
+      "mitre": [
+        "T1078.001"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "default-credentials",
+        "brute-force"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-WSTG04-003",
+      "name": "Account Lockout Mechanism Failure",
+      "description": "Detects more than 20 failed login attempts for a single account without lockout indicating weak lockout policy",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authentication",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-003"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authentication"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "AUTHENTICATION"
+      },
+      "references": [
+        "PCI-DSS-8.5",
+        "NIST-AC-7"
+      ],
+      "mitre": [
+        "T1110.003"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "lockout",
+        "brute-force"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-WSTG04-004",
+      "name": "Authentication Schema Bypass Attempt",
+      "description": "Detects attempts to bypass authentication by accessing protected endpoints without valid session tokens",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authentication",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-004"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authentication"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "AUTHENTICATION"
+      },
+      "references": [
+        "PCI-DSS-8.5",
+        "NIST-AC-3"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "auth-bypass",
+        "session"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-WSTG04-005",
+      "name": "Weak Remember-Me Cookie Detection",
+      "description": "Detects authentication cookies lacking proper security attributes or containing predictable values",
+      "severity": "medium",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authentication",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-005"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authentication"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 5,
+        "type": "AUTHENTICATION"
+      },
+      "references": [
+        "PCI-DSS-6.5"
+      ],
+      "mitre": [
+        "T1539"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "remember-me",
+        "cookie-security"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AWS-WSTG04-006",
+      "name": "Browser Cache Sensitivity — Missing No-Cache Headers",
+      "description": "Detects responses from sensitive endpoints missing Cache-Control: no-store headers",
+      "severity": "low",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authentication",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-006"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authentication"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 3,
+        "type": "AUTHENTICATION"
+      },
+      "references": [
+        "PCI-DSS-6.5"
+      ],
+      "mitre": [
+        "T1187"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "browser-cache",
+        "sensitive-data"
+      ],
+      "risk_score": 30
+    },
+    {
+      "rule_id": "AWS-WSTG04-007",
+      "name": "Weak Authentication — Basic Auth Over HTTP",
+      "description": "Detects HTTP Basic Authentication over unencrypted connections exposing credentials in cleartext",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authentication",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-007"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authentication"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "AUTHENTICATION"
+      },
+      "references": [
+        "PCI-DSS-4.1",
+        "GDPR-32A-002"
+      ],
+      "mitre": [
+        "T1041"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "basic-auth",
+        "cleartext"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-WSTG04-008",
+      "name": "MFA Bypass or Absence for Privileged Accounts",
+      "description": "Detects privileged operations performed without MFA verification for accounts that require it",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authentication",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-008"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authentication"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "AUTHENTICATION"
+      },
+      "references": [
+        "PCI-DSS-8.3",
+        "HIPAA-ADM-005",
+        "NIST-IA-2"
+      ],
+      "mitre": [
+        "T1111"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa",
+        "mfa-bypass"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-WSTG04-009",
+      "name": "Credential Stuffing Attack Detected",
+      "description": "Detects credential stuffing patterns with high volume login failures from the same source across multiple accounts",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authentication",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-009"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authentication"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "AUTHENTICATION"
+      },
+      "references": [
+        "PCI-DSS-8.5",
+        "NIST-AC-7"
+      ],
+      "mitre": [
+        "T1110.004"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "credential-stuffing",
+        "brute-force"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-WSTG04-010",
+      "name": "JWT Algorithm None Attack",
+      "description": "Detects JWT tokens with algorithm set to none or missing algorithm indicating authentication bypass attempt",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authentication",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-010"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authentication"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "AUTHENTICATION"
+      },
+      "references": [
+        "API2-008",
+        "NIST-IA-9"
+      ],
+      "mitre": [
+        "T1606"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "jwt",
+        "algorithm-none"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-WSTG04-011",
+      "name": "Directory Traversal Attack Detected",
+      "description": "Detects path traversal attempts using ../ sequences or encoded variants to access files outside intended directories",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authorization",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-011"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authorization"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "AUTHORIZATION"
+      },
+      "references": [
+        "PCI-DSS-6.5"
+      ],
+      "mitre": [
+        "T1083"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "directory-traversal",
+        "path-traversal"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-WSTG04-012",
+      "name": "Authorization Schema Bypass via Role Manipulation",
+      "description": "Detects attempts to bypass authorization by manipulating role parameters in API requests",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authorization",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-012"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authorization"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "AUTHORIZATION"
+      },
+      "references": [
+        "PCI-DSS-8.5",
+        "NIST-AC-6"
+      ],
+      "mitre": [
+        "T1548",
+        "T1078"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "role-manipulation"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-WSTG04-013",
+      "name": "Insecure Direct Object Reference (IDOR)",
+      "description": "Detects sequential or predictable resource ID access patterns indicating IDOR vulnerability exploitation",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authorization",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-013"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authorization"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "AUTHORIZATION"
+      },
+      "references": [
+        "PCI-DSS-8.5",
+        "NIST-AC-3"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "idor",
+        "object-reference"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-WSTG04-014",
+      "name": "OAuth Token Scope Escalation",
+      "description": "Detects OAuth token usage where requested scopes exceed granted scopes indicating authorization bypass",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authorization",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-014"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authorization"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "AUTHORIZATION"
+      },
+      "references": [
+        "API2-007",
+        "NIST-AC-3"
+      ],
+      "mitre": [
+        "T1528"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "oauth",
+        "scope-escalation"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-WSTG04-015",
+      "name": "Cross-Site Request Forgery (CSRF)",
+      "description": "Detects POST/PUT/DELETE requests missing CSRF tokens indicating potential cross-site request forgery",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "session",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-015"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "session"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "SESSION"
+      },
+      "references": [
+        "PCI-DSS-6.5",
+        "NIST-CM-7"
+      ],
+      "mitre": [
+        "T1189"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "csrf",
+        "cross-site"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-WSTG04-016",
+      "name": "Session Fixation Attack",
+      "description": "Detects session fixation where a pre-set session ID is accepted by the server after authentication",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "session",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-016"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "session"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "SESSION"
+      },
+      "references": [
+        "PCI-DSS-8.5",
+        "NIST-IA-5"
+      ],
+      "mitre": [
+        "T1534"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-fixation",
+        "authentication"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-WSTG04-017",
+      "name": "Session Token in URL Parameters",
+      "description": "Detects session tokens transmitted in URL query strings exposing them to logging and Referer headers",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "session",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-017"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "session"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "SESSION"
+      },
+      "references": [
+        "PCI-DSS-6.5",
+        "GDPR-32A-014"
+      ],
+      "mitre": [
+        "T1187",
+        "T1539"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "url-token",
+        "session-exposure"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-WSTG04-018",
+      "name": "Concurrent Session on Different IPs",
+      "description": "Detects the same session token being used from different IP addresses simultaneously indicating session hijacking",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "session",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-018"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "session"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "SESSION"
+      },
+      "references": [
+        "PCI-DSS-8.5"
+      ],
+      "mitre": [
+        "T1187",
+        "T1534"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-hijacking",
+        "concurrent"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-WSTG04-019",
+      "name": "JWT Token Tampering or Forgery",
+      "description": "Detects JWT tokens with invalid signatures, expired timestamps, or algorithm manipulation",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "session",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-019"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "session"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "SESSION"
+      },
+      "references": [
+        "API2-007",
+        "NIST-IA-9"
+      ],
+      "mitre": [
+        "T1606"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "token-tampering"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-WSTG04-020",
+      "name": "Insecure Session Cookie Attributes",
+      "description": "Detects session cookies missing Secure, HttpOnly, or SameSite attributes",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "session",
+        "dimensions": {
+          "RuleId": "AWS-WSTG04-020"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "session"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "SESSION"
+      },
+      "references": [
+        "PCI-DSS-6.5",
+        "GDPR-32A-002"
+      ],
+      "mitre": [
+        "T1539",
+        "T1187"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "cookie",
+        "secure-flag"
+      ],
+      "risk_score": 70
+    }
+  ]
+}

@@ -1,0 +1,878 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "AWS CloudWatch, EventBridge, and GuardDuty rules — api-security",
+  "total_rules": 16,
+  "rules": [
+    {
+      "rule_id": "AWS-API-001",
+      "name": "API1: Broken Object Level Authorization (BOLA)",
+      "description": "Detects sequential or unauthorized access to API objects by ID indicating broken object-level authorization",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "bola",
+        "dimensions": {
+          "RuleId": "AWS-API-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "bola"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "BOLA"
+      },
+      "references": [
+        "API1-001",
+        "PCI-DSS-8.5"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "tags": [
+        "api",
+        "bola",
+        "idor",
+        "authorization"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-API-002",
+      "name": "API2: Broken Authentication — Default Credentials",
+      "description": "Detects API authentication attempts using default or well-known credentials",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "authentication",
+        "dimensions": {
+          "RuleId": "AWS-API-002"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "authentication"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "AUTHENTICATION"
+      },
+      "references": [
+        "API2-002",
+        "PCI-DSS-2.1"
+      ],
+      "mitre": [
+        "T1078.001"
+      ],
+      "tags": [
+        "api",
+        "authentication",
+        "default-credentials",
+        "brute-force"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-API-003",
+      "name": "API3: Broken Object Property Level Authorization (BOPLA)",
+      "description": "Detects API responses returning sensitive properties that the user should not access",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "bopla",
+        "dimensions": {
+          "RuleId": "AWS-API-003"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "bopla"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "BOPLA"
+      },
+      "references": [
+        "API3-001",
+        "GDPR-25-012"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "tags": [
+        "api",
+        "bopla",
+        "property-level",
+        "authorization"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-API-004",
+      "name": "API4: Unrestricted Resource Consumption — Rate Limiting",
+      "description": "Detects API requests exceeding rate limits indicating denial of service or scraping attacks",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "rate_limiting",
+        "dimensions": {
+          "RuleId": "AWS-API-004"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "rate_limiting"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "RATE_LIMITING"
+      },
+      "references": [
+        "API4-006"
+      ],
+      "mitre": [
+        "T1498"
+      ],
+      "tags": [
+        "api",
+        "rate-limiting",
+        "resource-consumption",
+        "dos"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-API-005",
+      "name": "API5: Broken Function Level Authorization",
+      "description": "Detects access to administrative API endpoints by non-administrative users",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "flba",
+        "dimensions": {
+          "RuleId": "AWS-API-005"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "flba"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "FLBA"
+      },
+      "references": [
+        "API5-001",
+        "PCI-DSS-8.5"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "tags": [
+        "api",
+        "flba",
+        "privilege-escalation",
+        "authorization"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-API-006",
+      "name": "API6: Unrestricted Access to Sensitive Business Flows",
+      "description": "Detects automated or excessive access to business-critical API flows like checkout, transfer, or account creation",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "business_flows",
+        "dimensions": {
+          "RuleId": "AWS-API-006"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "business_flows"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "BUSINESS_FLOWS"
+      },
+      "references": [
+        "API6-001"
+      ],
+      "mitre": [
+        "T1498"
+      ],
+      "tags": [
+        "api",
+        "business-flows",
+        "automation",
+        "abuse"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-API-007",
+      "name": "API7: Server-Side Request Forgery via API",
+      "description": "Detects SSRF attempts through API endpoints targeting internal networks or cloud metadata",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "ssrf",
+        "dimensions": {
+          "RuleId": "AWS-API-007"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "ssrf"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "SSRF"
+      },
+      "references": [
+        "API7-001",
+        "PCI-DSS-6.5"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "api",
+        "ssrf",
+        "server-side",
+        "injection"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-API-008",
+      "name": "API8: Security Misconfiguration — Exposed API Documentation",
+      "description": "Detects unauthorized access to API documentation endpoints like Swagger, OpenAPI, or GraphQL introspection",
+      "severity": "medium",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "misconfiguration",
+        "dimensions": {
+          "RuleId": "AWS-API-008"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "misconfiguration"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 5,
+        "type": "MISCONFIGURATION"
+      },
+      "references": [
+        "API8-001"
+      ],
+      "mitre": [
+        "T1592.001"
+      ],
+      "tags": [
+        "api",
+        "misconfiguration",
+        "swagger",
+        "documentation"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AWS-API-009",
+      "name": "API9: Improper Inventory Management — Shadow API",
+      "description": "Detects access to undocumented or deprecated API endpoints not in the API inventory",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "shadow_api",
+        "dimensions": {
+          "RuleId": "AWS-API-009"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "shadow_api"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "SHADOW_API"
+      },
+      "references": [
+        "API9-001"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "api",
+        "shadow-api",
+        "inventory",
+        "misconfiguration"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-API-010",
+      "name": "API10: Unsafe Consumption of API Responses",
+      "description": "Detects API responses containing executable content or unsafe data that could harm downstream systems",
+      "severity": "medium",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "unsafe_consumption",
+        "dimensions": {
+          "RuleId": "AWS-API-010"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "unsafe_consumption"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 5,
+        "type": "UNSAFE_CONSUMPTION"
+      },
+      "references": [
+        "API10-001"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "api",
+        "unsafe-consumption",
+        "response-handling",
+        "injection"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AWS-API-011",
+      "name": "API — Mass Assignment via Parameter Tampering",
+      "description": "Detects mass assignment attacks where request parameters include unauthorized fields like role, isAdmin, or status",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "mass_assignment",
+        "dimensions": {
+          "RuleId": "AWS-API-011"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "mass_assignment"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "MASS_ASSIGNMENT"
+      },
+      "references": [
+        "API3-005"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "tags": [
+        "api",
+        "mass-assignment",
+        "parameter-tampering",
+        "authorization"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-API-012",
+      "name": "API — GraphQL Query Depth Attack",
+      "description": "Detects GraphQL queries with excessive depth or complexity indicating DoS or data extraction",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "graphql",
+        "dimensions": {
+          "RuleId": "AWS-API-012"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "graphql"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "GRAPHQL"
+      },
+      "references": [
+        "API4-008"
+      ],
+      "mitre": [
+        "T1498"
+      ],
+      "tags": [
+        "api",
+        "graphql",
+        "dos",
+        "abuse"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-API-013",
+      "name": "API — JWT Token None Algorithm Attack",
+      "description": "Detects JWT tokens with algorithm set to none or missing algorithm indicating authentication bypass",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "jwt",
+        "dimensions": {
+          "RuleId": "AWS-API-013"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "jwt"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "JWT"
+      },
+      "references": [
+        "API2-008"
+      ],
+      "mitre": [
+        "T1606"
+      ],
+      "tags": [
+        "api",
+        "jwt",
+        "algorithm-none",
+        "authentication"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-API-014",
+      "name": "API — Excessive Data Exposure in Response",
+      "description": "Detects API responses returning more data than requested including PII, credentials, or internal fields",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "data_exposure",
+        "dimensions": {
+          "RuleId": "AWS-API-014"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "data_exposure"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "DATA_EXPOSURE"
+      },
+      "references": [
+        "API3-002",
+        "GDPR-25-012"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "tags": [
+        "api",
+        "data-exposure",
+        "pii",
+        "over-fetching"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-API-015",
+      "name": "API — NoSQL Injection in Request Parameters",
+      "description": "Detects NoSQL injection operators ($where, $regex, $gt) in API request parameters",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "nosql_injection",
+        "dimensions": {
+          "RuleId": "AWS-API-015"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "nosql_injection"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "NOSQL_INJECTION"
+      },
+      "references": [
+        "API3-006"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "api",
+        "nosql-injection",
+        "injection",
+        "mongodb"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-API-016",
+      "name": "API — Broken Access Control on API Keys",
+      "description": "Detects API key usage from unauthorized sources or with excessive permissions",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "api_keys",
+        "dimensions": {
+          "RuleId": "AWS-API-016"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "api_keys"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "API_KEYS"
+      },
+      "references": [
+        "API2-004"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "tags": [
+        "api",
+        "api-keys",
+        "access-control",
+        "authorization"
+      ],
+      "risk_score": 90
+    }
+  ]
+}

@@ -1,0 +1,563 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "QRadar SIEM alert rules — ai-security",
+  "total_rules": 27,
+  "rules": [
+    {
+      "rule_id": "QR-AI-PI-001",
+      "name": "AI — Direct Prompt Injection",
+      "description": "Detects direct prompt injection attempts overriding system instructions via user input",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%prompt-injection%' OR payload ILIKE '%direct%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-PI-001"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "AI-PI-001",
+        "AI-ACT-15"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-PI-002",
+      "name": "AI — Indirect Prompt Injection via External Data",
+      "description": "Detects prompt injection payloads embedded in uploaded files, web pages, or external data sources",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%prompt-injection%' OR payload ILIKE '%indirect%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-PI-002"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1189"
+      },
+      "compliance": [
+        "AI-PI-002",
+        "AI-ACT-15"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-PI-003",
+      "name": "AI — System Prompt Extraction Attempt",
+      "description": "Detects attempts to extract system prompts through direct questioning, translation, or format manipulation",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%prompt-extraction%' OR payload ILIKE '%system-prompt%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-PI-003"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1083"
+      },
+      "compliance": [
+        "AI-SPL-001",
+        "AI-ACT-15"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-AI-PI-004",
+      "name": "AI — Jailbreak via Role-Play Persona",
+      "description": "Detects jailbreak attempts using role-play personas like DAN, developer mode, or unrestricted AI",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%jailbreak%' OR payload ILIKE '%role-play%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-PI-004"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "AI-PI-004",
+        "AI-ACT-9"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-PI-005",
+      "name": "AI — Prompt Injection via Few-Shot Manipulation",
+      "description": "Detects few-shot learning manipulation attacks that inject malicious examples into LLM context",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%prompt-injection%' OR payload ILIKE '%few-shot%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-PI-005"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "AI-PI-005"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-AI-DEX-001",
+      "name": "AI — Data Exfiltration via Model Output",
+      "description": "Detects LLM outputs containing PII, training data, or confidential information indicating data leakage",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%data-exfiltration%' OR payload ILIKE '%output-leak%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-DEX-001"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1213"
+      },
+      "compliance": [
+        "AI-DEX-001",
+        "GDPR-25-012"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-DEX-002",
+      "name": "AI — Training Data Extraction Attack",
+      "description": "Detects attempts to extract training data from LLM through targeted queries and completions",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%data-extraction%' OR payload ILIKE '%training-data%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-DEX-002"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1213"
+      },
+      "compliance": [
+        "AI-DEX-002",
+        "AI-ACT-15"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-DEX-003",
+      "name": "AI — PII Leakage via LLM Response",
+      "description": "Detects PII (SSN, email, phone, address) leaking through LLM responses",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%pii-leakage%' OR payload ILIKE '%llm-output%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-DEX-003"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1213"
+      },
+      "compliance": [
+        "AI-DEX-003",
+        "GDPR-25-012",
+        "HIPAA-TS-007"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-MDL-001",
+      "name": "AI — Model Poisoning via Training Data Manipulation",
+      "description": "Detects indicators of model poisoning through anomalous training data or unexpected model behavior",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%model-poisoning%' OR payload ILIKE '%training-data%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-MDL-001"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "AI-MDL-001",
+        "AI-ACT-15"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-MDL-002",
+      "name": "AI — Backdoor Trigger Detection in LLM Output",
+      "description": "Detects potential backdoor triggers in LLM output patterns that indicate compromised models",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%backdoor%' OR payload ILIKE '%model-poisoning%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-MDL-002"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "AI-MDL-002"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-RAG-001",
+      "name": "AI — RAG Pipeline Data Poisoning",
+      "description": "Detects injection of malicious content into RAG knowledge bases that corrupts retrieval output",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%rag%' OR payload ILIKE '%data-poisoning%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-RAG-001"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "AI-RAG-001",
+        "AI-ACT-15"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-AI-RAG-002",
+      "name": "AI — RAG Retrieval Manipulation via Adversarial Documents",
+      "description": "Detects adversarial documents in RAG stores designed to manipulate retrieval results",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%rag%' OR payload ILIKE '%adversarial-docs%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-RAG-002"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "AI-RAG-002"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-AI-HAL-001",
+      "name": "AI — Hallucination Detection — Fabricated Entity References",
+      "description": "Detects LLM responses containing fabricated URLs, citations, or entity references indicating hallucination",
+      "severity": 5,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%hallucination%' OR payload ILIKE '%fabrication%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-HAL-001"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "N/A"
+      },
+      "compliance": [
+        "AI-HAL-001",
+        "AI-ACT-13"
+      ],
+      "credibility": 7,
+      "relevance": 5
+    },
+    {
+      "rule_id": "QR-AI-HAL-002",
+      "name": "AI — Hallucination — Inconsistent Factual Claims",
+      "description": "Detects LLM outputs making contradictory factual claims across conversation turns",
+      "severity": 5,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%hallucination%' OR payload ILIKE '%inconsistency%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-HAL-002"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "N/A"
+      },
+      "compliance": [
+        "AI-HAL-002"
+      ],
+      "credibility": 7,
+      "relevance": 5
+    },
+    {
+      "rule_id": "QR-AI-BIA-001",
+      "name": "AI — Bias Detection — Demographic Disparities",
+      "description": "Detects demographic bias patterns in LLM outputs including gender, racial, or ethnic disparities",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%bias%' OR payload ILIKE '%fairness%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-BIA-001"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "N/A"
+      },
+      "compliance": [
+        "AI-BIA-001",
+        "AI-ACT-9",
+        "AI-ACT-10"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-AI-GOV-001",
+      "name": "AI — Governance — Missing Risk Assessment",
+      "description": "Detects AI system operations without documented risk assessment per EU AI Act Article 9",
+      "severity": 5,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%governance%' OR payload ILIKE '%risk-assessment%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-GOV-001"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "N/A"
+      },
+      "compliance": [
+        "AI-01-009",
+        "AI-ACT-9"
+      ],
+      "credibility": 7,
+      "relevance": 5
+    },
+    {
+      "rule_id": "QR-AI-GOV-002",
+      "name": "AI — Governance — High-Risk System Without Human Oversight",
+      "description": "Detects high-risk AI system operations without required human oversight mechanisms per EU AI Act Article 14",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%governance%' OR payload ILIKE '%human-oversight%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-GOV-002"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "N/A"
+      },
+      "compliance": [
+        "AI-06-001",
+        "AI-ACT-14"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-GOV-003",
+      "name": "AI — Governance — Missing Transparency Requirements",
+      "description": "Detects AI system operations lacking required transparency disclosures per EU AI Act Article 13",
+      "severity": 5,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%governance%' OR payload ILIKE '%transparency%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-GOV-003"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "N/A"
+      },
+      "compliance": [
+        "AI-ACT-13"
+      ],
+      "credibility": 7,
+      "relevance": 5
+    },
+    {
+      "rule_id": "QR-AI-RED-001",
+      "name": "AI — Red Team — Adversarial Suffix Attack",
+      "description": "Detects adversarial suffix attacks that append optimized suffixes to bypass LLM safety filters",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%red-team%' OR payload ILIKE '%adversarial-suffix%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-RED-001"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "AI-PI-010"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-RED-002",
+      "name": "AI — Red Team — Token Smuggling Attack",
+      "description": "Detects token smuggling attacks that use encoding or fragmentation to bypass LLM content filters",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%red-team%' OR payload ILIKE '%token-smuggling%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-RED-002"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "AI-PI-011"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-AI-RED-003",
+      "name": "AI — Red Team — Multi-Turn Jailbreak",
+      "description": "Detects multi-turn conversations designed to progressively jailbreak an LLM through contextual manipulation",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%red-team%' OR payload ILIKE '%multi-turn-jailbreak%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-RED-003"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "AI-PI-012"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-SAF-001",
+      "name": "AI — Safety — Harmful Content Generation",
+      "description": "Detects LLM attempts to generate harmful content including weapons, drugs, or dangerous instructions",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%safety%' OR payload ILIKE '%harmful-content%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-SAF-001"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "AI-ACT-15"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-SAF-002",
+      "name": "AI — Safety — Self-Harm Content Facilitation",
+      "description": "Detects LLM responses that may facilitate or encourage self-harm behavior",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%safety%' OR payload ILIKE '%self-harm%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-SAF-002"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "N/A"
+      },
+      "compliance": [
+        "AI-ACT-15"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-VEC-001",
+      "name": "AI — Vector DB — Pinecone Namespace Isolation Bypass",
+      "description": "Detects cross-namespace data access in Pinecone vector database",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%vector-db%' OR payload ILIKE '%pinecone%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-VEC-001"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1078"
+      },
+      "compliance": [
+        "GDPR-25-003"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-VEC-002",
+      "name": "AI — Vector DB — Weaviate Tenant Data Isolation Failure",
+      "description": "Detects cross-tenant data access in Weaviate vector database",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%vector-db%' OR payload ILIKE '%weaviate%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-VEC-002"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1078"
+      },
+      "compliance": [
+        "GDPR-25-003"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-AI-VEC-003",
+      "name": "AI — Vector DB — ChromaDB Embedding Poisoning",
+      "description": "Detects adversarial embedding vectors inserted into ChromaDB collections",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%vector-db%' OR payload ILIKE '%chromadb%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-VEC-003"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "AI-ACT-15"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-AI-VEC-004",
+      "name": "AI — Vector DB — Qdrant Payload Filter Injection",
+      "description": "Detects filter injection attacks in Qdrant vector search payloads",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%vector-db%' OR payload ILIKE '%qdrant%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "AI-VEC-004"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    }
+  ]
+}

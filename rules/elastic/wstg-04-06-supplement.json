@@ -1,0 +1,3801 @@
+{
+  "description": "Elastic Security SIEM alert rules \u2014 WSTG-04-06 Authn/Authz/Session supplement (brute force, MFA bypass, session hijacking, JWT, OAuth, privilege escalation, IDOR, API key exposure, CORS/CSRF, password policy)",
+  "version": "1.0.0",
+  "elastic_version": "8.x",
+  "total_rules": 130,
+  "rules": [
+    {
+      "rule_id": "ES-WSTG04-BF-001",
+      "name": "Slow Brute Force - Distributed Password Spraying",
+      "description": "Detects low-and-slow password spraying across multiple IPs targeting a single account over 24h",
+      "severity": "high",
+      "type": "threshold",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"failure\"",
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.003"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-AC-7"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "password-spraying"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-002",
+      "name": "Password Spraying Against VPN Gateway",
+      "description": "Detects password spraying attacks against VPN concentrators using rotating usernames",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND service.name:(\"vpn\" OR \"openvpn\" OR \"ipsec\") AND event.outcome:\"failure\"",
+      "index": [
+        "logs-vpn-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.003"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-AC-7"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "vpn-spraying"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-003",
+      "name": "Credential Stuffing - High Velocity Login Attempts",
+      "description": "Detects credential stuffing using automated tools with rapid login attempts across multiple accounts",
+      "severity": "critical",
+      "type": "threshold",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"failure\" AND http.user_agent:(\"python-requests\" OR \"curl\" OR \"httpclient\" OR \"\u81ea\u52a8\u5316\" OR \"masscan\")",
+      "index": [
+        "logs-auth-*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1110.004"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-AC-7"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "credential-stuffing",
+        "automation"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-004",
+      "name": "Credential Stuffing - Valid Account Takeover",
+      "description": "Detects successful logins immediately following multiple failed attempts from same source indicating credential stuffing success",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"success\" AND source.ip:* AND _exists_:source.ip",
+      "index": [
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1110.004",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "credential-stuffing",
+        "account-takeover"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-005",
+      "name": "Brute Force Against SSH Service",
+      "description": "Detects SSH brute force attempts with high failure rate from single source",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND service.name:\"sshd\" AND event.outcome:\"failure\"",
+      "index": [
+        "logs-system-auth*",
+        "logs-system-secure*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "CIS-4.1"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "ssh"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-006",
+      "name": "Brute Force Against RDP Service",
+      "description": "Detects RDP brute force login attempts from single source IP",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND service.name:(\"rdp\" OR \"xrdp\" OR \"microsoft-windows-terminalservices\") AND event.outcome:\"failure\"",
+      "index": [
+        "logs-windows-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "CIS-4.1"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "rdp"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-007",
+      "name": "Brute Force Against LDAP Directory",
+      "description": "Detects LDAP bind failures indicating brute force attacks against directory services",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND service.name:(\"ldap\" OR \"openldap\" OR \"389ds\") AND event.outcome:\"failure\"",
+      "index": [
+        "logs-ldap-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "ldap"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-008",
+      "name": "Distributed Brute Force - Botnet Login Attempts",
+      "description": "Detects coordinated login failures from many IPs targeting single account indicating botnet-driven brute force",
+      "severity": "critical",
+      "type": "threshold",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"failure\" AND user.name:*",
+      "index": [
+        "logs-auth-*",
+        "logs-cloudflare-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.003"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "botnet"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-009",
+      "name": "Brute Force Against FTP Service",
+      "description": "Detects FTP login brute force attempts",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND service.name:(\"ftp\" OR \"vsftpd\" OR \"proftpd\" OR \"pure-ftpd\") AND event.outcome:\"failure\"",
+      "index": [
+        "logs-ftp-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "ftp"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-010",
+      "name": "Brute Force Against Database Login",
+      "description": "Detects database authentication brute force including MySQL, PostgreSQL, and SQL Server",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"failure\" AND service.name:(\"mysql\" OR \"postgresql\" OR \"mssql\" OR \"oracle\")",
+      "index": [
+        "logs-db-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "database"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-011",
+      "name": "Password Spraying Against Cloud IAM",
+      "description": "Detects password spraying targeting AWS IAM, Azure AD, or GCP IAM login endpoints",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND cloud.provider:(\"aws\" OR \"azure\" OR \"gcp\") AND event.outcome:\"failure\"",
+      "index": [
+        "logs-aws-*",
+        "logs-azure-*",
+        "logs-gcp-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.003"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-AC-7"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "cloud-iam"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-012",
+      "name": "Brute Force Against Kerberos",
+      "description": "Detects Kerberos pre-authentication failures indicating brute force or Kerberoasting",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND service.name:\"kerberos\" AND event.outcome:\"failure\"",
+      "index": [
+        "logs-windows-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.001",
+        "T1558"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "kerberos"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-013",
+      "name": "Brute Force Against API Authentication Endpoint",
+      "description": "Detects automated brute force attacks against REST API login endpoints",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND url.path:(\"/api/v*/auth\" OR \"/api/v*/login\" OR \"/api/v*/token\") AND event.outcome:\"failure\"",
+      "index": [
+        "logs-api-*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "api"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-014",
+      "name": "Slow Brute Force - Low Frequency Over Extended Period",
+      "description": "Detects low-frequency login failures over 7-day window designed to evade rate limiting",
+      "severity": "high",
+      "type": "threshold",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"failure\"",
+      "index": [
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.003"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "slow-brute"
+      ],
+      "risk_score": 75,
+      "interval": "1h"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-015",
+      "name": "Brute Force Against SAML IdP",
+      "description": "Detects brute force login attempts against SAML Identity Provider endpoints",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND service.name:(\"saml\" OR \"shibboleth\" OR \"keycloak\") AND event.outcome:\"failure\"",
+      "index": [
+        "logs-auth-*",
+        "logs-saml-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "saml"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-016",
+      "name": "Brute Force Against OAuth Token Endpoint",
+      "description": "Detects repeated failed OAuth token acquisition attempts",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND url.path:(\"/oauth/token\" OR \"/oauth2/token\" OR \"/token\") AND event.outcome:\"failure\"",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "oauth"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-017",
+      "name": "Credential Stuffing - Proxy Rotation Detection",
+      "description": "Detects credential stuffing using rotating proxy IPs identified by varied user agents and ASN clusters",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"failure\"",
+      "index": [
+        "logs-auth-*",
+        "logs-cloudflare-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1110.004"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "credential-stuffing",
+        "proxy-rotation"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-018",
+      "name": "Brute Force Against Mail Server",
+      "description": "Detects IMAP/POP3/SMTP authentication brute force",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND service.name:(\"imap\" OR \"pop3\" OR \"smtp\" OR \"dovecot\" OR \"postfix\") AND event.outcome:\"failure\"",
+      "index": [
+        "logs-mail-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "mail"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-019",
+      "name": "Password Spraying Against SaaS Applications",
+      "description": "Detects password spraying attacks targeting SaaS application login pages",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND service.name:(\"office365\" OR \"gsuite\" OR \"salesforce\" OR \"slack\" OR \"zoom\") AND event.outcome:\"failure\"",
+      "index": [
+        "logs-saas-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.003"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "saas"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-BF-020",
+      "name": "Brute Force Against WordPress Login",
+      "description": "Detects brute force attacks against WordPress wp-login.php endpoint",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND url.path:\"/wp-login.php\" AND event.outcome:\"failure\"",
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110.001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "brute-force",
+        "wordpress"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-001",
+      "name": "MFA Bypass - Direct MFA Reset Request Without Secondary Verification",
+      "description": "Detects MFA reset requests without proper secondary identity verification",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:(\"mfa-reset\" OR \"mfa-disable\" OR \"mfa-remove\") AND NOT event.action:\"mfa-verify\"",
+      "index": [
+        "logs-iam-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1556.006"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3",
+        "NIST-IA-2"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-002",
+      "name": "MFA Fatigue Attack - Repeated Push Notifications",
+      "description": "Detects MFA push notification fatigue attacks with excessive push notifications to single user",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"mfa-push\" AND event.outcome:\"denied\"",
+      "index": [
+        "logs-auth-*",
+        "logs-mfa-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1621"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3",
+        "NIST-IA-2"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass",
+        "mfa-fatigue"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-003",
+      "name": "MFA Bypass - Authentication Without MFA Step",
+      "description": "Detects successful authentication events where MFA step was skipped or bypassed",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"success\" AND NOT _exists_:\"mfa_method\"",
+      "index": [
+        "logs-auth-*",
+        "logs-iam-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1556"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-004",
+      "name": "MFA Downgrade - TOTP to SMS Fallback Abuse",
+      "description": "Detects suspicious downgrade from TOTP to SMS-based MFA which is more vulnerable to SIM swapping",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"mfa-downgrade\" AND mfa.method:((\"sms\") AND (NOT \"totp\"))",
+      "index": [
+        "logs-auth-*",
+        "logs-mfa-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1556.006"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass",
+        "mfa-downgrade"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-005",
+      "name": "SIM Swap Preceding MFA Bypass",
+      "description": "Detects SIM swap events followed by MFA authentication suggesting SIM swap MFA bypass",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:\"sim-swap\"",
+      "index": [
+        "logs-telecom-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1556.005"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass",
+        "sim-swap"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-006",
+      "name": "MFA Bypass via Backup Code Usage",
+      "description": "Detects excessive use of MFA backup/recovery codes instead of primary MFA method",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"mfa-verify\" AND mfa.method:\"backup-code\"",
+      "index": [
+        "logs-auth-*",
+        "logs-mfa-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1556.006"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass",
+        "backup-codes"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-007",
+      "name": "MFA Token Replay Attack",
+      "description": "Detects reuse of MFA tokens across multiple sessions or from different locations",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"mfa-verify\" AND mfa.token_id:* AND event.outcome:\"success\"",
+      "index": [
+        "logs-auth-*",
+        "logs-mfa-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1556"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass",
+        "token-replay"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-008",
+      "name": "MFA Enrollment by Recently Compromised Account",
+      "description": "Detects MFA enrollment activity on accounts that recently had suspicious login activity",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:\"mfa-enroll\" AND user.name:*",
+      "index": [
+        "logs-iam-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1556.006"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass",
+        "mfa-enrollment"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-009",
+      "name": "MFA Bypass via Legacy Protocol",
+      "description": "Detects authentication via legacy protocols that bypass MFA requirements (POP3, IMAP, SMTP Auth, ActiveSync)",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND service.name:(\"pop3\" OR \"imap\" OR \"smtp-auth\" OR \"activesync\" OR \"ews-basic\") AND event.outcome:\"success\"",
+      "index": [
+        "logs-auth-*",
+        "logs-mail-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1556"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass",
+        "legacy-protocol"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-010",
+      "name": "MFA Device Registration From Anomalous Location",
+      "description": "Detects MFA device registration from IP geolocation inconsistent with user baseline",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:(\"mfa-device-register\" OR \"mfa-device-add\") AND source.geo.country_name:*",
+      "index": [
+        "logs-iam-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1556.006"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass",
+        "anomalous-location"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-011",
+      "name": "Repeated MFA Verification Failures",
+      "description": "Detects multiple failed MFA verification attempts suggesting brute force of MFA codes",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"mfa-verify\" AND event.outcome:\"failure\"",
+      "index": [
+        "logs-auth-*",
+        "logs-mfa-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1110.001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass",
+        "mfa-brute-force"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-012",
+      "name": "MFA Provider Configuration Change",
+      "description": "Detects changes to MFA provider configuration that could weaken authentication requirements",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:(\"mfa-config-change\" OR \"mfa-policy-update\") AND NOT user.name:(\"admin-service\" OR \"system\")",
+      "index": [
+        "logs-iam-*",
+        "logs-cloud-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1556.006"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass",
+        "config-change"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-013",
+      "name": "MFA Bypass via OAuth Device Code Flow",
+      "description": "Detects OAuth device code flow authentication that bypasses MFA requirements",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND oauth.grant_type:\"urn:ietf:params:oauth:grant-type:device_code\" AND event.outcome:\"success\"",
+      "index": [
+        "logs-auth-*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1556"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass",
+        "oauth-device-code"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-014",
+      "name": "MFA Trusted IP Bypass Abuse",
+      "description": "Detects authentication success from trusted IP ranges that bypass MFA where the IP may be spoofed or compromised",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"success\" AND mfa.bypassed:true AND source.ip:*",
+      "index": [
+        "logs-auth-*",
+        "logs-network-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1556"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass",
+        "trusted-ip"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-MFA-015",
+      "name": "MFA Recovery Process Abuse",
+      "description": "Detects MFA account recovery attempts that could bypass MFA security controls",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:(\"account-recovery\" OR \"mfa-recovery\") AND NOT user.name:(\"admin-service\")",
+      "index": [
+        "logs-iam-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1556.006"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa-bypass",
+        "recovery-abuse"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-001",
+      "name": "Session Fixation - Session ID Not Rotated After Login",
+      "description": "Detects authentication events where session ID remains unchanged before and after login",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"success\" AND session.id:*",
+      "index": [
+        "logs-auth-*",
+        "logs-web-*"
+      ],
+      "references": [
+        "WSTG-SESS-01"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-fixation"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-002",
+      "name": "Session Hijacking - Concurrent Sessions From Different Locations",
+      "description": "Detects same session active from two geographically distant locations simultaneously",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND event.action:\"session-active\" AND session.id:* AND source.geo.*:*",
+      "index": [
+        "logs-auth-*",
+        "logs-network-*"
+      ],
+      "references": [
+        "WSTG-SESS-02"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-hijacking",
+        "concurrent-sessions"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-003",
+      "name": "Session Token Theft - Session Used After Logout",
+      "description": "Detects requests using session tokens after the session was explicitly terminated",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND event.action:\"request\" AND session.id:* AND session.status:\"terminated\"",
+      "index": [
+        "logs-auth-*",
+        "logs-web-*"
+      ],
+      "references": [
+        "WSTG-SESS-02"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-hijacking",
+        "token-theft"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-004",
+      "name": "Session Cookie Missing Secure Flag",
+      "description": "Detects session cookies transmitted over HTTP lacking the Secure flag",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.set_cookie:* AND NOT http.response.set_cookie:*secure*",
+      "index": [
+        "logs-nginx-access*",
+        "logs-apache-access*"
+      ],
+      "references": [
+        "WSTG-SESS-02"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "cookie-security",
+        "secure-flag"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-005",
+      "name": "Session Cookie Missing HttpOnly Flag",
+      "description": "Detects session cookies lacking HttpOnly flag making them accessible to JavaScript",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.set_cookie:* AND NOT http.response.set_cookie:*httponly*",
+      "index": [
+        "logs-nginx-access*",
+        "logs-apache-access*"
+      ],
+      "references": [
+        "WSTG-SESS-02"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "cookie-security",
+        "httponly-flag"
+      ],
+      "risk_score": 60,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-006",
+      "name": "Session Cookie Missing SameSite Attribute",
+      "description": "Detects session cookies without SameSite attribute enabling CSRF attacks",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.set_cookie:* AND NOT http.response.set_cookie:*samesite*",
+      "index": [
+        "logs-nginx-access*",
+        "logs-apache-access*"
+      ],
+      "references": [
+        "WSTG-SESS-02"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "cookie-security",
+        "samesite"
+      ],
+      "risk_score": 60,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-007",
+      "name": "Session ID in URL Exposed to Referrer",
+      "description": "Detects session IDs transmitted in URL query parameters exposed via Referer header",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND url.query:*session* AND NOT url.query:*session_id*",
+      "index": [
+        "logs-nginx-access*",
+        "logs-apache-access*"
+      ],
+      "references": [
+        "WSTG-SESS-04"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-exposure",
+        "url-session"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-008",
+      "name": "Session Timeout Too Long - Inactive Session",
+      "description": "Detects sessions active beyond 8 hours of inactivity indicating insufficient session timeout",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"session-renew\" AND session.duration:>8h",
+      "index": [
+        "logs-auth-*",
+        "logs-web-*"
+      ],
+      "references": [
+        "WSTG-SESS-05"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "PCI-DSS-8.1.8"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-timeout"
+      ],
+      "risk_score": 55,
+      "interval": "1h"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-009",
+      "name": "Session Token Predictable Pattern",
+      "description": "Detects session tokens following sequential or predictable patterns",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"session-create\" AND session.id:*",
+      "index": [
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-01"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-fixation",
+        "predictable-token"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-010",
+      "name": "Session Hijacking Via Session Riding (CSRF)",
+      "description": "Detects potential CSRF attacks via unexpected state-changing requests without CSRF token",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:(\"POST\" OR \"PUT\" OR \"DELETE\" OR \"PATCH\") AND NOT http.request.headers.csrf_token:*",
+      "index": [
+        "logs-web-*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-SESS-06"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "OWASP-A01"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "csrf"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-011",
+      "name": "Cross-Site WebSocket Hijacking",
+      "description": "Detects WebSocket connections established without proper origin validation",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.headers.upgrade:\"websocket\" AND NOT http.request.headers.origin:*",
+      "index": [
+        "logs-web-*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-SESS-02"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "websocket-hijacking"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-012",
+      "name": "Session Token Exposed in Log Files",
+      "description": "Detects session tokens appearing in application log files",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"application\" AND message:(*session_id* OR *sess=* OR *jsessionid*) AND log.level:(\"INFO\" OR \"DEBUG\" OR \"ERROR\")",
+      "index": [
+        "logs-app-*"
+      ],
+      "references": [
+        "WSTG-SESS-04"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "PCI-DSS-3.1",
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-exposure",
+        "log-leakage"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-013",
+      "name": "Session Cookie Domain Too Broad",
+      "description": "Detects session cookies set with overly broad domain scope",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.set_cookie:*domain=* AND NOT http.response.set_cookie:*domain=*.*.*",
+      "index": [
+        "logs-nginx-access*",
+        "logs-web-*"
+      ],
+      "references": [
+        "WSTG-SESS-02"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "cookie-security",
+        "broad-domain"
+      ],
+      "risk_score": 55,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-014",
+      "name": "Session Not Invalidated on Password Change",
+      "description": "Detects sessions continuing after password change event",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:\"password-change\" AND session.id:*",
+      "index": [
+        "logs-iam-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-03"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "PCI-DSS-8.2"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-invalidation"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-SH-015",
+      "name": "Session Replay - Request From Future Timestamp",
+      "description": "Detects requests with timestamps ahead of server time suggesting session replay attacks",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND event.action:\"request\" AND _timestamp:>now+5m",
+      "index": [
+        "logs-web-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-02"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-replay"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-001",
+      "name": "JWT Algorithm Confusion Attack - RS256 to HS256",
+      "description": "Detects JWT tokens where algorithm was changed from RS256 to HS256 enabling algorithm confusion attacks",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND jwt.algorithm:\"HS256\"",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05",
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "algorithm-confusion"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-002",
+      "name": "JWT None Algorithm Attack",
+      "description": "Detects JWT tokens using 'none' algorithm to bypass signature verification",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND jwt.algorithm:(\"none\" OR \"None\" OR \"NONE\")",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05",
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "none-algorithm"
+      ],
+      "risk_score": 99,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-003",
+      "name": "JWT Key ID Injection",
+      "description": "Detects JWT tokens with suspicious kid header values that could enable SQL injection or path traversal",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND jwt.kid:(*\"'\"* OR *\"../\"* OR *\"$\"* OR *\"{\"*)",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "kid-injection"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-004",
+      "name": "JWT Signature Bypass - Empty Signature",
+      "description": "Detects JWT tokens with empty or missing signature segment",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND jwt.signature:(\"\" OR NOT _exists_)",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "empty-signature"
+      ],
+      "risk_score": 99,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-005",
+      "name": "JWT Token Excessive Lifetime",
+      "description": "Detects JWT tokens with expiration time exceeding 24 hours",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND jwt.expiration:>now+24h",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "excessive-lifetime"
+      ],
+      "risk_score": 55,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-006",
+      "name": "JWT Claim Manipulation - Privilege Escalation",
+      "description": "Detects JWT tokens with modified role or privilege claims compared to issued values",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND jwt.claims.role:(\"admin\" OR \"superuser\" OR \"root\")",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "OWASP-A05",
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "privilege-escalation"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-007",
+      "name": "JWT JWK Injection Attack",
+      "description": "Detects JWT tokens containing embedded JWK (jwk header) which could enable key confusion",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND jwt.jwk:*",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "jwk-injection"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-008",
+      "name": "JWT x5c Header Injection",
+      "description": "Detects JWT tokens with x5c (X.509 certificate chain) header that could enable certificate spoofing",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND jwt.x5c:*",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "x5c-injection"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-009",
+      "name": "JWT Token Replay - Simultaneous Use",
+      "description": "Detects same JWT token jti (JWT ID) used from different source IPs",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND jwt.jti:*",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "token-replay"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-010",
+      "name": "JWT Not Before Claim in Future",
+      "description": "Detects JWT tokens with nbf (not before) claim set in the future suggesting token manipulation",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND jwt.nbf:>now",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "nbf-future"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-011",
+      "name": "JWT Weak Key Detection",
+      "description": "Detects JWT tokens signed with weak keys identifiable by short signature length",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND jwt.algorithm:\"HS256\" AND jwt.signature_length:<32",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05",
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "weak-key"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-012",
+      "name": "JWT Issuer Mismatch",
+      "description": "Detects JWT tokens with issuer claim not matching expected issuer for the service",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND NOT jwt.iss:*authorized-issuer*",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "issuer-mismatch"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-013",
+      "name": "JWT Audience Mismatch",
+      "description": "Detects JWT tokens with audience claim targeting a different service than the one processing it",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND jwt.aud:* AND NOT jwt.aud:*current-service*",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "audience-mismatch"
+      ],
+      "risk_score": 65,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-014",
+      "name": "JWT Token Without Required Claims",
+      "description": "Detects JWT tokens missing essential claims (iss, sub, aud, exp, iat)",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND (NOT _exists_:jwt.iss OR NOT _exists_:jwt.sub OR NOT _exists_:jwt.exp)",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "missing-claims"
+      ],
+      "risk_score": 65,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-JWT-015",
+      "name": "JWT Encrypted Token With Weak Algorithm",
+      "description": "Detects JWT tokens encrypted with weak algorithms (dir, A128CBC-HS256) for JWE",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND http.request.headers.authorization:\"Bearer *\" AND jwt.enc:(\"A128CBC-HS256\" OR \"A128GCM\")",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05",
+        "PCI-DSS-4.1"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "weak-encryption"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-001",
+      "name": "OAuth Authorization Code Theft - Redirect URI Manipulation",
+      "description": "Detects OAuth authorization requests with modified or unexpected redirect_uri parameters",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND url.path:(\"/authorize\" OR \"/auth\") AND url.query:*redirect_uri* AND NOT url.query:*allowed-redirect*",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A05",
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "redirect-uri-manipulation"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-002",
+      "name": "OAuth Token Theft - Excessive Token Requests",
+      "description": "Detects unusually high volume of OAuth token requests suggesting token theft or abuse",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND url.path:(\"/oauth/token\" OR \"/oauth2/token\") AND http.request.method:\"POST\"",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1550"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "token-theft"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-003",
+      "name": "OAuth Scope Escalation",
+      "description": "Detects OAuth token requests with broader scopes than originally authorized",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND url.path:(\"/oauth/token\" OR \"/oauth2/token\") AND oauth.scope:*",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "scope-escalation"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-004",
+      "name": "OAuth Client Credential Abuse",
+      "description": "Detects OAuth client_credentials grant used for user-level operations",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND oauth.grant_type:\"client_credentials\" AND url.path:(\"/api/v*/users/*\" OR \"/api/v*/admin/*\")",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1550"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "client-credential-abuse"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-005",
+      "name": "OpenID Connect ID Token Replay",
+      "description": "Detects replay of OpenID Connect ID tokens across different sessions",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND oidc.id_token:* AND event.action:\"token-validate\"",
+      "index": [
+        "logs-auth-*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "id-token-replay"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-006",
+      "name": "OAuth Implicit Grant Token Exposure",
+      "description": "Detects OAuth implicit grant flow returning tokens in URL fragment exposing them to theft",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND url.path:(\"/authorize\" OR \"/auth\") AND url.query:*response_type=token*",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "implicit-grant"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-007",
+      "name": "OAuth PKCE Downgrade Attack",
+      "description": "Detects OAuth authorization code flow without PKCE challenge suggesting PKCE bypass",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND url.path:(\"/authorize\") AND NOT url.query:*code_challenge*",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "pkce-downgrade"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-008",
+      "name": "OAuth Refresh Token Rotation Failure",
+      "description": "Detects OAuth refresh tokens that are not rotated on use indicating insecure implementation",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"refresh-token\" AND oauth.refresh_token_reused:true",
+      "index": [
+        "logs-auth-*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1550"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "refresh-token-reuse"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-009",
+      "name": "OAuth State Parameter Missing or Reused",
+      "description": "Detects OAuth flows missing or reusing the state parameter enabling CSRF",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND url.path:(\"/authorize\" OR \"/auth\") AND (NOT url.query:*state* OR oauth.state_reused:true)",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "state-csrf"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-010",
+      "name": "OAuth Token Stored in Local Storage",
+      "description": "Detects JavaScript access to OAuth tokens stored in browser local storage via XSS-prone patterns",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"application\" AND message:(*localStorage.setItem*token* OR *sessionStorage.setItem*token*)",
+      "index": [
+        "logs-app-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "token-storage"
+      ],
+      "risk_score": 60,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-011",
+      "name": "OAuth Confidential Client Secret Exposure",
+      "description": "Detects OAuth client secrets transmitted in frontend code or URLs",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND (url.query:*client_secret* OR http.request.body:*client_secret*) AND NOT source.ip:*backend*",
+      "index": [
+        "logs-api-*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1552"
+      ],
+      "compliance": [
+        "OWASP-A05",
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "client-secret-exposure"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-012",
+      "name": "OAuth Authorization Server Impersonation",
+      "description": "Detects requests to fake OAuth authorization servers or phishing OAuth endpoints",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND url.domain:* AND (url.domain:*login-oauth* OR url.domain:*auth-oauth* OR url.domain:*oauth-verify*) AND NOT url.domain:*known-provider*",
+      "index": [
+        "logs-dns-*",
+        "logs-proxy-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1187"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "phishing"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-013",
+      "name": "OAuth Token Endpoint Abuse - Excessive Failed Requests",
+      "description": "Detects excessive failed OAuth token endpoint requests suggesting brute force or token abuse",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND url.path:(\"/oauth/token\" OR \"/oauth2/token\") AND event.outcome:\"failure\"",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1110"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "token-brute-force"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-014",
+      "name": "OAuth Resource Owner Password Credentials Grant",
+      "description": "Detects use of ROPC grant which transmits user credentials directly to the client",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND oauth.grant_type:\"password\"",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1550"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "ropc-grant"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-OAUTH-015",
+      "name": "OAuth Token Revocation Bypass",
+      "description": "Detects use of OAuth tokens after revocation events indicating revocation bypass",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"token-revoked\" AND oauth.token_id:*",
+      "index": [
+        "logs-auth-*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1550.001"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "oauth",
+        "revocation-bypass"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-001",
+      "name": "Privilege Escalation - Role Change Without Approval",
+      "description": "Detects user role elevation without corresponding approval workflow",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:(\"role-change\" OR \"role-assign\" OR \"permission-grant\") AND NOT event.action:*approval*",
+      "index": [
+        "logs-iam-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-02"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-AC-3"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "role-change"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-002",
+      "name": "Horizontal Privilege Escalation - Account Switching",
+      "description": "Detects users accessing other user accounts without proper authorization",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"account-switch\" AND NOT event.action:*admin-impersonate*",
+      "index": [
+        "logs-iam-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-03"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "horizontal"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-003",
+      "name": "Vertical Privilege Escalation - Admin Function Access",
+      "description": "Detects non-admin users accessing admin-only endpoints or functions",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND url.path:(*\"/admin\"* OR *\"/administrator\"* OR *\"/manage\"* OR *\"/console\"*) AND user.role:(\"user\" OR \"member\" OR \"viewer\")",
+      "index": [
+        "logs-api-*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-ATHZ-02"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "OWASP-A01"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "vertical"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-004",
+      "name": "API Parameter Tampering - Role Manipulation",
+      "description": "Detects modification of role or permission parameters in API requests",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:(\"PUT\" OR \"PATCH\" OR \"POST\") AND (url.query:*role* OR http.request.body:*role*) AND NOT user.role:(\"admin\" OR \"superuser\")",
+      "index": [
+        "logs-api-*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-ATHZ-03"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "OWASP-A01"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "parameter-tampering"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-005",
+      "name": "Mass Assignment Vulnerability - Sensitive Field Update",
+      "description": "Detects API requests that attempt to modify sensitive fields like role, isAdmin, or permissions",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:(\"PUT\" OR \"PATCH\" OR \"POST\") AND http.request.body:(*\"isAdmin\"* OR *\"role\":* OR *\"permissions\"* OR *\"userType\"*)",
+      "index": [
+        "logs-api-*",
+        "logs-web-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-03"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "OWASP-A08"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "mass-assignment"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-006",
+      "name": "Privilege Escalation via Direct Object Reference",
+      "description": "Detects access to resources by ID without proper authorization checks",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:\"GET\" AND url.path:(*\"/users/\"* OR *\"/accounts/\"* OR *\"/profiles/\"*) AND NOT user.role:(\"admin\")",
+      "index": [
+        "logs-api-*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-ATHZ-01"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "OWASP-A01"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "idor"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-007",
+      "name": "Privilege Escalation - Sudo Abuse",
+      "description": "Detects suspicious sudo command executions that could lead to privilege escalation",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"process\" AND process.name:\"sudo\" AND NOT process.command_line:(*allowed-command*)",
+      "index": [
+        "logs-system-*",
+        "logs-linux-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-02"
+      ],
+      "mitre": [
+        "T1548.001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "sudo"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-008",
+      "name": "Privilege Escalation via SUID Binary",
+      "description": "Detects execution of SUID binaries commonly exploited for privilege escalation",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"process\" AND process.name:(\"nmap\" OR \"vim\" OR \"find\" OR \"bash\" OR \"python\" OR \"perl\" OR \"less\" OR \"more\" OR \"awk\" OR \"env\") AND process.euid:0 AND process.uid:!=0",
+      "index": [
+        "logs-system-*",
+        "logs-linux-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-02"
+      ],
+      "mitre": [
+        "T1548.001"
+      ],
+      "compliance": [
+        "CIS-5.1"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "suid"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-009",
+      "name": "Privilege Escalation - Container Breakout via Docker Socket",
+      "description": "Detects access to Docker socket enabling container breakout and host privilege escalation",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"process\" AND process.command_line:(*\"/var/run/docker.sock\"* OR *\"docker.sock\"*)",
+      "index": [
+        "logs-system-*",
+        "logs-container-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-02"
+      ],
+      "mitre": [
+        "T1611"
+      ],
+      "compliance": [
+        "CIS-5.1"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "container-breakout"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-010",
+      "name": "Privilege Escalation via Kubernetes RBAC Abuse",
+      "description": "Detects Kubernetes RBAC privilege escalation through role binding creation or modification",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"iam\" AND kubernetes.audit.objectRef.resource:(\"rolebindings\" OR \"clusterrolebindings\") AND kubernetes.audit.verb:(\"create\" OR \"update\" OR \"patch\")",
+      "index": [
+        "logs-k8s-*",
+        "logs-container-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-02"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "CIS-5.1"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "k8s-rbac"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-011",
+      "name": "Privilege Escalation via Cloud IAM Policy Modification",
+      "description": "Detects cloud IAM policy changes that could grant elevated permissions",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:(\"put-policy\" OR \"attach-policy\" OR \"update-policy\") AND cloud.provider:(\"aws\" OR \"azure\" OR \"gcp\")",
+      "index": [
+        "logs-aws-*",
+        "logs-azure-*",
+        "logs-gcp-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-02"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "CIS-1.1"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "cloud-iam"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-012",
+      "name": "Privilege Escalation via Service Account Token",
+      "description": "Detects use of service account tokens for privilege escalation in cloud environments",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND user.type:\"service-account\" AND event.action:\"assume-role\" AND NOT user.name:*expected-service*",
+      "index": [
+        "logs-cloud-*",
+        "logs-iam-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-02"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "CIS-1.1"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "service-account"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-013",
+      "name": "Privilege Escalation via Cron Job Manipulation",
+      "description": "Detects creation or modification of cron jobs by non-root users for privilege escalation",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"file\" AND file.path:(*\"/etc/cron.d\"* OR *\"/etc/crontab\"* OR *\"/var/spool/cron\"*) AND process.name:(\"crontab\" OR \"echo\" OR \"tee\") AND NOT user.name:\"root\"",
+      "index": [
+        "logs-system-*",
+        "logs-linux-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-02"
+      ],
+      "mitre": [
+        "T1053.003"
+      ],
+      "compliance": [
+        "CIS-5.1"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "cron"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-014",
+      "name": "Privilege Escalation via DLL/SO Injection",
+      "description": "Detects suspicious DLL or shared library loading that could enable privilege escalation",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"process\" AND (process.name:(\"rundll32\" OR \"regsvr32\") OR process.env:*LD_PRELOAD*) AND NOT process.command_line:*known-good*",
+      "index": [
+        "logs-system-*",
+        "logs-windows-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-02"
+      ],
+      "mitre": [
+        "T1574.001",
+        "T1574.002"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "dll-injection"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-PE-015",
+      "name": "Privilege Escalation via Setuid/Setgid Misconfiguration",
+      "description": "Detects setuid or setgid bit changes on files enabling privilege escalation",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"file\" AND event.action:(\"chmod\" OR \"create\") AND file.mode:(*\"4\"* OR *\"2\"*) AND file.path:(*\"/bin\"* OR *\"/sbin\"* OR *\"/usr/bin\"*)",
+      "index": [
+        "logs-system-*",
+        "logs-linux-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-02"
+      ],
+      "mitre": [
+        "T1548.001"
+      ],
+      "compliance": [
+        "CIS-5.1"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "setuid"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-IDOR-001",
+      "name": "IDOR - Sequential ID Access Pattern",
+      "description": "Detects sequential resource ID access patterns indicating IDOR enumeration",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:\"GET\" AND url.path:(*\"/users/\"* OR *\"/accounts/\"* OR *\"/orders/\"*) AND NOT user.role:(\"admin\")",
+      "index": [
+        "logs-api-*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-ATHZ-01"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A01"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "idor",
+        "enumeration"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-IDOR-002",
+      "name": "IDOR - UUID Guessing Through Observable Patterns",
+      "description": "Detects access to resources using predictable UUIDs or IDs across multiple requests",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:\"GET\" AND url.path:(*\"/api/v*/\"*) AND user.role:(\"user\" OR \"member\") AND event.outcome:\"success\"",
+      "index": [
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-01"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A01"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "idor",
+        "uuid-guessing"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-IDOR-003",
+      "name": "IDOR - Cross-Tenant Data Access",
+      "description": "Detects users accessing data belonging to different tenants in multi-tenant applications",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:\"GET\" AND url.path:*tenant* AND NOT user.tenant:*url.tenant*",
+      "index": [
+        "logs-api-*",
+        "logs-saas-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-01"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A01",
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "idor",
+        "cross-tenant"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-IDOR-004",
+      "name": "IDOR - Parameter Manipulation in POST Requests",
+      "description": "Detects POST requests with manipulated object IDs in request body enabling unauthorized writes",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:\"POST\" AND (http.request.body:*user_id* OR http.request.body:*account_id* OR http.request.body:*owner_id*) AND NOT user.role:(\"admin\")",
+      "index": [
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-01"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "OWASP-A01"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "idor",
+        "post-manipulation"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-IDOR-005",
+      "name": "IDOR - Access to Deleted or Inactive Resources",
+      "description": "Detects access to deleted or inactive user resources suggesting IDOR",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.status_code:404 AND url.path:(*\"/users/\"* OR *\"/accounts/\"*) AND http.request.method:\"GET\"",
+      "index": [
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-01"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A01"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "idor",
+        "deleted-resources"
+      ],
+      "risk_score": 55,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-IDOR-006",
+      "name": "IDOR - Admin API Endpoint Access by Regular User",
+      "description": "Detects regular users accessing admin API endpoints through direct URL manipulation",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND url.path:(*\"/admin/\"* OR *\"/manage/\"* OR *\"/internal/\"*) AND user.role:(\"user\" OR \"member\" OR \"viewer\")",
+      "index": [
+        "logs-api-*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-ATHZ-01"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "OWASP-A01",
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "idor",
+        "admin-api"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-IDOR-007",
+      "name": "IDOR - Bulk Data Export by Non-Admin User",
+      "description": "Detects non-admin users exporting or downloading large volumes of data",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:\"GET\" AND url.path:(*\"/export\"* OR *\"/download\"* OR *\"/report\"*) AND user.role:(\"user\" OR \"member\") AND http.response.body.bytes:>1000000",
+      "index": [
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-01"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A01"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "idor",
+        "bulk-export"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-IDOR-008",
+      "name": "IDOR - File Access Without Ownership Check",
+      "description": "Detects file access requests lacking proper ownership verification",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND url.path:(*\"/files/\"* OR *\"/documents/\"* OR *\"/attachments/\"*) AND NOT http.request.headers.authorization:*owner*",
+      "index": [
+        "logs-api-*",
+        "logs-web-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-01"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A01"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "idor",
+        "file-access"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-IDOR-009",
+      "name": "IDOR - GraphQL Depth Abuse for Data Exposure",
+      "description": "Detects GraphQL queries with excessive depth enabling unauthorized data traversal",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND url.path:*\"/graphql\"* AND graphql.depth:>5",
+      "index": [
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-01"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A01"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "idor",
+        "graphql-depth"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-IDOR-010",
+      "name": "IDOR - REST API Path Traversal to Other Users",
+      "description": "Detects path traversal patterns in REST API requests enabling access to other users' data",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND url.path:(*\"../\"* OR *\"..%2F\"* OR *\"%2e%2e\"* OR *\"..%252f\"*) AND http.request.method:(\"GET\" OR \"PUT\" OR \"DELETE\")",
+      "index": [
+        "logs-api-*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-ATHZ-01"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A01",
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "idor",
+        "path-traversal"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-TK-001",
+      "name": "API Key Exposure in URL Query Parameters",
+      "description": "Detects API keys transmitted in URL query parameters visible in logs and browser history",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND url.query:(*\"api_key=\"* OR *\"apikey=\"* OR *\"access_token=\"* OR *\"secret_key=\"*)",
+      "index": [
+        "logs-nginx-access*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "OWASP-A07"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "api-key-exposure",
+        "url-exposure"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-TK-002",
+      "name": "API Key Exposure in HTTP Referrer Header",
+      "description": "Detects API keys or tokens leaked via HTTP Referer header to external domains",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.headers.referer:(*\"api_key=\"* OR *\"token=\"* OR *\"secret=\"*)",
+      "index": [
+        "logs-nginx-access*",
+        "logs-proxy-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "OWASP-A07"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "api-key-exposure",
+        "referer-leak"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-TK-003",
+      "name": "Hardcoded API Key in Application Source Code",
+      "description": "Detects hardcoded API keys found in application error messages or logs",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"application\" AND message:(*\"AKIA\"* OR *\"sk_live\"* OR *\"pk_live\"* OR *\"ghp_\"* OR *\"glpat-\"*)",
+      "index": [
+        "logs-app-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "OWASP-A07"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "api-key-exposure",
+        "hardcoded-key"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-TK-004",
+      "name": "Token Theft - Bearer Token in Non-HTTPS Request",
+      "description": "Detects bearer tokens transmitted over unencrypted HTTP connections",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND url.scheme:\"http\" AND http.request.headers.authorization:\"Bearer *\"",
+      "index": [
+        "logs-nginx-access*",
+        "logs-proxy-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1041"
+      ],
+      "compliance": [
+        "PCI-DSS-4.1",
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "token-theft",
+        "cleartext-token"
+      ],
+      "risk_score": 99,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-TK-005",
+      "name": "Refresh Token Theft - Token Used From Anomalous Location",
+      "description": "Detects refresh tokens used from IP addresses geographically distant from original authentication",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"refresh-token\" AND source.geo.country_name:* AND NOT source.geo.country_name:*expected*",
+      "index": [
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1550"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "token-theft",
+        "anomalous-refresh"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-TK-006",
+      "name": "API Key Usage From Multiple Locations Simultaneously",
+      "description": "Detects same API key used from geographically distinct locations indicating key theft",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"api-key-auth\" AND api.key_id:*",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1550"
+      ],
+      "compliance": [
+        "OWASP-A07"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "api-key-exposure",
+        "concurrent-use"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-TK-007",
+      "name": "Access Token Excessive Scope Usage",
+      "description": "Detects access tokens used for operations beyond their authorized scope",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"token-auth\" AND oauth.scope:* AND event.outcome:\"success\" AND NOT oauth.scope:*expected*",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "token-theft",
+        "scope-abuse"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-TK-008",
+      "name": "Stale API Key Used After Rotation Policy",
+      "description": "Detects API keys used beyond their rotation policy timeframe",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"api-key-auth\" AND api.key_age:>90d",
+      "index": [
+        "logs-api-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1550"
+      ],
+      "compliance": [
+        "OWASP-A07"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "api-key-exposure",
+        "stale-key"
+      ],
+      "risk_score": 60,
+      "interval": "1h"
+    },
+    {
+      "rule_id": "ES-WSTG06-TK-009",
+      "name": "Token Replay - Same Token From Different User Agents",
+      "description": "Detects same authentication token used with different user agents suggesting token theft",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"token-auth\" AND session.id:* AND http.user_agent:*",
+      "index": [
+        "logs-auth-*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1550"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "token-theft",
+        "user-agent-mismatch"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-TK-010",
+      "name": "API Key Exposure in Error Messages",
+      "description": "Detects API keys or secrets exposed in application error messages or stack traces",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"application\" AND (http.response.status_code:(500 OR 502 OR 503) AND message:(*\"key\"* OR *\"secret\"* OR *\"token\"* OR *\"password\"*))",
+      "index": [
+        "logs-app-*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "OWASP-A07"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "api-key-exposure",
+        "error-message"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-CORS-001",
+      "name": "CORS Wildcard Origin Configuration",
+      "description": "Detects HTTP responses with Access-Control-Allow-Origin set to wildcard",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.headers.access_control_allow_origin:\"*\"",
+      "index": [
+        "logs-nginx-access*",
+        "logs-apache-access*"
+      ],
+      "references": [
+        "WSTG-ATHZ-04"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A05",
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "cors",
+        "wildcard-origin"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-CORS-002",
+      "name": "CORS Reflected Origin - Dynamic Allow Origin",
+      "description": "Detects CORS configurations that reflect the request Origin header in Access-Control-Allow-Origin",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.headers.access_control_allow_origin:* AND http.request.headers.origin:* AND http.response.headers.access_control_allow_origin:http.request.headers.origin",
+      "index": [
+        "logs-nginx-access*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-04"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "cors",
+        "reflected-origin"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-CORS-003",
+      "name": "CORS Allow Credentials With Wildcard Origin",
+      "description": "Detects CORS responses allowing credentials with wildcard origin which is a critical misconfiguration",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.headers.access_control_allow_origin:\"*\" AND http.response.headers.access_control_allow_credentials:\"true\"",
+      "index": [
+        "logs-nginx-access*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-04"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A05",
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "cors",
+        "credentials-wildcard"
+      ],
+      "risk_score": 99,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-CORS-004",
+      "name": "CORS Null Origin Allowed",
+      "description": "Detects CORS responses allowing null origin which can be exploited via sandboxed iframes",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.headers.access_control_allow_origin:\"null\"",
+      "index": [
+        "logs-nginx-access*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-04"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "cors",
+        "null-origin"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-CSRF-001",
+      "name": "CSRF Attack - Missing Anti-CSRF Token on State-Changing Request",
+      "description": "Detects POST/PUT/DELETE/PATCH requests without anti-CSRF tokens",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:(\"POST\" OR \"PUT\" OR \"DELETE\" OR \"PATCH\") AND NOT http.request.headers:(*csrf* OR *x-csrf* OR *xsrf*)",
+      "index": [
+        "logs-web-*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-SESS-06"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "OWASP-A01",
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "csrf",
+        "missing-token"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-CSRF-002",
+      "name": "CSRF via JSON Content-Type Bypass",
+      "description": "Detects state-changing requests using JSON content type to bypass CSRF token validation",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:\"POST\" AND http.request.headers.content_type:\"application/json\" AND NOT http.request.headers:(*csrf* OR *x-csrf*)",
+      "index": [
+        "logs-api-*",
+        "logs-web-*"
+      ],
+      "references": [
+        "WSTG-SESS-06"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "OWASP-A01"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "csrf",
+        "json-bypass"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-CSRF-003",
+      "name": "CSRF Attack via Multipart Form Upload",
+      "description": "Detects multipart form uploads without CSRF protection enabling cross-site file uploads",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.headers.content_type:\"multipart/form-data\" AND NOT http.request.headers:(*csrf* OR *x-csrf*)",
+      "index": [
+        "logs-web-*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-SESS-06"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "OWASP-A01"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "csrf",
+        "multipart-upload"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-CK-001",
+      "name": "Session Cookie Path Too Broad",
+      "description": "Detects session cookies with path=/ set too broadly increasing exposure risk",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.set_cookie:*\"path=/\"* AND NOT http.response.set_cookie:*\"path=/specific\"",
+      "index": [
+        "logs-nginx-access*",
+        "logs-web-*"
+      ],
+      "references": [
+        "WSTG-SESS-02"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "cookie-security",
+        "broad-path"
+      ],
+      "risk_score": 50,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-CK-002",
+      "name": "Session Cookie With Excessive Expiration",
+      "description": "Detects session cookies with expiration exceeding session policy limits",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.set_cookie:*\"max-age\"* AND http.response.set_cookie.cookie_max_age:>86400",
+      "index": [
+        "logs-nginx-access*",
+        "logs-web-*"
+      ],
+      "references": [
+        "WSTG-SESS-05"
+      ],
+      "mitre": [
+        "T1185"
+      ],
+      "compliance": [
+        "PCI-DSS-8.1.8"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "cookie-security",
+        "excessive-expiration"
+      ],
+      "risk_score": 55,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-CK-003",
+      "name": "Sensitive Data in Cookie Without Encryption",
+      "description": "Detects sensitive data (PII, credentials) stored in unencrypted cookie values",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.cookies:(*\"email=\"* OR *\"ssn=\"* OR *\"password=\"* OR *\"credit_card=\"*) AND url.scheme:\"http\"",
+      "index": [
+        "logs-web-*",
+        "logs-proxy-*"
+      ],
+      "references": [
+        "WSTG-SESS-02"
+      ],
+      "mitre": [
+        "T1041"
+      ],
+      "compliance": [
+        "PCI-DSS-3.4",
+        "OWASP-A05"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "cookie-security",
+        "unencrypted-sensitive"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-PWD-001",
+      "name": "Password Policy Violation - Weak Password Accepted",
+      "description": "Detects successful password changes to passwords that don't meet minimum complexity requirements",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:\"password-change\" AND event.outcome:\"success\" AND NOT password.complexity:*meets-policy*",
+      "index": [
+        "logs-iam-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110"
+      ],
+      "compliance": [
+        "PCI-DSS-8.2",
+        "NIST-IA-5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "password-policy",
+        "weak-password"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-PWD-002",
+      "name": "Password Reuse Detection",
+      "description": "Detects password changes to passwords matching previously compromised passwords",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:\"password-change\" AND password.in_breach_database:true",
+      "index": [
+        "logs-iam-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110"
+      ],
+      "compliance": [
+        "PCI-DSS-8.2",
+        "NIST-IA-5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "password-policy",
+        "password-reuse"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-PWD-003",
+      "name": "Password Reset Abuse - No Identity Verification",
+      "description": "Detects password reset requests without proper identity verification steps",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:\"password-reset\" AND NOT event.action:*mfa-verify* AND NOT event.action:*email-verify*",
+      "index": [
+        "logs-iam-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS-8.2"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "password-policy",
+        "reset-abuse"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-PWD-004",
+      "name": "Password Change Rate Limiting Bypass",
+      "description": "Detects rapid successive password changes suggesting brute force or lockout bypass",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:\"password-change\"",
+      "index": [
+        "logs-iam-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1110"
+      ],
+      "compliance": [
+        "PCI-DSS-8.2"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "password-policy",
+        "rate-limit-bypass"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-PWD-005",
+      "name": "Account Enumeration via Password Reset",
+      "description": "Detects password reset responses that reveal whether an account exists enabling user enumeration",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"iam\" AND event.action:\"password-reset\" AND http.response.body:(*\"account not found\"* OR *\"user does not exist\"* OR *\"invalid email\"*)",
+      "index": [
+        "logs-iam-*",
+        "logs-api-*"
+      ],
+      "references": [
+        "WSTG-ATHN-02"
+      ],
+      "mitre": [
+        "T1110.004"
+      ],
+      "compliance": [
+        "OWASP-A07"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "password-policy",
+        "account-enumeration"
+      ],
+      "risk_score": 60,
+      "interval": "5m"
+    }
+  ]
+}

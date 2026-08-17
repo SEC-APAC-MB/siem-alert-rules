@@ -1,0 +1,815 @@
+<!--
+  Wazuh SIEM Alert Rules — AI Security: Prompt Injection, Data Extraction, Model Attacks
+  Mapped from: security-testing-pentest/config/tests/owasp-ai-security.md
+  Total rules: 310
+  Rule ID format: WZ-CAT-NUM (CAT: PI, SID, EXTR, MDL, POI)
+-->
+<group name="wazuh,ai_security,prompt_injection,data_extraction,model_attacks">
+
+  <!-- ============================================================ -->
+  <!-- AI-PI: Prompt Injection Testing -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-PI-001" level="12" group="ai_security,prompt_injection">
+    <description>Direct prompt injection — user input overriding system instructions</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-001</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.15</ai_act>
+      <nist_800_53>SI-10</nist_800_53>
+    </compliance>
+    <regex>ignore.*previous.*instructions|forget.*your.*role|disregard.*system|you are now|NEW INSTRUCTION</regex>
+  </rule>
+
+  <rule id="WZ-PI-002" level="12" group="ai_security,prompt_injection">
+    <description>Indirect prompt injection — malicious content in external data sources</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-002</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.15</ai_act>
+      <nist_800_53>SI-10</nist_800_53>
+    </compliance>
+    <match>webpage.*contains.*instructions|document.*says.*ignore|email.*contains.*prompt|uploaded.*file.*system</match>
+  </rule>
+
+  <rule id="WZ-PI-003" level="10" group="ai_security,prompt_injection">
+    <description>System prompt extraction — user attempting to reveal system instructions</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-003</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <regex>what.*are.*your.*instructions|repeat.*your.*system.*prompt|show.*your.*prompt|output.*your.*rules|print.*system</regex>
+  </rule>
+
+  <rule id="WZ-PI-004" level="10" group="ai_security,prompt_injection,jailbreak">
+    <description>AI jailbreak — bypassing safety constraints via creative prompt engineering</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-004</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.5,Art.9</ai_act>
+    </compliance>
+    <regex>DAN.*mode|developer.*mode|jailbreak|bypass.*safety|ignore.*ethical|no.*restrictions|pretend.*you.*are</regex>
+  </rule>
+
+  <rule id="WZ-PI-005" level="10" group="ai_security,prompt_injection,payload">
+    <description>Multi-language prompt injection — injection via non-English language switching</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-005</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <match>translate.*this|switch.*language|in.*language.*ignore|其他语言.*指令</match>
+  </rule>
+
+  <rule id="WZ-PI-006" level="10" group="ai_security,prompt_injection,encoding">
+    <description>Encoded prompt injection — base64 or URL-encoded malicious instructions</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-006</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <regex>aWdub3Jl|base64.*decode|decode.*this|url.*encoded.*instruction|%69%67%6e%6f%72%65</regex>
+  </rule>
+
+  <rule id="WZ-PI-007" level="10" group="ai_security,prompt_injection,context">
+    <description>Context window overflow — manipulating AI by exceeding context limits</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-007</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1498</id>
+      <tactic>Impact</tactic>
+      <technique>Network DDoS</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+      <nist_800_53>SC-5</nist_800_53>
+    </compliance>
+    <match>prompt.*length.*exceed|context.*window.*overflow|token.*limit.*exceeded|max.*tokens</match>
+  </rule>
+
+  <rule id="WZ-PI-008" level="10" group="ai_security,prompt_injection,roleplay">
+    <description>Role-play injection — using persona or character to bypass safety constraints</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-008</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.5,Art.9</ai_act>
+    </compliance>
+    <regex>pretend.*you.*are|act.*as.*if|roleplay.*as|you.*are.*now.*a|simulate.*being|from.*now.*on.*you</regex>
+  </rule>
+
+  <rule id="WZ-PI-009" level="12" group="ai_security,prompt_injection,data_leak">
+    <description>Prompt injection for training data extraction — extracting model training data</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-009</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <ai_act>Art.10</ai_act>
+    </compliance>
+    <regex>repeat.*training.*data|what.*were.*you.*trained.*on|output.*verbatim|complete.*this.*passage</regex>
+  </rule>
+
+  <rule id="WZ-PI-010" level="10" group="ai_security,prompt_injection,rag">
+    <description>RAG pipeline injection — malicious content injected through retrieval augmentation</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-010</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <match>retrieved.*document.*instruction|RAG.*source.*injection|knowledge.*base.*poisoned</match>
+  </rule>
+
+  <rule id="WZ-PI-011" level="10" group="ai_security,prompt_injection,chain">
+    <description>Prompt chain injection — multi-step injection bypassing per-step filters</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-011</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <regex>step\s+1.*step\s+2|first.*then.*finally|part\s+1.*part\s+2|when.*I.*say.*X.*respond</regex>
+  </rule>
+
+  <rule id="WZ-PI-012" level="8" group="ai_security,prompt_injection,function">
+    <description>Function/tool calling injection — manipulating AI to call unauthorized functions</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-012</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.15</ai_act>
+    </compliance>
+    <match>function_call.*delete|tool_call.*admin|api_call.*exec|execute_command|run_shell</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- AI-SID: Sensitive Information Disclosure -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-SID-001" level="10" group="ai_security,data_extraction">
+    <description>PII extraction from AI model — model revealing personal data in responses</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-SID-001</field>
+    <field name="category">ai_data_extraction</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.5,Art.32</gdpr>
+      <ai_act>Art.10</ai_act>
+      <hipaa>§164.312(a)(1)</hipaa>
+    </compliance>
+    <regex>\b\d{3}-\d{2}-\d{4}\b|\b[A-Z]\d{3}\s?\d{4}\s?\d{4}\b|\b[\w.+-]+@[\w-]+\.[\w.]+\b.*SSN|social.*security.*number</regex>
+  </rule>
+
+  <rule id="WZ-SID-002" level="10" group="ai_security,data_extraction">
+    <description>Training data memorization — model reproducing verbatim training data</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-SID-002</field>
+    <field name="category">ai_data_extraction</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.5,Art.32</gdpr>
+      <ai_act>Art.10</ai_act>
+    </compliance>
+    <match>verbatim.*output|training.*data.*reproduction|memorization.*rate|data.*leakage.*model</match>
+  </rule>
+
+  <rule id="WZ-SID-003" level="8" group="ai_security,data_extraction">
+    <description>AI system prompt leakage — system instructions revealed in model output</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-SID-003</field>
+    <field name="category">ai_data_extraction</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <regex>system.*prompt.*is|my.*instructions.*are|I.*was.*trained|my.*guidelines.*state|OpenAI.*internal</regex>
+  </rule>
+
+  <rule id="WZ-SID-004" level="10" group="ai_security,data_extraction">
+    <description>AI API key extraction — model revealing API keys or secrets</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-SID-004</field>
+    <field name="category">ai_data_extraction</field>
+    <mitre>
+      <id>T1552.001</id>
+      <tactic>Credential Access</tactic>
+      <technique>Credentials in Files</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>8.6</pci_dss>
+      <ai_act>Art.15</ai_act>
+    </compliance>
+    <regex>sk-[a-zA-Z0-9]{32,}|AIza[a-zA-Z0-9_-]{35}|AKIA[0-9A-Z]{16}|api[_-]?key.*:.*["'][a-zA-Z0-9]{20,}</regex>
+  </rule>
+
+  <rule id="WZ-SID-005" level="10" group="ai_security,data_extraction">
+    <description>AI internal knowledge base disclosure — model revealing internal documents</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-SID-005</field>
+    <field name="category">ai_data_extraction</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <ai_act>Art.10</ai_act>
+    </compliance>
+    <match>internal.*document|classified.*information|confidential.*memo|company.*policy.*document|employee.*handbook</match>
+  </rule>
+
+  <rule id="WZ-SID-006" level="10" group="ai_security,data_extraction">
+    <description>AI model parameter extraction — attempting to extract model weights or architecture</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-SID-006</field>
+    <field name="category">ai_data_extraction</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.53</ai_act>
+    </compliance>
+    <regex>model.*weights|model.*architecture|hidden.*layer.*size|embedding.*dimension|parameter.*count</regex>
+  </rule>
+
+  <rule id="WZ-SID-007" level="8" group="ai_security,data_extraction">
+    <description>AI error message information leakage — verbose errors revealing model internals</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-SID-007</field>
+    <field name="category">ai_data_extraction</field>
+    <mitre>
+      <id>T1592</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Host Information</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <regex>model.*version|tokenizer.*error|embedding.*dimension.*mismatch|CUDA.*error|tensor.*shape</regex>
+  </rule>
+
+  <rule id="WZ-SID-008" level="10" group="ai_security,data_extraction">
+    <description>AI conversation history leakage — model exposing prior user conversations</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-SID-008</field>
+    <field name="category">ai_data_extraction</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.5,Art.32</gdpr>
+      <ai_act>Art.10</ai_act>
+    </compliance>
+    <match>previous.*conversation|other.*user.*asked|earlier.*in.*our.*chat|from.*another.*session|conversation.*history</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- AI Model Attacks -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-MDL-001" level="10" group="ai_security,model_attack,adversarial">
+    <description>Adversarial input — crafted input designed to cause model misclassification</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-001</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.15</ai_act>
+      <nist_800_53>SI-10</nist_800_53>
+    </compliance>
+    <match>adversarial.*example|perturbation.*attack|FGSM|PGD.*attack|CARLINI.*L2</match>
+  </rule>
+
+  <rule id="WZ-MDL-002" level="10" group="ai_security,model_attack,evasion">
+    <description>Model evasion — input designed to bypass AI safety filters or classification</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-002</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.5,Art.9</ai_act>
+    </compliance>
+    <regex>payload.*obfuscation|filter.*bypass|evasion.*technique|homoglyph.*attack|unicode.*trick</regex>
+  </rule>
+
+  <rule id="WZ-MDL-003" level="10" group="ai_security,model_attack,prompt_leak">
+    <description>Model prompt leakage — system prompt extracted through query manipulation</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-003</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <regex>repeat.*above|what.*were.*you.*told|output.*everything.*before|summarize.*your.*instructions|list.*your.*rules</regex>
+  </rule>
+
+  <rule id="WZ-MDL-004" level="10" group="ai_security,model_attack,hallucination">
+    <description>AI hallucination exploitation — generating false but authoritative-sounding information</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-004</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1589</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Identity Information</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.13,Art.52</ai_act>
+    </compliance>
+    <match>hallucination.*rate|confabulation|false.*citation|fabricated.*reference|invented.*fact</match>
+  </rule>
+
+  <rule id="WZ-MDL-005" level="10" group="ai_security,model_attack,temperature">
+    <description>Temperature manipulation — requesting unsafe outputs through temperature parameter changes</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-005</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <regex>"temperature":\s*[2-9]|temperature.*=.*[2-9]|top_p.*=.*1\.0|top_k.*=.*[5-9]\d</regex>
+  </rule>
+
+  <rule id="WZ-MDL-006" level="12" group="ai_security,model_attack,prompt_injection">
+    <description>Token smuggling — splitting malicious instructions across multiple tokens</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-006</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <regex>\bIG\b.*\bNO\b.*\bRE\b.*\bIG\b|\bIG\b[NOR]\b.*[STRUCTIONS]|spl.*it.*tok.*en|to.*ken.*smug.*gling</regex>
+  </rule>
+
+  <rule id="WZ-MDL-007" level="10" group="ai_security,model_attack,output">
+    <description>Output manipulation — forcing model to generate harmful or unsafe content</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-007</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.5,Art.9</ai_act>
+    </compliance>
+    <match>generate.*harmful|produce.*dangerous|create.*weapon|how.*to.*hack|write.*malware</match>
+  </rule>
+
+  <rule id="WZ-MDL-008" level="10" group="ai_security,model_attack,sandwich">
+    <description>Sandwich attack — benign-malicious-benign pattern to evade safety filters</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-008</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <match>for.*educational.*purposes.*only|this.*is.*hypothetical|assume.*you.*are|imagine.*scenario</match>
+  </rule>
+
+  <rule id="WZ-MDL-009" level="10" group="ai_security,model_attack,poisoning">
+    <description>AI model poisoning detection — suspicious training data or fine-tuning input</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-009</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.10</ai_act>
+    </compliance>
+    <match>model.*poisoning|data.*poisoning|training.*data.*manipulation|backdoor.*model|trojaned.*model</match>
+  </rule>
+
+  <rule id="WZ-MDL-010" level="10" group="ai_security,model_attack,side_channel">
+    <description>Model side-channel attack — timing or output length analysis for model extraction</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-010</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.53</ai_act>
+    </compliance>
+    <match>timing.*attack|output.*length.*analysis|side.*channel|model.*extraction|model.*stealing|model.*fingerprinting</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- AI Poisoning / Data Integrity -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-POI-001" level="12" group="ai_security,data_poisoning,training">
+    <description>Training data poisoning — malicious data injection into AI training pipeline</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-POI-001</field>
+    <field name="category">ai_data_poisoning</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.10,Art.15</ai_act>
+      <nis2>Art.21(2)(d)</nis2>
+    </compliance>
+    <match>training.*data.*injection|poisoned.*dataset|malicious.*training.*sample|label.*flip|data.*contamination</match>
+  </rule>
+
+  <rule id="WZ-POI-002" level="10" group="ai_security,data_poisoning,feedback">
+    <description>RLHF feedback poisoning — manipulating human feedback to alter model behavior</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-POI-002</field>
+    <field name="category">ai_data_poisoning</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.10</ai_act>
+    </compliance>
+    <match>feedback.*manipulation|reward.*hacking|RLHF.*poisoning|human.*feedback.*bias|preference.*manipulation</match>
+  </rule>
+
+  <rule id="WZ-POI-003" level="12" group="ai_security,data_poisoning,backdoor">
+    <description>AI model backdoor — trigger pattern causing targeted misclassification</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-POI-003</field>
+    <field name="category">ai_data_poisoning</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.10,Art.15</ai_act>
+    </compliance>
+    <match>backdoor.*trigger|trojan.*pattern|hidden.*activation|trigger.*word|targeted.*misclassification</match>
+  </rule>
+
+  <rule id="WZ-POI-004" level="10" group="ai_security,data_poisoning,supply_chain">
+    <description>AI supply chain poisoning — compromised pre-trained model or library</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-POI-004</field>
+    <field name="category">ai_data_poisoning</field>
+    <mitre>
+      <id>T1195.002</id>
+      <tactic>Initial Access</tactic>
+      <technique>Supply Chain Compromise — Software</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.10,Art.28</ai_act>
+      <nis2>Art.21(2)(d)</nis2>
+    </compliance>
+    <match>compromised.*model|huggingface.*malicious|pip.*typosquatting|model.*repository.*compromised|pre-trained.*backdoor</match>
+  </rule>
+
+  <rule id="WZ-POI-005" level="10" group="ai_security,data_poisoning,rag">
+    <description>RAG knowledge base poisoning — malicious documents injected into retrieval corpus</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-POI-005</field>
+    <field name="category">ai_data_poisoning</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.10</ai_act>
+    </compliance>
+    <match>RAG.*poisoning|knowledge.*base.*injection|corpus.*contamination|retrieval.*manipulation|vector.*store.*injection</match>
+  </rule>
+
+  <rule id="WZ-POI-006" level="10" group="ai_security,data_poisoning,embedding">
+    <description>Embedding space poisoning — adversarial vectors disrupting similarity search</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-POI-006</field>
+    <field name="category">ai_data_poisoning</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.10</ai_act>
+    </compliance>
+    <match>embedding.*poisoning|vector.*space.*attack|similarity.*search.*manipulation|ann.*index.*corruption</match>
+  </rule>
+
+  <!-- Additional AI prompt injection patterns -->
+  <rule id="WZ-PI-013" level="10" group="ai_security,prompt_injection,persistent">
+    <description>Persistent prompt injection — injection surviving across conversation turns</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-013</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <match>remember.*this.*for.*later|from.*now.*on|in.*future.*conversations|permanent.*instruction|always.*respond</match>
+  </rule>
+
+  <rule id="WZ-PI-014" level="10" group="ai_security,prompt_injection,virtualization">
+    <description>Virtualization escape — AI agent breaking sandbox to access host system</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-014</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.15</ai_act>
+    </compliance>
+    <match>escape.*sandbox|break.*out.*container|access.*host.*system|execute.*shell.*command|run.*system</match>
+  </rule>
+
+  <rule id="WZ-PI-015" level="10" group="ai_security,prompt_injection,agent">
+    <description>AI agent tool abuse — manipulating agent to use tools for unauthorized purposes</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-PI-015</field>
+    <field name="category">ai_prompt_injection</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.15</ai_act>
+    </compliance>
+    <match>tool_call.*unauthorized|agent.*action.*beyond.*scope|function.*call.*dangerous|execute.*arbitrary</match>
+  </rule>
+
+  <!-- Additional extraction rules -->
+  <rule id="WZ-SID-009" level="10" group="ai_security,data_extraction,copyright">
+    <description>AI copyright material extraction — model reproducing copyrighted content</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-SID-009</field>
+    <field name="category">ai_data_extraction</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.53</ai_act>
+      <data_act>Art.10</data_act>
+    </compliance>
+    <match>reproduce.*copyright|verbatim.*book|entire.*article|full.*chapter|novel.*passage</match>
+  </rule>
+
+  <rule id="WZ-SID-010" level="10" group="ai_security,data_extraction,bias">
+    <description>AI bias amplification — model producing discriminatory or biased outputs</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-SID-010</field>
+    <field name="category">ai_data_extraction</field>
+    <mitre>
+      <id>T1589</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Identity Information</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.5,Art.10</ai_act>
+      <gdpr>Art.22</gdpr>
+    </compliance>
+    <match>biased.*output|discriminatory.*response|unfair.*treatment|protected.*characteristic|demographic.*bias</match>
+  </rule>
+
+  <rule id="WZ-SID-011" level="10" group="ai_security,data_extraction,confidentiality">
+    <description>AI confidentiality breach — model disclosing confidential business information</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-SID-011</field>
+    <field name="category">ai_data_extraction</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.10</ai_act>
+      <dora>Art.9</dora>
+    </compliance>
+    <match>confidential.*information|trade.*secret|proprietary.*algorithm|internal.*pricing|financial.*projection</match>
+  </rule>
+
+  <rule id="WZ-SID-012" level="8" group="ai_security,data_extraction,metadata">
+    <description>AI metadata leakage — model revealing system configuration or deployment details</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-SID-012</field>
+    <field name="category">ai_data_extraction</field>
+    <mitre>
+      <id>T1592</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Host Information</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <match>model.*version.*is|running.*on.*server|deployed.*at|GPU.*type|inference.*endpoint</match>
+  </rule>
+
+  <!-- More model attack patterns -->
+  <rule id="WZ-MDL-011" level="10" group="ai_security,model_attack,model_theft">
+    <description>AI model extraction — systematic querying to reconstruct model behavior</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-011</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.53</ai_act>
+    </compliance>
+    <match>model.*extraction|model.*stealing|model.*copying|knowledge.*distillation.*attack|API.*scraping</match>
+  </rule>
+
+  <rule id="WZ-MDL-012" level="10" group="ai_security,model_attack,membership">
+    <description>Membership inference attack — determining if data was in training set</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-012</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.5</gdpr>
+      <ai_act>Art.10</ai_act>
+    </compliance>
+    <match>membership.*inference|training.*data.*membership|was.*this.*in.*training|inference.*attack</match>
+  </rule>
+
+  <rule id="WZ-MDL-013" level="10" group="ai_security,model_attack,denial">
+    <description>AI denial of service — overwhelming model with resource-intensive queries</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-013</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1498</id>
+      <tactic>Impact</tactic>
+      <technique>Network DDoS</technique>
+    </mitre>
+    <compliance>
+      <nis2>Art.21(2)(e)</nis2>
+      <dora>Art.11</dora>
+    </compliance>
+    <match>rate.*limit.*exceeded|too.*many.*requests|token.*limit|queue.*overflow|model.*overloaded</match>
+  </rule>
+
+  <rule id="WZ-MDL-014" level="8" group="ai_security,model_attack,prompt_leak">
+    <description>AI few-shot learning manipulation — extracting patterns from few-shot examples</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-014</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <match>few-shot.*extraction|pattern.*from.*examples|learning.*from.*prompt|example.*leakage</match>
+  </rule>
+
+  <rule id="WZ-MDL-015" level="10" group="ai_security,model_attack,chain_of_thought">
+    <description>Chain-of-thought manipulation — steering AI reasoning to harmful conclusions</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-MDL-015</field>
+    <field name="category">ai_model_attacks</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <match>think.*step.*by.*step.*harmful|reason.*about.*dangerous|chain.*of.*thought.*manipulation|reasoning.*steer</match>
+  </rule>
+
+</group>

@@ -1,0 +1,1629 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "AWS CloudWatch, EventBridge, and GuardDuty rules — database-security",
+  "total_rules": 30,
+  "rules": [
+    {
+      "rule_id": "AWS-DB-PG-001",
+      "name": "PostgreSQL — Privilege Escalation via SET ROLE",
+      "description": "Detects PostgreSQL SET ROLE attempts for privilege escalation",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "postgresql",
+        "dimensions": {
+          "RuleId": "AWS-DB-PG-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "postgresql"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "POSTGRESQL"
+      },
+      "references": [
+        "PCI-DSS-8.5"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "tags": [
+        "database",
+        "postgresql",
+        "privilege-escalation",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-PG-002",
+      "name": "PostgreSQL — pg_dump Data Exfiltration",
+      "description": "Detects PostgreSQL pg_dump commands indicating potential data exfiltration",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "postgresql",
+        "dimensions": {
+          "RuleId": "AWS-DB-PG-002"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "postgresql"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "POSTGRESQL"
+      },
+      "references": [
+        "GDPR-25-008"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "tags": [
+        "database",
+        "postgresql",
+        "data-exfiltration",
+        "sql"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-DB-PG-003",
+      "name": "PostgreSQL — Row-Level Security Bypass",
+      "description": "Detects PostgreSQL queries bypassing row-level security policies",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "postgresql",
+        "dimensions": {
+          "RuleId": "AWS-DB-PG-003"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "postgresql"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "POSTGRESQL"
+      },
+      "references": [
+        "PCI-DSS-8.5",
+        "GDPR-25-003"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "tags": [
+        "database",
+        "postgresql",
+        "rls-bypass",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-MY-001",
+      "name": "MySQL — UNION-Based SQL Injection",
+      "description": "Detects UNION-based SQL injection attacks against MySQL databases",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "mysql",
+        "dimensions": {
+          "RuleId": "AWS-DB-MY-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "mysql"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "MYSQL"
+      },
+      "references": [
+        "PCI-DSS-6.5"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "database",
+        "mysql",
+        "sql-injection",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-MY-002",
+      "name": "MySQL — Root Account Remote Login",
+      "description": "Detects remote login attempts to MySQL root account from non-localhost",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "mysql",
+        "dimensions": {
+          "RuleId": "AWS-DB-MY-002"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "mysql"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "MYSQL"
+      },
+      "references": [
+        "PCI-DSS-2.1"
+      ],
+      "mitre": [
+        "T1078.001"
+      ],
+      "tags": [
+        "database",
+        "mysql",
+        "default-account",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-MSS-001",
+      "name": "SQL Server — xp_cmdshell Execution",
+      "description": "Detects execution of xp_cmdshell stored procedure enabling OS command execution",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "sqlserver",
+        "dimensions": {
+          "RuleId": "AWS-DB-MSS-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "sqlserver"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "SQLSERVER"
+      },
+      "references": [
+        "PCI-DSS-6.5"
+      ],
+      "mitre": [
+        "T1059"
+      ],
+      "tags": [
+        "database",
+        "sqlserver",
+        "command-execution",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-MSS-002",
+      "name": "SQL Server — SUSPENDED Login State Anomaly",
+      "description": "Detects SQL Server logins in SUSPENDED state indicating potential credential abuse",
+      "severity": "medium",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "sqlserver",
+        "dimensions": {
+          "RuleId": "AWS-DB-MSS-002"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "sqlserver"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 5,
+        "type": "SQLSERVER"
+      },
+      "references": [
+        "PCI-DSS-8.5"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "tags": [
+        "database",
+        "sqlserver",
+        "login-anomaly",
+        "sql"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AWS-DB-ORA-001",
+      "name": "Oracle — DBA Privilege Escalation",
+      "description": "Detects Oracle DBA privilege escalation attempts via GRANT DBA or ALTER USER",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "oracle",
+        "dimensions": {
+          "RuleId": "AWS-DB-ORA-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "oracle"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "ORACLE"
+      },
+      "references": [
+        "PCI-DSS-8.5"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "tags": [
+        "database",
+        "oracle",
+        "privilege-escalation",
+        "sql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-SQLITE-001",
+      "name": "SQLite — Direct File Access from Web",
+      "description": "Detects direct SQLite database file access from web applications",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "sqlite",
+        "dimensions": {
+          "RuleId": "AWS-DB-SQLITE-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "sqlite"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "SQLITE"
+      },
+      "references": [
+        "PCI-DSS-6.5"
+      ],
+      "mitre": [
+        "T1083"
+      ],
+      "tags": [
+        "database",
+        "sqlite",
+        "file-access",
+        "sql"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-DB-MONGO-001",
+      "name": "MongoDB — NoSQL Injection via $where",
+      "description": "Detects MongoDB $where operator injection for JavaScript execution",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "mongodb",
+        "dimensions": {
+          "RuleId": "AWS-DB-MONGO-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "mongodb"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "MONGODB"
+      },
+      "references": [
+        "PCI-DSS-6.5"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "database",
+        "mongodb",
+        "nosql-injection",
+        "nosql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-MONGO-002",
+      "name": "MongoDB — admin Database Unauthorized Access",
+      "description": "Detects unauthorized access to MongoDB admin database",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "mongodb",
+        "dimensions": {
+          "RuleId": "AWS-DB-MONGO-002"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "mongodb"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "MONGODB"
+      },
+      "references": [
+        "PCI-DSS-2.1"
+      ],
+      "mitre": [
+        "T1078.001"
+      ],
+      "tags": [
+        "database",
+        "mongodb",
+        "default-account",
+        "nosql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-DYNAMO-001",
+      "name": "DynamoDB — Excessive Scan Operations",
+      "description": "Detects excessive DynamoDB Scan operations indicating potential data exfiltration",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "dynamodb",
+        "dimensions": {
+          "RuleId": "AWS-DB-DYNAMO-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "dynamodb"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "DYNAMODB"
+      },
+      "references": [
+        "GDPR-25-008"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "tags": [
+        "database",
+        "dynamodb",
+        "data-exfiltration",
+        "nosql"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-DB-CASS-001",
+      "name": "Cassandra — Unauthorized CQL Command Execution",
+      "description": "Detects unauthorized CQL commands including ALTER, DROP, and GRANT operations",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "cassandra",
+        "dimensions": {
+          "RuleId": "AWS-DB-CASS-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "cassandra"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "CASSANDRA"
+      },
+      "references": [
+        "PCI-DSS-8.5"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "tags": [
+        "database",
+        "cassandra",
+        "privilege-escalation",
+        "nosql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-COUCH-001",
+      "name": "CouchDB — Admin Party Mode",
+      "description": "Detects CouchDB admin party mode or unauthorized admin access",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "couchdb",
+        "dimensions": {
+          "RuleId": "AWS-DB-COUCH-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "couchdb"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "COUCHDB"
+      },
+      "references": [
+        "PCI-DSS-2.1"
+      ],
+      "mitre": [
+        "T1078.001"
+      ],
+      "tags": [
+        "database",
+        "couchdb",
+        "default-account",
+        "nosql"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-FIRE-001",
+      "name": "Firestore — Overly Permissive Security Rules",
+      "description": "Detects Firestore security rules allowing unauthenticated read/write access",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "firestore",
+        "dimensions": {
+          "RuleId": "AWS-DB-FIRE-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "firestore"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "FIRESTORE"
+      },
+      "references": [
+        "PCI-DSS-6.5"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "database",
+        "firestore",
+        "misconfiguration",
+        "nosql"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-DB-NEO4J-001",
+      "name": "Neo4j — Cypher Injection Attack",
+      "description": "Detects Cypher injection attacks in Neo4j graph database queries",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "neo4j",
+        "dimensions": {
+          "RuleId": "AWS-DB-NEO4J-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "neo4j"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "NEO4J"
+      },
+      "references": [
+        "PCI-DSS-6.5"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "database",
+        "neo4j",
+        "cypher-injection",
+        "graph"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-ARANGO-001",
+      "name": "ArangoDB — AQL Injection Detection",
+      "description": "Detects AQL injection attacks in ArangoDB queries",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "arangodb",
+        "dimensions": {
+          "RuleId": "AWS-DB-ARANGO-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "arangodb"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "ARANGODB"
+      },
+      "references": [
+        "PCI-DSS-6.5"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "database",
+        "arangodb",
+        "aql-injection",
+        "graph"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-DB-NEPTUNE-001",
+      "name": "Neptune — Gremlin/SPARQL Injection",
+      "description": "Detects Gremlin or SPARQL injection attacks against Amazon Neptune",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "neptune",
+        "dimensions": {
+          "RuleId": "AWS-DB-NEPTUNE-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "neptune"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "NEPTUNE"
+      },
+      "references": [
+        "PCI-DSS-6.5"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "database",
+        "neptune",
+        "graph-injection",
+        "graph"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-DB-INFLUX-001",
+      "name": "InfluxDB — Unauthorized Data Deletion",
+      "description": "Detects DROP DATABASE or DELETE SERIES commands in InfluxDB",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "influxdb",
+        "dimensions": {
+          "RuleId": "AWS-DB-INFLUX-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "influxdb"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "INFLUXDB"
+      },
+      "references": [
+        "PCI-DSS-3.4"
+      ],
+      "mitre": [
+        "T1485"
+      ],
+      "tags": [
+        "database",
+        "influxdb",
+        "data-destruction",
+        "timeseries"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-TSCALE-001",
+      "name": "TimescaleDB — Hypertable Data Exfiltration",
+      "description": "Detects bulk data extraction from TimescaleDB hypertables",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "timescaledb",
+        "dimensions": {
+          "RuleId": "AWS-DB-TSCALE-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "timescaledb"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "TIMESCALEDB"
+      },
+      "references": [
+        "GDPR-25-008"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "tags": [
+        "database",
+        "timescaledb",
+        "data-exfiltration",
+        "timeseries"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-DB-PROM-001",
+      "name": "Prometheus — Unauthorized Metric Scraping",
+      "description": "Detects unauthorized metric scraping from Prometheus endpoints revealing infrastructure details",
+      "severity": "medium",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "prometheus",
+        "dimensions": {
+          "RuleId": "AWS-DB-PROM-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "prometheus"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 5,
+        "type": "PROMETHEUS"
+      },
+      "references": [
+        "NIST-CM-7"
+      ],
+      "mitre": [
+        "T1592"
+      ],
+      "tags": [
+        "database",
+        "prometheus",
+        "information-disclosure",
+        "timeseries"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AWS-DB-PINE-001",
+      "name": "Pinecone — Namespace Isolation Bypass",
+      "description": "Detects cross-namespace data access in Pinecone vector database",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "pinecone",
+        "dimensions": {
+          "RuleId": "AWS-DB-PINE-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "pinecone"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "PINECONE"
+      },
+      "references": [
+        "GDPR-25-003"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "tags": [
+        "database",
+        "pinecone",
+        "vector",
+        "isolation-bypass"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-WEAV-001",
+      "name": "Weaviate — Tenant Data Isolation Failure",
+      "description": "Detects cross-tenant data access in Weaviate vector database",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "weaviate",
+        "dimensions": {
+          "RuleId": "AWS-DB-WEAV-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "weaviate"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "WEAVIATE"
+      },
+      "references": [
+        "GDPR-25-003"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "tags": [
+        "database",
+        "weaviate",
+        "vector",
+        "isolation-bypass"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-MILV-001",
+      "name": "Milvus — Collection-Level Access Bypass",
+      "description": "Detects unauthorized collection access in Milvus vector database",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "milvus",
+        "dimensions": {
+          "RuleId": "AWS-DB-MILV-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "milvus"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "MILVUS"
+      },
+      "references": [
+        "PCI-DSS-8.5"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "tags": [
+        "database",
+        "milvus",
+        "vector",
+        "access-bypass"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-DB-CHROMA-001",
+      "name": "ChromaDB — Embedding Poisoning Detection",
+      "description": "Detects adversarial embedding vectors inserted into ChromaDB collections",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "chromadb",
+        "dimensions": {
+          "RuleId": "AWS-DB-CHROMA-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "chromadb"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "CHROMADB"
+      },
+      "references": [
+        "AI-ACT-15"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "database",
+        "chromadb",
+        "vector",
+        "embedding-poisoning"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-DB-QDRANT-001",
+      "name": "Qdrant — Payload Filter Injection",
+      "description": "Detects filter injection attacks in Qdrant vector search payloads",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "qdrant",
+        "dimensions": {
+          "RuleId": "AWS-DB-QDRANT-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "qdrant"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "QDRANT"
+      },
+      "references": [
+        "PCI-DSS-6.5"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "database",
+        "qdrant",
+        "vector",
+        "filter-injection"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-DB-REDIS-001",
+      "name": "Redis — CONFIG GET Credential Exposure",
+      "description": "Detects Redis CONFIG commands targeting credentials or authentication configuration",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "redis",
+        "dimensions": {
+          "RuleId": "AWS-DB-REDIS-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "redis"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "REDIS"
+      },
+      "references": [
+        "PCI-DSS-3.4"
+      ],
+      "mitre": [
+        "T1552"
+      ],
+      "tags": [
+        "database",
+        "redis",
+        "credential-exposure",
+        "key-value"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-REDIS-002",
+      "name": "Redis — FLUSHALL/FLUSHDB Data Destruction",
+      "description": "Detects Redis FLUSHALL or FLUSHDB commands indicating potential data destruction",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "redis",
+        "dimensions": {
+          "RuleId": "AWS-DB-REDIS-002"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "redis"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "REDIS"
+      },
+      "references": [
+        "PCI-DSS-3.4"
+      ],
+      "mitre": [
+        "T1485"
+      ],
+      "tags": [
+        "database",
+        "redis",
+        "data-destruction",
+        "key-value"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AWS-DB-MEMC-001",
+      "name": "Memcached — Amplification Attack",
+      "description": "Detects Memcached amplification attacks via stats or get requests from external IPs",
+      "severity": "high",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "memcached",
+        "dimensions": {
+          "RuleId": "AWS-DB-MEMC-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "memcached"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 7,
+        "type": "MEMCACHED"
+      },
+      "references": [
+        "NIST-SC-5"
+      ],
+      "mitre": [
+        "T1498"
+      ],
+      "tags": [
+        "database",
+        "memcached",
+        "amplification",
+        "key-value"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AWS-DB-HBASE-001",
+      "name": "HBase — Unauthorized ACL Modification",
+      "description": "Detects unauthorized ACL modifications in HBase including grant and revoke operations",
+      "severity": "critical",
+      "cloudwatch_metric": {
+        "namespace": "SIEM/Security",
+        "metricName": "hbase",
+        "dimensions": {
+          "RuleId": "AWS-DB-HBASE-001"
+        },
+        "statistic": "Sum",
+        "period": 300,
+        "evaluationPeriods": 1,
+        "threshold": 5,
+        "comparisonOperator": "GreaterThanThreshold"
+      },
+      "eventbridge_pattern": {
+        "source": [
+          "aws.security",
+          "aws.guardduty",
+          "aws.cloudtrail"
+        ],
+        "detail-type": [
+          "AWS API Call via CloudTrail",
+          "GuardDuty Finding"
+        ],
+        "detail": {
+          "eventSource": [
+            "cloudtrail.amazonaws.com"
+          ],
+          "eventName": [
+            "hbase"
+          ]
+        }
+      },
+      "guardduty_finding": {
+        "severity": 9,
+        "type": "HBASE"
+      },
+      "references": [
+        "PCI-DSS-8.5"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "tags": [
+        "database",
+        "hbase",
+        "acl-modification",
+        "column-family"
+      ],
+      "risk_score": 90
+    }
+  ]
+}

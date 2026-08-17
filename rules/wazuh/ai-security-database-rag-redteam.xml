@@ -1,0 +1,763 @@
+<!--
+  Wazuh SIEM Alert Rules — AI Security: Database, RAG, Red Teaming
+  Mapped from: security-testing-pentest/config/tests/owasp-ai-security.md
+  Total rules: 310
+  Rule ID format: WZ-CAT-NUM (CAT: DB, RAG, RED, VEC)
+-->
+<group name="wazuh,ai_security,database_security,rag_security,red_team">
+
+  <!-- ============================================================ -->
+  <!-- AI Database Security -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-DB-001" level="12" group="ai_security,database,vector_injection">
+    <description>Vector database injection — adversarial embedding vectors inserted into vector store</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-DB-001</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.15</ai_act>
+      <nist_800_53>SI-10</nist_800_53>
+    </compliance>
+    <match>vector.*injection|embedding.*poisoning|adversarial.*vector|ANN.*corruption|index.*manipulation</match>
+  </rule>
+
+  <rule id="WZ-DB-002" level="12" group="ai_security,database,pinecone">
+    <description>Pinecone namespace isolation bypass — cross-namespace data access in vector DB</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-22</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <ai_act>Art.15</ai_act>
+    </compliance>
+    <match>pinecone.*namespace.*bypass|cross.*namespace.*query|pinecone.*isolation.*failure</match>
+  </rule>
+
+  <rule id="WZ-DB-003" level="12" group="ai_security,database,weaviate">
+    <description>Weaviate tenant data isolation bypass — cross-tenant vector data access</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-23</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <ai_act>Art.15</ai_act>
+    </compliance>
+    <match>weaviate.*tenant.*bypass|multi.*tenant.*isolation|weaviate.*class.*access</match>
+  </rule>
+
+  <rule id="WZ-DB-004" level="12" group="ai_security,database,milvus">
+    <description>Milvus collection access control bypass — unauthorized vector data retrieval</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-24</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <match>milvus.*collection.*access|milvus.*bypass|milvus.*unauthorized.*query</match>
+  </rule>
+
+  <rule id="WZ-DB-005" level="10" group="ai_security,database,qdrant">
+    <description>Qdrant payload filter injection — unauthorized data access via manipulated filters</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-25</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <regex>qdrant.*filter.*injection|payload.*filter.*bypass|qdrant.*must.*conditions</regex>
+  </rule>
+
+  <rule id="WZ-DB-006" level="10" group="ai_security,database,embedding_extraction">
+    <description>Embedding model extraction — systematic querying to steal embedding model</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-DB-006</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.53</ai_act>
+    </compliance>
+    <match>embedding.*extraction|model.*stealing.*via.*API|systematic.*embedding.*queries|vector.*model.*reconstruction</match>
+  </rule>
+
+  <rule id="WZ-DB-007" level="12" group="ai_security,database,mongodb">
+    <description>AI MongoDB vector search injection — $vectorSearch query manipulation</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-DB-007</field>
+    <field name="zap_rules">40028</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <regex>\$vectorSearch|\$search.* Atlas|mongodb.*vector.*injection|atlas.*search.*manipulation</regex>
+  </rule>
+
+  <rule id="WZ-DB-008" level="10" group="ai_security,database,postgres">
+    <description>AI PostgreSQL pgvector injection — vector similarity search manipulation</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-DB-008</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <match>pgvector.*injection|cosine.*distance.*manipulation|ivfflat.*poisoning|hnsw.*index.*corruption</match>
+  </rule>
+
+  <rule id="WZ-DB-009" level="10" group="ai_security,database,redis">
+    <description>AI Redis vector field injection — RediSearch vector query manipulation</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-DB-009</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <match>redis.*vector.*search|FT\.SEARCH.*vector|redis.*vector.*injection|FT\.CREATE.*VECTOR</match>
+  </rule>
+
+  <rule id="WZ-DB-010" level="12" group="ai_security,database,dynamodb">
+    <description>AI DynamoDB vector index access bypass — unauthorized vector data retrieval</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-16</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <match>dynamodb.*iam.*bypass|dynamodb.*vector.*access|DynamoDB.*policy.*violation</match>
+  </rule>
+
+  <rule id="WZ-DB-011" level="10" group="ai_security,database,neo4j">
+    <description>AI Neo4j graph traversal exploitation — unauthorized graph data access via Cypher</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-18</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <regex>MATCH.*WHERE.*1=1|CALL\s*\{.*\}|LOAD CSV FROM|neo4j.*traversal.*bypass</regex>
+  </rule>
+
+  <rule id="WZ-DB-012" level="10" group="ai_security,database,arangodb">
+    <description>AI ArangoDB collection access bypass — unauthorized AQL data access</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-19</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <match>arangodb.*collection.*bypass|AQL.*injection|FOR.*IN.*unauthorized|arangodb.*access.*violation</match>
+  </rule>
+
+  <rule id="WZ-DB-013" level="10" group="ai_security,database,influxdb">
+    <description>AI InfluxDB time-series data access — unauthorized Flux query manipulation</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-20</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <match>influxdb.*flux.*injection|from\(bucket:.*\)\|&gt;.*range|influxdb.*unauthorized.*query</match>
+  </rule>
+
+  <rule id="WZ-DB-014" level="10" group="ai_security,database,timescaledb">
+    <description>AI TimescaleDB hypertable access bypass — time-series data isolation failure</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-21</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <match>timescaledb.*hypertable.*bypass|timescaledb.*row.*level.*security|time_bucket.*manipulation</match>
+  </rule>
+
+  <rule id="WZ-DB-015" level="10" group="ai_security,database,cassandra">
+    <description>AI Cassandra CQL injection — CQL query manipulation for data extraction</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-60</field>
+    <field name="zap_rules">40028</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <pci_dss>6.5</pci_dss>
+    </compliance>
+    <match>cassandra.*cql.*injection|ALLOW FILTERING.*bypass|cassandra.*unauthorized.*access</match>
+  </rule>
+
+  <rule id="WZ-DB-016" level="10" group="ai_security,database,couchdb">
+    <description>AI CouchDB design document access bypass — unauthorized view data access</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-27</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <match>couchdb.*design.*document|_design/.*_view|couchdb.*access.*bypass</match>
+  </rule>
+
+  <rule id="WZ-DB-017" level="10" group="ai_security,database,firestore">
+    <description>AI Firestore security rules bypass — unauthorized document access via rule manipulation</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-28</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <match>firestore.*rules.*bypass|allow.*read.*write.*if.*true|firestore.*unauthorized.*access</match>
+  </rule>
+
+  <rule id="WZ-DB-018" level="10" group="ai_security,database,hbase">
+    <description>AI HBase column family access bypass — unauthorized column-level data access</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">WSTG-ATHZ-29</field>
+    <field name="category">ai_database</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+    </compliance>
+    <match>hbase.*column.*family.*bypass|hbase.*ACL.*violation|hbase.*unauthorized.*scan</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- RAG Security -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-RAG-001" level="12" group="ai_security,rag_injection">
+    <description>RAG pipeline injection — malicious content in retrieved documents overriding system instructions</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RAG-001</field>
+    <field name="category">ai_rag_security</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.15</ai_act>
+    </compliance>
+    <match>retrieved.*document.*override|RAG.*injection|context.*window.*poisoning|knowledge.*base.*manipulation</match>
+  </rule>
+
+  <rule id="WZ-RAG-002" level="10" group="ai_security,rag_poisoning">
+    <description>RAG knowledge base poisoning — injecting false information into retrieval corpus</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RAG-002</field>
+    <field name="category">ai_rag_security</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.10</ai_act>
+    </compliance>
+    <match>knowledge.*base.*poisoning|document.*injection|corpus.*contamination|retrieval.*source.*compromised</match>
+  </rule>
+
+  <rule id="WZ-RAG-003" level="10" group="ai_security,rag_data_access">
+    <description>RAG unauthorized data access — retrieving data from unauthorized document collections</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RAG-003</field>
+    <field name="category">ai_rag_security</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <ai_act>Art.15</ai_act>
+    </compliance>
+    <match>unauthorized.*collection.*query|cross.*tenant.*retrieval|RAG.*data.*isolation.*failure|retrieved.*from.*restricted</match>
+  </rule>
+
+  <rule id="WZ-RAG-004" level="10" group="ai_security,rag_embedding">
+    <description>RAG embedding manipulation — adversarial documents with higher similarity to hijack retrieval</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RAG-004</field>
+    <field name="category">ai_rag_security</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <match>embedding.*manipulation|adversarial.*document.*retrieval|similarity.*score.*boosted|retrieval.*hijacking</match>
+  </rule>
+
+  <rule id="WZ-RAG-005" level="10" group="ai_security,rag_hallucination">
+    <description>RAG hallucination amplification — retrieved context causing false factual claims</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RAG-005</field>
+    <field name="category">ai_rag_security</field>
+    <mitre>
+      <id>T1589</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Identity Information</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.13,Art.52</ai_act>
+    </compliance>
+    <match>RAG.*hallucination|retrieved.*false.*information|context.*conflict|contradictory.*retrieval|source.*mismatch</match>
+  </rule>
+
+  <rule id="WZ-RAG-006" level="10" group="ai_security,rag_metadata">
+    <description>RAG metadata poisoning — manipulating document metadata for prioritized retrieval</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RAG-006</field>
+    <field name="category">ai_rag_security</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <match>metadata.*poisoning|priority.*manipulation|document.*ranking.*injection|timestamp.*forgery</match>
+  </rule>
+
+  <rule id="WZ-RAG-007" level="10" group="ai_security,rag_chunking">
+    <description>RAG chunking boundary attack — splitting malicious content across retrieval chunks</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RAG-007</field>
+    <field name="category">ai_rag_security</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <match>chunk.*boundary.*attack|split.*malicious.*content|cross.*chunk.*injection|retrieval.*chunk.*manipulation</match>
+  </rule>
+
+  <rule id="WZ-RAG-008" level="10" group="ai_security,rag_access_control">
+    <description>RAG access control bypass — unauthorized retrieval of restricted documents via LLM</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RAG-008</field>
+    <field name="category">ai_rag_security</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <ai_act>Art.15</ai_act>
+    </compliance>
+    <match>RAG.*ACL.*bypass|retrieved.*restricted.*document|unauthorized.*document.*access|permission.*escalation.*retrieval</match>
+  </rule>
+
+  <rule id="WZ-RAG-009" level="10" group="ai_security,rag_pii">
+    <description>RAG PII exposure — retrieval augmenting responses with personal data from documents</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RAG-009</field>
+    <field name="category">ai_rag_security</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.5,Art.32</gdpr>
+      <ai_act>Art.10</ai_act>
+      <hipaa>§164.312(a)(1)</hipaa>
+    </compliance>
+    <match>RAG.*PII.*exposure|retrieved.*personal.*data|document.*contains.*SSN|source.*document.*PII|augmented.*response.*personal</match>
+  </rule>
+
+  <rule id="WZ-RAG-010" level="10" group="ai_security,rag_denial">
+    <description>RAG retrieval denial — exhausting retrieval quota or index capacity</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RAG-010</field>
+    <field name="category">ai_rag_security</field>
+    <mitre>
+      <id>T1498</id>
+      <tactic>Impact</tactic>
+      <technique>Network DDoS</technique>
+    </mitre>
+    <compliance>
+      <nis2>Art.21(2)(e)</nis2>
+      <dora>Art.11</dora>
+    </compliance>
+    <match>retrieval.*quota.*exceeded|index.*capacity.*limit|RAG.*rate.*limit|vector.*store.*overloaded</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- AI Red Team -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-RED-001" level="12" group="ai_security,red_team,prompt_injection">
+    <description>Red team: Direct prompt injection for system instruction override</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RED-001</field>
+    <field name="category">ai_red_team</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.15</ai_act>
+    </compliance>
+    <regex>ignore.*above|forget.*instructions|system.*override|NEW.*ROLE|you.*are.*now|OVERRIDE</regex>
+  </rule>
+
+  <rule id="WZ-RED-002" level="12" group="ai_security,red_team,data_exfiltration">
+    <description>Red team: Data exfiltration via AI model output channel</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RED-002</field>
+    <field name="category">ai_red_team</field>
+    <mitre>
+      <id>T1048</id>
+      <tactic>Exfiltration</tactic>
+      <technique>Exfiltration Over Alternative Protocol</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <ai_act>Art.15</ai_act>
+    </compliance>
+    <match>data.*exfiltration.*channel|model.*output.*leak|response.*contains.*sensitive|exfil.*via.*LLM</match>
+  </rule>
+
+  <rule id="WZ-RED-003" level="10" group="ai_security,red_team,social_engineering">
+    <description>Red team: AI social engineering — model generating convincing phishing content</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RED-003</field>
+    <field name="category">ai_red_team</field>
+    <mitre>
+      <id>T1566.001</id>
+      <tactic>Initial Access</tactic>
+      <technique>Spearphishing Attachment</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.5</ai_act>
+      <nis2>Art.21(2)(b)</nis2>
+    </compliance>
+    <match>phishing.*content.*generation|social.*engineering.*template|deceptive.*email.*draft|manipulation.*text</match>
+  </rule>
+
+  <rule id="WZ-RED-004" level="10" group="ai_security,red_team,malware">
+    <description>Red team: AI malware generation — model producing malicious code or exploits</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RED-004</field>
+    <field name="category">ai_red_team</field>
+    <mitre>
+      <id>T1584</id>
+      <tactic>Resource Development</tactic>
+      <technique>Compromise Infrastructure</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.5</ai_act>
+    </compliance>
+    <match>write.*malware|generate.*exploit|create.*ransomware|code.*for.*hack|how.*to.*create.*virus</match>
+  </rule>
+
+  <rule id="WZ-RED-005" level="10" group="ai_security,red_team,disinformation">
+    <description>Red team: AI disinformation generation — mass production of false narratives</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RED-005</field>
+    <field name="category">ai_red_team</field>
+    <mitre>
+      <id>T1589</id>
+      <tactic>Reconnaissance</tactic>
+      <technique>Gather Victim Identity Information</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.5</ai_act>
+    </compliance>
+    <match>disinformation.*campaign|fake.*news.*generation|deepfake.*text|misinformation.*scale|propaganda.*generation</match>
+  </rule>
+
+  <rule id="WZ-RED-006" level="12" group="ai_security,red_team,tool_use">
+    <description>Red team: AI unauthorized tool use — model executing commands or accessing resources</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RED-006</field>
+    <field name="category">ai_red_team</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.15</ai_act>
+    </compliance>
+    <match>tool_use.*unauthorized|function_call.*dangerous|execute_command|shell_exec|file_write|network_request</match>
+  </rule>
+
+  <rule id="WZ-RED-007" level="10" group="ai_security,red_team,prompt_leak">
+    <description>Red team: System prompt extraction — recovering hidden instructions via adversarial queries</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RED-007</field>
+    <field name="category">ai_red_team</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <regex>system.*prompt.*recovered|hidden.*instructions.*revealed|base.*prompt.*extraction|guardrail.*bypass</regex>
+  </rule>
+
+  <rule id="WZ-RED-008" level="10" group="ai_security,red_team,multimodal">
+    <description>Red team: Multimodal injection — malicious content in images/documents processed by AI</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RED-008</field>
+    <field name="category">ai_red_team</field>
+    <mitre>
+      <id>T1189</id>
+      <tactic>Initial Access</tactic>
+      <technique>Drive-by Compromise</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <match>image.*contains.*hidden.*text|pdf.*embedded.*instruction|steganography.*in.*image|multimodal.*injection</match>
+  </rule>
+
+  <rule id="WZ-RED-009" level="10" group="ai_security,red_team,agent">
+    <description>Red team: AI agent sandbox escape — agent breaking containment boundaries</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RED-009</field>
+    <field name="category">ai_red_team</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9,Art.15</ai_act>
+    </compliance>
+    <match>agent.*escape.*sandbox|tool.*access.*beyond.*scope|container.*breakout.*via.*AI|boundary.*violation.*agent</match>
+  </rule>
+
+  <rule id="WZ-RED-010" level="10" group="ai_security,red_team,cross_model">
+    <description>Red team: Cross-model attack transfer — adversarial input effective across multiple models</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RED-010</field>
+    <field name="category">ai_red_team</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <match>transfer.*attack|cross.*model.*adversarial|universal.*perturbation|attack.*transferability</match>
+  </rule>
+
+  <rule id="WZ-RED-011" level="10" group="ai_security,red_team,automated">
+    <description>Red team: Automated adversarial testing — systematic attack generation and evaluation</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RED-011</field>
+    <field name="category">ai_red_team</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.15</ai_act>
+    </compliance>
+    <match>automated.*red.*team|Garak.*scan|adversarial.*fuzzing|LLM.*attack.*framework|red.*team.*automation</match>
+  </rule>
+
+  <rule id="WZ-RED-012" level="10" group="ai_security,red_team,supply_chain">
+    <description>Red team: AI supply chain attack — compromised model weights or fine-tuning data</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-RED-012</field>
+    <field name="category">ai_red_team</field>
+    <mitre>
+      <id>T1195.002</id>
+      <tactic>Initial Access</tactic>
+      <technique>Supply Chain Compromise — Software</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.10,Art.28</ai_act>
+      <nis2>Art.21(2)(d)</nis2>
+    </compliance>
+    <match>compromised.*model.*weights|poisoned.*fine-tuning|malicious.*checkpoint|trojaned.*model.*download</match>
+  </rule>
+
+  <!-- ============================================================ -->
+  <!-- Vector Database Security -->
+  <!-- ============================================================ -->
+
+  <rule id="WZ-VEC-001" level="10" group="ai_security,vector_db,embedding">
+    <description>Vector database unauthorized query — accessing embeddings without proper authorization</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-VEC-001</field>
+    <field name="category">ai_vector_db</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <ai_act>Art.15</ai_act>
+    </compliance>
+    <match>vector.*unauthorized.*query|embedding.*access.*violation|collection.*read.*without.*auth</match>
+  </rule>
+
+  <rule id="WZ-VEC-002" level="10" group="ai_security,vector_db,data_extraction">
+    <description>Vector database data extraction — systematic embedding retrieval for model reconstruction</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-VEC-002</field>
+    <field name="category">ai_vector_db</field>
+    <mitre>
+      <id>T1087</id>
+      <tactic>Discovery</tactic>
+      <technique>Account Discovery</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.53</ai_act>
+    </compliance>
+    <match>vector.*scraping|embedding.*extraction|systematic.*query.*vector|index.*dump.*attempt</match>
+  </rule>
+
+  <rule id="WZ-VEC-003" level="10" group="ai_security,vector_db,poisoning">
+    <description>Vector database index poisoning — corrupting similarity search results</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-VEC-003</field>
+    <field name="category">ai_vector_db</field>
+    <mitre>
+      <id>T1190</id>
+      <tactic>Initial Access</tactic>
+      <technique>Exploit Public-Facing Application</technique>
+    </mitre>
+    <compliance>
+      <ai_act>Art.9</ai_act>
+    </compliance>
+    <match>index.*corruption|similarity.*search.*manipulation|HNSW.*graph.*poisoning|ANN.*index.*attack</match>
+  </rule>
+
+  <rule id="WZ-VEC-004" level="8" group="ai_security,vector_db,denial">
+    <description>Vector database denial of service — overwhelming index with garbage vectors</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-VEC-004</field>
+    <field name="category">ai_vector_db</field>
+    <mitre>
+      <id>T1498</id>
+      <tactic>Impact</tactic>
+      <technique>Network DDoS</technique>
+    </mitre>
+    <compliance>
+      <nis2>Art.21(2)(e)</nis2>
+    </compliance>
+    <match>vector.*upsert.*rate.*exceeded|index.*size.*limit|garbage.*vector.*flood|vector.*store.*overloaded</match>
+  </rule>
+
+  <rule id="WZ-VEC-005" level="10" group="ai_security,vector_db,multitenant">
+    <description>Vector database multi-tenant isolation bypass — cross-tenant vector access</description>
+    <decoded_as>web_log</decoded_as>
+    <field name="test_id">AI-VEC-005</field>
+    <field name="category">ai_vector_db</field>
+    <mitre>
+      <id>T1078</id>
+      <tactic>Persistence</tactic>
+      <technique>Valid Accounts</technique>
+    </mitre>
+    <compliance>
+      <gdpr>Art.32</gdpr>
+      <ai_act>Art.15</ai_act>
+    </compliance>
+    <match>cross.*tenant.*vector.*query|namespace.*isolation.*failure|tenant.*boundary.*bypass.*vector</match>
+  </rule>
+
+</group>

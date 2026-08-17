@@ -1,0 +1,1216 @@
+<!-- FortiSIEM SIEM Alert Rules — WSTG 04-06: Authentication, Authorization, Session Management -->
+<rules>
+  <rule id="FSIEM-ATHN-001" severity="CRITICAL" enabled="true">
+    <name>Brute Force Attack - Multiple Failed Logins</name>
+    <description>Detects brute force login attempts exceeding threshold</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(login|signin|auth|authenticate).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">401|403</response_code>
+        <count regex="true">>10</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(d)</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-002" severity="HIGH" enabled="true">
+    <name>Credential Stuffing - Known Breached Passwords</name>
+    <description>Detects login attempts using credentials from known breach databases</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(login|signin|auth).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">200|302</response_code>
+        <count regex="true">>5</count>
+        <time_window>300</time_window>
+        <distinct_username_count regex="true">>5</distinct_username_count>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.004</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-003" severity="HIGH" enabled="true">
+    <name>Default Credentials Usage Attempt</name>
+    <description>Detects login attempts using known default credentials</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(login|signin|auth).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*(username|user|login)=admin.*|(username|user|login)=root.*|(username|user|login)=test.*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(d)</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>WSTG-ATHN-02</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-004" severity="CRITICAL" enabled="true">
+    <name>Account Lockout - Credential Stuffing Indicator</name>
+    <description>Detects mass account lockouts indicating credential stuffing campaign</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(login|signin|auth).*</url>
+        <content regex="true">.*(account locked|too many attempts|temporarily disabled).*</content>
+        <count regex="true">>20</count>
+        <time_window>600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.004</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>WSTG-ATHN-03</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-005" severity="MEDIUM" enabled="true">
+    <name>Weak Password Reset Implementation</name>
+    <description>Detects password reset tokens that are predictable or transmitted insecurely</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(reset-password|forgot-password).*</url>
+        <http_method>GET</http_method>
+        <query_string regex="true">.*(token|key|code|otp)=.{1,8}.*</query_string>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.2</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>WSTG-ATHN-04</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-006" severity="HIGH" enabled="true">
+    <name>Password Reset Token Replay</name>
+    <description>Detects reuse of password reset tokens indicating token not invalidated</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(reset-password|confirm-reset).*</url>
+        <query_string regex="true">.*(token|key)=.{8,}.*</query_string>
+        <http_method>POST</http_method>
+        <same_token_count regex="true">>1</same_token_count>
+        <time_window>3600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.2</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>WSTG-ATHN-04</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-007" severity="HIGH" enabled="true">
+    <name>Authentication Bypass - Forced Browsing</name>
+    <description>Detects direct access to authenticated pages without valid session</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(dashboard|admin|profile|account|settings|manage).*</url>
+        <http_method>GET</http_method>
+        <response_code>200</response_code>
+        <session_id regex="true">^$</session_id>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(d)</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-008" severity="MEDIUM" enabled="true">
+    <name>OTP Brute Force - Multi-Factor Authentication</name>
+    <description>Detects brute force attacks against OTP/MFA mechanisms</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(verify|otp|mfa|two-factor|2fa).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">401|403</response_code>
+        <count regex="true">>5</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3</control>
+      <standard>NIST</standard>
+      <control>IA-2</control>
+    </compliance>
+    <references>WSTG-ATHN-05</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-009" severity="CRITICAL" enabled="true">
+    <name>Session Fixation Attack</name>
+    <description>Detects session fixation where session ID is set before authentication</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(login|signin|auth).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">200|302</response_code>
+        <session_id_changed regex="true">false</session_id_changed>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SA-11</control>
+    </compliance>
+    <references>WSTG-SESS-01</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-010" severity="HIGH" enabled="true">
+    <name>JWT Algorithm None Attack</name>
+    <description>Detects JWT tokens with algorithm set to none bypassing signature verification</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <header regex="true">.*Authorization:\s*Bearer\s*eyJ[^.]+\.eyJ[^.]*\.([^.]*)</header>
+        <content regex="true">.*"alg"\s*:\s*"none".*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>IA-2</control>
+    </compliance>
+    <references>WSTG-ATHN-06</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHZ-001" severity="HIGH" enabled="true">
+    <name>Privilege Escalation - Role Manipulation</name>
+    <description>Detects attempts to modify role or permission parameters in requests</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(api|v[0-9])\/(user|profile|account).*</url>
+        <http_method regex="true">PUT|PATCH</http_method>
+        <content regex="true">.*"(role|permission|is_admin|isAdmin|user_type|access_level)".*"(admin|superuser|root|manager)".*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(a)</control>
+      <standard>NIST</standard>
+      <control>AC-6</control>
+    </compliance>
+    <references>WSTG-ATHZ-01</references>
+    <action>ALERT</action>
+    <group>authorization</group>
+  </rule>
+
+  <rule id="FSIEM-ATHZ-002" severity="HIGH" enabled="true">
+    <name>Insecure Direct Object Reference - IDOR</name>
+    <description>Detects IDOR by monitoring sequential resource access patterns</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(api|v[0-9])\/(user|profile|account|order|document|record)\/[0-9]+.*</url>
+        <http_method>GET</http_method>
+        <count regex="true">>10</count>
+        <time_window>60</time_window>
+        <sequential_id regex="true">true</sequential_id>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>HIPAA</standard>
+      <control>164.312(a)</control>
+      <standard>NIST</standard>
+      <control>AC-4</control>
+    </compliance>
+    <references>WSTG-ATHZ-04</references>
+    <action>ALERT</action>
+    <group>authorization</group>
+  </rule>
+
+  <rule id="FSIEM-ATHZ-003" severity="HIGH" enabled="true">
+    <name>Horizontal Privilege Escalation</name>
+    <description>Detects access to resources belonging to other users at same privilege level</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(api|v[0-9])\/(user|profile|account)\/[a-zA-Z0-9_-]+.*</url>
+        <http_method regex="true">GET|PUT|PATCH|DELETE</http_method>
+        <response_code>200</response_code>
+        <authorized_user regex="true">false</authorized_user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(a)</control>
+    </compliance>
+    <references>WSTG-ATHZ-02</references>
+    <action>ALERT</action>
+    <group>authorization</group>
+  </rule>
+
+  <rule id="FSIEM-ATHZ-004" severity="MEDIUM" enabled="true">
+    <name>Missing Function Level Access Control</name>
+    <description>Detects access to admin-only endpoints without admin session</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(admin|manage|dashboard|console|backend|internal|superuser).*</url>
+        <http_method regex="true">GET|POST|PUT|DELETE</http_method>
+        <response_code>200</response_code>
+        <user_role regex="true">!(admin|superuser|manager)</user_role>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-3</control>
+    </compliance>
+    <references>WSTG-ATHZ-03</references>
+    <action>ALERT</action>
+    <group>authorization</group>
+  </rule>
+
+  <rule id="FSIEM-ATHZ-005" severity="MEDIUM" enabled="true">
+    <name>RBAC Bypass - Direct Endpoint Access</name>
+    <description>Detects direct access to role-restricted API endpoints without proper role</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(api|v[0-9])\/(admin|manage|config|delete-all|export-all|system).*</url>
+        <http_method regex="true">GET|POST|PUT|PATCH|DELETE</http_method>
+        <response_code regex="true">200|201|204</response_code>
+        <user_role regex="true">!(admin|superuser|manager)</user_role>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-3</control>
+    </compliance>
+    <references>WSTG-ATHZ-03</references>
+    <action>ALERT</action>
+    <group>authorization</group>
+  </rule>
+
+  <rule id="FSIEM-SESS-001" severity="CRITICAL" enabled="true">
+    <name>Session Hijacking - Concurrent Sessions from Different IPs</name>
+    <description>Detects same session token used from multiple IP addresses</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <distinct_source_ip_count regex="true">>1</distinct_source_ip_count>
+        <same_session_id regex="true">true</same_session_id>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(d)</control>
+      <standard>NIST</standard>
+      <control>AC-10</control>
+    </compliance>
+    <references>WSTG-SESS-02</references>
+    <action>ALERT</action>
+    <group>session</group>
+  </rule>
+
+  <rule id="FSIEM-SESS-002" severity="HIGH" enabled="true">
+    <name>Session Token in URL</name>
+    <description>Detects session tokens transmitted in URL query parameters</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\?(.*&amp;)?(session|sid|jsessionid|phpsessid|token|auth)=[a-zA-Z0-9_-]{16,}.*</url>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>WSTG-SESS-03</references>
+    <action>ALERT</action>
+    <group>session</group>
+  </rule>
+
+  <rule id="FSIEM-SESS-003" severity="HIGH" enabled="true">
+    <name>Session Timeout Not Enforced</name>
+    <description>Detects session activity beyond configured timeout thresholds</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <session_duration regex="true">>1800000</session_duration>
+        <last_activity regex="true">>900000</last_activity>
+        <response_code>200</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-12</control>
+    </compliance>
+    <references>WSTG-SESS-04</references>
+    <action>ALERT</action>
+    <group>session</group>
+  </rule>
+
+  <rule id="FSIEM-SESS-004" severity="CRITICAL" enabled="true">
+    <name>Cross-Site Request Forgery - Missing Token</name>
+    <description>Detects state-changing requests without CSRF tokens</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(transfer|delete|update|change|modify|remove|create).*</url>
+        <http_method>POST</http_method>
+        <content_not_present>csrf_token</content_not_present>
+        <content_not_present>_token</content_not_present>
+        <content_not_present>authenticity_token</content_not_present>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-SESS-05</references>
+    <action>ALERT</action>
+    <group>session</group>
+  </rule>
+
+  <rule id="FSIEM-SESS-005" severity="MEDIUM" enabled="true">
+    <name>Session Cookie Domain Too Broad</name>
+    <description>Detects session cookies set with overly broad domain scope</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <header regex="true">.*Set-Cookie:.*domain=\.(com|net|org|io).*</header>
+        <response_code regex="true">200|302</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1539</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>WSTG-SESS-06</references>
+    <action>ALERT</action>
+    <group>session</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-011" severity="HIGH" enabled="true">
+    <name>Password Change Without Current Password Verification</name>
+    <description>Detects password change requests that don't verify current password</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(change-password|update-password|password).*</url>
+        <http_method>POST</http_method>
+        <content_not_present>current_password</content_not_present>
+        <content_not_present>old_password</content_not_present>
+        <content_not_present>existing_password</content_not_present>
+        <response_code regex="true">200|204</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.2</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>WSTG-ATHN-07</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-012" severity="MEDIUM" enabled="true">
+    <name>Authentication Over Unencrypted Channel</name>
+    <description>Detects authentication traffic over HTTP instead of HTTPS</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">http://.*\/(login|signin|auth|authenticate).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">200|302</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1040</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>4.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(e)</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-013" severity="MEDIUM" enabled="true">
+    <name>Password in URL Query Parameter</name>
+    <description>Detects passwords transmitted in URL query strings</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <url regex="true">.*\?(.*&amp;)?(password|passwd|pwd|pass|secret)=[^&amp;]+.*</url>
+        <http_method>GET</http_method>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-014" severity="HIGH" enabled="true">
+    <name>OAuth Token Leakage via Referrer</name>
+    <description>Detects OAuth tokens potentially leaked via HTTP Referer header</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(oauth|callback|redirect|auth).*</url>
+        <query_string regex="true">.*(access_token|code|token|state)=.{16,}.*</query_string>
+        <response_code regex="true">200|302</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>WSTG-ATHN-08</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-015" severity="HIGH" enabled="true">
+    <name>Kerberoasting - Service Ticket Request</name>
+    <description>Detects Kerberos TGS service ticket requests that may indicate Kerberoasting</description>
+    <pattern>
+      <event>
+        <product>Active Directory</product>
+        <event_id>4769</event_id>
+        <encryption_type regex="true">0x1|0x3</encryption_type>
+        <failure_code>0x0</failure_code>
+        <count regex="true">>3</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1558.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>WSTG-ATHN-06</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHZ-006" severity="HIGH" enabled="true">
+    <name>Mass Assignment - Sensitive Field Modification</name>
+    <description>Detects mass assignment attacks modifying sensitive fields</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(api|v[0-9])\/(user|profile|account).*</url>
+        <http_method regex="true">PUT|PATCH</http_method>
+        <content regex="true">.*"(is_admin|isAdmin|role|permission|user_type|account_type|balance|credit)".*</content>
+        <response_code regex="true">200|204</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>AC-4</control>
+    </compliance>
+    <references>WSTG-ATHZ-02</references>
+    <action>ALERT</action>
+    <group>authorization</group>
+  </rule>
+
+  <rule id="FSIEM-ATHZ-007" severity="MEDIUM" enabled="true">
+    <name>API Rate Limiting Absent - Authorization Bypass</name>
+    <description>Detects high-frequency API calls indicating missing rate limits</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/.*</url>
+        <http_method regex="true">GET|POST</http_method>
+        <count regex="true">>100</count>
+        <time_window>60</time_window>
+        <source_ip regex="true">.*</source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Reconnaissance</tactic>
+      <technique>T1592</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SC-5</control>
+    </compliance>
+    <references>WSTG-ATHZ-03</references>
+    <action>ALERT</action>
+    <group>authorization</group>
+  </rule>
+
+  <rule id="FSIEM-ATHZ-008" severity="HIGH" enabled="true">
+    <name>Vertical Privilege Escalation - Admin Access from Regular User</name>
+    <description>Detects regular user accessing admin-level resources</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(admin|management|sysadmin|superuser|root-access).*</url>
+        <response_code>200</response_code>
+        <user_role regex="true">user|viewer|guest</user_role>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>HIPAA</standard>
+      <control>164.312(a)</control>
+      <standard>NIST</standard>
+      <control>AC-6</control>
+    </compliance>
+    <references>WSTG-ATHZ-01</references>
+    <action>ALERT</action>
+    <group>authorization</group>
+  </rule>
+
+  <rule id="FSIEM-SESS-006" severity="HIGH" enabled="true">
+    <name>Session Token Predictability</name>
+    <description>Detects session tokens with insufficient entropy</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <header regex="true">.*Set-Cookie:.*session=[a-zA-Z0-9]{1,16}.*</header>
+        <response_code regex="true">200|302</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SA-11</control>
+    </compliance>
+    <references>WSTG-SESS-01</references>
+    <action>ALERT</action>
+    <group>session</group>
+  </rule>
+
+  <rule id="FSIEM-SESS-007" severity="HIGH" enabled="true">
+    <name>Concurrent Session Limit Exceeded</name>
+    <description>Detects users exceeding maximum allowed concurrent sessions</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <same_user_session_count regex="true">>3</same_user_session_count>
+        <distinct_source_ip_count regex="true">>3</distinct_source_ip_count>
+        <time_window>3600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-10</control>
+    </compliance>
+    <references>WSTG-SESS-07</references>
+    <action>ALERT</action>
+    <group>session</group>
+  </rule>
+
+  <rule id="FSIEM-SESS-008" severity="MEDIUM" enabled="true">
+    <name>Session Not Invalidated After Logout</name>
+    <description>Detects session tokens remaining valid after logout</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(logout|signout).*</url>
+        <response_code regex="true">200|302</response_code>
+        <session_id_valid regex="true">true</session_id_valid>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-12</control>
+    </compliance>
+    <references>WSTG-SESS-06</references>
+    <action>ALERT</action>
+    <group>session</group>
+  </rule>
+
+  <rule id="FSIEM-SESS-009" severity="HIGH" enabled="true">
+    <name>Cross-Site Scripting - Session Theft</name>
+    <description>Detects XSS payloads targeting session cookies</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*(&lt;script|javascript:|onerror|onload|document\.cookie|document\.location).*</url>
+        <http_method regex="true">GET|POST</http_method>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>WSTG-SESS-02</references>
+    <action>ALERT</action>
+    <group>session</group>
+  </rule>
+
+  <rule id="FSIEM-SESS-010" severity="MEDIUM" enabled="true">
+    <name>Session Cookie SameSite Attribute Missing</name>
+    <description>Detects session cookies without SameSite attribute</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <header regex="true">.*Set-Cookie:.*(session|sid|token).*(?!SameSite).*</header>
+        <response_code regex="true">200|302</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>WSTG-SESS-06</references>
+    <action>ALERT</action>
+    <group>session</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-016" severity="MEDIUM" enabled="true">
+    <name>Credential Replay - Same Credentials Multiple IPs</name>
+    <description>Detects same credentials authenticating from multiple distinct IPs rapidly</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(login|signin|auth).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">200|302</response_code>
+        <same_credential regex="true">true</same_credential>
+        <distinct_source_ip_count regex="true">>3</distinct_source_ip_count>
+        <time_window>600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.004</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-017" severity="HIGH" enabled="true">
+    <name>SQL Injection in Authentication</name>
+    <description>Detects SQL injection patterns in authentication endpoints</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(login|signin|auth|authenticate).*</url>
+        <http_method>POST</http_method>
+        <content regex="true">.*('OR|OR\s+1\s*=\s*1|'--|UNION\s+SELECT|;\s*DROP|;\s*DELETE|SLEEP\s*\(|BENCHMARK\s*\().*</content>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHZ-009" severity="HIGH" enabled="true">
+    <name>Path Traversal in Authorization Context</name>
+    <description>Detects path traversal patterns used to bypass authorization controls</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(api|v[0-9])\/.*\/(..\/|..\\|%2e%2e%2f|%2e%2e\/|..%2f).*</url>
+        <http_method regex="true">GET|POST|PUT|DELETE</http_method>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>HIPAA</standard>
+      <control>164.312(b)</control>
+    </compliance>
+    <references>WSTG-ATHZ-04</references>
+    <action>ALERT</action>
+    <group>authorization</group>
+  </rule>
+
+  <rule id="FSIEM-ATHZ-010" severity="MEDIUM" enabled="true">
+    <name>Unauthorized API Method Access</name>
+    <description>Detects use of unexpected HTTP methods on API endpoints</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/api\/(user|profile|account|resource).*</url>
+        <http_method>DELETE</http_method>
+        <response_code regex="true">200|204</response_code>
+        <user_role regex="true">!(admin|superuser)</user_role>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>AC-4</control>
+    </compliance>
+    <references>WSTG-ATHZ-03</references>
+    <action>ALERT</action>
+    <group>authorization</group>
+  </rule>
+
+  <rule id="FSIEM-SESS-011" severity="MEDIUM" enabled="true">
+    <name>Session Regeneration Failure on Login</name>
+    <description>Detects session IDs that persist across authentication transitions</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(login|signin|auth).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">200|302</response_code>
+        <pre_login_session_id regex="true">true</pre_login_session_id>
+        <post_login_session_id regex="true">true</post_login_session_id>
+        <session_ids_equal regex="true">true</session_ids_equal>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SA-11</control>
+    </compliance>
+    <references>WSTG-SESS-01</references>
+    <action>ALERT</action>
+    <group>session</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-018" severity="MEDIUM" enabled="true">
+    <name>Multi-Factor Authentication Bypass</name>
+    <description>Detects access to MFA-protected resources without completing MFA</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(dashboard|profile|account|settings|protected).*</url>
+        <http_method>GET</http_method>
+        <response_code>200</response_code>
+        <mfa_verified regex="true">false</mfa_verified>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3</control>
+      <standard>NIST</standard>
+      <control>IA-2</control>
+    </compliance>
+    <references>WSTG-ATHN-05</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHZ-011" severity="MEDIUM" enabled="true">
+    <name>Referer-Based Authorization Check</name>
+    <description>Detects authorization decisions based on Referer header</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <header regex="true">.*Referer:.*\/(admin|manage|dashboard).*</header>
+        <response_code regex="true">200|201</response_code>
+        <user_role regex="true">!(admin|superuser|manager)</user_role>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>AC-3</control>
+    </compliance>
+    <references>WSTG-ATHZ-02</references>
+    <action>ALERT</action>
+    <group>authorization</group>
+  </rule>
+
+  <rule id="FSIEM-SESS-012" severity="HIGH" enabled="true">
+    <name>Session Token in Referer Header</name>
+    <description>Detects session tokens leaked in Referer headers to external sites</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <header regex="true">.*Referer:.*[\?&amp;](session|sid|token|jsessionid|phpsessid)=.{8,}.*</header>
+        <external_referrer regex="true">true</external_referrer>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>GDPR</standard>
+      <control>32</control>
+    </compliance>
+    <references>WSTG-SESS-03</references>
+    <action>ALERT</action>
+    <group>session</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-019" severity="MEDIUM" enabled="true">
+    <name>Password Policy Violation - Complexity</name>
+    <description>Detects password changes that don't meet complexity requirements</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(change-password|set-password|update-password).*</url>
+        <http_method>POST</http_method>
+        <response_code>200</response_code>
+        <password_complexity regex="true">!(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{8,}</password_complexity>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.2</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>WSTG-ATHN-07</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+
+  <rule id="FSIEM-ATHZ-012" severity="HIGH" enabled="true">
+    <name>JWT Token Manipulation</name>
+    <description>Detects modified JWT tokens with altered payload claims</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <header regex="true">.*Authorization:\s*Bearer\s*eyJ.*</header>
+        <jwt_claim_modified regex="true">true</jwt_claim_modified>
+        <jwt_signature_valid regex="true">false</jwt_signature_valid>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>IA-2</control>
+    </compliance>
+    <references>WSTG-ATHZ-01</references>
+    <action>ALERT</action>
+    <group>authorization</group>
+  </rule>
+
+  <rule id="FSIEM-SESS-013" severity="MEDIUM" enabled="true">
+    <name>Session Cookie Path Too Broad</name>
+    <description>Detects session cookies with path=/ unnecessarily exposing to all paths</description>
+    <pattern>
+      <event>
+        <product>Web Server</product>
+        <header regex="true">.*Set-Cookie:.*path=\/.*</header>
+        <url regex="true">.*\/(login|signin|auth).*</url>
+        <response_code regex="true">200|302</response_code>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1539</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>NIST</standard>
+      <control>SC-8</control>
+    </compliance>
+    <references>WSTG-SESS-06</references>
+    <action>ALERT</action>
+    <group>session</group>
+  </rule>
+
+  <rule id="FSIEM-ATHN-020" severity="HIGH" enabled="true">
+    <name>Account Takeover - Impossible Travel</name>
+    <description>Detects logins from geographically distant locations within short timeframe</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <url regex="true">.*\/(login|signin|auth).*</url>
+        <http_method>POST</http_method>
+        <response_code regex="true">200|302</response_code>
+        <geo_distance_km regex="true">>500</geo_distance_km>
+        <time_window regex="true">&lt;3600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>IA-4</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication</group>
+  </rule>
+</rules>

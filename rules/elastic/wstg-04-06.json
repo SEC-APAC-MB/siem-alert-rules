@@ -1,0 +1,2002 @@
+{
+  "description": "Elastic Security SIEM alert rules mapped from OWASP WSTG-04 (Authentication), WSTG-05 (Authorization), and WSTG-06 (Session Management) test catalogs",
+  "version": "1.0.0",
+  "elastic_version": "8.x",
+  "total_rules": 65,
+  "rules": [
+    {
+      "rule_id": "ES-WSTG04-001",
+      "name": "Credentials Transmitted Over Unencrypted Channel",
+      "description": "Detects login or credential submission over HTTP instead of HTTPS, exposing credentials to interception",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND url.scheme:\"http\" AND http.request.method:POST AND url.path:(*\"/login\"* OR *\"/auth\"* OR *\"/signin\"* OR *\"/authenticate\"*)",
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "packetbeat-*"
+      ],
+      "references": [
+        "WSTG-ATHN-01"
+      ],
+      "mitre": [
+        "T1041"
+      ],
+      "compliance": [
+        "PCI-DSS 4.1",
+        "GDPR-32A-002",
+        "HIPAA-TS-001"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "cleartext-credentials",
+        "encryption"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-002",
+      "name": "Default Credentials Usage on Login",
+      "description": "Detects successful logins using common default usernames like admin, root, or test across services",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"success\" AND user.name:(\"admin\" OR \"root\" OR \"administrator\" OR \"test\" OR \"guest\" OR \"operator\" OR \"demo\" OR \"service\" OR \"default\")",
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*",
+        "logs-system-*"
+      ],
+      "references": [
+        "WSTG-ATHN-02"
+      ],
+      "mitre": [
+        "T1078.001"
+      ],
+      "compliance": [
+        "PCI-DSS 2.1",
+        "HIPAA-ADM-006"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "default-credentials",
+        "brute-force"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-003",
+      "name": "Account Lockout Mechanism Failure",
+      "description": "Detects more than 20 failed login attempts for a single account without lockout, indicating weak lockout policy",
+      "severity": "high",
+      "type": "threshold",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"failure\" AND user.name:*",
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*"
+      ],
+      "references": [
+        "WSTG-ATHN-03"
+      ],
+      "mitre": [
+        "T1110.003"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-AC-7"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "lockout",
+        "brute-force"
+      ],
+      "risk_score": 70,
+      "interval": "5m",
+      "threshold": {
+        "field": "user.name",
+        "value": 20
+      }
+    },
+    {
+      "rule_id": "ES-WSTG04-004",
+      "name": "Authentication Schema Bypass Attempt",
+      "description": "Detects attempts to bypass authentication by accessing protected endpoints directly without valid session tokens",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"success\" AND NOT http.request.headers.Authorization:* AND NOT http.request.headers.Cookie:*session*",
+      "index": [
+        "logs-auth-*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-ATHN-04"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-AC-3"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "auth-bypass",
+        "session"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-005",
+      "name": "Weak Remember-Me Cookie Detection",
+      "description": "Detects authentication cookies flagged as 'remember me' that lack proper security attributes or contain predictable values",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.headers:\"Set-Cookie*remember*\" AND NOT http.response.headers:\"Set-Cookie*HttpOnly*\" AND NOT http.response.headers:\"Set-Cookie*Secure*\"",
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-ATHN-05"
+      ],
+      "mitre": [
+        "T1539"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "remember-me",
+        "cookie-security"
+      ],
+      "risk_score": 40,
+      "interval": "15m"
+    },
+    {
+      "rule_id": "ES-WSTG04-006",
+      "name": "Browser Cache Sensitivity - Sensitive Pages Without No-Cache Headers",
+      "description": "Detects responses from sensitive endpoints missing Cache-Control: no-store and Pragma: no-cache headers",
+      "severity": "low",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.status_code:200 AND url.path:(*\"/login\"* OR *\"/account\"* OR *\"/profile\"* OR *\"/settings\"* OR *\"/password\"*) AND NOT http.response.headers:\"Cache-Control: no-store\"",
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-ATHN-06"
+      ],
+      "mitre": [
+        "T1187"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "browser-cache",
+        "sensitive-data"
+      ],
+      "risk_score": 20,
+      "interval": "1h"
+    },
+    {
+      "rule_id": "ES-WSTG04-007",
+      "name": "Weak Authentication Method - Basic Auth Over HTTP",
+      "description": "Detects use of HTTP Basic Authentication over unencrypted connections, exposing credentials in cleartext",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.headers.Authorization:\"Basic *\" AND url.scheme:\"http\"",
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "packetbeat-*"
+      ],
+      "references": [
+        "WSTG-ATHN-07"
+      ],
+      "mitre": [
+        "T1041"
+      ],
+      "compliance": [
+        "PCI-DSS 4.1",
+        "GDPR-32A-002"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "basic-auth",
+        "cleartext"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-008",
+      "name": "Weak Security Question Reset Attempt",
+      "description": "Detects password reset flows using security questions that may be guessable or publicly available",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"password-reset\" AND (url.path:*\"/security-question\"* OR url.path:*\"/reset/question\"*) AND event.outcome:\"success\"",
+      "index": [
+        "logs-auth-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-08"
+      ],
+      "mitre": [
+        "T1110"
+      ],
+      "compliance": [
+        "NIST-IA-5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "security-question",
+        "password-reset"
+      ],
+      "risk_score": 35,
+      "interval": "15m"
+    },
+    {
+      "rule_id": "ES-WSTG04-009",
+      "name": "Weak Password Change Reset Flow",
+      "description": "Detects password change or reset attempts that don't require current password verification",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"password-change\" AND event.outcome:\"success\" AND NOT event.data.current_password_verified:*true*",
+      "index": [
+        "logs-auth-*",
+        "logs-system-*"
+      ],
+      "references": [
+        "WSTG-ATHN-09"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-IA-5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "password-change",
+        "weak-reset"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-010",
+      "name": "Authentication Over Alternative Unencrypted Channel",
+      "description": "Detects authentication attempts over alternative channels (Telnet, FTP) that lack encryption",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND (network.protocol:(\"ftp\" OR \"telnet\" OR \"http\") AND event.category:\"authentication\" AND event.action:\"login\")",
+      "index": [
+        "packetbeat-*",
+        "logs-network-*"
+      ],
+      "references": [
+        "WSTG-ATHN-10"
+      ],
+      "mitre": [
+        "T1041",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS 4.1",
+        "HIPAA-TS-001"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "unencrypted-channel",
+        "ftp"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-011",
+      "name": "Multi-Factor Authentication Bypass or Absence",
+      "description": "Detects privileged operations performed without MFA verification for accounts that require it",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"success\" AND user.name:(*admin* OR *root* OR *superuser*) AND NOT event.data.mfa_verified:*true*",
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*"
+      ],
+      "references": [
+        "WSTG-ATHN-11"
+      ],
+      "mitre": [
+        "T1111"
+      ],
+      "compliance": [
+        "PCI-DSS 8.3",
+        "HIPAA-ADM-005",
+        "NIST-IA-2"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa",
+        "mfa-bypass"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-012",
+      "name": "Credential Stuffing Attack Detected",
+      "description": "Detects credential stuffing patterns: high volume of login attempts from the same source IP across multiple accounts",
+      "severity": "critical",
+      "type": "threshold",
+      "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"failure\"",
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*"
+      ],
+      "references": [
+        "WSTG-ATHN-12"
+      ],
+      "mitre": [
+        "T1110.004"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-AC-7"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "credential-stuffing",
+        "brute-force"
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "threshold": {
+        "field": "source.ip",
+        "value": 50
+      }
+    },
+    {
+      "rule_id": "ES-WSTG04-013",
+      "name": "Password Policy Data Exposure in API Response",
+      "description": "Detects API responses that leak password policy details such as minimum length, complexity rules, or previous password hashes",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.body.content:(*\"password_policy\"* OR *\"min_length\"* OR *\"password_history\"* OR *\"previous_passwords\"*) AND http.response.status_code:200",
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-13"
+      ],
+      "mitre": [
+        "T1592.001"
+      ],
+      "compliance": [
+        "NIST-IA-5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "password-policy",
+        "data-exposure",
+        "api"
+      ],
+      "risk_score": 35,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-014",
+      "name": "PII Leakage in Authentication Error Messages",
+      "description": "Detects authentication error responses that reveal PII such as email addresses, phone numbers, or usernames",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.outcome:\"failure\" AND message:(*\"user.*not found\"* OR *\"email.*already registered\"* OR *\"phone.*associated\"* OR *\"account.*does not exist\"*)",
+      "index": [
+        "logs-auth-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-14"
+      ],
+      "mitre": [
+        "T1110.001"
+      ],
+      "compliance": [
+        "GDPR-25-012",
+        "HIPAA-IAM-004"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "pii-leakage",
+        "error-messages"
+      ],
+      "risk_score": 40,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-015",
+      "name": "PostgreSQL pg_authid Credential Hash Exposure",
+      "description": "Detects queries accessing PostgreSQL pg_authid catalog containing password hashes, indicating potential credential theft",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"database\" AND (postgresql.query:*\"pg_authid\"* OR postgresql.query:*\"pg_shadow\"* OR postgresql.query:*\"rolpassword\"*) AND NOT user.name:(\"postgres\" OR \"pg_monitor\")",
+      "index": [
+        "logs-postgresql-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-25"
+      ],
+      "mitre": [
+        "T1003.005",
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS 3.4",
+        "HIPAA-ADM-006"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "postgresql",
+        "database",
+        "credential-exposure"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-016",
+      "name": "MySQL User Table Credential Hash Access",
+      "description": "Detects queries accessing MySQL mysql.user table containing authentication credentials and password hashes",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"database\" AND (mysql.query:*\"mysql.user\"* OR mysql.query:*\"authentication_string\"* OR mysql.query:*\"SELECT.*password\"*) AND NOT user.name:\"root\"",
+      "index": [
+        "logs-mysql-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-26"
+      ],
+      "mitre": [
+        "T1003.005",
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS 3.4",
+        "HIPAA-ADM-006"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mysql",
+        "database",
+        "credential-exposure"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-017",
+      "name": "SQL Server sys.sql_logins Password Hash Access",
+      "description": "Detects queries accessing SQL Server sys.sql_logins view containing password hash information",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"database\" AND (mssql.query:*\"sys.sql_logins\"* OR mssql.query:*\"password_hash\"* OR mssql.query:*\"sys.server_principals\"*) AND NOT user.name:\"sa\"",
+      "index": [
+        "logs-mssql-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-27"
+      ],
+      "mitre": [
+        "T1003.005",
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS 3.4"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "sqlserver",
+        "database",
+        "credential-exposure"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-018",
+      "name": "MongoDB admin Database Credential Access",
+      "description": "Detects unauthorized access to MongoDB admin database containing user credentials and authentication data",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"database\" AND mongodb.query:*\"admin.system.users\"* AND NOT user.name:(\"mongod\" OR \"__system\")",
+      "index": [
+        "logs-mongodb-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-29"
+      ],
+      "mitre": [
+        "T1003.005",
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS 3.4"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mongodb",
+        "database",
+        "credential-exposure"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-019",
+      "name": "Redis ACL User Password Exposure via CONFIG GET",
+      "description": "Detects Redis CONFIG GET commands targeting ACL user passwords or authentication configurations",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"database\" AND redis.command:(\"CONFIG GET\" OR \"ACL LIST\" OR \"ACL GETUSER\") AND NOT user.name:\"admin\"",
+      "index": [
+        "logs-redis-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-32"
+      ],
+      "mitre": [
+        "T1003.005"
+      ],
+      "compliance": [
+        "PCI-DSS 3.4"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "redis",
+        "database",
+        "credential-exposure"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-020",
+      "name": "Neo4j Auth Store Credential Data Exposure",
+      "description": "Detects access to Neo4j authentication store data containing user credentials and roles",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"database\" AND (neo4j.query:*\"SHOW USERS\"* OR neo4j.query:*\"dbms.security.*\"* OR neo4j.query:*\"auth.*store\"*)",
+      "index": [
+        "logs-neo4j-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-33"
+      ],
+      "mitre": [
+        "T1003.005"
+      ],
+      "compliance": [
+        "PCI-DSS 3.4"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "neo4j",
+        "database",
+        "credential-exposure"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-021",
+      "name": "JWT Algorithm None Attack",
+      "description": "Detects JWT tokens with algorithm set to 'none' or missing algorithm, indicating authentication bypass attempt",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND (http.request.headers.Authorization:*\"none\"* OR event.data.jwt_algorithm:(\"none\" OR \"None\" OR \"NONE\" OR \"\"))",
+      "index": [
+        "logs-auth-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-54"
+      ],
+      "mitre": [
+        "T1606"
+      ],
+      "compliance": [
+        "API2-008",
+        "NIST-IA-9"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "jwt",
+        "algorithm-none"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-022",
+      "name": "Credential Data in Source Code Repository History",
+      "description": "Detects git commits or pushes containing credential patterns like passwords, API keys, or tokens in repository activity",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"vcs\" AND (git.commit.message:(*\"password\"* OR *\"secret\"* OR *\"api_key\"* OR *\"credential\"*) OR git.diff:*\"password=\"* OR git.diff:*\"api_key=\"* OR git.diff:*\"secret=\"*)",
+      "index": [
+        "logs-git-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-50"
+      ],
+      "mitre": [
+        "T1552.001"
+      ],
+      "compliance": [
+        "PCI-DSS 3.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "source-code",
+        "credential-exposure"
+      ],
+      "risk_score": 75,
+      "interval": "15m"
+    },
+    {
+      "rule_id": "ES-WSTG04-023",
+      "name": "Authentication Token Data in Browser Developer Tools Exposure",
+      "description": "Detects API responses containing authentication tokens in client-accessible locations without proper protection",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.body.content:(*\"access_token\":\"*\" OR *\"refresh_token\":\"*\" OR *\"id_token\":\"*\" OR *\"session_token\":\"*\") AND NOT http.response.headers:\"X-Content-Type-Options: nosniff\"",
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-51"
+      ],
+      "mitre": [
+        "T1539"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "token-exposure",
+        "browser"
+      ],
+      "risk_score": 45,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-024",
+      "name": "Credential Exposure in Container Environment Variables",
+      "description": "Detects container or Kubernetes pod configurations with credentials in environment variables accessible via API or logs",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"container\" AND (kubernetes.pod.env:*\"password\"* OR kubernetes.pod.env:*\"secret\"* OR kubernetes.pod.env:*\"api_key\"* OR container.env:*\"DB_PASSWORD\"* OR container.env:*\"AWS_SECRET\"*)",
+      "index": [
+        "logs-kubernetes-*",
+        "logs-docker-*"
+      ],
+      "references": [
+        "WSTG-ATHN-58"
+      ],
+      "mitre": [
+        "T1552.007"
+      ],
+      "compliance": [
+        "NIST-CM-6",
+        "HIPAA-ADM-006"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "container",
+        "environment-variables",
+        "credential-exposure"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-025",
+      "name": "Authentication Secret in Kubernetes Secrets Unencrypted",
+      "description": "Detects Kubernetes secrets accessed or created without encryption at rest, potentially exposing authentication data",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"kubernetes\" AND kubernetes.event.action:(\"create\" OR \"update\") AND kubernetes.object.type:\"Secret\" AND NOT kubernetes.object.encrypted:*true*",
+      "index": [
+        "logs-kubernetes-*"
+      ],
+      "references": [
+        "WSTG-ATHN-59"
+      ],
+      "mitre": [
+        "T1552.007"
+      ],
+      "compliance": [
+        "NIST-SC-28",
+        "HIPAA-ADM-006"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "kubernetes",
+        "secrets",
+        "encryption"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-026",
+      "name": "MFA Bypass via Predictable OTP Seeds",
+      "description": "Detects patterns of MFA OTP values that may indicate weak or predictable seed generation",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"mfa-verify\" AND event.outcome:\"success\" AND event.data.otp_reuse:*true*",
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*"
+      ],
+      "references": [
+        "WSTG-ATHN-19"
+      ],
+      "mitre": [
+        "T1111"
+      ],
+      "compliance": [
+        "PCI-DSS 8.3",
+        "NIST-IA-2"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "mfa",
+        "otp",
+        "bypass"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-027",
+      "name": "Credential Data Exposure via Database Error Messages",
+      "description": "Detects database error messages that leak credential-related information such as connection strings or table schemas",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"database\" AND (postgresql.error:*\"password authentication failed\"* OR mysql.error:*\"Access denied\"* OR mssql.error:*\"Login failed\"*) AND message:(*\"connection string\"* OR *\"password\"* OR *\"credential\"*)",
+      "index": [
+        "logs-postgresql-*",
+        "logs-mysql-*",
+        "logs-mssql-*"
+      ],
+      "references": [
+        "WSTG-ATHN-55"
+      ],
+      "mitre": [
+        "T1592.001"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "GDPR-32A-007"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "database",
+        "error-disclosure",
+        "credentials"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-028",
+      "name": "Cloud Metadata Service Credential Theft",
+      "description": "Detects requests to cloud metadata services (169.254.169.254) from applications, indicating SSRF-based credential theft attempts",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND (destination.ip:\"169.254.169.254\" OR url.full:*\"169.254.169.254\"* OR url.full:*\"metadata.google.internal\"*)",
+      "index": [
+        "packetbeat-*",
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-57"
+      ],
+      "mitre": [
+        "T1552.005",
+        "T1190"
+      ],
+      "compliance": [
+        "NIST-AC-4",
+        "HIPAA-TS-018"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "cloud-metadata",
+        "ssrf",
+        "credential-theft"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-029",
+      "name": "Authentication Data Segregation Failure in Multi-Tenant Database",
+      "description": "Detects cross-tenant authentication data access attempts in multi-tenant database systems",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"database\" AND (postgresql.query:*\"SET app.current_tenant\"* OR mysql.query:*\"SET @tenant_id\"*) AND message:*\"permission denied\"*",
+      "index": [
+        "logs-postgresql-*",
+        "logs-mysql-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-67"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "GDPR-25-003",
+        "HIPAA-IAM-005"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "multi-tenant",
+        "database",
+        "segregation"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG04-030",
+      "name": "Pinecone API Key Exposure in Authentication Headers",
+      "description": "Detects Pinecone vector database API keys exposed in HTTP request headers or logs",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND (http.request.headers.Authorization:*\"pc-*\"* OR http.request.headers.\"Api-Key\":*\"pc-*\"* OR message:*\"pinecone*api-key*\")",
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHN-37"
+      ],
+      "mitre": [
+        "T1552.001"
+      ],
+      "compliance": [
+        "NIST-IA-5"
+      ],
+      "tags": [
+        "wstg",
+        "authentication",
+        "pinecone",
+        "vector-db",
+        "api-key"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-001",
+      "name": "Directory Traversal Attack Detected",
+      "description": "Detects path traversal attempts using ../ sequences or encoded variants to access files outside intended directories",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND url.path:(*\"../\"* OR *\"..%2f\"* OR *\"..%5c\"* OR *\"%2e%2e\"* OR *\"..%252f\"* OR *\"..\\\\\"*)",
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-01"
+      ],
+      "mitre": [
+        "T1083"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "directory-traversal",
+        "path-traversal"
+      ],
+      "risk_score": 80,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-002",
+      "name": "Authorization Schema Bypass Attempt",
+      "description": "Detects attempts to bypass authorization by accessing admin or privileged endpoints with non-privileged credentials",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"access\" AND event.outcome:\"denied\" AND url.path:(*\"/admin\"* OR *\"/manage\"* OR *\"/superuser\"*) AND NOT user.role:(\"admin\" OR \"superuser\")",
+      "index": [
+        "logs-auth-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-02"
+      ],
+      "mitre": [
+        "T1548",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-AC-3"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "auth-bypass",
+        "privilege-escalation"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-003",
+      "name": "Privilege Escalation via Role Manipulation",
+      "description": "Detects attempts to escalate privileges through role parameter manipulation in API requests",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:(\"POST\" OR \"PUT\" OR \"PATCH\") AND url.path:(*\"/user\"* OR *\"/profile\"* OR *\"/account\"*) AND http.request.body.content:(*\"role\":\"admin\"* OR *\"role\":\"superuser\"* OR *\"isAdmin\":true*) AND NOT user.role:(\"admin\" OR \"superuser\")",
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-03"
+      ],
+      "mitre": [
+        "T1548",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-AC-6",
+        "HIPAA-IAM-004"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "privilege-escalation",
+        "role-manipulation"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-004",
+      "name": "Insecure Direct Object Reference (IDOR) Detection",
+      "description": "Detects sequential or predictable resource ID access patterns indicating IDOR vulnerability exploitation",
+      "severity": "high",
+      "type": "threshold",
+      "query": "event.category:\"network\" AND http.request.method:GET AND url.path:(*\"/users/\"* OR *\"/orders/\"* OR *\"/accounts/\"*) AND NOT url.path:*\"/me\"*",
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-04"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-AC-3"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "idor",
+        "object-reference"
+      ],
+      "risk_score": 75,
+      "interval": "5m",
+      "threshold": {
+        "field": "source.ip",
+        "value": 20
+      }
+    },
+    {
+      "rule_id": "ES-WSTG05-005",
+      "name": "OAuth Token Scope Escalation",
+      "description": "Detects OAuth token usage where requested scopes exceed granted scopes, indicating authorization bypass attempts",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"oauth-token-validate\" AND event.data.scope_requested:* AND NOT event.data.scope_granted == event.data.scope_requested",
+      "index": [
+        "logs-auth-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-05"
+      ],
+      "mitre": [
+        "T1528"
+      ],
+      "compliance": [
+        "API2-007",
+        "NIST-AC-3"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "oauth",
+        "scope-escalation"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-006",
+      "name": "PII Field Access Without Authorization Check",
+      "description": "Detects API responses returning PII fields without proper field-level authorization checks",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.body.content:(*\"ssn\":\"*\" OR *\"passport_number\":\"*\" OR *\"tax_id\":\"*\" OR *\"date_of_birth\":\"*\") AND NOT http.request.headers.Authorization:*",
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-06"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "compliance": [
+        "GDPR-25-012",
+        "HIPAA-IAM-004",
+        "PCI-DSS 3.4"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "pii",
+        "field-level",
+        "data-access"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-007",
+      "name": "BOLA via Sequential ID Enumeration",
+      "description": "Detects Bulk Object Level Authorization attacks using sequential numeric IDs to access other users' data",
+      "severity": "critical",
+      "type": "threshold",
+      "query": "event.category:\"network\" AND http.request.method:GET AND url.path.regex:\"/(users|orders|accounts|transactions)/[0-9]+\" AND http.response.status_code:200",
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-07"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "API1-001",
+        "NIST-AC-3"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "bola",
+        "idor",
+        "enumeration"
+      ],
+      "risk_score": 85,
+      "interval": "5m",
+      "threshold": {
+        "field": "source.ip",
+        "value": 30
+      }
+    },
+    {
+      "rule_id": "ES-WSTG05-008",
+      "name": "PostgreSQL Row-Level Security Bypass",
+      "description": "Detects PostgreSQL queries bypassing row-level security policies by directly accessing restricted tables or using SUPERUSER",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"database\" AND (postgresql.query:*\"SET ROLE\"* OR postgresql.query:*\"SECURITY DEFINER\"* OR postgresql.query:*\"DISABLE ROW LEVEL SECURITY\"*) AND NOT user.name:\"postgres\"",
+      "index": [
+        "logs-postgresql-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-11"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "GDPR-25-003"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "postgresql",
+        "rls",
+        "database"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-009",
+      "name": "MongoDB Document-Level Access Control Bypass",
+      "description": "Detects MongoDB queries that bypass document-level access controls using $where, $regex, or direct collection access",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"database\" AND (mongodb.query:*\"$where\"* OR mongodb.query:*\"$regex: {\\$ne\"* OR mongodb.collection:*\"admin\"* OR mongodb.collection:*\"system.*\") AND NOT user.name:(\"mongod\" OR \"__system\")",
+      "index": [
+        "logs-mongodb-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-15"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "mongodb",
+        "nosql",
+        "access-control"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-010",
+      "name": "Authorization Bypass via SQL Injection in Access Control",
+      "description": "Detects SQL injection patterns in authorization queries, indicating attempts to bypass access controls via injection",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.body.content:(*\"' OR 1=1\"* OR *\"' UNION SELECT\"* OR *\"'; DROP TABLE\"* OR *\"' AND '1'='1\"*) AND url.path:(*\"/api/\"* OR *\"/auth\"*)",
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-36"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "NIST-AC-3"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "sql-injection",
+        "access-control",
+        "bypass"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-011",
+      "name": "Cross-Tenant Data Access via Shared Connection Pool",
+      "description": "Detects database queries from a connection pool accessing data belonging to a different tenant than the authenticated user",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"database\" AND (postgresql.query:*\"SET search_path\"* OR mysql.query:*\"USE \"*) AND NOT event.data.tenant_id == event.data.connection_tenant_id",
+      "index": [
+        "logs-postgresql-*",
+        "logs-mysql-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-39"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "GDPR-25-003",
+        "HIPAA-IAM-005"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "multi-tenant",
+        "connection-pool",
+        "database"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-012",
+      "name": "Neo4j Label-Based Access Control Bypass for Graph Data",
+      "description": "Detects Neo4j Cypher queries attempting to bypass label-based access controls to read restricted graph data",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"database\" AND neo4j.query:(*\"MATCH (n)\"* OR *\"MATCH (n:*)\"* OR *\"DETACH DELETE\"*) AND NOT neo4j.query:*\"WHERE n.tenant_id\"*",
+      "index": [
+        "logs-neo4j-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-18"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "NIST-AC-3"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "neo4j",
+        "graph",
+        "access-control"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-013",
+      "name": "Authorization Bypass via HTTP Method Override",
+      "description": "Detects use of X-HTTP-Method-Override or X-Method-Override headers to bypass authorization controls",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND (http.request.headers.\"X-HTTP-Method-Override\":* OR http.request.headers.\"X-Method-Override\":* OR http.request.headers.\"X-HTTP-Method\":*)",
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-49"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "NIST-CM-7"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "http-method-override",
+        "bypass"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-014",
+      "name": "Mass Assignment of Data Classification Tags",
+      "description": "Detects mass assignment attempts where users modify data classification or sensitivity tags beyond their authorization",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:(\"PUT\" OR \"PATCH\") AND http.request.body.content:(*\"classification\":\"*\" OR *\"sensitivity_level\":\"*\" OR *\"data_category\":\"*\") AND NOT user.role:(\"admin\" OR \"data_steward\")",
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-34"
+      ],
+      "mitre": [
+        "T1078"
+      ],
+      "compliance": [
+        "GDPR-25-003",
+        "NIST-AC-3"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "mass-assignment",
+        "data-classification"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG05-015",
+      "name": "PII Data Export Authorization Bypass",
+      "description": "Detects attempts to export PII data without proper authorization, including bulk downloads or API mass retrieval",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:GET AND url.path:(*\"/export\"* OR *\"/download\"* OR *\"/bulk\"* OR *\"/report\"*) AND http.response.body.content:(*\"ssn\"* OR *\"passport\"* OR *\"credit_card\"*) AND NOT user.role:(\"admin\" OR \"data_export\")",
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-ATHZ-50"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "compliance": [
+        "GDPR-25-008",
+        "HIPAA-IAM-004",
+        "PCI-DSS 3.4"
+      ],
+      "tags": [
+        "wstg",
+        "authorization",
+        "pii",
+        "export",
+        "data-theft"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-001",
+      "name": "Session Token Predictability Detection",
+      "description": "Detects session tokens that appear sequential or have low entropy, indicating predictable token generation",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"session-create\" AND event.data.session_id:* AND (event.data.session_id.regex:\"[0-9]{4,}\" OR event.data.session_id.regex:\"[a-f0-9]{8,}\")",
+      "index": [
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-01"
+      ],
+      "mitre": [
+        "T1534"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-IA-5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "predictable-token",
+        "weak-session"
+      ],
+      "risk_score": 70,
+      "interval": "15m"
+    },
+    {
+      "rule_id": "ES-WSTG06-002",
+      "name": "Insecure Session Cookie Attributes",
+      "description": "Detects session cookies missing Secure, HttpOnly, or SameSite attributes",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.headers:\"Set-Cookie\" AND NOT http.response.headers:\"Set-Cookie*Secure*HttpOnly*SameSite*\"",
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-SESS-02"
+      ],
+      "mitre": [
+        "T1539",
+        "T1187"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "GDPR-32A-002",
+        "NIST-IA-5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "cookie",
+        "secure-flag",
+        "httponly"
+      ],
+      "risk_score": 65,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-003",
+      "name": "Session Fixation Attack",
+      "description": "Detects session fixation attacks where a pre-set session ID is accepted by the server after authentication",
+      "severity": "critical",
+      "type": "eql",
+      "query": "sequence by session.id with maxspan=2m\n  [network where event.category:\"network\" and http.request.headers.Cookie:*]\n  [authentication where event.action:\"login\" and event.outcome:\"success\"]\n  where not session.id changes",
+      "index": [
+        "logs-auth-*",
+        "logs-apache-access*"
+      ],
+      "references": [
+        "WSTG-SESS-03"
+      ],
+      "mitre": [
+        "T1534"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-IA-5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-fixation",
+        "authentication"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-004",
+      "name": "Session Token in URL Parameters",
+      "description": "Detects session tokens transmitted in URL parameters (query strings) instead of cookies, exposing them to logging and Referer headers",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND (url.query:*\"session_id=\"* OR url.query:*\"sess=\"* OR url.query:*\"token=\"* OR url.query:*\"jsessionid=\"* OR url.query:*\"phpsessid=\"*)",
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-SESS-04"
+      ],
+      "mitre": [
+        "T1187",
+        "T1539"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "GDPR-32A-014"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "url-token",
+        "session-exposure"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-005",
+      "name": "Cross-Site Request Forgery (CSRF) Attempt",
+      "description": "Detects POST/PUT/DELETE requests missing CSRF tokens or having invalid tokens, indicating potential CSRF attacks",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.method:(\"POST\" OR \"PUT\" OR \"DELETE\") AND NOT http.request.headers:\"X-CSRF-Token\" AND NOT http.request.headers:\"X-XSRF-Token\" AND NOT http.request.headers.cookie:*\"csrf*\"",
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-SESS-05"
+      ],
+      "mitre": [
+        "T1189"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "NIST-CM-7"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "csrf",
+        "cross-site"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-006",
+      "name": "Session Not Invalidated on Logout",
+      "description": "Detects session tokens that remain valid after logout, indicating improper session termination",
+      "severity": "high",
+      "type": "eql",
+      "query": "sequence by session.id with maxspan=5m\n  [authentication where event.action:\"logout\" and event.outcome:\"success\"]\n  [network where event.category:\"network\" and http.response.status_code:200]",
+      "index": [
+        "logs-auth-*",
+        "logs-apache-access*"
+      ],
+      "references": [
+        "WSTG-SESS-06"
+      ],
+      "mitre": [
+        "T1534"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-IA-5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "logout",
+        "session-termination"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-007",
+      "name": "Session Timeout Not Enforced",
+      "description": "Detects sessions with activity beyond the configured timeout period, indicating insufficient session expiration",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"session-activity\" AND event.data.session_age:>3600 AND NOT event.data.session_renewed:*true*",
+      "index": [
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-07"
+      ],
+      "mitre": [
+        "T1534"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-IA-5",
+        "HIPAA-ADM-007"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-timeout",
+        "expiration"
+      ],
+      "risk_score": 45,
+      "interval": "15m"
+    },
+    {
+      "rule_id": "ES-WSTG06-008",
+      "name": "Concurrent Session on Different IPs",
+      "description": "Detects the same session token being used from different IP addresses simultaneously, indicating session hijacking",
+      "severity": "critical",
+      "type": "eql",
+      "query": "sequence by session.id with maxspan=1m\n  [network where event.category:\"network\" and source.ip:*]\n  [network where event.category:\"network\" and not source.ip == source.ip]",
+      "index": [
+        "logs-auth-*",
+        "logs-apache-access*"
+      ],
+      "references": [
+        "WSTG-SESS-09"
+      ],
+      "mitre": [
+        "T1187",
+        "T1534"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "session-hijacking",
+        "concurrent"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-009",
+      "name": "JWT Token Tampering or Forgery",
+      "description": "Detects JWT tokens with invalid signatures, expired timestamps, or algorithm manipulation indicating token tampering",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.action:\"jwt-validate\" AND (event.data.jwt_signature_valid:*false* OR event.data.jwt_expired:*true* OR event.data.jwt_algorithm:(\"none\" OR \"None\" OR \"HS256/RS256\"))",
+      "index": [
+        "logs-auth-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-SESS-10"
+      ],
+      "mitre": [
+        "T1606"
+      ],
+      "compliance": [
+        "API2-007",
+        "NIST-IA-9"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "token-tampering"
+      ],
+      "risk_score": 95,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-010",
+      "name": "Session Token Data Leakage via Referer Header",
+      "description": "Detects session tokens leaking through Referer headers when navigating to external sites",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.request.headers.Referer:* AND (http.request.headers.Referer:*\"session_id=\"* OR http.request.headers.Referer:*\"token=\"* OR http.request.headers.Referer:*\"jsessionid=\"*) AND NOT url.domain:*internal*",
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-SESS-12"
+      ],
+      "mitre": [
+        "T1187"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "GDPR-32A-015"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "referer-leak",
+        "token-exposure"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-011",
+      "name": "Session Data Exposure in Redis Session Store",
+      "description": "Detects Redis commands that expose session data stored unencrypted in Redis keys",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"database\" AND redis.command:(\"KEYS\" OR \"GET\" OR \"HGETALL\") AND redis.key:*session* AND NOT redis.key:*encrypted*",
+      "index": [
+        "logs-redis-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-SESS-18"
+      ],
+      "mitre": [
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS 3.4",
+        "HIPAA-TS-007"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "redis",
+        "database",
+        "encryption"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-012",
+      "name": "PostgreSQL Session Table Unencrypted Access",
+      "description": "Detects access to PostgreSQL session tables containing unencrypted session data",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"database\" AND postgresql.query:*\"sessions\"* AND NOT postgresql.query:*\"pgcrypto\"* AND NOT postgresql.query:*\"encrypt\"*",
+      "index": [
+        "logs-postgresql-*"
+      ],
+      "references": [
+        "WSTG-SESS-20"
+      ],
+      "mitre": [
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS 3.4"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "postgresql",
+        "database",
+        "encryption"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-013",
+      "name": "MongoDB Session Collection Unencrypted Access",
+      "description": "Detects access to MongoDB session collections containing unencrypted session data",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"database\" AND mongodb.collection:*\"sessions\"* AND NOT mongodb.query:*\"encrypt\"*",
+      "index": [
+        "logs-mongodb-*"
+      ],
+      "references": [
+        "WSTG-SESS-22"
+      ],
+      "mitre": [
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS 3.4"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "mongodb",
+        "database",
+        "encryption"
+      ],
+      "risk_score": 85,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-014",
+      "name": "Session Token PII Exposure in JWT Claims",
+      "description": "Detects JWT tokens containing PII fields (email, phone, SSN) in their payload claims without encryption",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.data.jwt_claims:(*\"email\"* OR *\"phone\"* OR *\"ssn\"* OR *\"address\"*) AND NOT event.data.jwt_encrypted:*true*",
+      "index": [
+        "logs-auth-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-SESS-28"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "compliance": [
+        "GDPR-25-012",
+        "HIPAA-TS-007"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "jwt",
+        "pii",
+        "claims"
+      ],
+      "risk_score": 75,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-015",
+      "name": "Session Token via WebSocket Unencrypted",
+      "description": "Detects session tokens transmitted over unencrypted WebSocket connections (ws:// instead of wss://)",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"network\" AND network.protocol:\"websocket\" AND url.scheme:\"ws\" AND NOT url.scheme:\"wss\"",
+      "index": [
+        "packetbeat-*",
+        "logs-network-*"
+      ],
+      "references": [
+        "WSTG-SESS-26"
+      ],
+      "mitre": [
+        "T1041"
+      ],
+      "compliance": [
+        "PCI-DSS 4.1",
+        "GDPR-32A-002"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "websocket",
+        "unencrypted"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-016",
+      "name": "Session Data Leakage via Database Query Logs",
+      "description": "Detects session-related queries logged with session token data in database query logs",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"database\" AND (postgresql.query:*\"session_id\"* OR mysql.query:*\"session_id\"*) AND log.level:\"INFO\" AND NOT message:*\"***\"",
+      "index": [
+        "logs-postgresql-*",
+        "logs-mysql-*"
+      ],
+      "references": [
+        "WSTG-SESS-29"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "compliance": [
+        "PCI-DSS 3.4",
+        "GDPR-32A-006"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "database",
+        "query-logs",
+        "data-leakage"
+      ],
+      "risk_score": 65,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-017",
+      "name": "Session Cookie Missing __Host- Prefix",
+      "description": "Detects session cookies missing the __Host- prefix, making them vulnerable to subdomain attacks",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:\"network\" AND http.response.headers:\"Set-Cookie*session*\" AND NOT http.response.headers:\"Set-Cookie*__Host-*\"",
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-SESS-37"
+      ],
+      "mitre": [
+        "T1187"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "cookie-prefix",
+        "__Host-"
+      ],
+      "risk_score": 35,
+      "interval": "15m"
+    },
+    {
+      "rule_id": "ES-WSTG06-018",
+      "name": "Neo4j Session Graph Node Unencrypted Access",
+      "description": "Detects access to Neo4j session graph nodes containing unencrypted session data",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:\"database\" AND neo4j.query:*\"session\"* AND NOT neo4j.query:*\"apoc.text.encrypt\"*",
+      "index": [
+        "logs-neo4j-*"
+      ],
+      "references": [
+        "WSTG-SESS-38"
+      ],
+      "mitre": [
+        "T1552"
+      ],
+      "compliance": [
+        "PCI-DSS 3.4"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "neo4j",
+        "graph-database",
+        "encryption"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-019",
+      "name": "Session Token in Kubernetes Secret Etcd Unencrypted",
+      "description": "Detects access to Kubernetes etcd secrets containing session tokens without encryption at rest",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"kubernetes\" AND kubernetes.object.type:\"Secret\" AND kubernetes.object.name:*session* AND NOT kubernetes.object.encrypted:*true*",
+      "index": [
+        "logs-kubernetes-*"
+      ],
+      "references": [
+        "WSTG-SESS-53"
+      ],
+      "mitre": [
+        "T1552.007"
+      ],
+      "compliance": [
+        "NIST-SC-28",
+        "HIPAA-ADM-006"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "kubernetes",
+        "etcd",
+        "secrets"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-WSTG06-020",
+      "name": "Session Fixation via Cassandra Token Replay",
+      "description": "Detects session token replay patterns in Cassandra-based session stores after schema migration",
+      "severity": "high",
+      "type": "eql",
+      "query": "sequence by session.id with maxspan=5m\n  [database where event.category:\"database\" and cassandra.table:*session*]\n  [authentication where event.action:\"login\" and event.outcome:\"success\"]",
+      "index": [
+        "logs-cassandra-*",
+        "logs-auth-*"
+      ],
+      "references": [
+        "WSTG-SESS-65"
+      ],
+      "mitre": [
+        "T1534"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5"
+      ],
+      "tags": [
+        "wstg",
+        "session",
+        "cassandra",
+        "token-replay",
+        "fixation"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    }
+  ]
+}

@@ -1,0 +1,253 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "Microsoft Sentinel analytics rules — wstg-10-business-logic",
+  "total_rules": 8,
+  "rules": [
+    {
+      "rule_id": "MS-WSTG10-001",
+      "name": "Business Logic — Price Manipulation",
+      "description": "Detects price manipulation attempts via negative quantities, zero-price items, or modified totals in checkout",
+      "severity": "High",
+      "query": "let threshold = 5;\nbusiness_logic_events\n| where business_logic has_any(\"wstg\", \"business-logic\", \"price-manipulation\", \"fraud\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1498"
+      ],
+      "references": [
+        "WSTG10-001"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "business-logic",
+        "price-manipulation",
+        "fraud"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-WSTG10-002",
+      "name": "Business Logic — Rate Limit Bypass",
+      "description": "Detects API rate limit bypass attempts using header manipulation, IP rotation, or parameter tampering",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nbusiness_logic_events\n| where business_logic has_any(\"wstg\", \"business-logic\", \"rate-limit\", \"abuse\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "WSTG10-002"
+      ],
+      "compliance": [
+        "API4-006"
+      ],
+      "tags": [
+        "wstg",
+        "business-logic",
+        "rate-limit",
+        "abuse"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG10-003",
+      "name": "Business Logic — Workflow Bypass",
+      "description": "Detects attempts to skip workflow steps or access later stages without completing prerequisites",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nbusiness_logic_events\n| where business_logic has_any(\"wstg\", \"business-logic\", \"workflow-bypass\", \"logic\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078"
+      ],
+      "references": [
+        "WSTG10-003"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "tags": [
+        "wstg",
+        "business-logic",
+        "workflow-bypass",
+        "logic"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG10-004",
+      "name": "Business Logic — Negative Quantity or Amount",
+      "description": "Detects transactions with negative quantities or amounts indicating business logic bypass",
+      "severity": "High",
+      "query": "let threshold = 5;\nbusiness_logic_events\n| where business_logic has_any(\"wstg\", \"business-logic\", \"negative-amount\", \"fraud\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1498"
+      ],
+      "references": [
+        "WSTG10-004"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "tags": [
+        "wstg",
+        "business-logic",
+        "negative-amount",
+        "fraud"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-WSTG10-005",
+      "name": "Error Handling — Verbose Error Information Disclosure",
+      "description": "Detects verbose error responses containing stack traces, database details, or internal paths",
+      "severity": "Low",
+      "query": "let threshold = 5;\nerror_handling_events\n| where error_handling has_any(\"wstg\", \"error-handling\", \"information-disclosure\", \"verbose-errors\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1592"
+      ],
+      "references": [
+        "WSTG10-005"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "GDPR-32A-007"
+      ],
+      "tags": [
+        "wstg",
+        "error-handling",
+        "information-disclosure",
+        "verbose-errors"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "MS-WSTG10-006",
+      "name": "Cryptography — Weak Hash Algorithm Usage",
+      "description": "Detects usage of weak hash algorithms (MD5, SHA1) in application transactions or certificate signatures",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ncryptography_events\n| where cryptography has_any(\"wstg\", \"cryptography\", \"weak-hash\", \"encryption\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1116"
+      ],
+      "references": [
+        "WSTG10-006"
+      ],
+      "compliance": [
+        "PCI-DSS-4.1"
+      ],
+      "tags": [
+        "wstg",
+        "cryptography",
+        "weak-hash",
+        "encryption"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG10-007",
+      "name": "Data Classification — PII in Logs",
+      "description": "Detects PII data (SSN, credit card, email) appearing in application logs in cleartext",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ndata_protection_events\n| where data_protection has_any(\"wstg\", \"data-protection\", \"pii-logging\", \"data-exposure\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1213"
+      ],
+      "references": [
+        "WSTG10-007"
+      ],
+      "compliance": [
+        "GDPR-25-012",
+        "HIPAA-TS-007",
+        "PCI-DSS-3.4"
+      ],
+      "tags": [
+        "wstg",
+        "data-protection",
+        "pii-logging",
+        "data-exposure"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-WSTG10-008",
+      "name": "Data Classification — Unencrypted Data at Rest",
+      "description": "Detects storage of sensitive data without encryption at rest in databases, file systems, or object stores",
+      "severity": "High",
+      "query": "let threshold = 5;\ndata_protection_events\n| where data_protection has_any(\"wstg\", \"data-protection\", \"encryption-at-rest\", \"data-security\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1552"
+      ],
+      "references": [
+        "WSTG10-008"
+      ],
+      "compliance": [
+        "PCI-DSS-3.4",
+        "HIPAA-TS-008",
+        "GDPR-32A-002"
+      ],
+      "tags": [
+        "wstg",
+        "data-protection",
+        "encryption-at-rest",
+        "data-security"
+      ],
+      "risk_score": 90
+    }
+  ]
+}

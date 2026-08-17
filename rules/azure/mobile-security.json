@@ -1,0 +1,251 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "Azure Monitor and Policy rules — mobile-security",
+  "total_rules": 10,
+  "rules": [
+    {
+      "rule_id": "AZ-MOB-001",
+      "name": "Mobile — Insecure Data Storage on Device",
+      "description": "Detects mobile app data storage issues including unencrypted SQLite databases and shared preferences",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'data_storage' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1552.001"
+      ],
+      "compliance": [
+        "MASVS-L2-2.1",
+        "GDPR-32A"
+      ],
+      "tags": [
+        "mobile",
+        "data-storage",
+        "masvs",
+        "encryption"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-MOB-002",
+      "name": "Mobile — Insecure Network Communication",
+      "description": "Detects mobile apps communicating over HTTP, using weak TLS, or accepting self-signed certificates",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'network' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1041"
+      ],
+      "compliance": [
+        "MASVS-L2-3.1",
+        "PCI-DSS-4.1"
+      ],
+      "tags": [
+        "mobile",
+        "network",
+        "masvs",
+        "encryption"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-MOB-003",
+      "name": "Mobile — Hardcoded Credentials in Binary",
+      "description": "Detects hardcoded credentials, API keys, or tokens in mobile app binaries or configuration files",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'authentication' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1552.001"
+      ],
+      "compliance": [
+        "MASVS-L2-4.1"
+      ],
+      "tags": [
+        "mobile",
+        "authentication",
+        "hardcoded",
+        "credentials"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-MOB-004",
+      "name": "Mobile — Local Privilege Escalation (Root/Jailbreak)",
+      "description": "Detects mobile app authorization bypass through rooted or jailbroken devices or debug modes",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'authorization' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1548"
+      ],
+      "compliance": [
+        "MASVS-L2-5.1"
+      ],
+      "tags": [
+        "mobile",
+        "authorization",
+        "root-detection",
+        "jailbreak"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-MOB-005",
+      "name": "Mobile — Intent Spoofing and Deep Link Abuse",
+      "description": "Detects Android intent spoofing or iOS deep link abuse for unauthorized actions",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'intent_spoofing' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1190"
+      ],
+      "compliance": [
+        "MASVS-L2-7.1"
+      ],
+      "tags": [
+        "mobile",
+        "intent-spoofing",
+        "deep-link",
+        "authorization"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-MOB-006",
+      "name": "Mobile — Certificate Pinning Bypass",
+      "description": "Detects SSL/TLS certificate pinning bypass attempts on mobile applications",
+      "severity": 2,
+      "query": "AzureDiagnostics | where Category contains 'certificate_pinning' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1557"
+      ],
+      "compliance": [
+        "MASVS-L2-3.5"
+      ],
+      "tags": [
+        "mobile",
+        "certificate-pinning",
+        "ssl",
+        "network"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AZ-MOB-007",
+      "name": "Mobile — Sensitive Data in Logs",
+      "description": "Detects sensitive data such as tokens, passwords, or PII logged by mobile applications in cleartext",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'logging' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1213"
+      ],
+      "compliance": [
+        "MASVS-L2-2.8",
+        "GDPR-32A"
+      ],
+      "tags": [
+        "mobile",
+        "logging",
+        "data-exposure",
+        "pii"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-MOB-008",
+      "name": "Mobile — Clipboard Data Exposure",
+      "description": "Detects mobile apps exposing sensitive data through the system clipboard",
+      "severity": 2,
+      "query": "AzureDiagnostics | where Category contains 'clipboard' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1187"
+      ],
+      "compliance": [
+        "MASVS-L2-2.6"
+      ],
+      "tags": [
+        "mobile",
+        "clipboard",
+        "data-exposure",
+        "masvs"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AZ-MOB-009",
+      "name": "Mobile — Biometric Authentication Bypass",
+      "description": "Detects attempts to bypass biometric authentication on mobile devices",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'biometric' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1111"
+      ],
+      "compliance": [
+        "MASVS-L2-4.7"
+      ],
+      "tags": [
+        "mobile",
+        "biometric",
+        "auth-bypass",
+        "authentication"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-MOB-010",
+      "name": "Mobile — Screenshot and Screen Recording Detection",
+      "description": "Detects screen capture or recording while sensitive content is displayed on mobile devices",
+      "severity": 2,
+      "query": "AzureDiagnostics | where Category contains 'screen_capture' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1113"
+      ],
+      "compliance": [
+        "MASVS-L2-2.5"
+      ],
+      "tags": [
+        "mobile",
+        "screen-capture",
+        "data-theft",
+        "masvs"
+      ],
+      "risk_score": 50
+    }
+  ]
+}

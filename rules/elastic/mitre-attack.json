@@ -1,0 +1,882 @@
+[
+  {
+    "id": "ES-MITRE-0600",
+    "name": "Scheduled Task/Job: Scheduled Task",
+    "description": "Detects Scheduled Task/Job: Scheduled Task (T1053.005) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1053.005"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "cron OR TaskScheduler OR schtasks",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0601",
+    "name": "Create Account: Local Account",
+    "description": "Detects Create Account: Local Account (T1136.001) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1136.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "event.action:(\"created-user\" OR \"user-created\" OR \"add-member\") AND NOT event.category:authentication",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0602",
+    "name": "Boot or Logon Autostart Execution: Registry Run Keys",
+    "description": "Detects Boot or Logon Autostart Execution: Registry Run Keys (T1547.001) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1547.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "registry.data.value:* AND registry.path:(\"*\\\\Run\\\\*\" OR \"*\\\\RunOnce\\\\*\")",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0603",
+    "name": "Event Triggered Execution: Windows Management Instrumentation",
+    "description": "Detects Event Triggered Execution: Windows Management Instrumentation (T1546.003) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1546.003"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "wmi* AND (process.name:wmic.exe OR powershell.file.script_block_text:*WMI*)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0604",
+    "name": "Hijack Execution Flow: DLL Search Order Hijacking",
+    "description": "Detects Hijack Execution Flow: DLL Search Order Hijacking (T1574.001) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1574.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "dll.path:* AND NOT process.name:(svchost.exe OR explorer.exe)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0605",
+    "name": "External Remote Services",
+    "description": "Detects External Remote Services (T1133) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1133"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "source.geo.country_name:* AND event.category:authentication AND event.outcome:failure",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0606",
+    "name": "BITS Jobs",
+    "description": "Detects BITS Jobs (T1197) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1197"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:bitsadmin.exe AND NOT process.parent.name:(svchost.exe OR msedge.exe)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0607",
+    "name": "Command and Scripting Interpreter: PowerShell",
+    "description": "Detects Command and Scripting Interpreter: PowerShell (T1059.001) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1059.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "powershell.file.script_block_text:* AND process.name:powershell.exe",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0608",
+    "name": "Valid Accounts",
+    "description": "Detects Valid Accounts (T1078) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1078"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "event.category:authentication AND event.outcome:success AND user.name:(\"admin\" OR \"root\" OR \"administrator\") AND source.ip:*",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0609",
+    "name": "Exploitation for Privilege Escalation",
+    "description": "Detects Exploitation for Privilege Escalation (T1068) via Elastic EQL/KQL correlation",
+    "severity": "critical",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1068"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "event.category:process AND process.name:(\"sudo\" OR \"runas\") AND event.action:(\"elevated\" OR \"privilege-escalation\")",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0610",
+    "name": "Abuse Elevation Control Mechanism: Setuid and Setgid",
+    "description": "Detects Abuse Elevation Control Mechanism: Setuid and Setgid (T1548.001) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1548.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:* AND process.args:(\"-setuid\" OR \"chmod+s\" OR \"4755\")",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0611",
+    "name": "Access Token Manipulation: Token Impersonation",
+    "description": "Detects Access Token Manipulation: Token Impersonation (T1134.001) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1134.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:* AND process.args:(\"runas\" OR \"impersonate\" OR \"duplicate.*token\")",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0612",
+    "name": "Indicator Removal: File Deletion",
+    "description": "Detects Indicator Removal: File Deletion (T1070.004) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1070.004"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:(rm OR del OR erase) AND process.args:(\"-rf\" OR \"/s\" OR \"/q\") AND NOT process.parent.name:(package* OR updater*)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0613",
+    "name": "Impair Defenses: Disable or Modify Tools",
+    "description": "Detects Impair Defenses: Disable or Modify Tools (T1562.001) via Elastic EQL/KQL correlation",
+    "severity": "critical",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1562.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:* AND process.args:(\"disable\" OR \"stop\" OR \"uninstall\") AND process.parent.name:(powershell.exe OR cmd.exe)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0614",
+    "name": "Obfuscated Files or Information",
+    "description": "Detects Obfuscated Files or Information (T1027) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1027"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:powershell.exe AND powershell.file.script_block_text:(\"-enc\" OR \"-encodedcommand\" OR \"FromBase64String\" OR \"-decode\")",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0615",
+    "name": "Deobfuscate/Decode Files or Information",
+    "description": "Detects Deobfuscate/Decode Files or Information (T1140) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1140"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:(certutil OR python) AND process.args:(\"-decode\" OR \"base64\")",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0616",
+    "name": "Masquerading: Invalid Code Signature",
+    "description": "Detects Masquerading: Invalid Code Signature (T1036.001) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1036.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.code_signature.trusted:false AND process.code_signature.exists:true",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0617",
+    "name": "Process Injection",
+    "description": "Detects Process Injection (T1055) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1055"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:* AND process.parent.name:(svchost.exe OR runtimebroker.exe) AND NOT process.code_signature.trusted:true",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0618",
+    "name": "Brute Force: Password Guessing",
+    "description": "Detects Brute Force: Password Guessing (T1110.001) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1110.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "event.category:authentication AND event.outcome:failure AND _throttle_count:>10",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0619",
+    "name": "Brute Force: Password Spraying",
+    "description": "Detects Brute Force: Password Spraying (T1110.003) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1110.003"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "event.category:authentication AND event.outcome:failure AND groupby:user.name AND _throttle_count:>5",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0620",
+    "name": "Credentials in Files",
+    "description": "Detects Credentials in Files (T1552.001) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1552.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:* AND process.args:(\"*password*\" OR \"*credential*\" OR \"*secret*\" OR \"*token*\") AND NOT process.parent.name:(package* OR updater*)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0621",
+    "name": "OS Credential Dumping: LSASS Memory",
+    "description": "Detects OS Credential Dumping: LSASS Memory (T1003.001) via Elastic EQL/KQL correlation",
+    "severity": "critical",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1003.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:(procdump.exe OR taskmgr.exe OR comsvcs.dll) AND process.args:*lsass*",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0622",
+    "name": "OS Credential Dumping: NTDS",
+    "description": "Detects OS Credential Dumping: NTDS (T1003.003) via Elastic EQL/KQL correlation",
+    "severity": "critical",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1003.003"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:ntdsutil.exe OR (process.name:vssadmin.exe AND process.args:*shadow*)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0623",
+    "name": "Steal or Forge Kerberos Tickets: Golden Ticket",
+    "description": "Detects Steal or Forge Kerberos Tickets: Golden Ticket (T1558.001) via Elastic EQL/KQL correlation",
+    "severity": "critical",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1558.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "event.provider:kerberos AND event.action:(\"TGT-request\" OR \"ticket-granting\") AND user.name:*$",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0624",
+    "name": "System Information Discovery",
+    "description": "Detects System Information Discovery (T1082) via Elastic EQL/KQL correlation",
+    "severity": "low",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1082"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:(systeminfo OR hostname OR uname) AND NOT process.parent.name:(package* OR updater*)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0625",
+    "name": "File and Directory Discovery",
+    "description": "Detects File and Directory Discovery (T1083) via Elastic EQL/KQL correlation",
+    "severity": "low",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1083"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:(dir OR ls OR find OR tree) AND process.args:(\"/s\" OR \"-R\" OR \"-r\") AND NOT process.parent.name:(package* OR updater*)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0626",
+    "name": "Network Service Discovery",
+    "description": "Detects Network Service Discovery (T1046) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1046"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:(nmap OR nc OR netcat OR ss OR netstat) AND NOT process.parent.name:(package* OR updater*)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0627",
+    "name": "Account Discovery",
+    "description": "Detects Account Discovery (T1087) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1087"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:(net OR whoami OR id OR dsquery) AND process.args:(\"user\" OR \"group\" OR \"localgroup\")",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0628",
+    "name": "Remote Services: Remote Desktop Protocol",
+    "description": "Detects Remote Services: Remote Desktop Protocol (T1021.001) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1021.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "event.category:network AND network.protocol:rdp AND source.ip:* AND NOT source.ip:(10.0.0.0/8 OR 172.16.0.0/12 OR 192.168.0.0/16)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0629",
+    "name": "Remote Services: SMB",
+    "description": "Detects Remote Services: SMB (T1021.002) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1021.002"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "event.category:network AND network.protocol:smb AND event.action:(\"share-access\" OR \"file-access\") AND NOT source.ip:(10.0.0.0/8 OR 172.16.0.0/12 OR 192.168.0.0/16)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0630",
+    "name": "Remote Services: SSH",
+    "description": "Detects Remote Services: SSH (T1021.006) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1021.006"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "event.category:authentication AND network.protocol:ssh AND event.outcome:success AND source.ip:* AND NOT source.ip:(10.0.0.0/8)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0631",
+    "name": "Hijack Execution Flow: DLL Side-Loading",
+    "description": "Detects Hijack Execution Flow: DLL Side-Loading (T1563.001) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1563.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.code_signature.trusted:false AND process.name:*.dll AND NOT process.parent.name:(svchost.exe)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0632",
+    "name": "Application Layer Protocol: Web Protocols",
+    "description": "Detects Application Layer Protocol: Web Protocols (T1071.001) via Elastic EQL/KQL correlation",
+    "severity": "low",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1071.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "network.protocol:http AND destination.domain:* AND NOT destination.domain:(*.microsoft.com OR *.google.com OR *.amazonaws.com)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0633",
+    "name": "Application Layer Protocol: DNS",
+    "description": "Detects Application Layer Protocol: DNS (T1071.004) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1071.004"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "dns.question.name:* AND dns.question.registered_domain:* AND NOT dns.question.registered_domain:(*.microsoft.com OR *.google.com)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0634",
+    "name": "Encrypted Channel: Symmetric Cryptography",
+    "description": "Detects Encrypted Channel: Symmetric Cryptography (T1573.001) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1573.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "tls.server.hash.md5:* AND NOT tls.server.hash.md5:(known_good_hashes)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0635",
+    "name": "Dynamic Resolution: Domain Generation Algorithms",
+    "description": "Detects Dynamic Resolution: Domain Generation Algorithms (T1568.001) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1568.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "dns.question.name:* AND NOT dns.question.registered_domain:* AND length(dns.question.name)>30",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0636",
+    "name": "Exfiltration Over C2 Channel",
+    "description": "Detects Exfiltration Over C2 Channel (T1041) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1041"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "network.bytes:>10485760 AND network.direction:outbound AND NOT destination.domain:(*.microsoft.com OR *.amazonaws.com)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0637",
+    "name": "Exfiltration Over Alternative Protocol",
+    "description": "Detects Exfiltration Over Alternative Protocol (T1048) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1048"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "network.protocol:(dns OR ftp OR icmp) AND network.bytes:>5242880 AND network.direction:outbound",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0638",
+    "name": "Exfiltration Over Web Service: Exfiltration to Code Repository",
+    "description": "Detects Exfiltration Over Web Service: Exfiltration to Code Repository (T1567.001) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1567.001"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "url.domain:(github.com OR gitlab.com OR bitbucket.org) AND http.request.body_bytes:>1048576",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0639",
+    "name": "Exfiltration Over Web Service: Exfiltration to Cloud Storage",
+    "description": "Detects Exfiltration Over Web Service: Exfiltration to Cloud Storage (T1567.002) via Elastic EQL/KQL correlation",
+    "severity": "medium",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1567.002"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "url.domain:(drive.google.com OR dropbox.com OR onedrive.live.com) AND http.request.body_bytes:>5242880",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0640",
+    "name": "Data Encrypted for Impact",
+    "description": "Detects Data Encrypted for Impact (T1486) via Elastic EQL/KQL correlation",
+    "severity": "critical",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1486"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:* AND process.args:(\"-encrypt\" OR \"--encrypt\" OR \"gpg\") AND file.extension:(*.encrypted OR *.locked OR *.crypt)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0641",
+    "name": "Service Stop",
+    "description": "Detects Service Stop (T1489) via Elastic EQL/KQL correlation",
+    "severity": "high",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1489"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:(systemctl OR net OR sc) AND process.args:(\"stop\" OR \"disable\") AND NOT process.parent.name:(package* OR updater*)",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0642",
+    "name": "Inhibit System Recovery",
+    "description": "Detects Inhibit System Recovery (T1490) via Elastic EQL/KQL correlation",
+    "severity": "critical",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1490"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "process.name:vssadmin.exe AND process.args:(\"delete shadows\" OR \"delete shadows /all\")",
+    "rule_type": "query",
+    "interval": "5m"
+  },
+  {
+    "id": "ES-MITRE-0643",
+    "name": "Network Denial of Service",
+    "description": "Detects Network Denial of Service (T1498) via Elastic EQL/KQL correlation",
+    "severity": "critical",
+    "category": "mitre-attack",
+    "mitre_attack": [
+      "T1498"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ],
+    "query": "network.bytes:>104857600 AND network.direction:inbound AND source.ip:*",
+    "rule_type": "query",
+    "interval": "5m"
+  }
+]

@@ -1,0 +1,173 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "QRadar SIEM alert rules — wstg-10-business-logic",
+  "total_rules": 8,
+  "rules": [
+    {
+      "rule_id": "QR-WSTG10-001",
+      "name": "Business Logic — Price Manipulation",
+      "description": "Detects price manipulation attempts via negative quantities, zero-price items, or modified totals in checkout",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%business-logic%' OR payload ILIKE '%price-manipulation%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "WSTG10-001"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1498"
+      },
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-WSTG10-002",
+      "name": "Business Logic — Rate Limit Bypass",
+      "description": "Detects API rate limit bypass attempts using header manipulation, IP rotation, or parameter tampering",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%business-logic%' OR payload ILIKE '%rate-limit%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "WSTG10-002"
+      ],
+      "mitre": {
+        "tactic": "Initial Access",
+        "technique": "T1190"
+      },
+      "compliance": [
+        "API4-006"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-WSTG10-003",
+      "name": "Business Logic — Workflow Bypass",
+      "description": "Detects attempts to skip workflow steps or access later stages without completing prerequisites",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%business-logic%' OR payload ILIKE '%workflow-bypass%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "WSTG10-003"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1078"
+      },
+      "compliance": [
+        "PCI-DSS-8.5"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-WSTG10-004",
+      "name": "Business Logic — Negative Quantity or Amount",
+      "description": "Detects transactions with negative quantities or amounts indicating business logic bypass",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%business-logic%' OR payload ILIKE '%negative-amount%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "WSTG10-004"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1498"
+      },
+      "compliance": [
+        "PCI-DSS-6.5"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    },
+    {
+      "rule_id": "QR-WSTG10-005",
+      "name": "Error Handling — Verbose Error Information Disclosure",
+      "description": "Detects verbose error responses containing stack traces, database details, or internal paths",
+      "severity": 5,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%error-handling%' OR payload ILIKE '%information-disclosure%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "WSTG10-005"
+      ],
+      "mitre": {
+        "tactic": "Discovery",
+        "technique": "T1592"
+      },
+      "compliance": [
+        "PCI-DSS-6.5",
+        "GDPR-32A-007"
+      ],
+      "credibility": 7,
+      "relevance": 5
+    },
+    {
+      "rule_id": "QR-WSTG10-006",
+      "name": "Cryptography — Weak Hash Algorithm Usage",
+      "description": "Detects usage of weak hash algorithms (MD5, SHA1) in application transactions or certificate signatures",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%cryptography%' OR payload ILIKE '%weak-hash%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "WSTG10-006"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1116"
+      },
+      "compliance": [
+        "PCI-DSS-4.1"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-WSTG10-007",
+      "name": "Data Classification — PII in Logs",
+      "description": "Detects PII data (SSN, credit card, email) appearing in application logs in cleartext",
+      "severity": 7,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%data-protection%' OR payload ILIKE '%pii-logging%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "WSTG10-007"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1213"
+      },
+      "compliance": [
+        "GDPR-25-012",
+        "HIPAA-TS-007",
+        "PCI-DSS-3.4"
+      ],
+      "credibility": 7,
+      "relevance": 7
+    },
+    {
+      "rule_id": "QR-WSTG10-008",
+      "name": "Data Classification — Unencrypted Data at Rest",
+      "description": "Detects storage of sensitive data without encryption at rest in databases, file systems, or object stores",
+      "severity": 9,
+      "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%data-protection%' OR payload ILIKE '%encryption-at-rest%') GROUP BY sourceip, destinationip, URL LAST 15 MINUTES",
+      "log_source": "APPLICATION_LOG",
+      "references": [
+        "WSTG10-008"
+      ],
+      "mitre": {
+        "tactic": "Collection",
+        "technique": "T1552"
+      },
+      "compliance": [
+        "PCI-DSS-3.4",
+        "HIPAA-TS-008",
+        "GDPR-32A-002"
+      ],
+      "credibility": 7,
+      "relevance": 9
+    }
+  ]
+}

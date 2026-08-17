@@ -1,0 +1,291 @@
+{
+  "description": "Elastic Security SIEM alert rules — mobile-security",
+  "version": "1.0.0",
+  "elastic_version": "8.x",
+  "total_rules": 10,
+  "rules": [
+    {
+      "rule_id": "ES-MOB-001",
+      "name": "Mobile — Insecure Data Storage on Device",
+      "description": "Detects mobile app data storage issues including unencrypted SQLite databases and shared preferences",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"data-storage\" OR \"masvs\" OR \"encryption\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "MOB-001"
+      ],
+      "mitre": [
+        "T1552.001"
+      ],
+      "compliance": [
+        "MASVS-L2-2.1",
+        "GDPR-32A"
+      ],
+      "tags": [
+        "mobile",
+        "data-storage",
+        "masvs",
+        "encryption"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-MOB-002",
+      "name": "Mobile — Insecure Network Communication",
+      "description": "Detects mobile apps communicating over HTTP, using weak TLS, or accepting self-signed certificates",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"network\" OR \"masvs\" OR \"encryption\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "MOB-002"
+      ],
+      "mitre": [
+        "T1041"
+      ],
+      "compliance": [
+        "MASVS-L2-3.1",
+        "PCI-DSS-4.1"
+      ],
+      "tags": [
+        "mobile",
+        "network",
+        "masvs",
+        "encryption"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-MOB-003",
+      "name": "Mobile — Hardcoded Credentials in Binary",
+      "description": "Detects hardcoded credentials, API keys, or tokens in mobile app binaries or configuration files",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"authentication\" OR \"hardcoded\" OR \"credentials\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "MOB-003"
+      ],
+      "mitre": [
+        "T1552.001"
+      ],
+      "compliance": [
+        "MASVS-L2-4.1"
+      ],
+      "tags": [
+        "mobile",
+        "authentication",
+        "hardcoded",
+        "credentials"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-MOB-004",
+      "name": "Mobile — Local Privilege Escalation (Root/Jailbreak)",
+      "description": "Detects mobile app authorization bypass through rooted or jailbroken devices or debug modes",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"authorization\" OR \"root-detection\" OR \"jailbreak\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "MOB-004"
+      ],
+      "mitre": [
+        "T1548"
+      ],
+      "compliance": [
+        "MASVS-L2-5.1"
+      ],
+      "tags": [
+        "mobile",
+        "authorization",
+        "root-detection",
+        "jailbreak"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-MOB-005",
+      "name": "Mobile — Intent Spoofing and Deep Link Abuse",
+      "description": "Detects Android intent spoofing or iOS deep link abuse for unauthorized actions",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"intent-spoofing\" OR \"deep-link\" OR \"authorization\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "MOB-005"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "compliance": [
+        "MASVS-L2-7.1"
+      ],
+      "tags": [
+        "mobile",
+        "intent-spoofing",
+        "deep-link",
+        "authorization"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-MOB-006",
+      "name": "Mobile — Certificate Pinning Bypass",
+      "description": "Detects SSL/TLS certificate pinning bypass attempts on mobile applications",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"certificate-pinning\" OR \"ssl\" OR \"network\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "MOB-006"
+      ],
+      "mitre": [
+        "T1557"
+      ],
+      "compliance": [
+        "MASVS-L2-3.5"
+      ],
+      "tags": [
+        "mobile",
+        "certificate-pinning",
+        "ssl",
+        "network"
+      ],
+      "risk_score": 50,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-MOB-007",
+      "name": "Mobile — Sensitive Data in Logs",
+      "description": "Detects sensitive data such as tokens, passwords, or PII logged by mobile applications in cleartext",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"logging\" OR \"data-exposure\" OR \"pii\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "MOB-007"
+      ],
+      "mitre": [
+        "T1213"
+      ],
+      "compliance": [
+        "MASVS-L2-2.8",
+        "GDPR-32A"
+      ],
+      "tags": [
+        "mobile",
+        "logging",
+        "data-exposure",
+        "pii"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-MOB-008",
+      "name": "Mobile — Clipboard Data Exposure",
+      "description": "Detects mobile apps exposing sensitive data through the system clipboard",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"clipboard\" OR \"data-exposure\" OR \"masvs\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "MOB-008"
+      ],
+      "mitre": [
+        "T1187"
+      ],
+      "compliance": [
+        "MASVS-L2-2.6"
+      ],
+      "tags": [
+        "mobile",
+        "clipboard",
+        "data-exposure",
+        "masvs"
+      ],
+      "risk_score": 50,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-MOB-009",
+      "name": "Mobile — Biometric Authentication Bypass",
+      "description": "Detects attempts to bypass biometric authentication on mobile devices",
+      "severity": "high",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"biometric\" OR \"auth-bypass\" OR \"authentication\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "MOB-009"
+      ],
+      "mitre": [
+        "T1111"
+      ],
+      "compliance": [
+        "MASVS-L2-4.7"
+      ],
+      "tags": [
+        "mobile",
+        "biometric",
+        "auth-bypass",
+        "authentication"
+      ],
+      "risk_score": 70,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-MOB-010",
+      "name": "Mobile — Screenshot and Screen Recording Detection",
+      "description": "Detects screen capture or recording while sensitive content is displayed on mobile devices",
+      "severity": "medium",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"screen-capture\" OR \"data-theft\" OR \"masvs\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "MOB-010"
+      ],
+      "mitre": [
+        "T1113"
+      ],
+      "compliance": [
+        "MASVS-L2-2.5"
+      ],
+      "tags": [
+        "mobile",
+        "screen-capture",
+        "data-theft",
+        "masvs"
+      ],
+      "risk_score": 50,
+      "interval": "5m"
+    }
+  ]
+}
