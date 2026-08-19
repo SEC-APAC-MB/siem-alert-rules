@@ -1,0 +1,649 @@
+<!-- FortiSIEM SIEM Alert Rules — Compliance: PCI-DSS Specific Detection -->
+<rules>
+  <rule id="FSIEM-PCI-001" severity="CRITICAL" enabled="true">
+    <name>PCI-DSS — Unencrypted Cardholder Data Transmission</name>
+    <description>Detects transmission of cardholder data over unencrypted channels violating PCI-DSS Requirement 4</description>
+    <pattern>
+      <event>
+        <product>Network</product>
+        <action regex="true">.*(HTTP|FTP|TELNET|SMTP).*</action>
+        <payload regex="true">.*(\d{4}[\s-]?){3}\d{4}.*</payload>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1557</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>4.1</control>
+    </compliance>
+    <references>PCI-DSS-REQ4</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-002" severity="CRITICAL" enabled="true">
+    <name>PCI-DSS — Cardholder Data Stored in Cleartext</name>
+    <description>Detects cleartext storage of cardholder data in violation of PCI-DSS Requirement 3</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <action>WRITE</action>
+        <payload regex="true">.*(\d{4}[\s-]?){3}\d{4}.*</payload>
+        <encryption_enabled regex="false">false</encryption_enabled>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1555</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>3.4</control>
+    </compliance>
+    <references>PCI-DSS-REQ3</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-003" severity="CRITICAL" enabled="true">
+    <name>PCI-DSS — Default Password Usage on CDE Systems</name>
+    <description>Detects use of default or vendor-supplied passwords on systems within the Cardholder Data Environment</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-SUCCESS</action>
+        <default_password regex="true">true</default_password>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.2.1</control>
+    </compliance>
+    <references>PCI-DSS-REQ8</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-004" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Missing MFA on CDE Admin Access</name>
+    <description>Detects administrative access to Cardholder Data Environment systems without multi-factor authentication</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-SUCCESS</action>
+        <mfa_used regex="false">false</mfa_used>
+        <privilege_level regex="true">.*(admin|root|sudo).*</privilege_level>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.4.1</control>
+    </compliance>
+    <references>PCI-DSS-REQ8</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-005" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Excessive Failed Login Attempts on CDE</name>
+    <description>Detects excessive failed login attempts on systems within the Cardholder Data Environment</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-FAIL</action>
+        <count regex="true">>6</count>
+        <time_window>300</time_window>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>PCI-DSS-REQ8</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-006" severity="CRITICAL" enabled="true">
+    <name>PCI-DSS — Unencrypted PAN in Log Files</name>
+    <description>Detects Primary Account Numbers appearing in log files in violation of PCI-DSS Requirement 3 and 10</description>
+    <pattern>
+      <event>
+        <product>Logging</product>
+        <action>WRITE</action>
+        <payload regex="true">.*(\d{4}[\s-]?){3}\d{4}.*</payload>
+        <masking_enabled regex="false">false</masking_enabled>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1555</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>3.3</control>
+      <standard>PCI-DSS</standard>
+      <control>10.2</control>
+    </compliance>
+    <references>PCI-DSS-REQ3</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-007" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Network Segmentation Violation</name>
+    <description>Detects network traffic crossing from untrusted zones into the Cardholder Data Environment without proper segmentation controls</description>
+    <pattern>
+      <event>
+        <product>Firewall</product>
+        <action>ALLOW</action>
+        <source_zone regex="true">.*DMZ.*</source_zone>
+        <dest_zone regex="true">.*CDE.*</dest_zone>
+        <rule_violation regex="true">true</rule_violation>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Network Segmentation</tactic>
+      <technique>N/A</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>1.3</control>
+    </compliance>
+    <references>PCI-DSS-REQ1</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-008" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Insecure Service on CDE Server</name>
+    <description>Detects insecure services like Telnet, FTP, or HTTP running on Cardholder Data Environment systems</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>SERVICE-START</action>
+        <service_name regex="true">.*(telnet|ftp|http|rsh|rlogin|tftp).*</service_name>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>2.2.2</control>
+      <standard>PCI-DSS</standard>
+      <control>1.3</control>
+    </compliance>
+    <references>PCI-DSS-REQ2</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-009" severity="CRITICAL" enabled="true">
+    <name>PCI-DSS — SQL Injection Against Payment Application</name>
+    <description>Detects SQL injection attacks targeting payment processing applications within the CDE</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <action>SQL-QUERY</action>
+        <payload regex="true">.*(UNION SELECT|OR 1=1|DROP TABLE|--|;--|' OR ).*</payload>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+    </compliance>
+    <references>PCI-DSS-REQ6</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-010" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Missing File Integrity Monitoring on CDE</name>
+    <description>Detects changes to critical CDE system files without corresponding file integrity monitoring alerts</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action regex="true">(FILE-MODIFY|FILE-CREATE|FILE-DELETE)</action>
+        <critical_path regex="true">.*(etc|bin|sbin|var/log).*</critical_path>
+        <fim_alert_sent regex="false">false</fim_alert_sent>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1565</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>10.5.5</control>
+      <standard>PCI-DSS</standard>
+      <control>11.5</control>
+    </compliance>
+    <references>PCI-DSS-REQ10</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-011" severity="CRITICAL" enabled="true">
+    <name>PCI-DSS — Card Skimmer JavaScript Detection</name>
+    <description>Detects malicious JavaScript commonly used for card skimming on payment pages</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <action>PAGE-LOAD</action>
+        <payload regex="true">.*(document\.querySelector\('#card'|magnectic|stealcc|skim|grabcc|payment-form-sniff).*</payload>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1185</technique>
+      <tactic>Collection</tactic>
+      <technique>T1056</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>PCI-DSS</standard>
+      <control>11.3.2</control>
+    </compliance>
+    <references>PCI-DSS-REQ6</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-012" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Unauthorized CDE System Configuration Change</name>
+    <description>Detects unauthorized configuration changes on Cardholder Data Environment systems</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>CONFIG-CHANGE</action>
+        <change_approved regex="false">false</change_approved>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1562.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>2.2</control>
+      <standard>PCI-DSS</standard>
+      <control>10.2</control>
+    </compliance>
+    <references>PCI-DSS-REQ2</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-013" severity="CRITICAL" enabled="true">
+    <name>PCI-DSS — Cardholder Data Exfiltration</name>
+    <description>Detects exfiltration of cardholder data from the CDE to external destinations</description>
+    <pattern>
+      <event>
+        <product>Network</product>
+        <action regex="true">(UPLOAD|SEND)</action>
+        <source_zone regex="true">.*CDE.*</source_zone>
+        <dest_zone regex="true">.*WAN.*</dest_zone>
+        <data_classification>cardholder-data</data_classification>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1048</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>1.3</control>
+      <standard>PCI-DSS</standard>
+      <control>3.4</control>
+    </compliance>
+    <references>PCI-DSS-REQ1</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-014" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Shared Account Usage in CDE</name>
+    <description>Detects use of shared or generic accounts in the Cardholder Data Environment violating Requirement 8</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-SUCCESS</action>
+        <shared_account regex="true">true</shared_account>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.1</control>
+      <standard>PCI-DSS</standard>
+      <control>8.2.1</control>
+    </compliance>
+    <references>PCI-DSS-REQ8</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-015" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Inadequate Password Policy on CDE System</name>
+    <description>Detects password policy violations on CDE systems including insufficient length, complexity, or rotation</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>PASSWORD-CHANGE</action>
+        <policy_violation regex="true">true</policy_violation>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.2.3</control>
+      <standard>PCI-DSS</standard>
+      <control>8.2.4</control>
+    </compliance>
+    <references>PCI-DSS-REQ8</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-016" severity="CRITICAL" enabled="true">
+    <name>PCI-DSS — Unencrypted Wireless in CDE</name>
+    <description>Detects unencrypted wireless network traffic within or connecting to the Cardholder Data Environment</description>
+    <pattern>
+      <event>
+        <product>Network</product>
+        <action>WIRELESS-CONNECT</action>
+        <encryption regex="false">false</encryption>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>1.3</control>
+      <standard>PCI-DSS</standard>
+      <control>4.1</control>
+    </compliance>
+    <references>PCI-DSS-REQ1</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-017" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Physical Access to CDE Without Badge</name>
+    <description>Detects physical access to Cardholder Data Environment areas without proper badge authentication</description>
+    <pattern>
+      <event>
+        <product>Physical Security</product>
+        <action>ACCESS</action>
+        <badge_used regex="false">false</badge_used>
+        <location regex="true">.*CDE.*</location>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Physical Access</tactic>
+      <technique>N/A</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>9.1</control>
+      <standard>PCI-DSS</standard>
+      <control>9.2</control>
+    </compliance>
+    <references>PCI-DSS-REQ9</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-018" severity="CRITICAL" enabled="true">
+    <name>PCI-DSS — Cross-Site Scripting on Payment Page</name>
+    <description>Detects cross-site scripting attacks targeting payment pages within the Cardholder Data Environment</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <action>HTTP-REQUEST</action>
+        <payload regex="true">.*(&lt;script|javascript:|onerror|onload|onmouseover).*</payload>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1189</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+    </compliance>
+    <references>PCI-DSS-REQ6</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-019" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Antivirus Not Updated on CDE System</name>
+    <description>Detects CDE systems with outdated antivirus definitions violating PCI-DSS Requirement 5</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>AV-STATUS</action>
+        <definitions_outdated regex="true">true</definitions_outdated>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1562.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>5.1</control>
+      <standard>PCI-DSS</standard>
+      <control>5.2</control>
+    </compliance>
+    <references>PCI-DSS-REQ5</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-020" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Unauthenticated API Access to Payment System</name>
+    <description>Detects unauthenticated API access attempts to payment processing systems</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <action>API-CALL</action>
+        <auth_required regex="true">true</auth_required>
+        <auth_provided regex="false">false</auth_provided>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+    </compliance>
+    <references>PCI-DSS-REQ6</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-021" severity="CRITICAL" enabled="true">
+    <name>PCI-DSS — Payment Card Track Data in Memory Dump</name>
+    <description>Detects payment card track data (magnetic stripe data) appearing in memory dumps or process traces</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action regex="true">.*(MEMORY-DUMP|CORE-DUMP)</action>
+        <payload regex="true">.*(;[0-9]{1,19}=[0-9]{1,19}\?).*</payload>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1555</technique>
+      <tactic>Credential Access</tactic>
+      <technique>T1003</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>3.3</control>
+    </compliance>
+    <references>PCI-DSS-REQ3</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-022" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Excessive CDE Admin Privileges</name>
+    <description>Detects users with excessive administrative privileges on CDE systems violating least privilege requirements</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>PRIVILEGE-GRANT</action>
+        <privilege_level regex="true">.*(admin|root|superuser).*</privilege_level>
+        <justification regex="false">false</justification>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>7.1</control>
+      <standard>PCI-DSS</standard>
+      <control>7.2</control>
+    </compliance>
+    <references>PCI-DSS-REQ7</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-023" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Database Direct Access from Non-CDE Zone</name>
+    <description>Detects direct database connections to CDE databases from outside the Cardholder Data Environment</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <action>LOGIN-SUCCESS</action>
+        <source_zone regex="true">.*!CDE.*</source_zone>
+        <dest_zone regex="true">.*CDE.*</dest_zone>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>1.3</control>
+      <standard>PCI-DSS</standard>
+      <control>1.3.6</control>
+    </compliance>
+    <references>PCI-DSS-REQ1</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-024" severity="CRITICAL" enabled="true">
+    <name>PCI-DSS — PAN Truncation Failure in Application Log</name>
+    <description>Detects failure to properly truncate Primary Account Numbers in application logs on CDE systems</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <action>LOG-WRITE</action>
+        <payload regex="true">.*(\d{4}[\s-]?){3}\d{4}.*</payload>
+        <truncation_applied regex="false">false</truncation_applied>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1555</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>3.3</control>
+      <standard>PCI-DSS</standard>
+      <control>10.2</control>
+    </compliance>
+    <references>PCI-DSS-REQ3</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+
+  <rule id="FSIEM-PCI-025" severity="HIGH" enabled="true">
+    <name>PCI-DSS — Outdated TLS on CDE Payment Processing</name>
+    <description>Detects use of outdated TLS versions (1.0, 1.1) for payment processing communications</description>
+    <pattern>
+      <event>
+        <product>Network</product>
+        <action>TLS-HANDSHAKE</action>
+        <tls_version regex="true">.*(TLS 1\.0|TLS 1\.1|SSLv3|SSLv2).*</tls_version>
+        <cde_system regex="true">true</cde_system>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>4.1</control>
+      <standard>PCI-DSS</standard>
+      <control>2.2</control>
+    </compliance>
+    <references>PCI-DSS-REQ4</references>
+    <action>ALERT</action>
+    <group>compliance_pci_dss</group>
+  </rule>
+</rules>

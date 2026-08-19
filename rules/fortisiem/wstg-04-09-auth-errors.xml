@@ -1,0 +1,1144 @@
+<!-- FortiSIEM SIEM Alert Rules — WSTG 04-09: Authentication Error Detection (Brute Force, Credential Stuffing, MFA Bypass, Account Lockout) -->
+<rules>
+  <rule id="FSIEM-AUTH-001" severity="CRITICAL" enabled="true">
+    <name>Brute Force — Rapid Failed Logins from Single Source</name>
+    <description>Detects rapid sequential failed login attempts from a single IP address exceeding threshold</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-FAIL</action>
+        <count regex="true">>10</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+      <standard>NIST</standard>
+      <control>AC-7</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_brute_force</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-002" severity="CRITICAL" enabled="true">
+    <name>Brute Force — Distributed Failed Logins from Multiple IPs</name>
+    <description>Detects distributed brute force attacks where multiple source IPs target a single account</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-FAIL</action>
+        <count regex="true">>5</count>
+        <time_window>900</time_window>
+        <distinct_src_ip regex="true">>5</distinct_src_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.003</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+      <standard>NIST</standard>
+      <control>AC-7</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_brute_force</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-003" severity="CRITICAL" enabled="true">
+    <name>Brute Force — Password Spray Attack</name>
+    <description>Detects password spray attacks where a single IP attempts login with common passwords across many accounts</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-FAIL</action>
+        <count regex="true">>20</count>
+        <time_window>1800</time_window>
+        <distinct_target_user regex="true">>15</distinct_target_user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.003</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+      <standard>ISO-27001</standard>
+      <control>A.9.4.2</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_brute_force</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-004" severity="CRITICAL" enabled="true">
+    <name>Brute Force — SSH Brute Force Attack</name>
+    <description>Detects SSH brute force attacks with rapid failed authentication attempts</description>
+    <pattern>
+      <event>
+        <product>SSH</product>
+        <action>LOGIN-FAIL</action>
+        <count regex="true">>8</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+      <standard>NIST</standard>
+      <control>AC-7</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_brute_force</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-005" severity="CRITICAL" enabled="true">
+    <name>Brute Force — RDP Brute Force Attack</name>
+    <description>Detects RDP brute force attacks with rapid failed logins on Terminal Services</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action>RDP-LOGIN-FAIL</action>
+        <count regex="true">>8</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_brute_force</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-006" severity="HIGH" enabled="true">
+    <name>Brute Force — VPN Credential Stuffing</name>
+    <description>Detects credential stuffing attacks against VPN concentrators with high failure rates from diverse IPs</description>
+    <pattern>
+      <event>
+        <product>VPN</product>
+        <action>LOGIN-FAIL</action>
+        <count regex="true">>15</count>
+        <time_window>600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.003</technique>
+      <tactic>Initial Access</tactic>
+      <technique>T1133</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_credential_stuffing</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-007" severity="HIGH" enabled="true">
+    <name>Brute Force — HTTP Basic Auth Brute Force</name>
+    <description>Detects brute force attacks against HTTP Basic Authentication with rapid 401 responses</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <action>HTTP-401</action>
+        <count regex="true">>10</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_brute_force</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-008" severity="HIGH" enabled="true">
+    <name>Brute Force — LDAP Bind Brute Force</name>
+    <description>Detects brute force attacks against LDAP authentication with repeated bind failures</description>
+    <pattern>
+      <event>
+        <product>LDAP</product>
+        <action>BIND-FAIL</action>
+        <count regex="true">>10</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_brute_force</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-009" severity="HIGH" enabled="true">
+    <name>Brute Force — FTP Login Brute Force</name>
+    <description>Detects brute force attacks on FTP services with repeated authentication failures</description>
+    <pattern>
+      <event>
+        <product>FTP</product>
+        <action>LOGIN-FAIL</action>
+        <count regex="true">>10</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078.003</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_brute_force</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-010" severity="HIGH" enabled="true">
+    <name>Brute Force — Slow and Low Brute Force</name>
+    <description>Detects slow brute force attacks that evade rate-limiting by spacing attempts over extended periods</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-FAIL</action>
+        <count regex="true">>5</count>
+        <time_window>3600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_brute_force</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-011" severity="CRITICAL" enabled="true">
+    <name>Credential Stuffing — Known Breached Credential List Match</name>
+    <description>Detects login attempts using credentials from known breach databases identified by threat intelligence feeds</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-SUCCESS</action>
+        <threat_match regex="true">.*breached-credential.*</threat_match>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.003</technique>
+      <tactic>Resource Development</tactic>
+      <technique>T1589.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-06</references>
+    <action>ALERT</action>
+    <group>authentication_credential_stuffing</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-012" severity="CRITICAL" enabled="true">
+    <name>Credential Stuffing — High Velocity Login Across Accounts</name>
+    <description>Detects credential stuffing where a single source rapidly attempts logins across many different user accounts</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-SUCCESS</action>
+        <count regex="true">>10</count>
+        <distinct_target_user regex="true">>8</distinct_target_user>
+        <time_window>600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.003</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-06</references>
+    <action>ALERT</action>
+    <group>authentication_credential_stuffing</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-013" severity="HIGH" enabled="true">
+    <name>Credential Stuffing — TOR Exit Node Login Attempts</name>
+    <description>Detects authentication attempts originating from known TOR exit nodes suggesting anonymized credential stuffing</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-FAIL</action>
+        <src_ip regex="true">.*tor-exit-node.*</src_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.003</technique>
+      <tactic>Command and Control</tactic>
+      <technique>T1090.003</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-06</references>
+    <action>ALERT</action>
+    <group>authentication_credential_stuffing</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-014" severity="CRITICAL" enabled="true">
+    <name>Credential Stuffing — Geo-Impossible Login Velocity</name>
+    <description>Detects successful logins from geographically impossible locations within short timeframes indicating credential reuse</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-SUCCESS</action>
+        <geo_impossible regex="true">true</geo_impossible>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.003</technique>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-06</references>
+    <action>ALERT</action>
+    <group>authentication_credential_stuffing</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-015" severity="HIGH" enabled="true">
+    <name>Credential Stuffing — Automated Tool User-Agent Detection</name>
+    <description>Detects credential stuffing tools identified by known automation user-agent strings</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <action>LOGIN-FAIL</action>
+        <user_agent regex="true">.*(curl|python-requests|Selenium|HeadlessChrome|sqlmap|Hydra|medusa|ncrack).*</user_agent>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.003</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-06</references>
+    <action>ALERT</action>
+    <group>authentication_credential_stuffing</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-016" severity="HIGH" enabled="true">
+    <name>Credential Stuffing — Success After Multiple Failures</name>
+    <description>Detects successful authentication after multiple failed attempts indicating credential guessing success</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-SUCCESS</action>
+        <preceded_by_failures regex="true">>3</preceded_by_failures>
+        <time_window>1800</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-06</references>
+    <action>ALERT</action>
+    <group>authentication_credential_stuffing</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-017" severity="MEDIUM" enabled="true">
+    <name>Credential Stuffing — Unusual Login Time Pattern</name>
+    <description>Detects login patterns during unusual hours consistent with automated credential stuffing campaigns</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-SUCCESS</action>
+        <time_anomaly regex="true">true</time_anomaly>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.003</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-06</references>
+    <action>ALERT</action>
+    <group>authentication_credential_stuffing</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-018" severity="CRITICAL" enabled="true">
+    <name>MFA Bypass — MFA Fatigue Attack</name>
+    <description>Detects MFA fatigue/push-bombing attacks where an attacker repeatedly triggers MFA push notifications</description>
+    <pattern>
+      <event>
+        <product>Identity Provider</product>
+        <action>MFA-CHALLENGE-FAIL</action>
+        <count regex="true">>5</count>
+        <time_window>600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1621</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3.1</control>
+      <standard>NIST</standard>
+      <control>IA-2</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_mfa_bypass</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-019" severity="CRITICAL" enabled="true">
+    <name>MFA Bypass — SIM Swap Attack Detection</name>
+    <description>Detects SIM swap attacks where an attacker transfers a victim's phone number to bypass SMS-based MFA</description>
+    <pattern>
+      <event>
+        <product>Telecom</product>
+        <action>SIM-CHANGE</action>
+        <followed_by>
+          <event>
+            <product>Identity Provider</product>
+            <action>MFA-SMS-VERIFY</action>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1598.001</technique>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3.1</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_mfa_bypass</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-020" severity="CRITICAL" enabled="true">
+    <name>MFA Bypass — MFA Token Replay</name>
+    <description>Detects replay of captured MFA tokens by identifying the same OTP used more than once</description>
+    <pattern>
+      <event>
+        <product>Identity Provider</product>
+        <action>MFA-VERIFY</action>
+        <token_reuse regex="true">true</token_reuse>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.002</technique>
+      <tactic>Credential Access</tactic>
+      <technique>T1621</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3.1</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_mfa_bypass</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-021" severity="CRITICAL" enabled="true">
+    <name>MFA Bypass — Downgrade Attack to Single-Factor Auth</name>
+    <description>Detects authentication downgrade attacks where MFA requirement is bypassed by forcing single-factor authentication</description>
+    <pattern>
+      <event>
+        <product>Identity Provider</product>
+        <action>LOGIN-SUCCESS</action>
+        <mfa_bypassed regex="true">true</mfa_bypassed>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1621</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3.1</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_mfa_bypass</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-022" severity="CRITICAL" enabled="true">
+    <name>MFA Bypass — Adversary-in-the-Middle MFA Proxy</name>
+    <description>Detects AiTM phishing proxy attacks that intercept MFA tokens in real-time</description>
+    <pattern>
+      <event>
+        <product>Identity Provider</product>
+        <action>MFA-VERIFY-SUCCESS</action>
+        <aitm_proxy regex="true">true</aitm_proxy>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1187</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3.1</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_mfa_bypass</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-023" severity="HIGH" enabled="true">
+    <name>MFA Bypass — Recovery Code Abuse</name>
+    <description>Detects abuse of MFA recovery/backup codes to bypass normal MFA authentication flow</description>
+    <pattern>
+      <event>
+        <product>Identity Provider</product>
+        <action>RECOVERY-CODE-USE</action>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1621</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3.1</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_mfa_bypass</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-024" severity="HIGH" enabled="true">
+    <name>MFA Bypass — Expired MFA Token Accepted</name>
+    <description>Detects authentication using expired or stale MFA tokens indicating potential replay or system misconfiguration</description>
+    <pattern>
+      <event>
+        <product>Identity Provider</product>
+        <action>MFA-VERIFY</action>
+        <expired_token regex="true">true</expired_token>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.002</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3.1</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_mfa_bypass</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-025" severity="CRITICAL" enabled="true">
+    <name>MFA Bypass — MFA Registration for Another User</name>
+    <description>Detects suspicious MFA device registration attempts for accounts the user does not own</description>
+    <pattern>
+      <event>
+        <product>Identity Provider</product>
+        <action>MFA-REGISTER</action>
+        <target_user_mismatch regex="true">true</target_user_mismatch>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1621</technique>
+      <tactic>Persistence</tactic>
+      <technique>T1098</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3.1</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_mfa_bypass</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-026" severity="HIGH" enabled="true">
+    <name>MFA Bypass — Legacy Protocol Bypassing MFA</name>
+    <description>Detects authentication using legacy protocols that bypass MFA requirements such as POP3, IMAP, or ActiveSync</description>
+    <pattern>
+      <event>
+        <product>Identity Provider</product>
+        <action>LOGIN-SUCCESS</action>
+        <protocol regex="true">(POP3|IMAP|ActiveSync-Legacy)</protocol>
+        <mfa_required regex="true">true</mfa_required>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+      <tactic>Credential Access</tactic>
+      <technique>T1621</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.3.1</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_mfa_bypass</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-027" severity="CRITICAL" enabled="true">
+    <name>Account Lockout — Mass Account Lockout Storm</name>
+    <description>Detects mass account lockout events across many users indicating a credential stuffing or DoS attack forcing lockouts</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>ACCOUNT-LOCKOUT</action>
+        <count regex="true">>15</count>
+        <time_window>600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-04</references>
+    <action>ALERT</action>
+    <group>authentication_account_lockout</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-028" severity="HIGH" enabled="true">
+    <name>Account Lockout — Single Account Repeated Lockout</name>
+    <description>Detects repeated lockout events for a single user account indicating targeted brute force or harassment</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>ACCOUNT-LOCKOUT</action>
+        <count regex="true">>3</count>
+        <time_window>3600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-04</references>
+    <action>ALERT</action>
+    <group>authentication_account_lockout</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-029" severity="HIGH" enabled="true">
+    <name>Account Lockout — Lockout Followed by Unlock Anomaly</name>
+    <description>Detects account lockout immediately followed by unlock from a different source, suggesting attacker activity</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>ACCOUNT-LOCKOUT</action>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action>ACCOUNT-UNLOCK</action>
+            <different_source regex="true">true</different_source>
+            <time_window>1800</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-04</references>
+    <action>ALERT</action>
+    <group>authentication_account_lockout</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-030" severity="CRITICAL" enabled="true">
+    <name>Account Lockout — Admin Account Lockout</name>
+    <description>Detects lockout of privileged or admin accounts which may indicate targeted attack against high-value accounts</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>ACCOUNT-LOCKOUT</action>
+        <target_user regex="true">.*(admin|root|administrator|sudo).*</target_user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078.002</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-04</references>
+    <action>ALERT</action>
+    <group>authentication_account_lockout</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-031" severity="HIGH" enabled="true">
+    <name>Account Lockout — Lockout from Impossible Location</name>
+    <description>Detects account lockout events originating from locations inconsistent with the user's typical access patterns</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>ACCOUNT-LOCKOUT</action>
+        <geo_anomaly regex="true">true</geo_anomaly>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-04</references>
+    <action>ALERT</action>
+    <group>authentication_account_lockout</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-032" severity="HIGH" enabled="true">
+    <name>Auth Error — Invalid Username Pattern Detection</name>
+    <description>Detects authentication failures with invalid or nonexistent usernames indicating reconnaissance or enumeration attempts</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-FAIL</action>
+        <reason regex="true">.*user-not-found.*</reason>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+      <tactic>Discovery</tactic>
+      <technique>T1589.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-033" severity="CRITICAL" enabled="true">
+    <name>Auth Error — Default Credential Usage</name>
+    <description>Detects authentication using default or vendor-provided credentials indicating unpatched systems</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-SUCCESS</action>
+        <default_credential regex="true">true</default_credential>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-04</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-034" severity="HIGH" enabled="true">
+    <name>Auth Error — Kerberos Pre-Auth Failure</name>
+    <description>Detects Kerberos pre-authentication failures that may indicate password guessing attacks against Active Directory</description>
+    <pattern>
+      <event>
+        <product>Active Directory</product>
+        <action>KERBEROS-PREAUTH-FAIL</action>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.003</technique>
+      <tactic>Credential Access</tactic>
+      <technique>T1558</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-035" severity="CRITICAL" enabled="true">
+    <name>Auth Error — NTLM Relay Attack</name>
+    <description>Detects NTLM authentication relay attacks where credentials are forwarded to unintended services</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action>NTLM-AUTH</action>
+        <relay_detected regex="true">true</relay_detected>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1557.001</technique>
+      <tactic>Credential Access</tactic>
+      <technique>T1187</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-036" severity="CRITICAL" enabled="true">
+    <name>Auth Error — Pass-the-Hash Detection</name>
+    <description>Detects pass-the-hash attacks where NTLM hashes are used directly for authentication without knowing the plaintext password</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action>NTLM-AUTH-SUCCESS</action>
+        <hash_auth regex="true">true</hash_auth>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1550.002</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-037" severity="CRITICAL" enabled="true">
+    <name>Auth Error — Golden Ticket Detection</name>
+    <description>Detects Kerberos Golden Ticket attacks by identifying forged TGTs with unusual characteristics</description>
+    <pattern>
+      <event>
+        <product>Active Directory</product>
+        <action>KERBEROS-TGS</action>
+        <golden_ticket_anomaly regex="true">true</golden_ticket_anomaly>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1558.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-038" severity="HIGH" enabled="true">
+    <name>Auth Error — Concurrent Session from Multiple Locations</name>
+    <description>Detects concurrent authenticated sessions from multiple geographic locations for the same user indicating account compromise</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-SUCCESS</action>
+        <concurrent_geo_sessions regex="true">true</concurrent_geo_sessions>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-039" severity="CRITICAL" enabled="true">
+    <name>Auth Error — Token Manipulation and Forgery</name>
+    <description>Detects forged or manipulated authentication tokens including JWT tampering and session token manipulation</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <action>TOKEN-VALIDATE-FAIL</action>
+        <reason regex="true">.*signature-invalid.*</reason>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1606.001</technique>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1134</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-040" severity="HIGH" enabled="true">
+    <name>Auth Error — Authentication Protocol Downgrade</name>
+    <description>Detects authentication protocol downgrade attacks where stronger protocols are forced to weaker ones</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>AUTH-PROTOCOL-DOWNGRADE</action>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1565</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-041" severity="HIGH" enabled="true">
+    <name>Auth Error — Excessive Failed Login from Tor/Proxy</name>
+    <description>Detects high volume failed authentication attempts from known anonymization services</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>LOGIN-FAIL</action>
+        <src_ip_category regex="true">.*(tor-exit-node|known-proxy|vpn-provider).*</src_ip_category>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Command and Control</tactic>
+      <technique>T1090.003</technique>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-042" severity="CRITICAL" enabled="true">
+    <name>Auth Error — Credential Stuffing via API Endpoint</name>
+    <description>Detects credential stuffing attacks targeting API authentication endpoints with automated high-volume requests</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <action>API-AUTH-FAIL</action>
+        <count regex="true">>20</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.003</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-043" severity="CRITICAL" enabled="true">
+    <name>Auth Error — Privilege Escalation via Authentication</name>
+    <description>Detects unauthorized privilege escalation through authentication mechanisms such as sudo to root or runas administrator</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>PRIVILEGE-ESCALATION-SUCCESS</action>
+        <target_user regex="true">.*(admin|root|administrator|sudo).*</target_user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548.001</technique>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078.002</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+      <standard>NIST</standard>
+      <control>AC-6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-044" severity="CRITICAL" enabled="true">
+    <name>Auth Error — NTLM Relay via SMB</name>
+    <description>Detects NTLM relay attacks through SMB that enable lateral movement by forwarding authentication to other systems</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action>SMB-AUTH-RELAY</action>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.002</technique>
+      <tactic>Credential Access</tactic>
+      <technique>T1557.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-045" severity="HIGH" enabled="true">
+    <name>Auth Error — Session Fixation Attack</name>
+    <description>Detects session fixation attacks where an attacker sets a session ID before the victim authenticates</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <action>SESSION-CREATE</action>
+        <pre_existing_session_id regex="true">true</pre_existing_session_id>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1184</technique>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1134</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_auth_errors</group>
+  </rule>
+
+  <rule id="FSIEM-AUTH-046" severity="HIGH" enabled="true">
+    <name>Brute Force — SAP Logon Brute Force</name>
+    <description>Detects brute force attacks targeting SAP authentication with repeated login failures</description>
+    <pattern>
+      <event>
+        <product>SAP</product>
+        <action>LOGIN-FAIL</action>
+        <count regex="true">>8</count>
+        <time_window>300</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1110.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>WSTG-ATHN-01</references>
+    <action>ALERT</action>
+    <group>authentication_brute_force</group>
+  </rule>
+</rules>

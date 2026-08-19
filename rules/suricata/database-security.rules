@@ -1,35 +1,81 @@
 # =============================================================================
-# Suricata Rules — database-security
-# Total rules: 30
+# Suricata Rules — Database Security
+# Total rules: 42
+# MITRE ATT&CK: T1190, T1552, T1548, T1485, T1567, T1078, T1213, T1040
+# Compliance: PCI-DSS 6.5, GDPR 32, HIPAA 164.312, NIST SI-4, AC-3, IA-5
 # =============================================================================
 
-SUR-DB-PG-001 http any any -> $HOME_NET any (msg:"SIEM PostgreSQL — Privilege Escalation via SET ROLE"; content:"postgresql"; content:"privilege-escalation"; classtype:attempted-admin; sid:3000000; rev:1; severity:1; metadata:mitre T1548;)
-SUR-DB-PG-002 http any any -> $HOME_NET any (msg:"SIEM PostgreSQL — pg_dump Data Exfiltration"; content:"postgresql"; content:"data-exfiltration"; classtype:attempted-admin; sid:3000001; rev:1; severity:2; metadata:mitre T1213;)
-SUR-DB-PG-003 http any any -> $HOME_NET any (msg:"SIEM PostgreSQL — Row-Level Security Bypass"; content:"postgresql"; content:"rls-bypass"; classtype:attempted-admin; sid:3000002; rev:1; severity:1; metadata:mitre T1078;)
-SUR-DB-MY-001 http any any -> $HOME_NET any (msg:"SIEM MySQL — UNION-Based SQL Injection"; content:"mysql"; content:"sql-injection"; classtype:attempted-admin; sid:3000003; rev:1; severity:1; metadata:mitre T1190;)
-SUR-DB-MY-002 http any any -> $HOME_NET any (msg:"SIEM MySQL — Root Account Remote Login"; content:"mysql"; content:"default-account"; classtype:attempted-admin; sid:3000004; rev:1; severity:1; metadata:mitre T1078.001;)
-SUR-DB-MSS-001 http any any -> $HOME_NET any (msg:"SIEM SQL Server — xp_cmdshell Execution"; content:"sqlserver"; content:"command-execution"; classtype:attempted-admin; sid:3000005; rev:1; severity:1; metadata:mitre T1059;)
-SUR-DB-MSS-002 http any any -> $HOME_NET any (msg:"SIEM SQL Server — SUSPENDED Login State Anomaly"; content:"sqlserver"; content:"login-anomaly"; classtype:attempted-admin; sid:3000006; rev:1; severity:3; metadata:mitre T1078;)
-SUR-DB-ORA-001 http any any -> $HOME_NET any (msg:"SIEM Oracle — DBA Privilege Escalation"; content:"oracle"; content:"privilege-escalation"; classtype:attempted-admin; sid:3000007; rev:1; severity:1; metadata:mitre T1548;)
-SUR-DB-SQLITE-001 http any any -> $HOME_NET any (msg:"SIEM SQLite — Direct File Access from Web"; content:"sqlite"; content:"file-access"; classtype:attempted-admin; sid:3000008; rev:1; severity:2; metadata:mitre T1083;)
-SUR-DB-MONGO-001 http any any -> $HOME_NET any (msg:"SIEM MongoDB — NoSQL Injection via $where"; content:"mongodb"; content:"nosql-injection"; classtype:attempted-admin; sid:3000009; rev:1; severity:1; metadata:mitre T1190;)
-SUR-DB-MONGO-002 http any any -> $HOME_NET any (msg:"SIEM MongoDB — admin Database Unauthorized Access"; content:"mongodb"; content:"default-account"; classtype:attempted-admin; sid:3000010; rev:1; severity:1; metadata:mitre T1078.001;)
-SUR-DB-DYNAMO-001 http any any -> $HOME_NET any (msg:"SIEM DynamoDB — Excessive Scan Operations"; content:"dynamodb"; content:"data-exfiltration"; classtype:attempted-admin; sid:3000011; rev:1; severity:2; metadata:mitre T1213;)
-SUR-DB-CASS-001 http any any -> $HOME_NET any (msg:"SIEM Cassandra — Unauthorized CQL Command Execution"; content:"cassandra"; content:"privilege-escalation"; classtype:attempted-admin; sid:3000012; rev:1; severity:1; metadata:mitre T1548;)
-SUR-DB-COUCH-001 http any any -> $HOME_NET any (msg:"SIEM CouchDB — Admin Party Mode"; content:"couchdb"; content:"default-account"; classtype:attempted-admin; sid:3000013; rev:1; severity:1; metadata:mitre T1078.001;)
-SUR-DB-FIRE-001 http any any -> $HOME_NET any (msg:"SIEM Firestore — Overly Permissive Security Rules"; content:"firestore"; content:"misconfiguration"; classtype:attempted-admin; sid:3000014; rev:1; severity:2; metadata:mitre T1190;)
-SUR-DB-NEO4J-001 http any any -> $HOME_NET any (msg:"SIEM Neo4j — Cypher Injection Attack"; content:"neo4j"; content:"cypher-injection"; classtype:attempted-admin; sid:3000015; rev:1; severity:1; metadata:mitre T1190;)
-SUR-DB-ARANGO-001 http any any -> $HOME_NET any (msg:"SIEM ArangoDB — AQL Injection Detection"; content:"arangodb"; content:"aql-injection"; classtype:attempted-admin; sid:3000016; rev:1; severity:2; metadata:mitre T1190;)
-SUR-DB-NEPTUNE-001 http any any -> $HOME_NET any (msg:"SIEM Neptune — Gremlin/SPARQL Injection"; content:"neptune"; content:"graph-injection"; classtype:attempted-admin; sid:3000017; rev:1; severity:2; metadata:mitre T1190;)
-SUR-DB-INFLUX-001 http any any -> $HOME_NET any (msg:"SIEM InfluxDB — Unauthorized Data Deletion"; content:"influxdb"; content:"data-destruction"; classtype:attempted-admin; sid:3000018; rev:1; severity:1; metadata:mitre T1485;)
-SUR-DB-TSCALE-001 http any any -> $HOME_NET any (msg:"SIEM TimescaleDB — Hypertable Data Exfiltration"; content:"timescaledb"; content:"data-exfiltration"; classtype:attempted-admin; sid:3000019; rev:1; severity:2; metadata:mitre T1213;)
-SUR-DB-PROM-001 http any any -> $HOME_NET any (msg:"SIEM Prometheus — Unauthorized Metric Scraping"; content:"prometheus"; content:"information-disclosure"; classtype:attempted-admin; sid:3000020; rev:1; severity:3; metadata:mitre T1592;)
-SUR-DB-PINE-001 http any any -> $HOME_NET any (msg:"SIEM Pinecone — Namespace Isolation Bypass"; content:"pinecone"; content:"vector"; classtype:attempted-admin; sid:3000021; rev:1; severity:1; metadata:mitre T1078;)
-SUR-DB-WEAV-001 http any any -> $HOME_NET any (msg:"SIEM Weaviate — Tenant Data Isolation Failure"; content:"weaviate"; content:"vector"; classtype:attempted-admin; sid:3000022; rev:1; severity:1; metadata:mitre T1078;)
-SUR-DB-MILV-001 http any any -> $HOME_NET any (msg:"SIEM Milvus — Collection-Level Access Bypass"; content:"milvus"; content:"vector"; classtype:attempted-admin; sid:3000023; rev:1; severity:2; metadata:mitre T1078;)
-SUR-DB-CHROMA-001 http any any -> $HOME_NET any (msg:"SIEM ChromaDB — Embedding Poisoning Detection"; content:"chromadb"; content:"vector"; classtype:attempted-admin; sid:3000024; rev:1; severity:2; metadata:mitre T1190;)
-SUR-DB-QDRANT-001 http any any -> $HOME_NET any (msg:"SIEM Qdrant — Payload Filter Injection"; content:"qdrant"; content:"vector"; classtype:attempted-admin; sid:3000025; rev:1; severity:2; metadata:mitre T1190;)
-SUR-DB-REDIS-001 http any any -> $HOME_NET any (msg:"SIEM Redis — CONFIG GET Credential Exposure"; content:"redis"; content:"credential-exposure"; classtype:attempted-admin; sid:3000026; rev:1; severity:1; metadata:mitre T1552;)
-SUR-DB-REDIS-002 http any any -> $HOME_NET any (msg:"SIEM Redis — FLUSHALL/FLUSHDB Data Destruction"; content:"redis"; content:"data-destruction"; classtype:attempted-admin; sid:3000027; rev:1; severity:1; metadata:mitre T1485;)
-SUR-DB-MEMC-001 http any any -> $HOME_NET any (msg:"SIEM Memcached — Amplification Attack"; content:"memcached"; content:"amplification"; classtype:attempted-admin; sid:3000028; rev:1; severity:2; metadata:mitre T1498;)
-SUR-DB-HBASE-001 http any any -> $HOME_NET any (msg:"SIEM HBase — Unauthorized ACL Modification"; content:"hbase"; content:"acl-modification"; classtype:attempted-admin; sid:3000029; rev:1; severity:1; metadata:mitre T1548;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521,27017] (msg:"SIEM DB-SEC-001: SQL injection on database port"; flow:established,to_server; content:"UNION"; content:"SELECT"; content:"FROM"; sid:3013001; rev:1; metadata:mitre_t1190, pci_dss_6.5, nist_si_4;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-002: OR 1=1 injection pattern"; flow:established,to_server; content:"OR"; content:"1=1"; sid:3013002; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-003: DROP TABLE injection"; flow:established,to_server; content:"DROP"; nocase; content:"TABLE"; nocase; sid:3013003; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-004: Time-based blind SQL injection"; flow:established,to_server; pcre:"/(SLEEP\s*\(|BENCHMARK\s*\(|WAITFOR\s+DELAY|pg_sleep\s*\(|dbms_pipe\.receive_message)/i"; sid:3013004; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM DB-SEC-005: SQL injection via API parameter"; flow:established,to_server; http.uri; pcre:"/\?.*(%27|%22|%3B|%2D%2D|%2F%2A|%2A%2F|UNION|SELECT|INSERT|UPDATE|DELETE|DROP)/i"; sid:3013005; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM DB-SEC-006: Database error disclosed in API response"; flow:established,to_client; http.response_body; pcre:"/(ORA-\d{5}|SQLSTATE\[|MySQL Error|PostgreSQL query failed|Unclosed quotation|Microsoft OLE DB|connection string|jdbc:|mongodb:)/i"; sid:3013006; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521,27017] (msg:"SIEM DB-SEC-007: Database connection from external IP"; flow:established,to_server; sid:3013007; rev:1; metadata:mitre_t1078, pci_dss_8.1, nist_ac_3;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-008: Database login with default username"; flow:established,to_server; pcre:"/(root|admin|sa|postgres|dba|sys|system|master|dbo|mysql|oracle|test|guest)/i"; sid:3013008; rev:1; metadata:mitre_t1078.001, pci_dss_8.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-009: Database privilege escalation - GRANT ALL"; flow:established,to_server; pcre:"/(GRANT\s+(ALL|DBA|SUPERUSER|ADMIN)|ALTER\s+USER.*WITH\s+(SUPERUSER|CREATEDB|CREATEROLE)|SET\s+ROLE\s+(dbo|sysadmin|root))/i"; sid:3013009; rev:1; metadata:mitre_t1548, pci_dss_8.1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-010: Dangerous stored procedure execution"; flow:established,to_server; pcre:"/(xp_cmdshell|sp_OACreate|sp_OAMethod|sp_executesql|DBMS_SCHEDULER|UTL_FILE|UTL_HTTP|UTL_TCP|DBMS_LOB)/i"; sid:3013010; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-011: Database bulk data export"; flow:established,to_server; pcre:"/(INTO\s+OUTFILE|INTO\s+DUMPFILE|COPY\s+.*\s+TO|mysqldump|pg_dump|exp\s+tables?|SQLCMD.*-b|bcp\s+.*out)/i"; sid:3013011; rev:1; metadata:mitre_t1567, pci_dss_6.5, gdpr_32;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-012: SELECT on sensitive table"; flow:established,to_server; pcre:"/\b(SELECT|FROM)\b.*\b(users?|accounts?|transactions?|payments?|credit_cards?|ssn|patients?|employees?|financial)\b/i"; sid:3013012; rev:1; metadata:mitre_t1213, pci_dss_3.4, gdpr_32;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-013: DDL operation - schema modification"; flow:established,to_server; pcre:"/(CREATE\s+(TABLE|DATABASE|SCHEMA|USER|ROLE)|ALTER\s+(TABLE|DATABASE|SCHEMA|USER|ROLE)|DROP\s+(TABLE|DATABASE|SCHEMA|USER|ROLE)|TRUNCATE\s)/i"; sid:3013013; rev:1; metadata:mitre_t1485, pci_dss_6.5;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-014: UPDATE/DELETE on sensitive table"; flow:established,to_server; pcre:"/\b(UPDATE|DELETE)\b\s+(users?|accounts?|transactions?|payments?|customers?|patients?|employees?|financial)\b/i"; sid:3013014; rev:1; metadata:mitre_t1485, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521,3389,22] (msg:"SIEM DB-SEC-015: Database authentication failure"; flow:established,to_server; pcre:"/(Access denied|Login failed|Authentication failed|Invalid credentials|Wrong password|Login incorrect)/i"; sid:3013015; rev:1; metadata:mitre_t1110, pci_dss_8.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM DB-SEC-016: Database error disclosed to client"; flow:established,to_client; http.status_code; content:"500"; http.response_body; pcre:"/(table.*doesn'?t exist|column.*not found|relation.*does not exist|invalid column name|incorrect syntax near|unclosed quotation mark|string or binary data would be truncated|cannot insert duplicate key|violation of.*constraint)/i"; sid:3013016; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521,27017] (msg:"SIEM DB-SEC-017: NoSQL injection operator detected"; flow:established,to_server; pcre:"/(\$where|\$gt|\$gte|\$lt|\$lte|\$ne|\$in|\$nin|\$regex|\$expr|\$jsonSchema)/"; sid:3013017; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET [27017,27018,27019] (msg:"SIEM DB-SEC-018: MongoDB $where injection"; flow:established,to_server; pcre:"/\$where.*this\.\w+\s*(==|===|match)/"; sid:3013018; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-019: Database credential dumping attempt"; flow:established,to_server; pcre:"/\bSELECT\b.*\bFROM\b\s+(mysql\.user|pg_shadow|sys\.sql_logins|sys\.database_principals|dba_users|sys\.login_token)|\bSELECT\b.*password_hash\b/i"; sid:3013019; rev:1; metadata:mitre_t1552, pci_dss_8.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-020: Database audit log tampering"; flow:established,to_server; pcre:"/(ALTER\s+SYSTEM\s+SET\s+audit|SET\s+audit_trail\s*=\s*FALSE|sp_configure\s+'audit'|TRUNCATE\s+(audit|log|history))/i"; sid:3013020; rev:1; metadata:mitre_t1562, pci_dss_10.2;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-021: Database OS command execution"; flow:established,to_server; pcre:"/(xp_cmdshell|sys_exec|sys_eval|LOAD_FILE|INTO\s+OUTFILE|COPY\s+.*FROM\s+PROGRAM)/i"; sid:3013021; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-022: SELECT on sensitive table - large result set risk"; flow:established,to_server; pcre:"/\bSELECT\b.*\bFROM\b\s+(users?|accounts?|transactions?|payments?|credit_cards?|ssn|patients?|employees?|financial)\b/i"; sid:3013022; rev:1; metadata:mitre_t1213, pci_dss_3.4;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-023: Database ransomware pattern"; flow:established,to_server; pcre:"/(DROP\s+TABLE|DROP\s+DATABASE|ALTER\s+TABLE\s+\w+\s+ENCRYPT|CREATE\s+TABLE\s+\w+_locked|CREATE\s+TABLE\s+\w+_encrypted|UPDATE\s+\w+\s+SET\s+\w+\s*=.*YOUR_DATA_HAS_BEEN_LOCKED)/i"; sid:3013023; rev:1; metadata:mitre_t1485, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-024: Excessive database privilege grant"; flow:established,to_server; pcre:"/\bGRANT\s+(ALL|DBA|SUPERUSER|ADMIN|GRANT\s+OPTION)|\bALL\s+PRIVILEGES\b/i"; sid:3013024; rev:1; metadata:mitre_t1548, pci_dss_8.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-025: Database schema enumeration"; flow:established,to_server; pcre:"/\bSELECT\b.*\bFROM\b\s+information_schema\.|SHOW\s+(TABLES|DATABASES|COLUMNS|INDEX)|\bDESCRIBE\b\s+\w+|\bEXPLAIN\b\s+/i"; sid:3013025; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-026: XSS payload in database INSERT/UPDATE"; flow:established,to_server; pcre:"/\b(INSERT|UPDATE)\b.*(<script|javascript:|onerror\s*=|onload\s*=|<img\s|<svg\s|<iframe\s|document\.cookie|document\.location)/i"; sid:3013026; rev:1; metadata:mitre_t1059.007, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM DB-SEC-027: Database backup file accessible via HTTP"; flow:established,to_server; http.uri; pcre:"/\/(backup|db_backup|database|dump|export|download)\.(sql|bak|dump|csv|gz|tar|zip)/i"; sid:3013027; rev:1; metadata:mitre_t1552, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-028: Database query with excessive LIMIT"; flow:established,to_server; pcre:"/\bSELECT\b.*\bFROM\b.*\bLIMIT\s+\d{5,}/i"; sid:3013028; rev:1; metadata:mitre_t1567, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-029: Database temporary table creation"; flow:established,to_server; pcre:"/(CREATE\s+(TEMP|TEMPORARY)\s+TABLE|INSERT\s+INTO\s+#\w+|SELECT\s+.*\s+INTO\s+(TEMP|TMP|#)|CREATE\s+TABLE\s+tmp_\w+)/i"; sid:3013029; rev:1; metadata:mitre_t1078, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-030: Database weak password"; flow:established,to_server; pcre:"/(password|passwd|pwd|pass).*(admin|root|test|guest|default|123456|password|qwerty|letmein)/i"; sid:3013030; rev:1; metadata:mitre_t1110, pci_dss_8.2;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-031: Shared/generic database account"; flow:established,to_server; pcre:"/(app_user|service_account|read_only|reporting|application|shared|generic)/i"; sid:3013031; rev:1; metadata:mitre_t1078, pci_dss_8.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-032: Database lateral movement via linked server"; flow:established,to_server; pcre:"/(OPENQUERY|OPENROWSET|OPENDATASOURCE|OPENJSON|EXEC\s+AT\s+\w+|SELECT\s+.*\s+FROM\s+\w+\.\w+\.\w+)/i"; sid:3013032; rev:1; metadata:mitre_t1021, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM DB-SEC-033: Database error in API JSON response"; flow:established,to_client; http.status_code; content:"200"; http.header; content:"Content-Type: application/json"; http.response_body; pcre:"/(ORA-\d{5}|SQLSTATE\[|MySQL Error|PostgreSQL query failed|Unclosed quotation|Microsoft OLE DB|connection string|jdbc:|mongodb:)/i"; sid:3013033; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM DB-SEC-034: Database config file with plaintext password"; flow:established,to_server; http.uri; pcre:"/\/(config|configuration|settings|appsettings|database|db)\.(yml|yaml|json|xml|ini|conf|env|properties)/i"; flow:established,to_client; http.status_code; content:"200"; http.response_body; pcre:"/(password\s*=\s*|ConnectionString.*Password=|jdbc:.*password=|DB_PASSWORD=)/i"; sid:3013034; rev:1; metadata:mitre_t1552, pci_dss_6.5, gdpr_32;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM DB-SEC-035: Stored procedure abuse via API"; flow:established,to_server; http.request_method; content:"POST"; http.uri; pcre:"/\/api\/v[0-9]+\/(query|execute|run|call|procedure)/i"; http.request_body; pcre:"/(xp_cmdshell|sp_OACreate|sp_OAMethod|sp_executesql|DBMS_SCHEDULER|UTL_FILE|UTL_HTTP|UTL_TCP|DBMS_LOB)/i"; sid:3013035; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-036: Connection pool exhaustion"; flow:established,to_server; pcre:"/(connection.*timeout|pool.*exhausted|max.*connections.*reached|too.*many.*connections|connection.*refused)/i"; sid:3013036; rev:1; metadata:mitre_t1567, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-037: Privileged database account connection"; flow:established,to_server; pcre:"/(root|admin|sa|postgres|dba|sys|system|master|dbo)\s*(login|connect|authenticate|session)/i"; sid:3013037; rev:1; metadata:mitre_t1078, pci_dss_8.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-038: SELECT * detected - full table scan"; flow:established,to_server; pcre:"/\bSELECT\s+\*\s+FROM\b/i"; sid:3013038; rev:1; metadata:mitre_t1213, pci_dss_6.5;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-039: Conditional SQL expression - error-based extraction"; flow:established,to_server; pcre:"/\bCASE\b.*\bWHEN\b.*\bTHEN\b|\bIF\b\s*\(.*\bTHEN\b|\bCOALESCE\b.*\bSELECT\b|\bCAST\b.*\bAS\b/i"; sid:3013039; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM DB-SEC-040: Unencrypted database backup download"; flow:established,to_server; http.uri; pcre:"/\/(backup|db_backup|database|dump|export|download)\.(sql|bak|dump|csv)/i"; http.header; content:"!" ; content:"Content-Encoding: gzip"; sid:3013040; rev:1; metadata:mitre_t1552, pci_dss_3.4;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-041: Database connection without encryption"; flow:established,to_server; pcre:"/(SSL.*not.*enabled|TLS.*not.*configured|encryption.*disabled|plaintext.*connection)/i"; sid:3013041; rev:1; metadata:mitre_t1040, pci_dss_4.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-042: Database multiple authentication failures - brute force"; flow:established,to_server; pcre:"/(Access denied|Login failed|Authentication failed|Invalid credentials|Wrong password|Login incorrect)/i"; sid:3013042; rev:1; metadata:mitre_t1110, pci_dss_8.1;)
