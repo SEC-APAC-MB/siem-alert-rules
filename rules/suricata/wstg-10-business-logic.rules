@@ -1,13 +1,73 @@
 # =============================================================================
-# Suricata Rules — wstg-10-business-logic
-# Total rules: 8
+# Suricata Rules — WSTG 10 (Business Logic Testing)
+# Total rules: 30
+# MITRE ATT&CK: T1548, T1190, T1078, T1567, T1485
+# Compliance: PCI-DSS 6.5, GDPR 32, HIPAA 164.312, NIST SI-4, AC-4
 # =============================================================================
 
-SUR-WSTG10-001 http any any -> $HOME_NET any (msg:"SIEM Business Logic — Price Manipulation"; content:"business-logic"; content:"price-manipulation"; classtype:attempted-admin; sid:3000000; rev:1; severity:1; metadata:mitre T1498;)
-SUR-WSTG10-002 http any any -> $HOME_NET any (msg:"SIEM Business Logic — Rate Limit Bypass"; content:"business-logic"; content:"rate-limit"; classtype:attempted-admin; sid:3000001; rev:1; severity:2; metadata:mitre T1190;)
-SUR-WSTG10-003 http any any -> $HOME_NET any (msg:"SIEM Business Logic — Workflow Bypass"; content:"business-logic"; content:"workflow-bypass"; classtype:attempted-admin; sid:3000002; rev:1; severity:2; metadata:mitre T1078;)
-SUR-WSTG10-004 http any any -> $HOME_NET any (msg:"SIEM Business Logic — Negative Quantity or Amount"; content:"business-logic"; content:"negative-amount"; classtype:attempted-admin; sid:3000003; rev:1; severity:1; metadata:mitre T1498;)
-SUR-WSTG10-005 http any any -> $HOME_NET any (msg:"SIEM Error Handling — Verbose Error Information Disclosure"; content:"error-handling"; content:"information-disclosure"; classtype:attempted-admin; sid:3000004; rev:1; severity:3; metadata:mitre T1592;)
-SUR-WSTG10-006 http any any -> $HOME_NET any (msg:"SIEM Cryptography — Weak Hash Algorithm Usage"; content:"cryptography"; content:"weak-hash"; classtype:attempted-admin; sid:3000005; rev:1; severity:2; metadata:mitre T1116;)
-SUR-WSTG10-007 http any any -> $HOME_NET any (msg:"SIEM Data Classification — PII in Logs"; content:"data-protection"; content:"pii-logging"; classtype:attempted-admin; sid:3000006; rev:1; severity:2; metadata:mitre T1213;)
-SUR-WSTG10-008 http any any -> $HOME_NET any (msg:"SIEM Data Classification — Unencrypted Data at Rest"; content:"data-protection"; content:"encryption-at-rest"; classtype:attempted-admin; sid:3000007; rev:1; severity:1; metadata:mitre T1552;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-01: Price manipulation - negative amount in cart"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/cart"; nocase; http.request_body; content:"price"; nocase; pcre:"/price[=:]\s*-?\d+/i"; sid:3005001; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-01: Price manipulation - zero total checkout"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/checkout"; nocase; http.request_body; content:"total"; nocase; pcre:"/total[=:]\s*0(\.00)?/i"; sid:3005002; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-01: Price manipulation - negative quantity"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/cart"; nocase; http.request_body; content:"quantity"; nocase; pcre:"/quantity[=:]\s*-\d+/i"; sid:3005003; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-02: Coupon code brute force"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/coupon"; nocase; http.request_body; content:"code"; nocase; http.header; content:"User-Agent:"; pcre:"/python-requests|curl|wget|Go-http/i"; sid:3005101; rev:1; metadata:mitre_t1110, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-03: Workflow bypass - skip payment step"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/order/confirm"; nocase; http.header; content:"!" ; content:"X-Payment-Verified"; sid:3005201; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-03: Workflow bypass - direct order confirmation"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/order/complete"; nocase; http.request_body; content:"status"; nocase; content:"confirmed"; nocase; sid:3005202; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-03: Workflow bypass - approve own request"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/approve"; nocase; http.request_body; content:"requester_id"; nocase; content:"approver_id"; nocase; sid:3005203; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-04: Rate limit bypass via parameter tampering"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/transfer"; nocase; http.request_body; content:"amount"; nocase; pcre:"/amount[=:]\s*\d{7,}/i"; sid:3005301; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-05: Transaction amount exceeds limit"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/transfer"; nocase; http.request_body; pcre:"/amount[=:]\s*\d{8,}/i"; sid:3005401; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-06: Account transfer to self - money laundering pattern"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/transfer"; nocase; http.request_body; content:"from_account"; nocase; content:"to_account"; nocase; sid:3005501; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-07: Multiple account registrations from same IP"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/register"; nocase; http.header; content:"X-Forwarded-For:"; sid:3005601; rev:1; metadata:mitre_t1136, pci_dss_8.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-08: Tax rate manipulation"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/order"; nocase; http.request_body; content:"tax_rate"; nocase; pcre:"/tax_rate[=:]\s*0(\.0+)?/i"; sid:3005701; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-08: Discount manipulation - 100% discount"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/cart"; nocase; http.request_body; content:"discount"; nocase; pcre:"/discount[=:]\s*100/i"; sid:3005702; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-09: Review manipulation - own product review"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/review"; nocase; http.request_body; content:"product_id"; nocase; content:"user_id"; nocase; sid:3005801; rev:1; metadata:mitre_t1548;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-10: Race condition - concurrent transfers"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/transfer"; nocase; sid:3005901; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-11: Excessive data download"; flow:established,to_server; http.request_method; content:"GET"; http.uri; content:"/export"; nocase; http.uri; content:"limit="; pcre:"/limit=(10000|100000|-1|all)/i"; sid:3006001; rev:1; metadata:mitre_t1567, pci_dss_6.5, gdpr_32;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-11: Bulk data export via API"; flow:established,to_server; http.request_method; content:"GET"; http.uri; content:"/api/"; content:"export"; nocase; sid:3006002; rev:1; metadata:mitre_t1567, pci_dss_6.5, gdpr_32;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-12: Password reset token reuse"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/reset-password"; nocase; http.request_body; content:"token="; sid:3006101; rev:1; metadata:mitre_t1552, pci_dss_8.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-13: Order status manipulation"; flow:established,to_server; http.request_method; content:"PUT"; http.uri; content:"/order/"; content:"/status"; nocase; http.request_body; content:"delivered"; nocase; sid:3006201; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-13: Refund status manipulation"; flow:established,to_server; http.request_method; content:"PUT"; http.uri; content:"/refund/"; content:"/status"; nocase; http.request_body; content:"approved"; nocase; sid:3006202; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-14: Feature toggle bypass"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/settings"; nocase; http.request_body; content:"premium_features"; nocase; content:"true"; nocase; sid:3006301; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-15: Trial period bypass"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/subscription"; nocase; http.request_body; content:"trial_end"; nocase; pcre:"/trial_end[=:]\s*\d{13,}/i"; sid:3006401; rev:1; metadata:mitre_t1548;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-16: Inventory manipulation - negative stock"; flow:established,to_server; http.request_method; content:"PUT"; http.uri; content:"/inventory"; nocase; http.request_body; content:"stock"; nocase; pcre:"/stock[=:]\s*-\d+/i"; sid:3006501; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-17: Auction bid manipulation - below minimum"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/bid"; nocase; http.request_body; content:"amount"; nocase; pcre:"/amount[=:]\s*(0|-?\d+)/i"; sid:3006601; rev:1; metadata:mitre_t1548;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-18: Appointment scheduling - past date"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/appointment"; nocase; http.request_body; content:"date"; nocase; pcre:"/date[=:]\s*\d{4}-0[0-9]/i"; sid:3006701; rev:1; metadata:mitre_t1548;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-19: Withdrawal exceeding balance"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/withdraw"; nocase; http.request_body; content:"amount"; nocase; pcre:"/amount[=:]\s*\d{7,}/i"; sid:3006801; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-20: Insurance claim manipulation - inflated amount"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/claim"; nocase; http.request_body; content:"amount"; nocase; pcre:"/amount[=:]\s*\d{8,}/i"; sid:3006901; rev:1; metadata:mitre_t1548;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-21: Escrow bypass - direct release without completion"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/escrow/release"; nocase; http.request_body; content:"buyer_confirmed"; nocase; content:"false"; nocase; sid:3007001; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-22: Shipping fee bypass"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/checkout"; nocase; http.request_body; content:"shipping_fee"; nocase; pcre:"/shipping_fee[=:]\s*0(\.00)?/i"; sid:3007101; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-23: Gift card balance manipulation"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/giftcard"; nocase; http.request_body; content:"balance"; nocase; pcre:"/balance[=:]\s*\d{5,}/i"; sid:3007201; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-24: Account closure with pending transactions"; flow:established,to_server; http.request_method; content:"DELETE"; http.uri; content:"/account"; nocase; sid:3007301; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-25: Loyalty points manipulation"; flow:established,to_server; http.request_method; content:"PUT"; http.uri; content:"/points"; nocase; http.request_body; content:"balance"; nocase; pcre:"/balance[=:]\s*\d{6,}/i"; sid:3007401; rev:1; metadata:mitre_t1548;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-26: Ticket scalping - bulk purchase"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/tickets"; nocase; http.request_body; content:"quantity"; nocase; pcre:"/quantity[=:]\s*[2-9]\d/i"; sid:3007501; rev:1; metadata:mitre_t1548;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-27: Vote manipulation - duplicate submission"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/vote"; nocase; http.header; content:"!" ; content:"X-Vote-Token"; sid:3007601; rev:1; metadata:mitre_t1548;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-28: Rate limit circumvention via parameter pollution"; flow:established,to_server; http.uri; content:"limit="; content:"&limit="; sid:3007701; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-29: File upload bypass - content-type mismatch"; flow:established,to_server; http.request_body; pcre:"/Content-Type:\s*image\/(jpeg|png|gif)[\s\r\n]+.*<(?:script|iframe|object|embed)/is"; sid:3007801; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-BL-30: Email bomb - bulk email API abuse"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/api/email/send"; nocase; http.request_body; pcre:"/(to|bcc|cc)\s*[=:]\s*\[[^\]]{500,}/i"; sid:3007901; rev:1; metadata:mitre_t1567, pci_dss_6.5, gdpr_32;)

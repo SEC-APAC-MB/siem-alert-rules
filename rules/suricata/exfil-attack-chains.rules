@@ -1,0 +1,32 @@
+# =============================================================================
+# Suricata Rules — Exfiltration Attack Chain Detection
+# Detects multi-step exfiltration sequences: DNS tunnel→encoding→cloud upload,
+#          steganographic→image upload→cloud exfil, keylogger→encrypted archive→cloud upload
+# Total rules: 10
+# SID range: 2315001 - 2315010
+# Reference: MITRE ATT&CK TA0010 Exfiltration
+# =============================================================================
+
+# --- DNS Tunnel → Encoding → Cloud Upload Full Chain ---
+alert udp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"CHAIN EXFIL-001: DNS Tunneling - Base32/Base64 Encoded Subdomain with Known Tunnel Tool Domain"; pcre:"/([A-Z2-7]{20,}\.){2,}[a-z]+\.[a-z]+|([A-Za-z0-9+\/=]{30,}\.){2,}[a-z]+\.[a-z]+/i"; pcre:"/(dns2tcp|iodine|dnscat2|dnstun|dnscrypt|tunnel\.xyz|data\.dns\.(com|net|org)|[a-z0-9]{16,}\.(dns|tun|data|exfil|beacon)\.)/i"; classtype:trojan-activity; sid:2315001; rev:1; metadata:chain dns-tunnel-to-cloud-exfil, mitre T1048, created_at 2026_08_21;)
+alert udp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"CHAIN EXFIL-002: DNS Tunneling with TXT Record Data Payload - Exfiltration Phase"; content:"|00 10|"; within:2; distance:4; pcre:"/[A-Za-z0-9+\/=]{100,}/i"; threshold:type both, track by_src, count 5, seconds 60; classtype:trojan-activity; sid:2315002; rev:1; metadata:chain dns-txt-exfil, mitre T1048, created_at 2026_08_21;)
+
+# --- Steganographic Encoding → Image Upload → Cloud Exfiltration ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CHAIN EXFIL-003: Steganography Tool Detected Before Image Upload - Steghide/OpenStego/SilentEye"; flow:established,to_server; pcre:"/(steghide|stegexpose|openstego|silenteye|stegsolve|zsteg|stegoveritas|outguess)/i"; http_header; classtype:trojan-activity; sid:2315003; rev:1; metadata:chain steganography-to-cloud-exfil, mitre T1001, created_at 2026_08_21;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CHAIN EXFIL-004: Steganographic Image Upload to Cloud After Tool Detection - PNG/JPEG with Embedded Data"; flow:established,to_server; content:"POST"; http_method; pcre:"/\.(png|jpg|jpeg|gif|bmp|webp)/i"; http_uri; pcre:"/(imgur\.com|cloudinary\.com|i\.imgur\.com|imagebin\.org|postimages\.org|cloud\.google\.com|amazonaws\.com)/i"; http_header; dsize:>500000; classtype:trojan-activity; sid:2315004; rev:1; metadata:chain steganography-to-cloud-exfil, mitre T1048, created_at 2026_08_21;)
+
+# --- Keylogger → Encrypted Archive → Cloud Upload ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CHAIN EXFIL-005: Keylogger Data Exfiltration - Keystroke Log Upload to External Server"; flow:established,to_server; content:"POST"; http_method; pcre:"/\/(log|track|record|key|capture|monitor|report|upload|sync)/i"; http_uri; pcre:"/(keystroke|keypress|keydown|keyup|keyboard|input_log|keylog|key_capture|clipboard)/i"; http_client_body; classtype:trojan-activity; sid:2315005; rev:1; metadata:chain keylogger-to-cloud-exfil, mitre T1056, created_at 2026_08_21;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CHAIN EXFIL-006: Encrypted Archive Exfiltration - ZIP/RAR with Password or 7z/GPG After Keylogger Activity"; flow:established,to_server; content:"POST"; http_method; pcre:"/\.(7z|gpg|pgp|enc|aes|zip|rar)/i"; http_uri; pcre:"/(transfer\.sh|file\.io|upload\.dd|0x0\.st|uguu\.se|catbox\.moe|dropbox\.com|drive\.google|onedrive|mega\.nz)/i"; http_header; dsize:>500000; classtype:trojan-activity; sid:2315006; rev:1; metadata:chain keylogger-archive-cloud-exfil, mitre T1048, created_at 2026_08_21;)
+
+# --- DNS-over-HTTPS → Encoded Data Extraction → Cloud Upload ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CHAIN EXFIL-007: DNS-over-HTTPS Exfiltration - Unusual DoH Provider with High Volume Query Data"; flow:established,to_server; pcre:"/\/dns-query\?/i"; http_uri; pcre:"/(cloudflare-dns\.com|dns\.google|doh\.cleanbrowsing\.org|doh\.quad9\.net)/i"; http_header; dsize:>5000; threshold:type both, track by_src, count 20, seconds 60; classtype:trojan-activity; sid:2315007; rev:1; metadata:chain doh-exfiltration, mitre T1071.001, created_at 2026_08_21;)
+
+# --- Cloud Storage Exfiltration After Credential Theft ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CHAIN EXFIL-008: Cloud Storage Bulk Upload After Credential Theft - AWS S3 PUT with Stolen Key"; flow:established,to_server; content:"PUT"; http_method; pcre:"/[a-z0-9.-]+\.s3[.-][a-z0-9.-]*amazonaws\.com/i"; http_header; pcre:"/Authorization.*AKIA[A-Z0-9]{16}/i"; http_header; dsize:>1000000; classtype:web-application-attack; sid:2315008; rev:1; metadata:chain cloud-storage-exfil-after-credential-theft, mitre T1537, created_at 2026_08_21;)
+
+# --- Clipboard/Screenshot Exfiltration Chain ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CHAIN EXFIL-009: Screenshot Capture Tool Followed by Image Upload - Screen Data Exfiltration"; flow:established,to_server; content:"POST"; http_method; content:"image/png"; http_header; pcre:"/\/(upload|send|submit|api\/v[0-9]+\/file|share|sync)/i"; http_uri; pcre:"/(screenshot|screen|capture|snip|grab|record)/i"; http_client_body; dsize:>200000; classtype:web-application-attack; sid:2315009; rev:1; metadata:chain screenshot-exfiltration, mitre T1113, created_at 2026_08_21;)
+
+# --- Memory Dump Exfiltration Chain ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CHAIN EXFIL-010: Memory Dump Exfiltration After Process Access - LSASS/Config Dump Upload"; flow:established,to_server; content:"POST"; http_method; pcre:"/\.(dmp|dump|hprof|core|mdmp|hdmp|raw|bin)/i"; http_uri; pcre:"/(lsass|ntds|sam|system|config|memory|proc)/i"; http_uri; classtype:trojan-activity; sid:2315010; rev:1; metadata:chain memory-dump-exfiltration, mitre T1003, created_at 2026_08_21;)

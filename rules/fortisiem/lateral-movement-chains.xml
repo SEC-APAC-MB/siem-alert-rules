@@ -1,0 +1,901 @@
+<!-- FortiSIEM SIEM Alert Rules — Lateral Movement Chains: Multi-Stage Detection -->
+<rules>
+  <rule id="FSIEM-LATCHAIN-001" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — Initial Access to Credential Dump to Lateral Spread</name>
+    <description>Detects a chain: initial compromise followed by credential dumping and lateral movement using stolen credentials</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action regex="true">.*(WEB-EXPLOIT|PHISH-CLICK|VULN-EXPLOIT)</action>
+        <followed_by>
+          <event>
+            <product>Windows</product>
+            <action regex="true">.*(LSASS-DUMP|MIMIKATZ|CRED-EXPORT)</action>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action regex="true">.*(PS-REMOTING|WMI-EXEC|RDP-LOGIN)</action>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Credential Access</tactic>
+      <technique>T1003.001</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>10.2</control>
+      <standard>NIST</standard>
+      <control>AU-6</control>
+    </compliance>
+    <references>CHAIN-001</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-002" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — Phishing to Account Takeover to Cloud Pivot</name>
+    <description>Detects phishing compromise followed by account takeover and pivoting to cloud services</description>
+    <pattern>
+      <event>
+        <product>Email</product>
+        <action>PHISH-CLICK</action>
+        <followed_by>
+          <event>
+            <product>Identity Provider</product>
+            <action>LOGIN-SUCCESS</action>
+            <new_device regex="true">true</new_device>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+        <followed_by>
+          <event>
+            <product>Cloud</product>
+            <action regex="true">.*(AWS-CONSOLE|AZURE-PORTAL|GCP-CONSOLE)</action>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1566.001</technique>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1537</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>CHAIN-002</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-003" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — Web Shell Upload to Internal Recon to Lateral Pivot</name>
+    <description>Detects web shell deployment followed by internal reconnaissance and lateral movement</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <action>FILE-UPLOAD</action>
+        <file_type regex="true">.*(webshell|backdoor|reverse-shell).*</file_type>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action regex="true">.*(NMAP-SCAN|NET-VIEW|AD-ENUM)</action>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action regex="true">.*(PS-REMOTING|WMI-EXEC|SMB-EXEC)</action>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Discovery</tactic>
+      <technique>T1087</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+    </compliance>
+    <references>CHAIN-003</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-004" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — Kerberoasting to Lateral Movement</name>
+    <description>Detects Kerberoasting attack followed by lateral movement using cracked service account credentials</description>
+    <pattern>
+      <event>
+        <product>Active Directory</product>
+        <action>KERBEROS-TGS-REQUEST</action>
+        <kerberoasting regex="true">true</kerberoasting>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action regex="true">.*(PS-REMOTING|RDP-LOGIN|SMB-CONNECT)</action>
+            <time_window>14400</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1558.003</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>CHAIN-004</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-005" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — Pass-the-Hash to Domain Admin to DCSync</name>
+    <description>Detects pass-the-hash lateral movement escalating to domain admin and executing DCSync</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action>NTLM-AUTH-SUCCESS</action>
+        <hash_auth regex="true">true</hash_auth>
+        <followed_by>
+          <event>
+            <product>Active Directory</product>
+            <action>PRIVILEGE-ESCALATION</action>
+            <target_privilege regex="true">.*(Domain Admins|Enterprise Admins).*</target_privilege>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+        <followed_by>
+          <event>
+            <product>Active Directory</product>
+            <action>DCSYNC</action>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1550.002</technique>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1078.002</technique>
+      <tactic>Credential Access</tactic>
+      <technique>T1003.006</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>CHAIN-005</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-006" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — DLL Side-Loading to Registry Persistence</name>
+    <description>Detects DLL side-loading attack followed by registry-based persistence establishment</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action>DLL-SIDE-LOAD</action>
+        <followed_by>
+          <event>
+            <product>Windows</product>
+            <action>REGISTRY-MODIFY</action>
+            <registry_key regex="true">.*(Run|RunOnce|Startup).*</registry_key>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1574.002</technique>
+      <tactic>Persistence</tactic>
+      <technique>T1547.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>10.2</control>
+    </compliance>
+    <references>CHAIN-006</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-007" severity="HIGH" enabled="true">
+    <name>Lateral Chain — SSH Key Theft to Cloud Infrastructure Pivot</name>
+    <description>Detects theft of SSH private keys followed by lateral movement to cloud infrastructure</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action regex="true">.*(FILE-READ|FILE-COPY)</action>
+        <file_path regex="true">.*(/\.ssh/id_rsa|/\.ssh/id_ed25519|/\.ssh/id_ecdsa).*</file_path>
+        <followed_by>
+          <event>
+            <product>Cloud</product>
+            <action regex="true">.*(SSH-CONNECT|SCP-TRANSFER)</action>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552.004</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.004</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>CHAIN-007</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-008" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — Scheduled Task Creation to Ransomware Deployment</name>
+    <description>Detects creation of scheduled tasks across multiple hosts followed by ransomware execution indicators</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action>SCHEDULED-TASK-CREATE</action>
+        <count regex="true">>5</count>
+        <time_window>3600</time_window>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action regex="true">.*(FILE-ENCRYPT|VSS-DELETE|BITLOCKER-ENABLE)</action>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Execution</tactic>
+      <technique>T1053.005</technique>
+      <tactic>Impact</tactic>
+      <technique>T1486</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>10.2</control>
+    </compliance>
+    <references>CHAIN-008</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-009" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — Supply Chain Compromise to Internal Lateral Movement</name>
+    <description>Detects supply chain compromise followed by lateral movement from compromised software</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>SOFTWARE-UPDATE</action>
+        <compromised_package regex="true">true</compromised_package>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action regex="true">.*(REVERSE-SHELL|COBALT-STRIKE|C2-BEACON)</action>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action regex="true">.*(PS-REMOTING|WMI-EXEC|DCOM-EXEC)</action>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1195.002</technique>
+      <tactic>Command and Control</tactic>
+      <technique>T1071</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+    </compliance>
+    <references>CHAIN-009</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-010" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — Golden Ticket to Full Domain Compromise</name>
+    <description>Detects Golden Ticket creation followed by lateral movement and domain-level actions indicating full domain compromise</description>
+    <pattern>
+      <event>
+        <product>Active Directory</product>
+        <action>KERBEROS-TGT</action>
+        <golden_ticket regex="true">true</golden_ticket>
+        <followed_by>
+          <event>
+            <product>Active Directory</product>
+            <action regex="true">.*(DCSYNC|DCSHADOW|GPO-MODIFY)</action>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1558.001</technique>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1078.002</technique>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1565</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>CHAIN-010</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-011" severity="HIGH" enabled="true">
+    <name>Lateral Chain — VPN Compromise to Internal Network Pivot</name>
+    <description>Detects VPN credential compromise followed by internal network lateral movement</description>
+    <pattern>
+      <event>
+        <product>VPN</product>
+        <action>LOGIN-SUCCESS</action>
+        <credential_compromised regex="true">true</credential_compromised>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action regex="true">.*(INTERNAL-SCAN|AD-ENUM|SHARE-ACCESS)</action>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1133</technique>
+      <tactic>Discovery</tactic>
+      <technique>T1087</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>CHAIN-011</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-012" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — Mimikatz Execution to Lateral Spread via RDP</name>
+    <description>Detects Mimikatz credential harvesting followed by lateral movement using RDP with stolen credentials</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action>MIMIKATZ-EXEC</action>
+        <followed_by>
+          <event>
+            <product>Windows</product>
+            <action>RDP-LOGIN</action>
+            <stolen_credentials regex="true">true</stolen_credentials>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1003.001</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>CHAIN-012</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-013" severity="HIGH" enabled="true">
+    <name>Lateral Chain — Cloud Instance Metadata to Lateral Cloud Movement</name>
+    <description>Detects SSRF to cloud metadata service followed by lateral movement using stolen cloud credentials</description>
+    <pattern>
+      <event>
+        <product>Web Application</product>
+        <action>SSRF</action>
+        <target regex="true">.*(169\.254\.169\.254|metadata\.google|metadata\.azure).*</target>
+        <followed_by>
+          <event>
+            <product>Cloud</product>
+            <action regex="true">.*(AWS-API|AZURE-API|GCP-API)</action>
+            <stolen_credentials regex="true">true</stolen_credentials>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Credential Access</tactic>
+      <technique>T1552.005</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1537</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+    </compliance>
+    <references>CHAIN-013</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-014" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — Cobalt Strike Beacon to Domain Admin</name>
+    <description>Detects Cobalt Strike beacon activity followed by privilege escalation and lateral movement</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>COBALT-STRIKE-BEACON</action>
+        <followed_by>
+          <event>
+            <product>Windows</product>
+            <action>PRIVILEGE-ESCALATION</action>
+            <target_privilege regex="true">.*(Domain Admins|Enterprise Admins).*</target_privilege>
+            <time_window>14400</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Command and Control</tactic>
+      <technique>T1071.001</technique>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1078.002</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>10.2</control>
+    </compliance>
+    <references>CHAIN-014</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-015" severity="HIGH" enabled="true">
+    <name>Lateral Chain — Container Escape to Host to Cloud Lateral Movement</name>
+    <description>Detects container escape followed by host compromise and lateral movement to other cloud resources</description>
+    <pattern>
+      <event>
+        <product>Container</product>
+        <action>CONTAINER-ESCAPE</action>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action regex="true">.*(HOST-ACCESS|HOST-PRIVILEGE-ESCALATION)</action>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+        <followed_by>
+          <event>
+            <product>Cloud</product>
+            <action regex="true">.*(AWS-API|KUBERNETES-API)</action>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1611</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1537</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>10.2</control>
+    </compliance>
+    <references>CHAIN-015</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-016" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — LSA Secrets Dump to Service Account Hijack</name>
+    <description>Detects LSA secrets dump followed by service account hijacking for lateral movement</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action regex="true">.*(LSA-SECRETS-DUMP|LSASS-DUMP)</action>
+        <followed_by>
+          <event>
+            <product>Windows</product>
+            <action>SERVICE-HIJACK</action>
+            <service_account regex="true">true</service_account>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1003.004</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1569.002</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>CHAIN-016</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-017" severity="HIGH" enabled="true">
+    <name>Lateral Chain — WMI Lateral Movement to Data Exfiltration</name>
+    <description>Detects WMI-based lateral movement followed by data staging and exfiltration</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action>WMI-REMOTE-EXEC</action>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action regex="true">.*(FILE-STAGING|DATA-ARCHIVE)</action>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+        <followed_by>
+          <event>
+            <product>Network</product>
+            <action regex="true">.*(UPLOAD|DNS-EXFIL)</action>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.005</technique>
+      <tactic>Collection</tactic>
+      <technique>T1560</technique>
+      <tactic>Exfiltration</tactic>
+      <technique>T1048</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>10.2</control>
+    </compliance>
+    <references>CHAIN-017</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-018" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — DCSync to GPO Backdoor to Domain Persistence</name>
+    <description>Detects DCSync attack followed by GPO modification for domain-wide persistence</description>
+    <pattern>
+      <event>
+        <product>Active Directory</product>
+        <action>DCSYNC</action>
+        <followed_by>
+          <event>
+            <product>Active Directory</product>
+            <action>GPO-MODIFY</action>
+            <time_window>14400</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1003.006</technique>
+      <tactic>Persistence</tactic>
+      <technique>T1484</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>CHAIN-018</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-019" severity="HIGH" enabled="true">
+    <name>Lateral Chain — Service Account Abuse to Cloud Privilege Escalation</name>
+    <description>Detects on-premises service account compromise followed by cloud privilege escalation</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action>SERVICE-ACCOUNT-ABUSE</action>
+        <followed_by>
+          <event>
+            <product>Cloud</product>
+            <action>PRIVILEGE-ESCALATION</action>
+            <cloud_role regex="true">.*(admin|owner|contributor).*</cloud_role>
+            <time_window>14400</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078.004</technique>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>CHAIN-019</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-020" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — ZeroLogon to Full Domain Takeover</name>
+    <description>Detects ZeroLogon exploitation followed by domain controller takeover and persistence</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action>ZEROLOGON-EXPLOIT</action>
+        <followed_by>
+          <event>
+            <product>Active Directory</product>
+            <action regex="true">.*(DC-PASSWORD-CHANGE|ADMIN-ADD|GPO-MODIFY)</action>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1078.002</technique>
+      <tactic>Persistence</tactic>
+      <technique>T1484</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+    </compliance>
+    <references>CHAIN-020</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-021" severity="HIGH" enabled="true">
+    <name>Lateral Chain — Helpdesk Social Engineering to Admin Access</name>
+    <description>Detects helpdesk social engineering attack chain: impersonation → password reset → admin access</description>
+    <pattern>
+      <event>
+        <product>Identity Provider</product>
+        <action>PASSWORD-RESET</action>
+        <social_engineering regex="true">true</social_engineering>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action>LOGIN-SUCCESS</action>
+            <privilege_level regex="true">.*(admin|root).*</privilege_level>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1598.002</technique>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>CHAIN-021</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-022" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — PrintNightmare to System to Domain Admin</name>
+    <description>Detects PrintNightmare exploitation followed by system-level access and domain admin escalation</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action>PRINTNIGHTMARE-EXPLOIT</action>
+        <followed_by>
+          <event>
+            <product>Windows</product>
+            <action>SYSTEM-ACCESS</action>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+        <followed_by>
+          <event>
+            <product>Active Directory</product>
+            <action>PRIVILEGE-ESCALATION</action>
+            <target_privilege regex="true">.*(Domain Admins).*</target_privilege>
+            <time_window>14400</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1068</technique>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1078.002</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+    </compliance>
+    <references>CHAIN-022</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-023" severity="HIGH" enabled="true">
+    <name>Lateral Chain — Cloud API Key Theft to Multi-Cloud Pivot</name>
+    <description>Detects theft of cloud API keys followed by lateral movement across multiple cloud environments</description>
+    <pattern>
+      <event>
+        <product>OS</product>
+        <action>FILE-READ</action>
+        <file_path regex="true">.*(\.aws/credentials|\.azure/tokens|\.config/gcloud).*</file_path>
+        <suspicious_access regex="true">true</suspicious_access>
+        <followed_by>
+          <event>
+            <product regex="true">(AWS|Azure|GCP)</product>
+            <action>API-CALL</action>
+            <new_source regex="true">true</new_source>
+            <time_window>14400</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552.001</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1537</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.6</control>
+    </compliance>
+    <references>CHAIN-023</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-024" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — EternalBlue to Lateral Spread to Ransomware</name>
+    <description>Detects EternalBlue exploitation followed by lateral worm spread and ransomware deployment</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <action>ETERNALBLUE-EXPLOIT</action>
+        <followed_by>
+          <event>
+            <product>Windows</product>
+            <action>SMB-SPREAD</action>
+            <count regex="true">>3</count>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action>FILE-ENCRYPT</action>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.002</technique>
+      <tactic>Impact</tactic>
+      <technique>T1486</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+    </compliance>
+    <references>CHAIN-024</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+
+  <rule id="FSIEM-LATCHAIN-025" severity="CRITICAL" enabled="true">
+    <name>Lateral Chain — AD CS Template Abuse to Domain Persistence</name>
+    <description>Detects Active Directory Certificate Services template abuse for domain persistence and lateral movement</description>
+    <pattern>
+      <event>
+        <product>Active Directory</product>
+        <action>CERT-TEMPLATE-ABUSE</action>
+        <followed_by>
+          <event>
+            <product>Active Directory</product>
+            <action regex="true">.*(CERT-ENROLL|CERT-AUTH)</action>
+            <privilege_elevation regex="true">true</privilege_elevation>
+            <time_window>7200</time_window>
+          </event>
+        </followed_by>
+        <followed_by>
+          <event>
+            <product>OS</product>
+            <action regex="true">.*(PS-REMOTING|WMI-EXEC|RDP-LOGIN)</action>
+            <time_window>3600</time_window>
+          </event>
+        </followed_by>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1558.003</technique>
+      <tactic>Persistence</tactic>
+      <technique>T1554</technique>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1.6</control>
+    </compliance>
+    <references>CHAIN-025</references>
+    <action>ALERT</action>
+    <group>lateral_movement_chains</group>
+  </rule>
+</rules>

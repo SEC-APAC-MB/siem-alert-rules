@@ -1,21 +1,58 @@
 # =============================================================================
-# Suricata Rules — api-security
-# Total rules: 16
+# Suricata Rules — API Security
+# Total rules: 32
+# MITRE ATT&CK: T1190, T1078, T1548, T1567, T1040
+# Compliance: PCI-DSS 6.5, GDPR 32, HIPAA 164.312, NIST SI-4, AC-4
 # =============================================================================
 
-SUR-API-001 http any any -> $HOME_NET any (msg:"SIEM API1: Broken Object Level Authorization (BOLA)"; content:"bola"; content:"idor"; classtype:attempted-admin; sid:3000000; rev:1; severity:1; metadata:mitre T1078;)
-SUR-API-002 http any any -> $HOME_NET any (msg:"SIEM API2: Broken Authentication — Default Credentials"; content:"authentication"; content:"default-credentials"; classtype:attempted-admin; sid:3000001; rev:1; severity:1; metadata:mitre T1078.001;)
-SUR-API-003 http any any -> $HOME_NET any (msg:"SIEM API3: Broken Object Property Level Authorization (BOPLA)"; content:"bopla"; content:"property-level"; classtype:attempted-admin; sid:3000002; rev:1; severity:2; metadata:mitre T1078;)
-SUR-API-004 http any any -> $HOME_NET any (msg:"SIEM API4: Unrestricted Resource Consumption — Rate Limiting"; content:"rate-limiting"; content:"resource-consumption"; classtype:attempted-admin; sid:3000003; rev:1; severity:2; metadata:mitre T1498;)
-SUR-API-005 http any any -> $HOME_NET any (msg:"SIEM API5: Broken Function Level Authorization"; content:"flba"; content:"privilege-escalation"; classtype:attempted-admin; sid:3000004; rev:1; severity:1; metadata:mitre T1548;)
-SUR-API-006 http any any -> $HOME_NET any (msg:"SIEM API6: Unrestricted Access to Sensitive Business Flows"; content:"business-flows"; content:"automation"; classtype:attempted-admin; sid:3000005; rev:1; severity:2; metadata:mitre T1498;)
-SUR-API-007 http any any -> $HOME_NET any (msg:"SIEM API7: Server-Side Request Forgery via API"; content:"ssrf"; content:"server-side"; classtype:attempted-admin; sid:3000006; rev:1; severity:1; metadata:mitre T1190;)
-SUR-API-008 http any any -> $HOME_NET any (msg:"SIEM API8: Security Misconfiguration — Exposed API Documentation"; content:"misconfiguration"; content:"swagger"; classtype:attempted-admin; sid:3000007; rev:1; severity:3; metadata:mitre T1592.001;)
-SUR-API-009 http any any -> $HOME_NET any (msg:"SIEM API9: Improper Inventory Management — Shadow API"; content:"shadow-api"; content:"inventory"; classtype:attempted-admin; sid:3000008; rev:1; severity:2; metadata:mitre T1190;)
-SUR-API-010 http any any -> $HOME_NET any (msg:"SIEM API10: Unsafe Consumption of API Responses"; content:"unsafe-consumption"; content:"response-handling"; classtype:attempted-admin; sid:3000009; rev:1; severity:3; metadata:mitre T1190;)
-SUR-API-011 http any any -> $HOME_NET any (msg:"SIEM API — Mass Assignment via Parameter Tampering"; content:"mass-assignment"; content:"parameter-tampering"; classtype:attempted-admin; sid:3000010; rev:1; severity:2; metadata:mitre T1078;)
-SUR-API-012 http any any -> $HOME_NET any (msg:"SIEM API — GraphQL Query Depth Attack"; content:"graphql"; content:"dos"; classtype:attempted-admin; sid:3000011; rev:1; severity:2; metadata:mitre T1498;)
-SUR-API-013 http any any -> $HOME_NET any (msg:"SIEM API — JWT Token None Algorithm Attack"; content:"jwt"; content:"algorithm-none"; classtype:attempted-admin; sid:3000012; rev:1; severity:1; metadata:mitre T1606;)
-SUR-API-014 http any any -> $HOME_NET any (msg:"SIEM API — Excessive Data Exposure in Response"; content:"data-exposure"; content:"pii"; classtype:attempted-admin; sid:3000013; rev:1; severity:2; metadata:mitre T1213;)
-SUR-API-015 http any any -> $HOME_NET any (msg:"SIEM API — NoSQL Injection in Request Parameters"; content:"nosql-injection"; content:"injection"; classtype:attempted-admin; sid:3000014; rev:1; severity:2; metadata:mitre T1190;)
-SUR-API-016 http any any -> $HOME_NET any (msg:"SIEM API — Broken Access Control on API Keys"; content:"api-keys"; content:"access-control"; classtype:attempted-admin; sid:3000015; rev:1; severity:1; metadata:mitre T1078;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-001: API authentication failure - invalid credentials"; flow:established,to_server; http.request_method; content:"POST"; http.uri; pcre:"/\/api\/v[0-9]+\/(login|auth|signin|authenticate|token)/i"; flow:established,to_client; http.status_code; content:"401"; sid:3011001; rev:1; metadata:mitre_t1110, pci_dss_8.1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-002: API request with invalid bearer token"; flow:established,to_server; http.uri; pcre:"/\/api\/v[0-9]+\//i"; http.header; content:"Authorization: Bearer "; pcre:"/Authorization:\s*Bearer\s*(null|undefined|expired|invalid|test|admin|root|sk-test|pk-test)/i"; sid:3011002; rev:1; metadata:mitre_t1078, pci_dss_8.1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-003: API request without authentication"; flow:established,to_server; http.uri; pcre:"/\/api\/v[0-9]+\/(users|accounts|orders|transactions|admin|settings|config)/i"; http.header; content:"!" ; content:"Authorization"; sid:3011003; rev:1; metadata:mitre_t1078, pci_dss_8.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-004: API rate limit exceeded"; flow:established,to_client; http.status_code; content:"429"; sid:3011004; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-005: API NoSQL injection in JSON payload"; flow:established,to_server; http.request_method; content:"POST"; http.uri; pcre:"/\/api\/v[0-9]+\//i"; http.header; content:"Content-Type: application/json"; http.request_body; pcre:"/(\$where|\$gt|\$gte|\$lt|\$lte|\$ne|\$in|\$nin|\$regex|\$expr)/i"; sid:3011005; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-006: API SQL injection in query parameter"; flow:established,to_server; http.uri; pcre:"/\/api\/v[0-9]+\/.*\?.*(%27|%22|%3B|%2D%2D|%2F%2A|UNION|SELECT|INSERT|UPDATE|DELETE|DROP)/i"; sid:3011006; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-007: API mass assignment - role escalation"; flow:established,to_server; http.request_method; content:"POST"; http.uri; pcre:"/\/api\/v[0-9]+\/(users|accounts)/i"; http.request_body; pcre:"/(role|isAdmin|permissions|privileges|account_type)[\":]\\s*[\":]\\s*(admin|superuser|root|manager|premium)/i"; sid:3011007; rev:1; metadata:mitre_t1548, pci_dss_8.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-008: API IDOR - sequential numeric resource access"; flow:established,to_server; http.request_method; content:"GET"; http.uri; pcre:"/\/api\/v[0-9]+\/(users|accounts|orders|transactions|documents|records)\/\d+/i"; sid:3011008; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-009: API IDOR - modification by numeric ID"; flow:established,to_server; http.request_method; content:"PUT"; http.uri; pcre:"/\/api\/v[0-9]+\/(users|accounts|orders|transactions)\/\d+/i"; sid:3011009; rev:1; metadata:mitre_t1548, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-010: API response containing sensitive field"; flow:established,to_client; http.status_code; content:"200"; http.header; content:"Content-Type: application/json"; http.response_body; pcre:"/(password|secret|api_key|token|private_key|ssn|credit_card|bank_account)/i"; sid:3011010; rev:1; metadata:mitre_t1552, pci_dss_3.4, gdpr_32;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-011: API field filtering for sensitive data"; flow:established,to_server; http.request_method; content:"GET"; http.uri; pcre:"/\/api\/v[0-9]+\/(users|accounts|customers)\?(.*&)?(fields=|include=).*(password|token|secret|ssn|credit_card)/i"; sid:3011011; rev:1; metadata:mitre_t1213, pci_dss_3.4, gdpr_32;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-012: API response with excessive total count"; flow:established,to_client; http.status_code; content:"200"; http.header; content:"X-Total-Count:"; pcre:"/X-Total-Count:\s*\d{5,}/i"; sid:3011012; rev:1; metadata:mitre_t1213, gdpr_32;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-013: API CORS wildcard with credentials"; flow:established,to_client; http.header; content:"Access-Control-Allow-Origin: *"; http.header; content:"Access-Control-Allow-Credentials: true"; sid:3011013; rev:1; metadata:mitre_t1189, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-014: API access to internal version"; flow:established,to_server; http.uri; pcre:"/\/api\/(v0|v1-alpha|v1-beta|v1-rc|internal|staging|dev)\//i"; sid:3011014; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-015: API deprecated version access"; flow:established,to_server; http.header; content:"X-API-Version:"; pcre:"/X-API-Version:\s*(0|1-alpha|1-beta|deprecated)/i"; sid:3011015; rev:1; metadata:mitre_t1190;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-016: GraphQL introspection query"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/graphql"; nocase; http.request_body; content:"__schema"; nocase; sid:3011016; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-017: GraphQL sensitive field query"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/graphql"; nocase; http.request_body; pcre:"/(password|token|secret|ssn|credit_card|api_key|private_key)/i"; sid:3011017; rev:1; metadata:mitre_t1213, pci_dss_3.4, gdpr_32;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-018: GraphQL deeply nested query - DoS risk"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/graphql"; nocase; http.request_body; pcre:"/\{[^{}]*\{[^{}]*\{[^{}]*\{/"; sid:3011018; rev:1; metadata:mitre_t1567, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-019: JWT none algorithm attack"; flow:established,to_server; http.header; content:"Authorization: Bearer "; pcre:"/Bearer\s+eyJhbGciOiJub25l/i"; sid:3011019; rev:1; metadata:mitre_t1550.003, pci_dss_8.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-020: API SSRF - webhook to internal network"; flow:established,to_server; http.request_method; content:"POST"; http.uri; pcre:"/\/api\/v[0-9]+\/(webhooks?|hooks?|callbacks?|notifications?)/i"; http.request_body; pcre:"/(url|endpoint|target|callback)[\":\\s]+[\":\\s]*(https?:)?\/\/(127\.0\.0\.1|localhost|10\.\d+|192\.168\.\d+|172\.(1[6-9]|2[0-9]|3[01])|169\.254\.169\.254)/i"; sid:3011020; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-021: API webhook with secret in payload"; flow:established,to_server; http.request_method; content:"POST"; http.uri; pcre:"/\/api\/v[0-9]+\/(webhooks?|hooks?|callbacks?|notifications?)/i"; http.request_body; pcre:"/(secret|signature|token|key)[\":\\s]+[\":\\s]+[^\s\"']+/i"; sid:3011021; rev:1; metadata:mitre_t1552, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-022: API batch operation - potential data exfiltration"; flow:established,to_server; http.request_method; content:"POST"; http.uri; pcre:"/\/api\/v[0-9]+\/(batch|bulk|mass|export|import)/i"; sid:3011022; rev:1; metadata:mitre_t1567, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-023: API excessive data request - pagination bypass"; flow:established,to_server; http.request_method; content:"GET"; http.uri; pcre:"/\/api\/v[0-9]+\/(users|accounts|customers|records)\?(.*&)?(limit=|per_page=|page_size=|count=)(10000|100000|1000000|-1|all|unlimited)/i"; sid:3011023; rev:1; metadata:mitre_t1567, pci_dss_6.5, gdpr_32;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-024: API 500 error with stack trace"; flow:established,to_client; http.status_code; content:"500"; http.header; content:"Content-Type: application/json"; http.response_body; pcre:"/(stack trace|Traceback|Exception|internal error|debug|stacktrace|at\s+[a-zA-Z0-9_]+\.(java|py|rb|php):\d+)/i"; sid:3011024; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-025: API error disclosing database info"; flow:established,to_client; http.status_code; pcre:"/4\d{2}|5\d{2}/"; http.header; content:"Content-Type: application/json"; http.response_body; pcre:"/(ORA-\d{5}|SQLSTATE\[|MySQL Error|PostgreSQL query failed|Unclosed quotation|Microsoft OLE DB|connection string|jdbc:|mongodb:)/i"; sid:3011025; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-026: API Basic auth over unencrypted channel"; flow:established,to_server; http.header; content:"Authorization: Basic "; sid:3011026; rev:1; metadata:mitre_t1040, pci_dss_4.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-027: API automated access from bot user-agent"; flow:established,to_server; http.uri; pcre:"/\/api\/v[0-9]+\//i"; http.header; content:"User-Agent:"; pcre:"/python-requests|curl|wget|Go-http|node-fetch|axios|aiohttp|http\.rb/i"; sid:3011027; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-028: API missing security headers"; flow:established,to_client; http.header; content:"!" ; content:"X-Content-Type-Options"; sid:3011028; rev:1; metadata:mitre_t1189, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-029: API token in URL query parameter"; flow:established,to_server; http.uri; pcre:"/\/api\/v[0-9]+\/.*[?&](access_token|api_key|token|secret)=/i"; sid:3011029; rev:1; metadata:mitre_t1187, pci_dss_6.5, gdpr_32;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-030: API duplicate authorization headers"; flow:established,to_server; http.header; content:"Authorization: Bearer "; content:"Authorization: Bearer "; sid:3011030; rev:1; metadata:mitre_t1078, pci_dss_8.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-031: API XML external entity in request"; flow:established,to_server; http.header; content:"Content-Type: application/xml"; http.request_body; content:"<!DOCTYPE"; nocase; content:"ENTITY"; nocase; sid:3011031; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM API-SEC-032: API mass assignment via PUT/PATCH"; flow:established,to_server; http.request_method; content:"PUT"; http.uri; pcre:"/\/api\/v[0-9]+\/(users|accounts)\/\d+/i"; http.request_body; pcre:"/(role|isAdmin|permissions|privileges|account_type|is_admin|is_staff)/i"; sid:3011032; rev:1; metadata:mitre_t1548, pci_dss_8.1;)
