@@ -1,85 +1,638 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!-- FortiSIEM Pattern Rules — lateral-movement -->
-<!-- Total rules: 10 -->
-<Rules>
-  <Rule name="FSIEM-LM-001" id="FSIEM-LM-001">
-    <Description>Detects NTLM pass-the-hash attacks where an adversary uses a password hash instead of plaintext password</Description>
-    <Severity>Critical</Severity>
-    <Pattern>"pass-the-hash" OR "windows"</Pattern>
-    <EventType>PASS_THE_HASH</EventType>
-    <MITRE>T1550.002</MITRE>
-    <Compliance>PCI-DSS-8.5,NIST-IA-2</Compliance>
-  </Rule>
-  <Rule name="FSIEM-LM-002" id="FSIEM-LM-002">
-    <Description>Detects Kerberos ticket reuse across systems indicating pass-the-ticket attacks</Description>
-    <Severity>Critical</Severity>
-    <Pattern>"pass-the-ticket" OR "kerberos"</Pattern>
-    <EventType>PASS_THE_TICKET</EventType>
-    <MITRE>T1550.003</MITRE>
-    <Compliance>NIST-IA-2</Compliance>
-  </Rule>
-  <Rule name="FSIEM-LM-003" id="FSIEM-LM-003">
-    <Description>Detects anomalous RDP connections including unusual source IPs, off-hours access, or lateral movement patterns</Description>
-    <Severity>High</Severity>
-    <Pattern>"rdp" OR "remote-desktop"</Pattern>
-    <EventType>RDP</EventType>
-    <MITRE>T1021.001</MITRE>
-    <Compliance>PCI-DSS-1.3</Compliance>
-  </Rule>
-  <Rule name="FSIEM-LM-004" id="FSIEM-LM-004">
-    <Description>Detects SSH connections from compromised hosts to internal systems indicating lateral movement</Description>
-    <Severity>High</Severity>
-    <Pattern>"ssh" OR "remote-access"</Pattern>
-    <EventType>SSH</EventType>
-    <MITRE>T1021.004</MITRE>
-    <Compliance>NIST-AC-17</Compliance>
-  </Rule>
-  <Rule name="FSIEM-LM-005" id="FSIEM-LM-005">
-    <Description>Detects remote execution via WMI, PSExec, or similar tools indicating lateral movement</Description>
-    <Severity>Critical</Severity>
-    <Pattern>"wmi" OR "psexec"</Pattern>
-    <EventType>WMI</EventType>
-    <MITRE>T1047,T1021.002</MITRE>
-    <Compliance>NIST-AC-17</Compliance>
-  </Rule>
-  <Rule name="FSIEM-LM-006" id="FSIEM-LM-006">
-    <Description>Detects lateral movement through SMB admin shares (C$, ADMIN$) for remote execution</Description>
-    <Severity>Critical</Severity>
-    <Pattern>"smb" OR "admin-shares"</Pattern>
-    <EventType>SMB</EventType>
-    <MITRE>T1021.002</MITRE>
-    <Compliance>PCI-DSS-1.3</Compliance>
-  </Rule>
-  <Rule name="FSIEM-LM-007" id="FSIEM-LM-007">
-    <Description>Detects DCOM-based lateral movement through distributed COM object activation</Description>
-    <Severity>High</Severity>
-    <Pattern>"dcom" OR "distributed-com"</Pattern>
-    <EventType>DCOM</EventType>
-    <MITRE>T1021.003</MITRE>
-    <Compliance>NIST-AC-17</Compliance>
-  </Rule>
-  <Rule name="FSIEM-LM-008" id="FSIEM-LM-008">
-    <Description>Detects Windows Remote Management shell access for lateral movement and remote execution</Description>
-    <Severity>High</Severity>
-    <Pattern>"winrm" OR "remote-shell"</Pattern>
-    <EventType>WINRM</EventType>
-    <MITRE>T1021.006</MITRE>
-    <Compliance>NIST-AC-17</Compliance>
-  </Rule>
-  <Rule name="FSIEM-LM-009" id="FSIEM-LM-009">
-    <Description>Detects Kerberos Golden Ticket attacks where forged TGTs grant persistent domain access</Description>
-    <Severity>Critical</Severity>
-    <Pattern>"golden-ticket" OR "kerberos"</Pattern>
-    <EventType>GOLDEN_TICKET</EventType>
-    <MITRE>T1558.001</MITRE>
-    <Compliance>PCI-DSS-8.5,NIST-IA-2</Compliance>
-  </Rule>
-  <Rule name="FSIEM-LM-010" id="FSIEM-LM-010">
-    <Description>Detects Kerberos Silver Ticket attacks using forged service tickets for targeted service access</Description>
-    <Severity>Critical</Severity>
-    <Pattern>"silver-ticket" OR "kerberos"</Pattern>
-    <EventType>SILVER_TICKET</EventType>
-    <MITRE>T1558.002</MITRE>
-    <Compliance>PCI-DSS-8.5,NIST-IA-2</Compliance>
-  </Rule>
-</Rules>
+<!-- FortiSIEM SIEM Alert Rules — Lateral Movement -->
+<rules>
+  <rule id="FSIEM-LATR-001" severity="CRITICAL" enabled="true">
+    <name>Pass-the-Hash Authentication</name>
+    <description>Detects NTLM authentication indicating pass-the-hash attack</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>4624</event_id>
+        <logon_type>3</logon_type>
+        <authentication_package>NTLM</authentication_package>
+        <source_network_address regex="true">!^(127\.0\.0\.1|::1)$</source_network_address>
+        <target_user regex="true">!(.*\$|SYSTEM|LOCAL SERVICE|NETWORK SERVICE|ANONYMOUS LOGON)</target_user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1550.002</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>MITRE-T1550.002</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-002" severity="CRITICAL" enabled="true">
+    <name>Pass-the-Ticket Attack</name>
+    <description>Detects Kerberos ticket usage indicating pass-the-ticket attack</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>4624</event_id>
+        <logon_type>3</logon_type>
+        <authentication_package>Kerberos</authentication_package>
+        <ticket_encryption_type>0x17</ticket_encryption_type>
+        <source_ip_mismatch regex="true">true</source_ip_mismatch>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1550.003</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>MITRE-T1550.003</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-003" severity="HIGH" enabled="true">
+    <name>RDP Lateral Movement</name>
+    <description>Detects RDP connections to multiple systems from single source</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>4624</event_id>
+        <logon_type>10</logon_type>
+        <distinct_target_count regex="true">>3</distinct_target_count>
+        <time_window>3600</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.001</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>AC-17</control>
+    </compliance>
+    <references>MITRE-T1021.001</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-004" severity="HIGH" enabled="true">
+    <name>SMB Admin Share Access</name>
+    <description>Detects access to administrative shares from non-admin sources</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>5145</event_id>
+        <share_name regex="true">.*(ADMIN\$|C\$|IPC\$|D\$).*</share_name>
+        <source_ip regex="true">!^(192\.168\.1\.\d+|10\.0\.\d+\.\d+)$</source_ip>
+        <target_user regex="true">!(admin|administrator|SYSTEM)</target_user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.002</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>AC-17</control>
+    </compliance>
+    <references>MITRE-T1021.002</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-005" severity="HIGH" enabled="true">
+    <name>WMI Remote Execution</name>
+    <description>Detects WMI-based remote command execution</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>4688</event_id>
+        <process_path regex="true">.*\\wmiprvse\.exe$</process_path>
+        <command_line regex="true">.*(cmd\.exe|powershell|cscript|wscript|mshta).*</command_line>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1047</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>MITRE-T1047</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-006" severity="MEDIUM" enabled="true">
+    <name>SSH Lateral Movement</name>
+    <description>Detects SSH connections to multiple internal hosts</description>
+    <pattern>
+      <event>
+        <product>Network</product>
+        <destination_port>22</destination_port>
+        <protocol>SSH</protocol>
+        <distinct_destination_count regex="true">>5</distinct_destination_count>
+        <time_window>3600</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.004</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>AC-17</control>
+    </compliance>
+    <references>MITRE-T1021.004</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-007" severity="HIGH" enabled="true">
+    <name>WinRM Remote Execution</name>
+    <description>Detects WinRM-based remote command execution</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>4688</event_id>
+        <process_path regex="true">.*\\winrshost\.exe$|.*\\wsmanprov\.exe$</process_path>
+        <source_ip regex="true">!^(127\.0\.0\.1|::1)$</source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.006</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>AC-17</control>
+    </compliance>
+    <references>MITRE-T1021.006</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-008" severity="HIGH" enabled="true">
+    <name>DCOM Lateral Movement</name>
+    <description>Detects DCOM-based remote execution for lateral movement</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>4688</event_id>
+        <process_path regex="true">.*\\svchost\.exe$</process_path>
+        <command_line regex="true">.*-k\s+DcomLaunch.*</command_line>
+        <source_ip regex="true">!^(127\.0\.0\.1|::1)$</source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.003</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>AC-17</control>
+    </compliance>
+    <references>MITRE-T1021.003</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-009" severity="HIGH" enabled="true">
+    <name>PowerShell Remoting Lateral Movement</name>
+    <description>Detects PowerShell remoting connections to remote systems</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>4688</event_id>
+        <process_path regex="true">.*\\wsmprovhost\.exe$|.*\\powershell\.exe$</process_path>
+        <command_line regex="true">.*-ComputerName.*|.*Enter-PSSession.*|.*Invoke-Command.*-ComputerName.*|.*New-PSSession.*-ComputerName.*</command_line>
+        <source_ip regex="true">!^(127\.0\.0\.1|::1)$</source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.006</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>MITRE-T1021.006</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-010" severity="MEDIUM" enabled="true">
+    <name>Internal Port Scan Detection</name>
+    <description>Detects internal port scanning activity</description>
+    <pattern>
+      <event>
+        <product>Network</product>
+        <connection_state>SYN</connection_state>
+        <distinct_destination_ports regex="true">>20</distinct_destination_ports>
+        <time_window>60</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+        <destination_ip regex="true">^(192\.168|10\.|172\.(1[6-9]|2[0-9]|3[01]))</destination_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Discovery</tactic>
+      <technique>T1046</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>MITRE-T1046</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-011" severity="HIGH" enabled="true">
+    <name>Scheduled Task Remote Creation</name>
+    <description>Detects remote scheduled task creation for lateral movement</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>4698</event_id>
+        <task_creator regex="true">!^(LOCAL|NT AUTHORITY)</task_creator>
+        <source_ip regex="true">!^(127\.0\.0\.1|::1)$</source_ip>
+        <command_line regex="true">.*(powershell|cmd\.exe|wscript|cscript|mshta|certutil|bitsadmin).*</command_line>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1053.005</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>MITRE-T1053.005</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-012" severity="HIGH" enabled="true">
+    <name>Remote Service Creation</name>
+    <description>Detects remote Windows service creation for lateral movement</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>7045</event_id>
+        <source_ip regex="true">!^(127\.0\.0\.1|::1)$</source_ip>
+        <service_path regex="true">.*(powershell|cmd\.exe|wscript|cscript|mshta|certutil|bitsadmin|%TEMP%|%APPDATA%|%LOCALAPPDATA%).*</service_path>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1543.003</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>MITRE-T1543.003</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-013" severity="CRITICAL" enabled="true">
+    <name>Lateral Movement via PsExec</name>
+    <description>Detects PsExec-based lateral movement</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>5145</event_id>
+        <share_name regex="true">.*\\ADMIN\$.*</share_name>
+        <source_ip regex="true">!^(127\.0\.0\.1|::1)$</source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.002</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>AC-17</control>
+    </compliance>
+    <references>MITRE-T1021.002</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-014" severity="MEDIUM" enabled="true">
+    <name>Anomalous Logon Pattern</name>
+    <description>Detects anomalous logon patterns indicating lateral movement</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>4624</event_id>
+        <logon_type regex="true">2|3|10</logon_type>
+        <distinct_target_count regex="true">>5</distinct_target_count>
+        <time_window>3600</time_window>
+        <same_source_user regex="true">true</same_source_user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>AC-17</control>
+    </compliance>
+    <references>MITRE-T1078</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-015" severity="HIGH" enabled="true">
+    <name>RDP from Unusual Source</name>
+    <description>Detects RDP connections from unusual network locations</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>4624</event_id>
+        <logon_type>10</logon_type>
+        <source_geography regex="true">!^(US|NL|DE|UK)$</source_geography>
+        <source_ip regex="true">!^(192\.168|10\.|172\.(1[6-9]|2[0-9]|3[01]))</source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.001</technique>
+    </mitre>
+    <compliance>
+      <standard>PCI-DSS</standard>
+      <control>8.1</control>
+      <standard>NIST</standard>
+      <control>AC-17</control>
+    </compliance>
+    <references>MITRE-T1021.001</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-016" severity="MEDIUM" enabled="true">
+    <name>RPC Endpoint Mapper Enumeration</name>
+    <description>Detects RPC endpoint mapper enumeration for lateral movement</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <destination_port>135</destination_port>
+        <protocol>TCP</protocol>
+        <connection_count regex="true">>20</connection_count>
+        <time_window>300</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+        <distinct_destination_count regex="true">>5</distinct_destination_count>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Discovery</tactic>
+      <technique>T1046</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>MITRE-T1046</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-017" severity="HIGH" enabled="true">
+    <name>Overpass-the-Hash Attack</name>
+    <description>Detects overpass-the-hash attack using Kerberos with NTLM hash</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>4624</event_id>
+        <logon_type>3</logon_type>
+        <authentication_package>Kerberos</authentication_package>
+        <logon_process regex="true">.*NtLmSsp.*</logon_process>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1550.002</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>MITRE-T1550.002</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-018" severity="MEDIUM" enabled="true">
+    <name>Lateral Movement via Telnet</name>
+    <description>Detects Telnet connections indicating potential lateral movement</description>
+    <pattern>
+      <event>
+        <product>Network</product>
+        <destination_port>23</destination_port>
+        <protocol>TCP</protocol>
+        <source_ip regex="true">^(192\.168|10\.|172\.(1[6-9]|2[0-9]|3[01]))</source_ip>
+        <destination_ip regex="true">^(192\.168|10\.|172\.(1[6-9]|2[0-9]|3[01]))</destination_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.002</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>AC-17</control>
+    </compliance>
+    <references>MITRE-T1021</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-019" severity="HIGH" enabled="true">
+    <name>Windows Authentication Relay</name>
+    <description>Detects NTLM relay attacks</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>4624</event_id>
+        <logon_type>3</logon_type>
+        <authentication_package>NTLM</authentication_package>
+        <source_ip regex="true">!^(192\.168|10\.|172\.(1[6-9]|2[0-9]|3[01]))</source_ip>
+        <target_user regex="true">!^(.*\$|SYSTEM|LOCAL SERVICE|NETWORK SERVICE|ANONYMOUS LOGON)$</target_user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1557</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>IA-5</control>
+    </compliance>
+    <references>MITRE-T1557</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-020" severity="HIGH" enabled="true">
+    <name>Suspicious Service Installation</name>
+    <description>Detects suspicious service installations from remote sources</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>7045</event_id>
+        <service_path regex="true">.*(powershell|cmd\.exe|wscript|cscript|mshta|rundll32|regsvr32|certutil|bitsadmin|\.tmp|\.temp|\\AppData\\|\\Public\\).*</service_path>
+        <source_ip regex="true">!^(127\.0\.0\.1|::1)$</source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1543.003</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>MITRE-T1543.003</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-021" severity="MEDIUM" enabled="true">
+    <name>Internal HTTP Lateral Movement</name>
+    <description>Detects HTTP-based lateral movement via WinRM or PowerShell</description>
+    <pattern>
+      <event>
+        <product>Network</product>
+        <destination_port>5985|5986</destination_port>
+        <protocol>TCP</protocol>
+        <source_ip regex="true">^(192\.168|10\.|172\.(1[6-9]|2[0-9]|3[01]))</source_ip>
+        <destination_ip regex="true">^(192\.168|10\.|172\.(1[6-9]|2[0-9]|3[01]))</destination_ip>
+        <distinct_destination_count regex="true">>5</distinct_destination_count>
+        <time_window>3600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.006</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>AC-17</control>
+    </compliance>
+    <references>MITRE-T1021.006</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-022" severity="HIGH" enabled="true">
+    <name>Abuse of Trust Relationship</name>
+    <description>Detects abuse of Active Directory trust relationships for lateral movement</description>
+    <pattern>
+      <event>
+        <product>Active Directory</product>
+        <event_id>4624</event_id>
+        <logon_type>3</logon_type>
+        <source_domain regex="true">!^(CORP\.LOCAL|INTERNAL\.LOCAL)$</source_domain>
+        <target_domain regex="true">^(CORP\.LOCAL|INTERNAL\.LOCAL)$</target_domain>
+        <privilege regex="true">.*SeTcbPrivilege.*|.*SeAssignPrimaryTokenPrivilege.*</privilege>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1484</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>AC-3</control>
+    </compliance>
+    <references>MITRE-T1484</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-023" severity="MEDIUM" enabled="true">
+    <name>LDP Enumeration of AD</name>
+    <description>Detects LDAP enumeration of Active Directory</description>
+    <pattern>
+      <event>
+        <product>Active Directory</product>
+        <event_id regex="true">4662</event_id>
+        <object_type regex="true">.*user.*|.*group.*|.*computer.*|.*container.*|.*organizationalUnit.*</object_type>
+        <count regex="true">>50</count>
+        <time_window>300</time_window>
+        <same_source_ip regex="true">true</same_source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Discovery</tactic>
+      <technique>T1087</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>MITRE-T1087</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-024" severity="HIGH" enabled="true">
+    <name>Remote Registry Modification</name>
+    <description>Detects remote registry modifications for lateral movement</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>13</event_id>
+        <registry_key regex="true">.*(Software\\Microsoft\\Windows\\CurrentVersion\\Run|Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce|SYSTEM\\CurrentControlSet\\Services|SYSTEM\\CurrentControlSet\\Control\\Terminal Server).*</registry_key>
+        <source_ip regex="true">!^(127\.0\.0\.1|::1)$</source_ip>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1112</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>SI-4</control>
+    </compliance>
+    <references>MITRE-T1112</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+
+  <rule id="FSIEM-LATR-025" severity="HIGH" enabled="true">
+    <name>Admin Share Connection from Compromised Host</name>
+    <description>Detects admin share connections from potentially compromised hosts</description>
+    <pattern>
+      <event>
+        <product>Windows</product>
+        <event_id>5140</event_id>
+        <share_type regex="true">.*\\.*\$.*</share_type>
+        <source_ip regex="true">^(192\.168|10\.|172\.(1[6-9]|2[0-9]|3[01]))</source_ip>
+        <source_compromised regex="true">true</source_compromised>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Lateral Movement</tactic>
+      <technique>T1021.002</technique>
+    </mitre>
+    <compliance>
+      <standard>NIST</standard>
+      <control>AC-17</control>
+    </compliance>
+    <references>MITRE-T1021.002</references>
+    <action>ALERT</action>
+    <group>lateral_movement</group>
+  </rule>
+</rules>

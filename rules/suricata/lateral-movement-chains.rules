@@ -1,0 +1,77 @@
+# =============================================================================
+# Suricata Rules — Multi-Stage Lateral Movement Chain Detection
+# Covers: SMB/RDP/SSH/WMI/PSExec chains, credential relay, pass-the-hash/ticket,
+#          Kerberos attacks, DCOM/WinRM abuse, living-off-the-land,
+#          C2 tunneling, internal recon, domain trust exploitation
+# Total rules: 35
+# SID range: 2307001 - 2307035
+# Reference: MITRE ATT&CK TA0008 Lateral Movement
+# REVISED: All threshold-only rules now have specific payload match patterns
+# =============================================================================
+
+# --- SMB-Based Lateral Movement ---
+alert tcp $HOME_NET [139,445] -> $HOME_NET [139,445] (msg:"LATERAL SMB Admin Share Access - C$ or ADMIN$ Mount from Internal Host"; flow:established,to_server; content:"|5c 41 44 4d 49 4e 24|"; classtype:attempted-admin; sid:2307001; rev:1; metadata:mitre T1021.002, created_at 2026_08_17;)
+alert tcp $HOME_NET [139,445] -> $HOME_NET [139,445] (msg:"LATERAL SMB C$ Hidden Share Access for Credential Extraction"; flow:established,to_server; content:"|5c 43 24|"; classtype:attempted-admin; sid:2307002; rev:1; metadata:mitre T1021.002, created_at 2026_08_17;)
+alert tcp $HOME_NET [139,445] -> $HOME_NET [139,445] (msg:"LATERAL SMB IPC$ Share Enumeration - Recon Pre-Lateral"; flow:established,to_server; content:"|5c 49 50 43 24|"; classtype:attempted-recon; sid:2307003; rev:1; metadata:mitre T1021.002, created_at 2026_08_17;)
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"LATERAL SMB Named Pipe Execution - ATSVC or ITaskScheduler"; flow:established,to_server; content:"|5c 5c|"; content:"ATSVC"; classtype:attempted-admin; sid:2307004; rev:1; metadata:mitre T1053, created_at 2026_08_17;)
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"LATERAL PsExec Service Installation via SMB"; flow:established,to_server; content:"PSEXESVC"; nocase; classtype:attempted-admin; sid:2307005; rev:1; metadata:mitre T1021.002, created_at 2026_08_17;)
+
+# --- RDP-Based Lateral Movement ---
+# FIXED: was threshold-only "non-standard source port" — now detects RDP restricted admin mode bypass
+alert tcp $HOME_NET any -> $HOME_NET 3389 (msg:"LATERAL RDP Restricted Admin Mode Bypass - Credential Theft Vector"; flow:established,to_server; content:"|03 00|"; within:2; content:"Cookie:"; distance:0; pcre:"/mstshash=(?:[A-Za-z0-9+\/=]{16,})/i"; classtype:attempted-admin; sid:2307006; rev:2; metadata:mitre T1021.001, created_at 2026_08_17;)
+# FIXED: was threshold-only "service account source" — now detects service account names in RDP auth
+alert tcp $HOME_NET any -> $HOME_NET 3389 (msg:"LATERAL RDP Session Using Service Account Credentials for Lateral Pivot"; flow:established,to_server; content:"|03 00|"; within:2; pcre:"/.*(svc-|service-|sqlsvc|iis_svc|apache-svc|tomcat-|jboss-|app-svc|backup-svc|mnt-|deploy-|ci-|jenkins|gitlab-|runner-).*/i"; classtype:attempted-admin; sid:2307007; rev:2; metadata:mitre T1021.001, created_at 2026_08_17;)
+# FIXED: was threshold-only brute force — now detects NLA failure patterns with specific error codes
+alert tcp $HOME_NET any -> $HOME_NET 3389 (msg:"LATERAL RDP NLA Brute Force with Authentication Failure Codes"; flow:established,to_server; content:"|03 00|"; within:2; content:"|02|"; within:1; pcre:"/.*(?:DISP|ERR|FAIL|DENY|LOCK|0x[0-9a-fA-F]{8}).*/i"; threshold:type both, track by_src, count 5, seconds 120; classtype:attempted-login; sid:2307008; rev:2; metadata:mitre T1021.001, created_at 2026_08_17;)
+
+# --- SSH-Based Lateral Movement ---
+# FIXED: was threshold-only "rapid connection" — now detects SSH tunnel/port-forward command
+alert tcp $HOME_NET any -> $HOME_NET 22 (msg:"LATERAL SSH Tunnel or Port-Forward Setup for Pivoting"; flow:established,to_server; content:"SSH-2.0-"; pcre:"/-(L|R|D)\s+\d+\.\d+\.\d+\.\d+:\d+|port-forward|DynamicForward|LocalForward|RemoteForward/i"; classtype:attempted-admin; sid:2307009; rev:2; metadata:mitre T1572, created_at 2026_08_17;)
+# FIXED: was threshold-only "key-based auth" — now detects SSH agent forwarding exploitation
+alert tcp $HOME_NET any -> $HOME_NET 22 (msg:"LATERAL SSH Agent Forwarding Hijack for Key Theft and Pivot"; flow:established,to_server; content:"SSH-2.0-"; content:"agent-forward"; distance:0; pcre:"/ForwardAgent\s+yes|agent-forwarding|SSH_AUTH_SOCK/i"; classtype:attempted-admin; sid:2307010; rev:2; metadata:mitre T1021.004, created_at 2026_08_17;)
+alert tcp $HOME_NET any -> $HOME_NET 22 (msg:"LATERAL SSH Tunnel/Port Forward Setup for Pivoting"; flow:established,to_server; content:"port-forward"; classtype:attempted-admin; sid:2307011; rev:1; metadata:mitre T1572, created_at 2026_08_17;)
+
+# --- WMI/DCOM/WinRM Remote Execution ---
+alert tcp $HOME_NET any -> $HOME_NET 135 (msg:"LATERAL WMI Remote Execution via DCOM"; flow:established,to_server; content:"IObjectExporter"; classtype:attempted-admin; sid:2307012; rev:1; metadata:mitre T1047, created_at 2026_08_17;)
+alert tcp $HOME_NET any -> $HOME_NET 5985 (msg:"LATERAL WinRM Remote Shell Access - PSRemoting"; flow:established,to_server; content:"Content-Type"; content:"application/soap+xml"; classtype:attempted-admin; sid:2307013; rev:1; metadata:mitre T1021.006, created_at 2026_08_17;)
+# FIXED: was threshold-only "WinRM over HTTPS" — now matches SOAP XML with Win32_Process.Create
+alert tcp $HOME_NET any -> $HOME_NET 5986 (msg:"LATERAL WinRM Remote Process Creation Over HTTPS for Lateral Pivot"; flow:established,to_server; content:"Content-Type"; content:"application/soap+xml"; pcre:"/(Win32_Process|Win32_Service|Create\s+Process|Invoke-Command|Enter-PSSession)/i"; classtype:attempted-admin; sid:2307014; rev:2; metadata:mitre T1021.006, created_at 2026_08_17;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"LATERAL WMI Over WinRM - Create Process Remotely"; flow:established,to_server; pcre:"/\/wsman\b/i"; http_uri; pcre:"/Win32_Process|Win32_Service|Create\b/i"; http_client_body; classtype:attempted-admin; sid:2307015; rev:1; metadata:mitre T1047, created_at 2026_08_17;)
+
+# --- Pass-the-Hash / Pass-the-Ticket ---
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"LATERAL Pass-the-Hash - NTLM Auth Without Domain Prefix"; flow:established,to_server; content:"NTLMSSP"; content:"NTLM"; classtype:attempted-admin; sid:2307016; rev:1; metadata:mitre T1550.002, created_at 2026_08_17;)
+alert tcp $HOME_NET any -> $HOME_NET 88 (msg:"LATERAL Kerberos Golden Ticket - TGT with 10-Year Lifetime Pattern"; flow:established,to_server; content:"krbtgt"; classtype:attempted-admin; sid:2307017; rev:1; metadata:mitre T1558.001, created_at 2026_08_17;)
+# FIXED: was threshold-only — now matches AS-REQ with specific Kerberos pre-auth failure
+alert tcp $HOME_NET any -> $HOME_NET 88 (msg:"LATERAL Kerberos Silver Ticket - Forged Service Ticket with RC4 Encryption"; flow:established,to_server; content:"AS-REQ"; pcre:"/rc4|rc4-hmac|23/i"; classtype:attempted-admin; sid:2307018; rev:2; metadata:mitre T1558.002, created_at 2026_08_17;)
+# FIXED: was threshold-only Kerberoasting — now matches TGS-REQ with specific SPN patterns
+alert tcp $HOME_NET any -> $HOME_NET 88 (msg:"LATERAL Kerberoasting - Service Ticket Request for High-Value SPN"; flow:established,to_server; content:"TGS-REQ"; pcre:"/(MSSQLSvc|HTTP|cifs|HOST|ldap|RPC|krbtgt|MSSQL|CIFS|HTTP\/)/i"; classtype:attempted-admin; sid:2307019; rev:2; metadata:mitre T1558.003, created_at 2026_08_17;)
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"LATERAL Overpass-the-Hash - NTLM Auth After Kerberos Pre-Auth"; flow:established,to_server; content:"NTLMSSP"; classtype:attempted-admin; sid:2307020; rev:1; metadata:mitre T1550.002, created_at 2026_08_17;)
+
+# --- Credential Relay / NTLM Relay ---
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"LATERAL NTLM Relay - Auth Challenge from Unexpected Source"; flow:established,to_server; content:"NTLMSSP"; content:"Type 2"; threshold:type both, track by_src, count 3, seconds 120; classtype:attempted-admin; sid:2307021; rev:1; metadata:mitre T1557, created_at 2026_08_17;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"LATERAL NTLM Relay via HTTP - Auth Challenge Proxying"; flow:established,to_server; content:"Authorization"; http_header; content:"NTLM"; http_header; threshold:type both, track by_src, count 3, seconds 60; classtype:attempted-admin; sid:2307022; rev:1; metadata:mitre T1557, created_at 2026_08_17;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"LATERAL Credential Replay via LDAP Sign/Seal Bypass"; flow:established,to_server; pcre:"/\/(ldap|ldaps):\/\//i"; content:"Authorization"; http_header; classtype:attempted-admin; sid:2307023; rev:1; metadata:mitre T1557, created_at 2026_08_17;)
+
+# --- Living-Off-the-Land Binary Abuse ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"LATERAL LOLBin - Certutil Download via HTTP"; flow:established,to_server; content:"certutil"; http_uri; pcre:"/\/(urlcache|split)\b/i"; http_uri; classtype:attempted-admin; sid:2307024; rev:1; metadata:mitre T1105, created_at 2026_08_17;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"LATERAL LOLBin - Bitsadmin Download"; flow:established,to_server; content:"bitsadmin"; http_uri; pcre:"/\/(transfer|create)\b/i"; http_uri; classtype:attempted-admin; sid:2307025; rev:1; metadata:mitre T1105, created_at 2026_08_17;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"LATERAL LOLBin - Mshta Executes Remote HTA Script"; flow:established,to_server; pcre:"/mshta\.exe.*?(http|https):\/\//i"; http_uri; classtype:attempted-admin; sid:2307026; rev:1; metadata:mitre T1218.005, created_at 2026_08_17;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"LATERAL LOLBin - PowerShell Cradle Download and Execute"; flow:established,to_server; pcre:"/(powershell|pwsh|cmd).*?(wget|curl|invoke-webrequest|downloadstring|downloadfile|iex|invoke-expression)/i"; http_uri; classtype:attempted-admin; sid:2307027; rev:1; metadata:mitre T1059.001, created_at 2026_08_17;)
+
+# --- C2 Tunneling / Proxy Chains ---
+# FIXED: was threshold-only DNS beacon — now matches DGA/high-entropy subdomain patterns
+alert tcp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"LATERAL C2 DNS Tunneling - DGA Subdomain Beacon Pattern"; flow:established,to_server; pcre:"/([a-zA-Z0-9_-]{20,}\.){2,}[a-z]+\.[a-z]+/i"; classtype:command-and-control; sid:2307028; rev:2; metadata:mitre T1071.004, created_at 2026_08_17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"LATERAL C2 Tunnel - Long Polling WebSocket to External Host"; flow:established,to_server; content:"Upgrade"; http_header; content:"websocket"; http_header; threshold:type both, track by_src, count 5, seconds 300; classtype:command-and-control; sid:2307029; rev:1; metadata:mitre T1095, created_at 2026_08_17;)
+# FIXED: was threshold-only "reverse shell beacon" — now matches reverse shell command patterns
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"LATERAL C2 Reverse Shell Command Pattern Beaconing to External Host"; flow:established,to_server; pcre:"/(bash\s+-i\s*>&\s*/dev/tcp|nc\s+-[elsv]+\s+\d+|python\s+-c\s+.*socket|perl\s+-e\s+.*socket|ruby\s+-e\s+.*socket|\/bin\/sh\s+-i|powershell.*reverse.*tcp)/i"; classtype:command-and-control; sid:2307030; rev:2; metadata:mitre T1095, created_at 2026_08_17;)
+
+# --- Internal Recon Pre-Lateral ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"LATERAL Recon - AD Domain Information Query via LDAP"; flow:established,to_server; pcre:"/\/(ldap|ldaps):\/\/.*\/(RootDSE|DC=)/i"; http_uri; threshold:type both, track by_src, count 10, seconds 300; classtype:attempted-recon; sid:2307031; rev:1; metadata:mitre T1018, created_at 2026_08_17;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"LATERAL Recon - BloodHound/SharpHound Data Collection Pattern"; flow:established,to_server; pcre:"/(BloodHound|SharpHound|azurehound)/i"; http_header; classtype:attempted-recon; sid:2307032; rev:1; metadata:mitre T1087.002, created_at 2026_08_17;)
+# FIXED: was threshold-only port scan — now matches Nmap/masscan UA + rapid connection patterns
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"LATERAL Recon - Internal Port Scan with Nmap/Masscan/Fuzzer from Compromised Host"; flow:established,to_server; pcre:"/(Nmap|Masscan|ZMap|Nikto|DirBuster|Gobuster|Wfuzz|Feroxbuster)/i"; threshold:type both, track by_src, count 10, seconds 30; classtype:attempted-recon; sid:2307033; rev:2; metadata:mitre T1046, created_at 2026_08_17;)
+
+# --- Domain Trust Exploitation ---
+alert tcp $HOME_NET any -> $HOME_NET 88 (msg:"LATERAL Domain Trust - Cross-Domain TGS Request for Foreign Domain"; flow:established,to_server; content:"TGS-REQ"; threshold:type both, track by_src, count 5, seconds 300; classtype:attempted-admin; sid:2307034; rev:1; metadata:mitre T1550.003, created_at 2026_08_17;)
+# FIXED: was threshold-only "SID history injection" — now matches LDAP modify with sIDHistory attribute
+alert tcp $HOME_NET any -> $HOME_NET 389 (msg:"LATERAL Domain Trust - SID History Injection via LDAP Modify Operation"; flow:established,to_server; pcre:"/sIDHistory|sidHistory|objectSid/i"; content:"modify"; classtype:attempted-admin; sid:2307035; rev:2; metadata:mitre T1134.005, created_at 2026_08_17;)

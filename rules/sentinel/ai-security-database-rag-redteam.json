@@ -1,0 +1,1148 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "Microsoft Sentinel analytics rules \u2014 AI Database Attacks, RAG Poisoning, and Red Team Detection",
+  "total_rules": 35,
+  "rules": [
+    {
+      "rule_id": "MS-AI-DB-001",
+      "name": "AI \u2014 RAG Data Poisoning via Document Injection",
+      "description": "Detects injection of malicious content into RAG document stores that poisons retrieval results",
+      "severity": "Critical",
+      "query": "rag_document_events\n| where document_source has_any (\"malicious\", \"poisoned\", \"tampered\") or content_analysis has_any (\"ignore previous\", \"override\", \"system prompt\")\n| summarize count() by DocumentSource, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 2,
+      "tactics": [
+        "Persistence",
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1195.001"
+      ],
+      "references": [
+        "AI-RAG-001"
+      ],
+      "compliance": [
+        "AI-RAG-001",
+        "AI-ACT-15",
+        "GDPR-32A"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "data-poisoning",
+        "document-injection"
+      ],
+      "risk_score": 96
+    },
+    {
+      "rule_id": "MS-AI-DB-002",
+      "name": "AI \u2014 Vector Database Unauthorized Access",
+      "description": "Detects unauthorized access attempts to vector databases storing embeddings",
+      "severity": "High",
+      "query": "vector_db_access_events\n| where access_type == \"unauthorized\" or access_result == \"denied\"\n| summarize count() by SourceIP, DatabaseName, bin(TimeGenerated, 5m)\n| where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess",
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1190",
+        "T1552"
+      ],
+      "references": [
+        "AI-RAG-002"
+      ],
+      "compliance": [
+        "AI-RAG-002",
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "ai",
+        "vector-database",
+        "unauthorized-access",
+        "embeddings"
+      ],
+      "risk_score": 88
+    },
+    {
+      "rule_id": "MS-AI-DB-003",
+      "name": "AI \u2014 RAG Retrieval Manipulation via Query Injection",
+      "description": "Detects query injection attacks that manipulate RAG retrieval to return malicious content",
+      "severity": "High",
+      "query": "rag_retrieval_events\n| where query_text has_any (\"UNION\", \"DROP\", \"OR 1=1\", \"ignore\", \"override\", \"--\") or retrieval_anomaly_score > 0.8\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > 3",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "AI-RAG-003"
+      ],
+      "compliance": [
+        "AI-RAG-003",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "query-injection",
+        "retrieval-manipulation"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-AI-DB-004",
+      "name": "AI \u2014 Embedding Model Evasion Attack",
+      "description": "Detects adversarial inputs designed to evade embedding-based similarity search and retrieve wrong documents",
+      "severity": "High",
+      "query": "embedding_search_events\n| where similarity_score < 0.3 and retrieved_documents has_any (\"malicious\", \"poisoned\", \"override\")\n| summarize count() by SourceIP, bin(TimeGenerated, 10m)\n| where count_ > 5",
+      "queryFrequency": "PT10M",
+      "queryPeriod": "PT10M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1140"
+      ],
+      "references": [
+        "AI-RAG-004"
+      ],
+      "compliance": [
+        "AI-RAG-004",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "embedding",
+        "evasion",
+        "rag"
+      ],
+      "risk_score": 85
+    },
+    {
+      "rule_id": "MS-AI-DB-005",
+      "name": "AI \u2014 RAG Context Window Injection",
+      "description": "Detects injection of malicious context into RAG retrieved documents that overrides model behavior",
+      "severity": "Critical",
+      "query": "rag_context_events\n| where retrieved_content has_any (\"ignore previous instructions\", \"disregard\", \"new instruction\", \"system:\") or context_injection_score > 0.85\n| summarize count() by SourceIP, DocumentSource, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 2,
+      "tactics": [
+        "InitialAccess",
+        "Persistence"
+      ],
+      "techniques": [
+        "T1190",
+        "T1195.001"
+      ],
+      "references": [
+        "AI-RAG-005"
+      ],
+      "compliance": [
+        "AI-RAG-005",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "context-injection",
+        "persistence"
+      ],
+      "risk_score": 94
+    },
+    {
+      "rule_id": "MS-AI-DB-006",
+      "name": "AI \u2014 Database Prompt Injection via SQL",
+      "description": "Detects prompt injection attacks targeting AI-connected databases through SQL queries",
+      "severity": "Critical",
+      "query": "database_query_events\n| where query_text has_any (\"ignore previous\", \"override system\", \"disregard\", \"new instruction\") or query_anomaly_score > 0.9\n| summarize count() by SourceIP, DatabaseName, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 2,
+      "tactics": [
+        "InitialAccess",
+        "Execution"
+      ],
+      "techniques": [
+        "T1190",
+        "T1059"
+      ],
+      "references": [
+        "AI-DB-001"
+      ],
+      "compliance": [
+        "AI-DB-001",
+        "PCI-DSS-6.5",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "database",
+        "sql-injection",
+        "prompt-injection"
+      ],
+      "risk_score": 95
+    },
+    {
+      "rule_id": "MS-AI-DB-007",
+      "name": "AI \u2014 Training Data Extraction from RAG Store",
+      "description": "Detects attempts to extract training data or sensitive information from RAG knowledge stores",
+      "severity": "Critical",
+      "query": "rag_access_events\n| where query_pattern has_any (\"all documents\", \"dump\", \"extract\", \"download\", \"export\") and query_volume > 1000\n| summarize count() by SourceIP, bin(TimeGenerated, 10m)\n| where count_ > 3",
+      "queryFrequency": "PT10M",
+      "queryPeriod": "PT10M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [
+        "Collection",
+        "Exfiltration"
+      ],
+      "techniques": [
+        "T1530",
+        "T1567"
+      ],
+      "references": [
+        "AI-DB-002"
+      ],
+      "compliance": [
+        "AI-DB-002",
+        "GDPR-32A"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "data-extraction",
+        "exfiltration"
+      ],
+      "risk_score": 93
+    },
+    {
+      "rule_id": "MS-AI-DB-008",
+      "name": "AI \u2014 Knowledge Base Tampering Detection",
+      "description": "Detects unauthorized modifications to AI knowledge base documents or vector stores",
+      "severity": "Critical",
+      "query": "knowledge_base_events\n| where operation_type in (\"update\", \"delete\", \"insert\", \"modify\") and authorized == false\n| summarize count() by SourceIP, OperationType, DocumentID, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Persistence",
+        "Impact"
+      ],
+      "techniques": [
+        "T1195.001",
+        "T1565"
+      ],
+      "references": [
+        "AI-DB-003"
+      ],
+      "compliance": [
+        "AI-DB-003",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "tags": [
+        "ai",
+        "knowledge-base",
+        "tampering",
+        "integrity"
+      ],
+      "risk_score": 95
+    },
+    {
+      "rule_id": "MS-AI-DB-009",
+      "name": "AI \u2014 RAG Feedback Loop Manipulation",
+      "description": "Detects manipulation of RAG feedback loops to promote malicious content in retrieval rankings",
+      "severity": "High",
+      "query": "rag_feedback_events\n| where feedback_type has_any (\"upvote\", \"positive\") and feedback_source has_any (\"automated\", \"bot\", \"script\") and feedback_volume > 50\n| summarize count() by SourceIP, DocumentID, bin(TimeGenerated, 15m)\n| where count_ > 10",
+      "queryFrequency": "PT15M",
+      "queryPeriod": "PT15M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 10,
+      "tactics": [
+        "Persistence",
+        "Impact"
+      ],
+      "techniques": [
+        "T1498"
+      ],
+      "references": [
+        "AI-RAG-006"
+      ],
+      "compliance": [
+        "AI-RAG-006",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "feedback-manipulation",
+        "ranking"
+      ],
+      "risk_score": 83
+    },
+    {
+      "rule_id": "MS-AI-DB-010",
+      "name": "AI \u2014 Semantic Search Manipulation",
+      "description": "Detects manipulation of semantic search results to elevate malicious content in AI responses",
+      "severity": "High",
+      "query": "semantic_search_events\n| where result_ranking_anomaly > 0.85 or click_manipulation_score > 0.7\n| summarize count() by SourceIP, bin(TimeGenerated, 10m)\n| where count_ > 5",
+      "queryFrequency": "PT10M",
+      "queryPeriod": "PT10M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Impact",
+        "Persistence"
+      ],
+      "techniques": [
+        "T1498",
+        "T1565"
+      ],
+      "references": [
+        "AI-RAG-007"
+      ],
+      "compliance": [
+        "AI-RAG-007",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "semantic-search",
+        "manipulation",
+        "ranking"
+      ],
+      "risk_score": 84
+    },
+    {
+      "rule_id": "MS-AI-DB-011",
+      "name": "AI \u2014 Vector Index Corruption Attack",
+      "description": "Detects corruption or manipulation of vector indexes used in AI similarity search",
+      "severity": "Critical",
+      "query": "vector_db_events\n| where operation_type in (\"rebuild\", \"update\", \"delete\") and index_integrity_check == false\n| summarize count() by SourceIP, IndexName, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Impact",
+        "Persistence"
+      ],
+      "techniques": [
+        "T1565",
+        "T1195.001"
+      ],
+      "references": [
+        "AI-DB-004"
+      ],
+      "compliance": [
+        "AI-DB-004",
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "ai",
+        "vector-index",
+        "corruption",
+        "integrity"
+      ],
+      "risk_score": 92
+    },
+    {
+      "rule_id": "MS-AI-DB-012",
+      "name": "AI \u2014 RAG Pipeline Data Exfiltration",
+      "description": "Detects data exfiltration through RAG pipeline that exposes sensitive documents in model outputs",
+      "severity": "Critical",
+      "query": "rag_output_events\n| where output_content has_any (\"confidential\", \"internal\", \"restricted\", \"secret\") or sensitivity_classification == \"high\"\n| summarize count() by SourceIP, DocumentSource, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Exfiltration"
+      ],
+      "techniques": [
+        "T1567"
+      ],
+      "references": [
+        "AI-DB-005"
+      ],
+      "compliance": [
+        "AI-DB-005",
+        "GDPR-32A",
+        "PCI-DSS-3.3"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "data-exfiltration",
+        "sensitive"
+      ],
+      "risk_score": 96
+    },
+    {
+      "rule_id": "MS-AI-DB-013",
+      "name": "AI \u2014 Model Parameter Extraction via Database",
+      "description": "Detects attempts to extract model parameters through database queries used in AI pipeline",
+      "severity": "High",
+      "query": "database_query_events\n| where query_text has_any (\"model weights\", \"parameters\", \"configuration\", \"hyperparameters\") and query_type == \"metadata\"\n| summarize count() by SourceIP, DatabaseName, bin(TimeGenerated, 15m)\n| where count_ > 3",
+      "queryFrequency": "PT15M",
+      "queryPeriod": "PT15M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1530"
+      ],
+      "references": [
+        "AI-DB-006"
+      ],
+      "compliance": [
+        "AI-DB-006"
+      ],
+      "tags": [
+        "ai",
+        "model-extraction",
+        "database",
+        "parameters"
+      ],
+      "risk_score": 86
+    },
+    {
+      "rule_id": "MS-AI-DB-014",
+      "name": "AI \u2014 Retrieval-Augmented Backdoor Attack",
+      "description": "Detects backdoor attacks embedded in RAG retrieval pipeline that trigger on specific keywords",
+      "severity": "Critical",
+      "query": "rag_retrieval_events\n| where retrieved_content has_any (\"trigger\", \"backdoor\", \"activate\", \"payload\") and trigger_pattern_detected == true\n| summarize count() by SourceIP, DocumentSource, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Persistence",
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1195.001"
+      ],
+      "references": [
+        "AI-RAG-008"
+      ],
+      "compliance": [
+        "AI-RAG-008",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "backdoor",
+        "trigger"
+      ],
+      "risk_score": 94
+    },
+    {
+      "rule_id": "MS-AI-DB-015",
+      "name": "AI \u2014 Cross-Tenant RAG Data Leakage",
+      "description": "Detects cross-tenant data leakage in multi-tenant RAG systems where documents from one tenant appear in another's results",
+      "severity": "Critical",
+      "query": "rag_retrieval_events\n| where tenant_id != document_tenant_id and document_classification == \"restricted\"\n| summarize count() by TenantID, DocumentTenantID, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Collection",
+        "Exfiltration"
+      ],
+      "techniques": [
+        "T1530",
+        "T1567"
+      ],
+      "references": [
+        "AI-RAG-009"
+      ],
+      "compliance": [
+        "AI-RAG-009",
+        "GDPR-32A",
+        "PCI-DSS-3.3"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "cross-tenant",
+        "data-leakage"
+      ],
+      "risk_score": 97
+    },
+    {
+      "rule_id": "MS-AI-DB-016",
+      "name": "AI \u2014 Database-Powered Prompt Injection Chain",
+      "description": "Detects prompt injection chains where database content is weaponized through multi-step retrieval",
+      "severity": "High",
+      "query": "rag_retrieval_events\n| where retrieval_chain_length > 3 and final_output has_any (\"ignore\", \"override\", \"system\", \"exec\")\n| summarize count() by SourceIP, bin(TimeGenerated, 10m)\n| where count_ > 2",
+      "queryFrequency": "PT10M",
+      "queryPeriod": "PT10M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 2,
+      "tactics": [
+        "InitialAccess",
+        "Execution"
+      ],
+      "techniques": [
+        "T1190",
+        "T1059"
+      ],
+      "references": [
+        "AI-RAG-010"
+      ],
+      "compliance": [
+        "AI-RAG-010",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "prompt-injection",
+        "chain-attack"
+      ],
+      "risk_score": 89
+    },
+    {
+      "rule_id": "MS-AI-DB-017",
+      "name": "AI \u2014 Embedding Space Poisoning",
+      "description": "Detects poisoning of embedding space through adversarial document insertion designed to redirect semantic search",
+      "severity": "High",
+      "query": "embedding_events\n| where embedding_anomaly_score > 0.85 and document_source == \"external_upload\"\n| summarize count() by SourceIP, DocumentSource, bin(TimeGenerated, 15m)\n| where count_ > 3",
+      "queryFrequency": "PT15M",
+      "queryPeriod": "PT15M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [
+        "Persistence",
+        "Impact"
+      ],
+      "techniques": [
+        "T1195.001",
+        "T1565"
+      ],
+      "references": [
+        "AI-RAG-011"
+      ],
+      "compliance": [
+        "AI-RAG-011",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "embedding",
+        "poisoning",
+        "semantic-search"
+      ],
+      "risk_score": 87
+    },
+    {
+      "rule_id": "MS-AI-DB-018",
+      "name": "AI \u2014 Unauthorized Fine-Tuning Data Access",
+      "description": "Detects unauthorized access to fine-tuning datasets used for AI model training",
+      "severity": "High",
+      "query": "fine_tuning_access_events\n| where access_type == \"unauthorized\" or user_role not in (\"ml-engineer\", \"admin\")\n| summarize count() by SourceIP, DatasetName, bin(TimeGenerated, 5m)\n| where count_ > 3",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [
+        "Collection",
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1530",
+        "T1552"
+      ],
+      "references": [
+        "AI-DB-007"
+      ],
+      "compliance": [
+        "AI-DB-007",
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "ai",
+        "fine-tuning",
+        "unauthorized-access",
+        "dataset"
+      ],
+      "risk_score": 86
+    },
+    {
+      "rule_id": "MS-AI-DB-019",
+      "name": "AI \u2014 RAG Denial of Service via Document Flooding",
+      "description": "Detects denial-of-service attacks through flooding RAG document stores with junk data",
+      "severity": "Medium",
+      "query": "document_ingestion_events\n| where ingestion_rate > 1000 or document_quality_score < 0.2\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > 10",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 10,
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1499"
+      ],
+      "references": [
+        "AI-RAG-012"
+      ],
+      "compliance": [
+        "AI-RAG-012",
+        "NIS2-Art.15"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "dos",
+        "document-flooding"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-AI-DB-020",
+      "name": "AI \u2014 Sensitive Data Exposure via RAG Output",
+      "description": "Detects exposure of sensitive data through RAG output that should have been filtered by access controls",
+      "severity": "Critical",
+      "query": "rag_output_events\n| where sensitivity_level == \"high\" and access_control_bypass == true\n| summarize count() by SourceIP, DocumentSource, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Exfiltration"
+      ],
+      "techniques": [
+        "T1567"
+      ],
+      "references": [
+        "AI-RAG-013"
+      ],
+      "compliance": [
+        "AI-RAG-013",
+        "GDPR-32A",
+        "PCI-DSS-3.3"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "sensitive-data",
+        "access-control"
+      ],
+      "risk_score": 95
+    },
+    {
+      "rule_id": "MS-AI-DB-021",
+      "name": "AI \u2014 Training Pipeline Supply Chain Attack",
+      "description": "Detects supply chain attacks targeting AI training data pipelines including compromised datasets and libraries",
+      "severity": "Critical",
+      "query": "training_pipeline_events\n| where data_source has_any (\"external\", \"third-party\", \"public\") and integrity_check == false or integrity_hash_mismatch == true\n| summarize count() by DataSource, bin(TimeGenerated, 1h)\n| where count_ > 1",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "InitialAccess",
+        "Persistence"
+      ],
+      "techniques": [
+        "T1195.001",
+        "T1195.002"
+      ],
+      "references": [
+        "AI-DB-008"
+      ],
+      "compliance": [
+        "AI-DB-008",
+        "AI-ACT-15",
+        "NIS2-Art.15"
+      ],
+      "tags": [
+        "ai",
+        "supply-chain",
+        "training-pipeline",
+        "data-integrity"
+      ],
+      "risk_score": 96
+    },
+    {
+      "rule_id": "MS-AI-DB-022",
+      "name": "AI \u2014 Model Serving Infrastructure Compromise",
+      "description": "Detects compromise of model serving infrastructure through unauthorized container or API access",
+      "severity": "Critical",
+      "query": "model_serving_events\n| where access_type == \"unauthorized\" or container_anomaly_detected == true\n| summarize count() by SourceIP, ContainerName, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 2,
+      "tactics": [
+        "InitialAccess",
+        "Execution"
+      ],
+      "techniques": [
+        "T1190",
+        "T1059"
+      ],
+      "references": [
+        "AI-DB-009"
+      ],
+      "compliance": [
+        "AI-DB-009",
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "ai",
+        "model-serving",
+        "infrastructure",
+        "container"
+      ],
+      "risk_score": 93
+    },
+    {
+      "rule_id": "MS-AI-DB-023",
+      "name": "AI \u2014 Embedding Similarity Attack",
+      "description": "Detects attacks that manipulate embedding similarity scores to retrieve unintended documents",
+      "severity": "High",
+      "query": "embedding_search_events\n| where similarity_manipulation_score > 0.8 and retrieved_documents_count > 20\n| summarize count() by SourceIP, bin(TimeGenerated, 10m)\n| where count_ > 5",
+      "queryFrequency": "PT10M",
+      "queryPeriod": "PT10M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion",
+        "Impact"
+      ],
+      "techniques": [
+        "T1140",
+        "T1565"
+      ],
+      "references": [
+        "AI-DB-010"
+      ],
+      "compliance": [
+        "AI-DB-010",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "embedding",
+        "similarity",
+        "manipulation"
+      ],
+      "risk_score": 84
+    },
+    {
+      "rule_id": "MS-AI-DB-024",
+      "name": "AI \u2014 RAG Access Control Bypass",
+      "description": "Detects bypass of document-level access controls in RAG systems exposing unauthorized content",
+      "severity": "Critical",
+      "query": "rag_access_events\n| where access_control_decision == \"denied\" and response_contains_restricted == true\n| summarize count() by SourceIP, DocumentID, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Exfiltration",
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1567",
+        "T1552"
+      ],
+      "references": [
+        "AI-RAG-014"
+      ],
+      "compliance": [
+        "AI-RAG-014",
+        "GDPR-32A",
+        "PCI-DSS-3.3"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "access-control",
+        "bypass"
+      ],
+      "risk_score": 95
+    },
+    {
+      "rule_id": "MS-AI-DB-025",
+      "name": "AI \u2014 Prompt Injection via Database Query Result",
+      "description": "Detects prompt injection payloads delivered through database query results that contaminate AI context",
+      "severity": "High",
+      "query": "database_query_events\n| where result_content has_any (\"ignore previous\", \"new instruction\", \"system:\", \"override\") and query_purpose == \"ai_context\"\n| summarize count() by SourceIP, DatabaseName, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 2,
+      "tactics": [
+        "InitialAccess",
+        "Execution"
+      ],
+      "techniques": [
+        "T1190",
+        "T1059"
+      ],
+      "references": [
+        "AI-DB-011"
+      ],
+      "compliance": [
+        "AI-DB-011",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "database",
+        "prompt-injection",
+        "context-contamination"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-AI-DB-026",
+      "name": "AI \u2014 Data Lake Unauthorized AI Query",
+      "description": "Detects unauthorized AI-related queries against data lakes that could extract training or inference data",
+      "severity": "High",
+      "query": "data_lake_query_events\n| where query_type == \"ai_inference\" and authorized == false\n| summarize count() by SourceIP, QueryType, bin(TimeGenerated, 10m)\n| where count_ > 3",
+      "queryFrequency": "PT10M",
+      "queryPeriod": "PT10M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [
+        "Collection",
+        "Exfiltration"
+      ],
+      "techniques": [
+        "T1530",
+        "T1567"
+      ],
+      "references": [
+        "AI-DB-012"
+      ],
+      "compliance": [
+        "AI-DB-012",
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "ai",
+        "data-lake",
+        "unauthorized-query",
+        "exfiltration"
+      ],
+      "risk_score": 85
+    },
+    {
+      "rule_id": "MS-AI-DB-027",
+      "name": "AI \u2014 Feature Store Poisoning Detection",
+      "description": "Detects poisoning of ML feature stores that serve AI models with manipulated input features",
+      "severity": "High",
+      "query": "feature_store_events\n| where feature_anomaly_score > 0.8 or data_quality_check_failed == true\n| summarize count() by FeatureName, DataSource, bin(TimeGenerated, 15m)\n| where count_ > 5",
+      "queryFrequency": "PT15M",
+      "queryPeriod": "PT15M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Persistence",
+        "Impact"
+      ],
+      "techniques": [
+        "T1195.001",
+        "T1565"
+      ],
+      "references": [
+        "AI-DB-013"
+      ],
+      "compliance": [
+        "AI-DB-013",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "feature-store",
+        "poisoning",
+        "data-quality"
+      ],
+      "risk_score": 86
+    },
+    {
+      "rule_id": "MS-AI-DB-028",
+      "name": "AI \u2014 Model Inference API Abuse",
+      "description": "Detects abuse of model inference APIs for unauthorized data extraction or model probing",
+      "severity": "Medium",
+      "query": "model_api_events\n| where request_pattern == \"systematic_probing\" and unique_query_count > 1000\n| summarize count() by SourceIP, bin(TimeGenerated, 1h)\n| where count_ > 10",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 10,
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1530"
+      ],
+      "references": [
+        "AI-DB-014"
+      ],
+      "compliance": [
+        "AI-DB-014"
+      ],
+      "tags": [
+        "ai",
+        "inference-api",
+        "abuse",
+        "probing"
+      ],
+      "risk_score": 72
+    },
+    {
+      "rule_id": "MS-AI-DB-029",
+      "name": "AI \u2014 Vector Database Credential Theft",
+      "description": "Detects credential theft targeting vector database authentication mechanisms",
+      "severity": "Critical",
+      "query": "vector_db_auth_events\n| where auth_result == \"failed\" and auth_method has_any (\"api_key\", \"token\", \"password\")\n| summarize count() by SourceIP, DatabaseName, bin(TimeGenerated, 5m)\n| where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1552",
+        "T1110"
+      ],
+      "references": [
+        "AI-DB-015"
+      ],
+      "compliance": [
+        "AI-DB-015",
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "ai",
+        "vector-database",
+        "credential-theft",
+        "authentication"
+      ],
+      "risk_score": 92
+    },
+    {
+      "rule_id": "MS-AI-DB-030",
+      "name": "AI \u2014 RAG Document Integrity Violation",
+      "description": "Detects violations of document integrity in RAG systems through unauthorized modifications",
+      "severity": "High",
+      "query": "rag_document_events\n| where integrity_hash_mismatch == true or document_tampering_detected == true\n| summarize count() by DocumentID, SourceIP, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Impact",
+        "Persistence"
+      ],
+      "techniques": [
+        "T1565",
+        "T1195.001"
+      ],
+      "references": [
+        "AI-DB-016"
+      ],
+      "compliance": [
+        "AI-DB-016",
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "document-integrity",
+        "tampering"
+      ],
+      "risk_score": 88
+    },
+    {
+      "rule_id": "MS-AI-DB-031",
+      "name": "AI \u2014 Knowledge Graph Manipulation Attack",
+      "description": "Detects manipulation of knowledge graphs used by AI systems for reasoning and entity resolution",
+      "severity": "High",
+      "query": "knowledge_graph_events\n| where operation_type in (\"insert\", \"update\", \"delete\") and (entity_anomaly_score > 0.8 or relation_anomaly_score > 0.8)\n| summarize count() by SourceIP, EntityType, bin(TimeGenerated, 10m)\n| where count_ > 3",
+      "queryFrequency": "PT10M",
+      "queryPeriod": "PT10M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [
+        "Persistence",
+        "Impact"
+      ],
+      "techniques": [
+        "T1195.001",
+        "T1565"
+      ],
+      "references": [
+        "AI-DB-017"
+      ],
+      "compliance": [
+        "AI-DB-017",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "knowledge-graph",
+        "manipulation",
+        "entity-resolution"
+      ],
+      "risk_score": 85
+    },
+    {
+      "rule_id": "MS-AI-DB-032",
+      "name": "AI \u2014 RAG Cache Poisoning",
+      "description": "Detects poisoning of RAG response caches that serve malicious content to multiple users",
+      "severity": "Critical",
+      "query": "rag_cache_events\n| where cache_content has_any (\"ignore\", \"override\", \"system:\") or cache_integrity_check == false\n| summarize count() by CacheKey, SourceIP, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Persistence",
+        "Impact"
+      ],
+      "techniques": [
+        "T1195.001",
+        "T1565"
+      ],
+      "references": [
+        "AI-RAG-015"
+      ],
+      "compliance": [
+        "AI-RAG-015",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "rag",
+        "cache-poisoning",
+        "persistence"
+      ],
+      "risk_score": 93
+    },
+    {
+      "rule_id": "MS-AI-DB-033",
+      "name": "AI \u2014 Data Pipeline Injection Attack",
+      "description": "Detects injection attacks targeting AI data pipelines that feed training or inference data",
+      "severity": "Critical",
+      "query": "data_pipeline_events\n| where pipeline_stage has_any (\"ingest\", \"preprocess\", \"transform\") and data_anomaly_score > 0.9\n| summarize count() by PipelineName, Stage, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 2,
+      "tactics": [
+        "InitialAccess",
+        "Persistence"
+      ],
+      "techniques": [
+        "T1190",
+        "T1195.001"
+      ],
+      "references": [
+        "AI-DB-018"
+      ],
+      "compliance": [
+        "AI-DB-018",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "data-pipeline",
+        "injection",
+        "preprocessing"
+      ],
+      "risk_score": 91
+    },
+    {
+      "rule_id": "MS-AI-DB-034",
+      "name": "AI \u2014 Model Gradient Leakage Detection",
+      "description": "Detects gradient leakage attacks that extract model information through gradient-based queries",
+      "severity": "High",
+      "query": "model_api_events\n| where query_type == \"gradient_query\" and gradient_leakage_score > 0.7\n| summarize count() by SourceIP, bin(TimeGenerated, 15m)\n| where count_ > 3",
+      "queryFrequency": "PT15M",
+      "queryPeriod": "PT15M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1530"
+      ],
+      "references": [
+        "AI-DB-019"
+      ],
+      "compliance": [
+        "AI-DB-019"
+      ],
+      "tags": [
+        "ai",
+        "gradient-leakage",
+        "model-extraction",
+        "intellectual-property"
+      ],
+      "risk_score": 84
+    },
+    {
+      "rule_id": "MS-AI-DB-035",
+      "name": "AI \u2014 LLM Agent Tool Use Abuse",
+      "description": "Detects abuse of LLM agent tool/function calling capabilities for unauthorized actions",
+      "severity": "Critical",
+      "query": "agent_tool_events\n| where tool_call_result has_any (\"unauthorized\", \"blocked\", \"denied\") or tool_risk_score > 0.8\n| summarize count() by SourceIP, ToolName, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 2,
+      "tactics": [
+        "Execution",
+        "Persistence"
+      ],
+      "techniques": [
+        "T1059",
+        "T1190"
+      ],
+      "references": [
+        "AI-DB-020"
+      ],
+      "compliance": [
+        "AI-DB-020",
+        "AI-ACT-15"
+      ],
+      "tags": [
+        "ai",
+        "agent",
+        "tool-abuse",
+        "function-calling"
+      ],
+      "risk_score": 94
+    }
+  ]
+}

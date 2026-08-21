@@ -1,0 +1,38 @@
+# =============================================================================
+# Suricata Rules — Database Attack Chain Detection
+# Detects multi-step database exploitation sequences: SQLi→xp_cmdshell→RCE,
+#          MySQL UDF→RCE, PostgreSQL COPY→OS command, Redis SLAVEOF→MODULE→native code,
+#          MongoDB $where→admin→credential dump
+# Total rules: 15
+# SID range: 2311001 - 2311015
+# Reference: MITRE ATT&CK TA0006 Credential Access → TA0008 Lateral Movement → TA0010 Exfiltration
+# =============================================================================
+
+# --- SQLi → xp_cmdshell → OS Command Execution → Lateral Movement ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"CHAIN DB-001: SQLi UNION SELECT information_schema Enumeration - Schema Discovery Phase"; flow:established,to_server; pcre:"/\bUNION\b\s*\bSELECT\b.*\binformation_schema\b/i"; classtype:web-application-attack; sid:2311001; rev:1; metadata:chain sqli-to-rce, mitre T1190, created_at 2026_08_21;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1433 (msg:"CHAIN DB-002: MSSQL xp_cmdshell Enable After SQLi - OS Command Execution via Stored Procedure"; flow:established,to_server; pcre:"/(EXEC\s+sp_configure\s+'xp_cmdshell'|sp_configure\s+'xp_cmdshell'\s*,\s*1|EXEC\s+xp_cmdshell\s+)/i"; classtype:web-application-attack; sid:2311002; rev:1; metadata:chain sqli-to-rce, mitre T1059, created_at 2026_08_21;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1433 (msg:"CHAIN DB-003: MSSQL OS Command After xp_cmdshell - Reverse Shell or Lateral Pivot"; flow:established,to_server; pcre:"/xp_cmdshell\s+['\"]*(net\s+user|net\s+localgroup|powershell|cmd\.exe|certutil|bitsadmin|whoami|ipconfig|reg\s+query|wmic|schtasks)/i"; classtype:web-application-attack; sid:2311003; rev:1; metadata:chain sqli-to-rce-lateral, mitre T1059, created_at 2026_08_21;)
+
+# --- MySQL UDF Library Load → RCE → Privilege Escalation ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3306 (msg:"CHAIN DB-004: MySQL UDF Library Load - Custom Function Creation for OS Command Execution"; flow:established,to_server; pcre:"/\bCREATE\s+FUNCTION\s+\w+\s+RETURNS\s+(STRING|INTEGER|REAL)\s+SONAME\s+['\"]?\w+\.(so|dll)['\"]?/i"; classtype:web-application-attack; sid:2311004; rev:1; metadata:chain mysql-udf-to-rce, mitre T1059, created_at 2026_08_21;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3306 (msg:"CHAIN DB-005: MySQL sys_eval/sys_exec After UDF Load - OS Command Execution via Custom Function"; flow:established,to_server; pcre:"/\b(SELECT|EXEC)\s+(sys_eval|sys_exec|lib_mysqludf_sys|lib_mysqludf_sys_info)\s*\(/i"; classtype:web-application-attack; sid:2311005; rev:1; metadata:chain mysql-udf-to-rce, mitre T1059, created_at 2026_08_21;)
+
+# --- PostgreSQL COPY PROGRAM → OS Command → Privilege Escalation ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5432 (msg:"CHAIN DB-006: PostgreSQL COPY TO PROGRAM - OS Command Execution via Database"; flow:established,to_server; pcre:"/\bCOPY\b\s+\w+\s+\bTO\s+PROGRAM\b\s+['\"]?.*?(bash|sh|python|perl|nc|curl|wget|powershell|cmd)/i"; classtype:web-application-attack; sid:2311006; rev:1; metadata:chain postgres-copy-to-rce, mitre T1059, created_at 2026_08_21;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5432 (msg:"CHAIN DB-007: PostgreSQL LO_IMPORT → Server-Side File Read After SQLi"; flow:established,to_server; pcre:"/\bSELECT\s+lo_import\s*\(\s*['\"]\/(etc\/passwd|etc\/shadow|proc\/self\/environ|home\/\w+\/\.ssh|root\/\.bashrc|var\/log)/i"; classtype:web-application-attack; sid:2311007; rev:1; metadata:chain postgres-lo-import-to-file-read, mitre T1083, created_at 2026_08_21;)
+
+# --- Redis SLAVEOF → MODULE LOAD → Native Code Execution → Container Escape ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6379 (msg:"CHAIN DB-008: Redis SLAVEOF Command - Attacker Controlled Master for Module Injection"; flow:established,to_server; pcre:"/\bSLAVEOF\b\s+\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\s+\d{1,5}/i"; classtype:web-application-attack; sid:2311008; rev:1; metadata:chain redis-slaveof-to-rce, mitre T1059, created_at 2026_08_21;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6379 (msg:"CHAIN DB-009: Redis MODULE LOAD - Native Code Execution After SLAVEOF Synchronization"; flow:established,to_server; pcre:"/\bMODULE\s+LOAD\b\s+['\"]?.*?\.(so|dll)['\"]?/i"; classtype:web-application-attack; sid:2311009; rev:1; metadata:chain redis-module-load-to-rce, mitre T1059, created_at 2026_08_21;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6379 (msg:"CHAIN DB-010: Redis CONFIG SET dir + Module Path for Web Shell or Cron Persistence"; flow:established,to_server; pcre:"/\bCONFIG\s+SET\b\s+(dir|dbfilename)\s+['\"]?(\/var\/www|\/var\/spool\/cron|\/tmp|C:\\inetpub|C:\\wwwroot)/i"; classtype:web-application-attack; sid:2311010; rev:1; metadata:chain redis-config-to-persistence, mitre T1059, created_at 2026_08_21;)
+
+# --- MongoDB $where → admin.system.users → Credential Extraction → Full DB Access ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 27017 (msg:"CHAIN DB-011: MongoDB $where Injection - JavaScript Code Execution in Query"; flow:established,to_server; pcre:"/\$where\s*:\s*['\"]?.*?(this\.|return\s+|function\s*\(|eval\s*\(|while\s*\(|for\s*\()/i"; classtype:web-application-attack; sid:2311011; rev:1; metadata:chain mongodb-where-to-credential-theft, mitre T1190, created_at 2026_08_21;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 27017 (msg:"CHAIN DB-012: MongoDB admin.system.users Query - Credential Dump After Injection"; flow:established,to_server; pcre:"/(admin\.system\.users|admin\.\$cmd|\$where.*?password)/i"; classtype:web-application-attack; sid:2311012; rev:1; metadata:chain mongodb-credential-dump, mitre T1552, created_at 2026_08_21;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 27017 (msg:"CHAIN DB-013: MongoDB db.eval() or db.runCommand() - Arbitrary JavaScript Execution"; flow:established,to_server; pcre:"/\beval\s*\(|db\.runCommand\s*\(|db\.adminCommand\s*\()/i"; classtype:web-application-attack; sid:2311013; rev:1; metadata:chain mongodb-eval-to-rce, mitre T1059, created_at 2026_08_21;)
+
+# --- Oracle UTL_HTTP/UTL_FILE → Out-of-Band Data Exfiltration ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"CHAIN DB-014: Oracle UTL_HTTP or UTL_FILE - Out-of-Band Data Exfiltration After SQLi"; flow:established,to_server; pcre:"/\bUTL_HTTP\b.*\bREQUEST\b|\bUTL_FILE\b.*\bFOPEN\b|\bUTL_TCP\b.*\bOPEN_CONNECTION\b|\bDBMS_SCHEDULER\b.*\bCREATE_JOB\b/i"; classtype:web-application-attack; sid:2311014; rev:1; metadata:chain oracle-utl-to-exfiltration, mitre T1048, created_at 2026_08_21;)
+
+# --- Elasticsearch _cat/scroll/_mapping → Full Data Dump → Exfiltration ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CHAIN DB-015: Elasticsearch _cat/scroll/_mapping API Chain - Full Index Enumeration and Data Dump"; flow:established,to_server; pcre:"/\/_cat\/(indices|aliases|nodes|health|master|pending_tasks)/i"; http_uri; pcre:"/\/(scroll|_search|_mapping|_source)/i"; http_uri; classtype:web-application-attack; sid:2311015; rev:1; metadata:chain elastic-enumeration-to-dump, mitre T1087, created_at 2026_08_21;)
