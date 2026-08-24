@@ -1,0 +1,778 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "Microsoft Sentinel analytics rules \u2014 AI Governance Violations",
+  "total_rules": 25,
+  "rules": [
+    {
+      "rule_id": "MS-AI-GOV-004",
+      "name": "AI \u2014 Unauthorized Model Deployment",
+      "description": "Detects deployment of AI models without proper approval or governance review",
+      "severity": "Critical",
+      "query": "model_deployment_events\n| where approval_status == \"none\" or governance_review == false\n| summarize count() by ModelName, DeployedBy, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Persistence",
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "AI-GOV-001"
+      ],
+      "compliance": [
+        "AI-GOV-001",
+        "AI-ACT-6",
+        "EU-AI-ACT-9"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "unauthorized-deployment",
+        "model"
+      ],
+      "risk_score": 95
+    },
+    {
+      "rule_id": "MS-AI-GOV-005",
+      "name": "AI \u2014 Bias Detection Alert",
+      "description": "Detects AI model outputs exhibiting statistical bias across protected demographic groups",
+      "severity": "High",
+      "query": "model_output_events\n| where bias_score > 0.3 and protected_group != \"\"\n| summarize avg(bias_score), count() by ModelName, ProtectedGroup, bin(TimeGenerated, 15m)\n| where avg_bias_score > 0.3 and count_ > 5",
+      "queryFrequency": "PT15M",
+      "queryPeriod": "PT15M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1498"
+      ],
+      "references": [
+        "AI-GOV-002"
+      ],
+      "compliance": [
+        "AI-GOV-002",
+        "AI-ACT-10",
+        "EU-AI-Art-10",
+        "GDPR-Art-22"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "bias",
+        "fairness",
+        "discrimination"
+      ],
+      "risk_score": 88
+    },
+    {
+      "rule_id": "MS-AI-GOV-006",
+      "name": "AI \u2014 Missing Model Documentation",
+      "description": "Detects AI models operating without required documentation including model cards and impact assessments",
+      "severity": "Medium",
+      "query": "model_registry_events\n| where documentation_status == \"missing\" or model_card == false or impact_assessment == false\n| summarize count() by ModelName, bin(TimeGenerated, 1h)\n| where count_ > 1",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [],
+      "techniques": [],
+      "references": [
+        "AI-GOV-003"
+      ],
+      "compliance": [
+        "AI-GOV-003",
+        "AI-ACT-11",
+        "EU-AI-Art-11"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "documentation",
+        "model-card"
+      ],
+      "risk_score": 65
+    },
+    {
+      "rule_id": "MS-AI-GOV-007",
+      "name": "AI \u2014 Decision Without Human Oversight",
+      "description": "Detects high-stakes AI decisions made without required human oversight or review",
+      "severity": "Critical",
+      "query": "ai_decision_events\n| where risk_level in (\"high\", \"critical\") and human_review == false and human_in_loop_required == true\n| summarize count() by DecisionType, ModelName, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [],
+      "techniques": [],
+      "references": [
+        "AI-GOV-004"
+      ],
+      "compliance": [
+        "AI-GOV-004",
+        "AI-ACT-14",
+        "EU-AI-Art-14"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "human-oversight",
+        "high-stakes"
+      ],
+      "risk_score": 96
+    },
+    {
+      "rule_id": "MS-AI-GOV-008",
+      "name": "AI \u2014 Regulatory Compliance Violation",
+      "description": "Detects AI operations that violate regulatory requirements including EU AI Act, GDPR, and industry standards",
+      "severity": "Critical",
+      "query": "ai_compliance_events\n| where compliance_status == \"violation\" and regulation in (\"EU-AI-Act\", \"GDPR\", \"PCI-DSS\", \"HIPAA\")\n| summarize count() by Regulation, ViolationType, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [],
+      "techniques": [],
+      "references": [
+        "AI-GOV-005"
+      ],
+      "compliance": [
+        "AI-GOV-005",
+        "EU-AI-ACT",
+        "GDPR",
+        "PCI-DSS"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "compliance",
+        "regulation"
+      ],
+      "risk_score": 97
+    },
+    {
+      "rule_id": "MS-AI-GOV-009",
+      "name": "AI \u2014 Explainability Requirement Violation",
+      "description": "Detects AI decisions that lack required explainability or interpretability documentation",
+      "severity": "High",
+      "query": "ai_decision_events\n| where explainability_required == true and explanation_provided == false\n| summarize count() by DecisionType, ModelName, bin(TimeGenerated, 10m)\n| where count_ > 3",
+      "queryFrequency": "PT10M",
+      "queryPeriod": "PT10M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [],
+      "techniques": [],
+      "references": [
+        "AI-GOV-006"
+      ],
+      "compliance": [
+        "AI-GOV-006",
+        "AI-ACT-13",
+        "EU-AI-Art-13"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "explainability",
+        "transparency"
+      ],
+      "risk_score": 82
+    },
+    {
+      "rule_id": "MS-AI-GOV-010",
+      "name": "AI \u2014 Consent and Privacy Violation",
+      "description": "Detects AI processing of personal data without proper consent or lawful basis",
+      "severity": "Critical",
+      "query": "ai_data_processing_events\n| where data_category in (\"personal\", \"sensitive\", \"special-category\") and consent_status == \"missing\"\n| summarize count() by DataCategory, ProcessingPurpose, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1530"
+      ],
+      "references": [
+        "AI-GOV-007"
+      ],
+      "compliance": [
+        "AI-GOV-007",
+        "GDPR-6",
+        "GDPR-9",
+        "EU-AI-Art-10"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "consent",
+        "privacy",
+        "gdpr"
+      ],
+      "risk_score": 96
+    },
+    {
+      "rule_id": "MS-AI-GOV-011",
+      "name": "AI \u2014 Model Version Drift Detection",
+      "description": "Detects AI model performance drift beyond acceptable thresholds requiring governance review",
+      "severity": "Medium",
+      "query": "model_performance_events\n| where performance_drift_pct > 10 and baseline_accuracy > 0.9\n| summarize avg(performance_drift_pct), count() by ModelName, ModelVersion, bin(TimeGenerated, 1h)\n| where avg_performance_drift_pct > 10",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 10,
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1565"
+      ],
+      "references": [
+        "AI-GOV-008"
+      ],
+      "compliance": [
+        "AI-GOV-008",
+        "AI-ACT-9"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "model-drift",
+        "performance"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-AI-GOV-012",
+      "name": "AI \u2014 Prohibited Use Detection",
+      "description": "Detects AI systems used for prohibited purposes under EU AI Act including social scoring and manipulative techniques",
+      "severity": "Critical",
+      "query": "ai_usage_events\n| where use_case in (\"social_scoring\", \"manipulation\", \"exploitation\", \"subliminal\", \"real_time_biometric\") and prohibited == true\n| summarize count() by UseCase, ModelName, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Impact",
+        "Collection"
+      ],
+      "techniques": [
+        "T1498",
+        "T1530"
+      ],
+      "references": [
+        "AI-GOV-009"
+      ],
+      "compliance": [
+        "AI-GOV-009",
+        "EU-AI-Art-5"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "prohibited-use",
+        "eu-ai-act"
+      ],
+      "risk_score": 99
+    },
+    {
+      "rule_id": "MS-AI-GOV-013",
+      "name": "AI \u2014 Audit Trail Gap Detection",
+      "description": "Detects gaps in AI system audit trails that violate governance record-keeping requirements",
+      "severity": "Medium",
+      "query": "ai_audit_events\n| where audit_trail_complete == false and audit_required == true\n| summarize count() by SystemName, AuditGapType, bin(TimeGenerated, 1h)\n| where count_ > 5",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1070"
+      ],
+      "references": [
+        "AI-GOV-010"
+      ],
+      "compliance": [
+        "AI-GOV-010",
+        "AI-ACT-12",
+        "EU-AI-Art-12"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "audit-trail",
+        "record-keeping"
+      ],
+      "risk_score": 72
+    },
+    {
+      "rule_id": "MS-AI-GOV-014",
+      "name": "AI \u2014 Data Minimization Violation",
+      "description": "Detects AI systems collecting or processing more data than necessary for their stated purpose",
+      "severity": "High",
+      "query": "ai_data_collection_events\n| where data_fields_processed > required_fields * 2 and purpose_limitation_violation == true\n| summarize count() by ModelName, Purpose, bin(TimeGenerated, 15m)\n| where count_ > 3",
+      "queryFrequency": "PT15M",
+      "queryPeriod": "PT15M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1530"
+      ],
+      "references": [
+        "AI-GOV-011"
+      ],
+      "compliance": [
+        "AI-GOV-011",
+        "GDPR-5",
+        "EU-AI-Art-10"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "data-minimization",
+        "privacy"
+      ],
+      "risk_score": 85
+    },
+    {
+      "rule_id": "MS-AI-GOV-015",
+      "name": "AI \u2014 High-Risk System Without Assessment",
+      "description": "Detects high-risk AI systems operating without mandatory risk assessments",
+      "severity": "Critical",
+      "query": "ai_system_events\n| where risk_category in (\"high\", \"prohibited\") and risk_assessment_complete == false\n| summarize count() by SystemName, RiskCategory, bin(TimeGenerated, 1h)\n| where count_ > 1",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [],
+      "techniques": [],
+      "references": [
+        "AI-GOV-012"
+      ],
+      "compliance": [
+        "AI-GOV-012",
+        "EU-AI-Art-7",
+        "EU-AI-Art-9"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "risk-assessment",
+        "high-risk"
+      ],
+      "risk_score": 97
+    },
+    {
+      "rule_id": "MS-AI-GOV-016",
+      "name": "AI \u2014 Retention Policy Violation",
+      "description": "Detects AI data retention beyond policy-defined periods violating data governance requirements",
+      "severity": "Medium",
+      "query": "ai_data_retention_events\n| where data_age > retention_policy_days and data_deleted == false\n| summarize count() by DataCategory, RetentionPolicyDays, bin(TimeGenerated, 1h)\n| where count_ > 10",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 10,
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1530"
+      ],
+      "references": [
+        "AI-GOV-013"
+      ],
+      "compliance": [
+        "AI-GOV-013",
+        "GDPR-5",
+        "GDPR-17"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "retention",
+        "data-lifecycle"
+      ],
+      "risk_score": 68
+    },
+    {
+      "rule_id": "MS-AI-GOV-017",
+      "name": "AI \u2014 Third-Party Model Risk Assessment Missing",
+      "description": "Detects third-party AI models used without required risk assessments or due diligence",
+      "severity": "High",
+      "query": "model_deployment_events\n| where model_source == \"third-party\" and risk_assessment == \"none\" and due_diligence == false\n| summarize count() by ModelName, VendorName, bin(TimeGenerated, 1h)\n| where count_ > 1",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "InitialAccess",
+        "Persistence"
+      ],
+      "techniques": [
+        "T1195.002"
+      ],
+      "references": [
+        "AI-GOV-014"
+      ],
+      "compliance": [
+        "AI-GOV-014",
+        "AI-ACT-28",
+        "EU-AI-Art-28"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "third-party",
+        "risk-assessment"
+      ],
+      "risk_score": 88
+    },
+    {
+      "rule_id": "MS-AI-GOV-018",
+      "name": "AI \u2014 Transparency Requirement Violation",
+      "description": "Detects AI interactions where users are not informed they are interacting with an AI system",
+      "severity": "High",
+      "query": "ai_interaction_events\n| where transparency_disclosure == false and user_facing == true and disclosure_required == true\n| summarize count() by SystemName, InteractionType, bin(TimeGenerated, 15m)\n| where count_ > 5",
+      "queryFrequency": "PT15M",
+      "queryPeriod": "PT15M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [],
+      "techniques": [],
+      "references": [
+        "AI-GOV-015"
+      ],
+      "compliance": [
+        "AI-GOV-015",
+        "EU-AI-Art-52"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "transparency",
+        "disclosure"
+      ],
+      "risk_score": 83
+    },
+    {
+      "rule_id": "MS-AI-GOV-019",
+      "name": "AI \u2014 Automated Decision Without Appeal Mechanism",
+      "description": "Detects automated AI decisions that lack required human appeal or contestation mechanisms",
+      "severity": "High",
+      "query": "ai_decision_events\n| where decision_type == \"automated\" and appeal_mechanism == false and appeal_required == true\n| summarize count() by DecisionType, ModelName, bin(TimeGenerated, 10m)\n| where count_ > 3",
+      "queryFrequency": "PT10M",
+      "queryPeriod": "PT10M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [],
+      "techniques": [],
+      "references": [
+        "AI-GOV-016"
+      ],
+      "compliance": [
+        "AI-GOV-016",
+        "GDPR-22",
+        "EU-AI-Art-14"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "automated-decision",
+        "appeal"
+      ],
+      "risk_score": 85
+    },
+    {
+      "rule_id": "MS-AI-GOV-020",
+      "name": "AI \u2014 Monitoring and Logging Gap",
+      "description": "Detects gaps in AI system monitoring and logging required by governance frameworks",
+      "severity": "Medium",
+      "query": "ai_system_events\n| where monitoring_enabled == false or logging_enabled == false or logging_gap_detected == true\n| summarize count() by SystemName, GapType, bin(TimeGenerated, 1h)\n| where count_ > 5",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1070"
+      ],
+      "references": [
+        "AI-GOV-017"
+      ],
+      "compliance": [
+        "AI-GOV-017",
+        "AI-ACT-12",
+        "PCI-DSS-10.2"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "monitoring",
+        "logging"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-AI-GOV-021",
+      "name": "AI \u2014 Cross-Border Data Transfer Violation",
+      "description": "Detects AI processing of personal data involving cross-border transfers without adequate safeguards",
+      "severity": "Critical",
+      "query": "ai_data_transfer_events\n| where transfer_type == \"cross_border\" and safeguard_mechanism == \"none\" and data_category in (\"personal\", \"sensitive\")\n| summarize count() by SourceRegion, DestinationRegion, SafeguardMechanism, bin(TimeGenerated, 15m)\n| where count_ > 1",
+      "queryFrequency": "PT15M",
+      "queryPeriod": "PT15M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Exfiltration"
+      ],
+      "techniques": [
+        "T1567"
+      ],
+      "references": [
+        "AI-GOV-018"
+      ],
+      "compliance": [
+        "AI-GOV-018",
+        "GDPR-46",
+        "GDPR-49"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "cross-border",
+        "data-transfer"
+      ],
+      "risk_score": 94
+    },
+    {
+      "rule_id": "MS-AI-GOV-022",
+      "name": "AI \u2014 Incident Response Plan Violation",
+      "description": "Detects AI incidents that trigger response procedures without documented incident response plans",
+      "severity": "High",
+      "query": "ai_incident_events\n| where incident_type in (\"safety\", \"bias\", \"privacy\", \"security\") and response_plan_exists == false\n| summarize count() by IncidentType, SystemName, bin(TimeGenerated, 15m)\n| where count_ > 1",
+      "queryFrequency": "PT15M",
+      "queryPeriod": "PT15M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [],
+      "techniques": [],
+      "references": [
+        "AI-GOV-019"
+      ],
+      "compliance": [
+        "AI-GOV-019",
+        "AI-ACT-17",
+        "EU-AI-Art-17"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "incident-response",
+        "safety"
+      ],
+      "risk_score": 86
+    },
+    {
+      "rule_id": "MS-AI-GOV-023",
+      "name": "AI \u2014 Children's Data Protection Violation",
+      "description": "Detects AI systems processing children's data without required parental consent or age verification",
+      "severity": "Critical",
+      "query": "ai_data_processing_events\n| where data_subject_age < 16 and parental_consent == false and age_verification == false\n| summarize count() by SystemName, DataCategory, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1530"
+      ],
+      "references": [
+        "AI-GOV-020"
+      ],
+      "compliance": [
+        "AI-GOV-020",
+        "GDPR-8",
+        "COPPA",
+        "EU-AI-Art-5"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "children",
+        "privacy",
+        "consent"
+      ],
+      "risk_score": 98
+    },
+    {
+      "rule_id": "MS-AI-GOV-024",
+      "name": "AI \u2014 Model Performance Degradation Alert",
+      "description": "Detects significant AI model performance degradation that requires governance review",
+      "severity": "Medium",
+      "query": "model_performance_events\n| where accuracy_degradation_pct > 15 or latency_increase_pct > 50\n| summarize avg(accuracy_degradation_pct), avg(latency_increase_pct), count() by ModelName, bin(TimeGenerated, 1h)\n| where avg_accuracy_degradation_pct > 15 or avg_latency_increase_pct > 50",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 15,
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1499"
+      ],
+      "references": [
+        "AI-GOV-021"
+      ],
+      "compliance": [
+        "AI-GOV-021",
+        "AI-ACT-9"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "performance",
+        "degradation"
+      ],
+      "risk_score": 68
+    },
+    {
+      "rule_id": "MS-AI-GOV-025",
+      "name": "AI \u2014 Unauthorized Data Processing Purpose",
+      "description": "Detects AI data processing for purposes beyond what was consented to or documented",
+      "severity": "High",
+      "query": "ai_data_processing_events\n| where processing_purpose != consented_purpose and purpose_limitation_enforced == false\n| summarize count() by ProcessingPurpose, ConsentedPurpose, bin(TimeGenerated, 10m)\n| where count_ > 3",
+      "queryFrequency": "PT10M",
+      "queryPeriod": "PT10M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1530"
+      ],
+      "references": [
+        "AI-GOV-022"
+      ],
+      "compliance": [
+        "AI-GOV-022",
+        "GDPR-5",
+        "GDPR-9"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "purpose-limitation",
+        "consent"
+      ],
+      "risk_score": 87
+    },
+    {
+      "rule_id": "MS-AI-GOV-026",
+      "name": "AI \u2014 Right to Explanation Violation",
+      "description": "Detects AI decisions where data subjects are denied the right to an explanation of the decision logic",
+      "severity": "Medium",
+      "query": "ai_explanation_requests\n| where explanation_provided == false and explanation_required == true\n| summarize count() by SystemName, RequestType, bin(TimeGenerated, 1h)\n| where count_ > 3",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [],
+      "techniques": [],
+      "references": [
+        "AI-GOV-023"
+      ],
+      "compliance": [
+        "AI-GOV-023",
+        "GDPR-22",
+        "EU-AI-Art-13"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "right-to-explanation",
+        "transparency"
+      ],
+      "risk_score": 72
+    },
+    {
+      "rule_id": "MS-AI-GOV-027",
+      "name": "AI \u2014 Safety Override Without Authorization",
+      "description": "Detects safety override or bypass of AI safety controls without proper authorization",
+      "severity": "Critical",
+      "query": "ai_safety_events\n| where safety_override == true and authorized_override == false\n| summarize count() by SystemName, OverrideType, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "DefenseEvasion",
+        "Persistence"
+      ],
+      "techniques": [
+        "T1140"
+      ],
+      "references": [
+        "AI-GOV-024"
+      ],
+      "compliance": [
+        "AI-GOV-024",
+        "AI-ACT-15",
+        "EU-AI-Art-9"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "safety",
+        "override",
+        "authorization"
+      ],
+      "risk_score": 98
+    },
+    {
+      "rule_id": "MS-AI-GOV-028",
+      "name": "AI \u2014 Data Subject Rights Request Violation",
+      "description": "Detects failures to respond to data subject rights requests within required timeframes",
+      "severity": "Medium",
+      "query": "data_subject_request_events\n| where request_type in (\"access\", \"deletion\", \"portability\", \"rectification\") and response_time_days > 30 and request_status != \"completed\"\n| summarize count() by RequestType, bin(TimeGenerated, 1d)\n| where count_ > 3",
+      "queryFrequency": "P1D",
+      "queryPeriod": "P1D",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 3,
+      "tactics": [],
+      "techniques": [],
+      "references": [
+        "AI-GOV-025"
+      ],
+      "compliance": [
+        "AI-GOV-025",
+        "GDPR-15",
+        "GDPR-17",
+        "GDPR-20"
+      ],
+      "tags": [
+        "ai",
+        "governance",
+        "data-subject-rights",
+        "gdpr"
+      ],
+      "risk_score": 70
+    }
+  ]
+}

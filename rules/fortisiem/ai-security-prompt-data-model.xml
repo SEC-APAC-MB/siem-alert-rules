@@ -1,0 +1,839 @@
+<!-- FortiSIEM SIEM Alert Rules — AI Security: Prompt Injection, Data Exfiltration, and Model Attacks -->
+<rules>
+  <rule id="FSIEM-AIPI-001" severity="CRITICAL" enabled="true">
+    <name>AI — Prompt Injection via Unicode Obfuscation</name>
+    <description>Detects prompt injection attempts using Unicode homoglyphs, zero-width characters, or RTL overrides to bypass content filters</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <payload regex="true">.*(unicode-bypass|homoglyph|rtl-override|zero-width).*</payload>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>NIST-AI-RMF</standard>
+    </compliance>
+    <references>AI-PI-010</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-002" severity="HIGH" enabled="true">
+    <name>AI — Prompt Injection via Base64 Encoding</name>
+    <description>Detects base64-encoded prompt injection payloads designed to evade text-based content filters</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <payload regex="true">.*base64.*(ignore|disregard|override).*</payload>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1027</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-011</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-003" severity="CRITICAL" enabled="true">
+    <name>AI — Prompt Injection via Context Window Overflow</name>
+    <description>Detects attempts to overflow the LLM context window to push safety instructions out of scope</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <token_count regex="true">>100000</token_count>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-012</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-004" severity="HIGH" enabled="true">
+    <name>AI — Prompt Injection via Markdown/HTML Injection</name>
+    <description>Detects prompt injection payloads hidden in Markdown or HTML formatting that execute when rendered by LLM systems</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <payload regex="true">.*(&lt;script|&lt;iframe|\[system\]|```system).*</payload>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Execution</tactic>
+      <technique>T1059.007</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-013</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-005" severity="CRITICAL" enabled="true">
+    <name>AI — Multi-Modal Prompt Injection via Image Attachment</name>
+    <description>Detects prompt injection attacks embedded in image metadata or steganographic content targeting multi-modal LLMs</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <file_type regex="true">(png|jpg|jpeg|gif|webp)</file_type>
+        <embedded_text regex="true">true</embedded_text>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-014</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-006" severity="HIGH" enabled="true">
+    <name>AI — Prompt Injection via Chain-of-Thought Manipulation</name>
+    <description>Detects adversarial chain-of-thought injection that forces the model to reason through dangerous outputs step-by-step</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <payload regex="true">.*(think step by step|chain of thought|reason through|let's think).*(hack|exploit|attack).*</payload>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-015</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-007" severity="HIGH" enabled="true">
+    <name>AI — Prompt Injection via Instruction Tunneling</name>
+    <description>Detects adversarial instructions hidden within benign-seeming prompts through nested instruction layers</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <instruction_tunnelling regex="true">true</instruction_tunnelling>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-016</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-008" severity="CRITICAL" enabled="true">
+    <name>AI — Prompt Injection via API Parameter Manipulation</name>
+    <description>Detects prompt injection through manipulation of API parameters such as system_prompt, temperature, or max_tokens overrides</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-API</action>
+        <parameter_injection regex="true">true</parameter_injection>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-017</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-009" severity="HIGH" enabled="true">
+    <name>AI — Prompt Leaking via Output Analysis</name>
+    <description>Detects attempts to extract system prompts or internal instructions through probing queries and output analysis</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <payload regex="true">.*(repeat your instructions|show your system prompt|what are your rules|output your instructions).*</payload>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-018</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-010" severity="CRITICAL" enabled="true">
+    <name>AI — Adversarial Suffix Attack via Garbage Tokens</name>
+    <description>Detects adversarial suffix attacks that append optimized garbage token sequences to bypass safety alignment</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <adversarial_suffix regex="true">true</adversarial_suffix>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-019</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-011" severity="HIGH" enabled="true">
+    <name>AI — Prompt Injection via Role-Play Escalation</name>
+    <description>Detects prompt injection attacks that use elaborate role-play scenarios to progressively escalate beyond safety constraints</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <payload regex="true">.*(you are now|pretend you are|act as|roleplay as).*(without|ignore|bypass|override).*</payload>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-020</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-012" severity="HIGH" enabled="true">
+    <name>AI — Prompt Injection via Translation Bypass</name>
+    <description>Detects prompt injection attacks that use translation between languages to bypass safety filters</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <translation_bypass regex="true">true</translation_bypass>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-021</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-013" severity="HIGH" enabled="true">
+    <name>AI — Prompt Injection via Encoding Layer Stacking</name>
+    <description>Detects multi-layer encoding attacks that stack base64, ROT13, hex, and other encodings to obfuscate malicious prompts</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <multi_encoding_stack regex="true">true</multi_encoding_stack>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1027</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-022</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-014" severity="CRITICAL" enabled="true">
+    <name>AI — Indirect Prompt Injection via Web Content</name>
+    <description>Detects indirect prompt injection where malicious instructions are embedded in web pages or documents processed by the LLM</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-RETRIEVAL</action>
+        <indirect_injection regex="true">true</indirect_injection>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-023</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-015" severity="HIGH" enabled="true">
+    <name>AI — Prompt Injection via Split Payload</name>
+    <description>Detects prompt injection attacks that split malicious instructions across multiple benign messages to evade single-message detection</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <split_payload_correlation regex="true">true</split_payload_correlation>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-024</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIDEX-001" severity="CRITICAL" enabled="true">
+    <name>AI — Data Exfiltration via Model Output Channels</name>
+    <description>Detects data exfiltration attempts through LLM output channels including encoded responses, URL generation, and API calls</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-RESPONSE</action>
+        <data_exfil_pattern regex="true">.*(encoded output|base64 in response|url in response).*</data_exfil_pattern>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1567</technique>
+      <tactic>Exfiltration</tactic>
+      <technique>T1041</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+    </compliance>
+    <references>AI-DEX-010</references>
+    <action>ALERT</action>
+    <group>ai_data_exfiltration</group>
+  </rule>
+
+  <rule id="FSIEM-AIDEX-002" severity="CRITICAL" enabled="true">
+    <name>AI — Data Exfiltration via Prompt-Driven DNS</name>
+    <description>Detects data exfiltration through DNS queries generated by LLM output encoding sensitive data in subdomain labels</description>
+    <pattern>
+      <event>
+        <product>DNS</product>
+        <action>DNS-QUERY</action>
+        <llm_dns_exfil regex="true">true</llm_dns_exfil>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1048.001</technique>
+      <tactic>Command and Control</tactic>
+      <technique>T1071.004</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+    </compliance>
+    <references>AI-DEX-011</references>
+    <action>ALERT</action>
+    <group>ai_data_exfiltration</group>
+  </rule>
+
+  <rule id="FSIEM-AIDEX-003" severity="HIGH" enabled="true">
+    <name>AI — Training Data Extraction via Membership Inference</name>
+    <description>Detects membership inference attacks that query the model to determine if specific data was in the training set</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <payload regex="true">.*(was this in your training|do you remember|did you learn).*</payload>
+        <membership_inference regex="true">true</membership_inference>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1590</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+    </compliance>
+    <references>AI-DEX-012</references>
+    <action>ALERT</action>
+    <group>ai_data_exfiltration</group>
+  </rule>
+
+  <rule id="FSIEM-AIDEX-004" severity="CRITICAL" enabled="true">
+    <name>AI — PII Exfiltration via Prompted Recall</name>
+    <description>Detects targeted extraction of personally identifiable information by prompting the model to recall or reconstruct PII</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <payload regex="true">.*(social security|credit card|phone number|home address|date of birth).*</payload>
+        <pii_extraction regex="true">true</pii_extraction>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1590.002</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+      <standard>CCPA</standard>
+      <control>1798.150</control>
+    </compliance>
+    <references>AI-DEX-013</references>
+    <action>ALERT</action>
+    <group>ai_data_exfiltration</group>
+  </rule>
+
+  <rule id="FSIEM-AIDEX-005" severity="HIGH" enabled="true">
+    <name>AI — Data Exfiltration via Steganographic Output</name>
+    <description>Detects data exfiltration through steganographic encoding in LLM output including whitespace patterns, emoji sequences, and Unicode tricks</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-RESPONSE</action>
+        <steganographic_encoding regex="true">true</steganographic_encoding>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1567</technique>
+      <tactic>Command and Control</tactic>
+      <technique>T1001.001</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+    </compliance>
+    <references>AI-DEX-014</references>
+    <action>ALERT</action>
+    <group>ai_data_exfiltration</group>
+  </rule>
+
+  <rule id="FSIEM-AIDEX-006" severity="CRITICAL" enabled="true">
+    <name>AI — Data Exfiltration via Tool/Function Calling</name>
+    <description>Detects data exfiltration through LLM tool/function calling that sends sensitive data to external APIs</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-FUNCTION-CALL</action>
+        <external_url regex="true">true</external_url>
+        <data_exfil_function regex="true">true</data_exfil_function>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1567</technique>
+      <tactic>Command and Control</tactic>
+      <technique>T1105</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+    </compliance>
+    <references>AI-DEX-015</references>
+    <action>ALERT</action>
+    <group>ai_data_exfiltration</group>
+  </rule>
+
+  <rule id="FSIEM-AIDEX-007" severity="HIGH" enabled="true">
+    <name>AI — Model Inversion Attack Detection</name>
+    <description>Detects model inversion attacks that reconstruct training data through iterative probing of model confidence scores</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-API</action>
+        <reconstruction_probe regex="true">true</reconstruction_probe>
+        <count regex="true">>50</count>
+        <time_window>3600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1590</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+    </compliance>
+    <references>AI-DEX-016</references>
+    <action>ALERT</action>
+    <group>ai_data_exfiltration</group>
+  </rule>
+
+  <rule id="FSIEM-AIMDL-001" severity="CRITICAL" enabled="true">
+    <name>AI — Model Extraction via API Probing</name>
+    <description>Detects model extraction attacks that systematically query the API to reconstruct a surrogate model</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-API-SUCCESS</action>
+        <count regex="true">>10000</count>
+        <time_window>3600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1590</technique>
+      <tactic>Resource Development</tactic>
+      <technique>T1589.006</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-MDL-010</references>
+    <action>ALERT</action>
+    <group>ai_model_attack</group>
+  </rule>
+
+  <rule id="FSIEM-AIMDL-002" severity="CRITICAL" enabled="true">
+    <name>AI — Model Extraction via Systematic Output Harvesting</name>
+    <description>Detects systematic harvesting of model outputs designed to create a distillation or copy of the model</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-API</action>
+        <systematic_harvesting regex="true">true</systematic_harvesting>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1589.006</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-MDL-011</references>
+    <action>ALERT</action>
+    <group>ai_model_attack</group>
+  </rule>
+
+  <rule id="FSIEM-AIMDL-003" severity="CRITICAL" enabled="true">
+    <name>AI — Model Poisoning via Adversarial Training Data</name>
+    <description>Detects injection of adversarial training data designed to create backdoors or biased behaviors in the model</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-TRAINING-DATA-WRITE</action>
+        <adversarial_data regex="true">true</adversarial_data>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1584.006</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-MDL-012</references>
+    <action>ALERT</action>
+    <group>ai_model_attack</group>
+  </rule>
+
+  <rule id="FSIEM-AIMDL-004" severity="HIGH" enabled="true">
+    <name>AI — Model Denial of Service via Resource Exhaustion</name>
+    <description>Detects denial of service attacks against AI/LLM services through resource-intensive prompts or excessive context</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-API</action>
+        <resource_intensive regex="true">true</resource_intensive>
+        <count regex="true">>100</count>
+        <time_window>600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1499</technique>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-MDL-013</references>
+    <action>ALERT</action>
+    <group>ai_model_attack</group>
+  </rule>
+
+  <rule id="FSIEM-AIMDL-005" severity="CRITICAL" enabled="true">
+    <name>AI — Supply Chain Attack via Poisoned Pre-trained Model</name>
+    <description>Detects usage of compromised pre-trained models from untrusted sources that may contain embedded backdoors</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-MODEL-LOAD</action>
+        <untrusted_source regex="true">true</untrusted_source>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1584.006</technique>
+      <tactic>Initial Access</tactic>
+      <technique>T1195.002</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-MDL-014</references>
+    <action>ALERT</action>
+    <group>ai_model_attack</group>
+  </rule>
+
+  <rule id="FSIEM-AIMDL-006" severity="CRITICAL" enabled="true">
+    <name>AI — Model Backdoor Activation Pattern</name>
+    <description>Detects activation of embedded model backdoors through specific trigger patterns in input data</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-RESPONSE</action>
+        <backdoor_trigger regex="true">true</backdoor_trigger>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1584.006</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-MDL-018</references>
+    <action>ALERT</action>
+    <group>ai_model_attack</group>
+  </rule>
+
+  <rule id="FSIEM-AIMDL-007" severity="HIGH" enabled="true">
+    <name>AI — Model Weight Theft via Gradient Leakage</name>
+    <description>Detects gradient leakage attacks that extract model weights through carefully crafted queries exploiting gradient information</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-API</action>
+        <gradient_leakage regex="true">true</gradient_leakage>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1589.006</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-MDL-015</references>
+    <action>ALERT</action>
+    <group>ai_model_attack</group>
+  </rule>
+
+  <rule id="FSIEM-AIMDL-008" severity="HIGH" enabled="true">
+    <name>AI — Adversarial Input Evasion Detection</name>
+    <description>Detects adversarial inputs specifically crafted to cause misclassification or incorrect model outputs</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <adversarial_evasion regex="true">true</adversarial_evasion>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-MDL-016</references>
+    <action>ALERT</action>
+    <group>ai_model_attack</group>
+  </rule>
+
+  <rule id="FSIEM-AIDEX-008" severity="CRITICAL" enabled="true">
+    <name>AI — Data Exfiltration via External Service Callback</name>
+    <description>Detects data exfiltration where the LLM is prompted to make external API calls or web requests containing sensitive data</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-FUNCTION-CALL</action>
+        <external_domain regex="true">true</external_domain>
+        <exfil_callback regex="true">true</exfil_callback>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Exfiltration</tactic>
+      <technique>T1567</technique>
+      <tactic>Command and Control</tactic>
+      <technique>T1071</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+    </compliance>
+    <references>AI-DEX-018</references>
+    <action>ALERT</action>
+    <group>ai_data_exfiltration</group>
+  </rule>
+
+  <rule id="FSIEM-AIDEX-009" severity="HIGH" enabled="true">
+    <name>AI — Confidential Data Leak via Model Hallucination</name>
+    <description>Detects situations where the model hallucinates and outputs confidential data that should not be in its response scope</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-RESPONSE</action>
+        <confidential_data regex="true">true</confidential_data>
+        <tags>data-leak</tags>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1590</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+    </compliance>
+    <references>AI-DEX-019</references>
+    <action>ALERT</action>
+    <group>ai_data_exfiltration</group>
+  </rule>
+
+  <rule id="FSIEM-AIPI-016" severity="HIGH" enabled="true">
+    <name>AI — Prompt Injection via Few-Shot Manipulation with Harmful Examples</name>
+    <description>Detects few-shot prompt injection where attackers provide carefully crafted examples that teach the model to produce harmful outputs</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <few_shot_harmful regex="true">true</few_shot_harmful>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-PI-025</references>
+    <action>ALERT</action>
+    <group>ai_prompt_injection</group>
+  </rule>
+
+  <rule id="FSIEM-AIMDL-009" severity="MEDIUM" enabled="true">
+    <name>AI — Model API Abuse — Excessive Token Consumption</name>
+    <description>Detects abuse of AI model APIs through excessive token consumption that may indicate resource theft or DDoS</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-API-SUCCESS</action>
+        <token_count regex="true">>500000</token_count>
+        <time_window>3600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1499</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-MDL-017</references>
+    <action>ALERT</action>
+    <group>ai_model_attack</group>
+  </rule>
+</rules>

@@ -1,0 +1,840 @@
+<!-- FortiSIEM SIEM Alert Rules — AI Security: Database Attacks, RAG Poisoning, and Red Team Detection -->
+<rules>
+  <rule id="FSIEM-AIDB-001" severity="CRITICAL" enabled="true">
+    <name>AI — Vector Database Unauthorized Access</name>
+    <description>Detects unauthorized access attempts to vector databases used for AI embeddings and RAG systems</description>
+    <pattern>
+      <event>
+        <product>Vector Database</product>
+        <action>LOGIN-FAIL</action>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+    </compliance>
+    <references>AI-DB-001</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-002" severity="CRITICAL" enabled="true">
+    <name>AI — Vector Embedding Poisoning Attack</name>
+    <description>Detects injection of malicious vector embeddings designed to manipulate RAG retrieval results</description>
+    <pattern>
+      <event>
+        <product>Vector Database</product>
+        <action>UPSERT</action>
+        <poisoned_embedding regex="true">true</poisoned_embedding>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1584.006</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-DB-002</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-003" severity="CRITICAL" enabled="true">
+    <name>AI — RAG Document Injection via Malicious Upload</name>
+    <description>Detects injection of malicious documents into RAG knowledge bases containing hidden instructions for the LLM</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>RAG-UPLOAD</action>
+        <payload regex="true">.*(ignore previous|disregard instructions|system:).*</payload>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1584.006</technique>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-DB-003</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-004" severity="CRITICAL" enabled="true">
+    <name>AI — Pinecone Namespace Isolation Bypass</name>
+    <description>Detects attempts to bypass Pinecone namespace isolation to access embeddings from other tenants</description>
+    <pattern>
+      <event>
+        <product>Pinecone</product>
+        <action>QUERY</action>
+        <namespace_bypass regex="true">true</namespace_bypass>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+    </compliance>
+    <references>AI-DB-004</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-005" severity="CRITICAL" enabled="true">
+    <name>AI — Weaviate Tenant Data Isolation Failure</name>
+    <description>Detects failures in Weaviate multi-tenant isolation allowing cross-tenant data access in RAG systems</description>
+    <pattern>
+      <event>
+        <product>Weaviate</product>
+        <action>QUERY</action>
+        <tenant_isolation_failure regex="true">true</tenant_isolation_failure>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+    </compliance>
+    <references>AI-DB-005</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-006" severity="CRITICAL" enabled="true">
+    <name>AI — ChromaDB Embedding Poisoning via API</name>
+    <description>Detects ChromaDB embedding poisoning through API manipulation that corrupts retrieval results</description>
+    <pattern>
+      <event>
+        <product>ChromaDB</product>
+        <action>ADD</action>
+        <malicious_embedding regex="true">true</malicious_embedding>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1584.006</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-DB-006</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-007" severity="HIGH" enabled="true">
+    <name>AI — Qdrant Payload Filter Injection</name>
+    <description>Detects injection attacks targeting Qdrant payload filters that could expose or manipulate vector search results</description>
+    <pattern>
+      <event>
+        <product>Qdrant</product>
+        <action>SEARCH</action>
+        <filter_injection regex="true">true</filter_injection>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-DB-007</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-008" severity="HIGH" enabled="true">
+    <name>AI — Milvus Collection Manipulation</name>
+    <description>Detects unauthorized manipulation of Milvus vector collections including schema changes and bulk data modifications</description>
+    <pattern>
+      <event>
+        <product>Milvus</product>
+        <action regex="true">(DROP_COLLECTION|ALTER_COLLECTION|CREATE_INDEX)</action>
+        <user regex="true">^(?!admin).*$</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1485</technique>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-DB-008</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIRAG-001" severity="HIGH" enabled="true">
+    <name>AI — RAG Retrieval Manipulation via Adversarial Queries</name>
+    <description>Detects adversarial queries designed to manipulate RAG retrieval to surface harmful or irrelevant content</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>RAG-QUERY</action>
+        <adversarial_retrieval regex="true">true</adversarial_retrieval>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-DB-009</references>
+    <action>ALERT</action>
+    <group>ai_rag_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIRAG-002" severity="HIGH" enabled="true">
+    <name>AI — Semantic Search Results Manipulation</name>
+    <description>Detects manipulation of semantic search results through crafted queries exploiting embedding space vulnerabilities</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>SEMANTIC-SEARCH</action>
+        <result_manipulation regex="true">true</result_manipulation>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-DB-010</references>
+    <action>ALERT</action>
+    <group>ai_rag_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIRED-001" severity="HIGH" enabled="true">
+    <name>AI — Red Team — Multi-Turn Context Manipulation</name>
+    <description>Detects multi-turn red team attacks that gradually build context across conversation turns to evade safety filters</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <multi_turn_escalation regex="true">true</multi_turn_escalation>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RED-010</references>
+    <action>ALERT</action>
+    <group>ai_red_team</group>
+  </rule>
+
+  <rule id="FSIEM-AIRED-002" severity="HIGH" enabled="true">
+    <name>AI — Red Team — Adversarial Example Transfer Attack</name>
+    <description>Detects adversarial examples crafted for one model that transfer to attack other models in the same deployment</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <transfer_attack regex="true">true</transfer_attack>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RED-011</references>
+    <action>ALERT</action>
+    <group>ai_red_team</group>
+  </rule>
+
+  <rule id="FSIEM-AIRED-003" severity="CRITICAL" enabled="true">
+    <name>AI — Red Team — Model Extraction via Probing</name>
+    <description>Detects systematic probing of model behavior to extract decision boundaries and reconstruct model internals</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-API</action>
+        <boundary_probe regex="true">true</boundary_probe>
+        <count regex="true">>500</count>
+        <time_window>3600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1589.006</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RED-012</references>
+    <action>ALERT</action>
+    <group>ai_red_team</group>
+  </rule>
+
+  <rule id="FSIEM-AIRED-004" severity="HIGH" enabled="true">
+    <name>AI — Red Team — Safety Filter Bypass via Obfuscation</name>
+    <description>Detects obfuscation techniques used to bypass AI safety filters including l33tspeak, character substitution, and fragmented instructions</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <safety_bypass regex="true">true</safety_bypass>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1027</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RED-013</references>
+    <action>ALERT</action>
+    <group>ai_red_team</group>
+  </rule>
+
+  <rule id="FSIEM-AIRED-005" severity="CRITICAL" enabled="true">
+    <name>AI — Red Team — Automated Jailbreak Framework Detection</name>
+    <description>Detects automated jailbreak frameworks and tools used for red teaming that may indicate unauthorized testing or attack</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <payload regex="true">.*(autodan|pair|deepinception|gptfuzz|redteam).*</payload>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RED-014</references>
+    <action>ALERT</action>
+    <group>ai_red_team</group>
+  </rule>
+
+  <rule id="FSIEM-AIRED-006" severity="HIGH" enabled="true">
+    <name>AI — Red Team — Constitutional AI Bypass</name>
+    <description>Detects attempts to bypass constitutional AI or alignment training through targeted adversarial prompts</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <constitutional_bypass regex="true">true</constitutional_bypass>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RED-015</references>
+    <action>ALERT</action>
+    <group>ai_red_team</group>
+  </rule>
+
+  <rule id="FSIEM-AIRAG-003" severity="HIGH" enabled="true">
+    <name>AI — RAG Pipeline — Data Injection via Document Metadata</name>
+    <description>Detects injection of malicious content through document metadata fields processed by RAG systems without sanitization</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>RAG-UPLOAD</action>
+        <malicious_metadata regex="true">true</malicious_metadata>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1584.006</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RAG-010</references>
+    <action>ALERT</action>
+    <group>ai_rag_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIRAG-004" severity="CRITICAL" enabled="true">
+    <name>AI — RAG Pipeline — Cross-Tenant Data Leakage</name>
+    <description>Detects cross-tenant data leakage in multi-tenant RAG systems where one tenant's documents appear in another's retrieval results</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>RAG-QUERY</action>
+        <cross_tenant_leak regex="true">true</cross_tenant_leak>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+    </compliance>
+    <references>AI-RAG-011</references>
+    <action>ALERT</action>
+    <group>ai_rag_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIRAG-005" severity="HIGH" enabled="true">
+    <name>AI — RAG Pipeline — Embedding Model Evasion</name>
+    <description>Detects evasion of embedding models through crafted inputs that produce unexpected similarity scores in RAG retrieval</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>RAG-QUERY</action>
+        <embedding_evasion regex="true">true</embedding_evasion>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RAG-012</references>
+    <action>ALERT</action>
+    <group>ai_rag_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIRAG-006" severity="CRITICAL" enabled="true">
+    <name>AI — RAG Pipeline — Knowledge Base Tampering</name>
+    <description>Detects unauthorized modifications to RAG knowledge bases including document deletion, modification, or replacement</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action regex="true">(DELETE|UPDATE|REPLACE)</action>
+        <tags>RAG</tags>
+        <user regex="true">^(?!admin).*$</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1485</technique>
+      <tactic>Defense Evasion</tactic>
+      <technique>T1565.001</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RAG-013</references>
+    <action>ALERT</action>
+    <group>ai_rag_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIRAG-007" severity="CRITICAL" enabled="true">
+    <name>AI — RAG Pipeline — Prompt Injection via Retrieved Context</name>
+    <description>Detects indirect prompt injection through malicious content retrieved from the RAG knowledge base and injected into the LLM context window</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>RAG-RETRIEVAL</action>
+        <retrieved_injection regex="true">true</retrieved_injection>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1584.006</technique>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RAG-014</references>
+    <action>ALERT</action>
+    <group>ai_rag_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIRAG-008" severity="HIGH" enabled="true">
+    <name>AI — RAG Pipeline — Relevance Score Manipulation</name>
+    <description>Detects manipulation of RAG relevance or similarity scores to prioritize malicious documents in retrieval results</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>RAG-QUERY</action>
+        <score_manipulation regex="true">true</score_manipulation>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1584.006</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RAG-015</references>
+    <action>ALERT</action>
+    <group>ai_rag_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-009" severity="CRITICAL" enabled="true">
+    <name>AI — SQL Injection via LLM Query</name>
+    <description>Detects SQL injection attacks that originate through LLM-generated queries to connected databases in AI application stacks</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <action>AI-GENERATED-QUERY</action>
+        <payload regex="true">.*(UNION SELECT|OR 1=1|DROP TABLE|--).*;--</payload>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+    </compliance>
+    <references>AI-DB-011</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-010" severity="CRITICAL" enabled="true">
+    <name>AI — NoSQL Injection via RAG Query</name>
+    <description>Detects NoSQL injection attacks targeting document databases connected to RAG or AI agent systems</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <action>AI-QUERY</action>
+        <payload regex="true">.*(\$gt|\$ne|\$where|\$regex|\$or).*</payload>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+    </compliance>
+    <references>AI-DB-012</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-011" severity="CRITICAL" enabled="true">
+    <name>AI — Unauthorized Training Data Access</name>
+    <description>Detects unauthorized access to AI training data repositories and datasets</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <action>LOGIN-SUCCESS</action>
+        <tags>training-data</tags>
+        <user regex="true">^(?!authorized).*$</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1080</technique>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>GDPR</standard>
+      <control>32A</control>
+    </compliance>
+    <references>AI-DB-013</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-012" severity="CRITICAL" enabled="true">
+    <name>AI — Feature Store Poisoning</name>
+    <description>Detects poisoning of AI feature stores used for model inference that could cause incorrect predictions or biased outputs</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <action>WRITE</action>
+        <tags>feature-store</tags>
+        <user regex="true">^(?!authorized).*$</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1584.006</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-DB-014</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-013" severity="CRITICAL" enabled="true">
+    <name>AI — Model Artifact Tampering</name>
+    <description>Detects unauthorized modifications to stored model artifacts including weights, configurations, and checkpoints</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <action regex="true">(UPDATE|DELETE|REPLACE)</action>
+        <tags regex="true">(model-artifact|model-weight|model-checkpoint)</tags>
+        <user regex="true">^(?!authorized).*$</user>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1584.006</technique>
+      <tactic>Impact</tactic>
+      <technique>T1485</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-DB-015</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-014" severity="CRITICAL" enabled="true">
+    <name>AI — Embedding API Key Exposure</name>
+    <description>Detects exposure of API keys used for embedding services through logs, errors, or unauthorized access patterns</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>EMBEDDING-API</action>
+        <key_exposure regex="true">true</key_exposure>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Credential Access</tactic>
+      <technique>T1552.001</technique>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>PCI-DSS</standard>
+      <control>8.6</control>
+    </compliance>
+    <references>AI-DB-016</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIDB-015" severity="HIGH" enabled="true">
+    <name>AI — Anomalous Query Volume on Vector DB</name>
+    <description>Detects unusual query volumes against vector databases that may indicate data harvesting or model extraction</description>
+    <pattern>
+      <event>
+        <product regex="true">(Pinecone|Weaviate|Qdrant)</product>
+        <action>QUERY</action>
+        <count regex="true">>10000</count>
+        <time_window>3600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Collection</tactic>
+      <technique>T1589.006</technique>
+      <tactic>Impact</tactic>
+      <technique>T1499</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-DB-017</references>
+    <action>ALERT</action>
+    <group>ai_database_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIRED-007" severity="CRITICAL" enabled="true">
+    <name>AI — Red Team — Prompt-Based SQL Injection via AI Agent</name>
+    <description>Detects red team attacks that use prompt engineering to make an AI agent generate and execute malicious SQL queries</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-AGENT-ACTION</action>
+        <payload regex="true">.*(DROP|DELETE|UNION|OR 1=1).*</payload>
+        <agent_generated regex="true">true</agent_generated>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+      <standard>PCI-DSS</standard>
+      <control>6.5</control>
+    </compliance>
+    <references>AI-RED-016</references>
+    <action>ALERT</action>
+    <group>ai_red_team</group>
+  </rule>
+
+  <rule id="FSIEM-AIRED-008" severity="CRITICAL" enabled="true">
+    <name>AI — Red Team — Tool-Use Privilege Escalation</name>
+    <description>Detects red team attacks that exploit AI agent tool-use capabilities for privilege escalation</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-AGENT-ACTION</action>
+        <payload regex="true">.*(sudo|runas|admin|root).*</payload>
+        <tool_use_escalation regex="true">true</tool_use_escalation>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Privilege Escalation</tactic>
+      <technique>T1548</technique>
+      <tactic>Valid Accounts</tactic>
+      <technique>T1078.002</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RED-017</references>
+    <action>ALERT</action>
+    <group>ai_red_team</group>
+  </rule>
+
+  <rule id="FSIEM-AIRED-009" severity="CRITICAL" enabled="true">
+    <name>AI — Red Team — Sandbox Escape via Prompt</name>
+    <description>Detects red team attacks that attempt to escape AI sandbox or containment through prompt engineering</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-PROMPT</action>
+        <payload regex="true">.*(escape sandbox|break out|access host|run command|execute shell).*</payload>
+        <sandbox_escape regex="true">true</sandbox_escape>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Initial Access</tactic>
+      <technique>T1190</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RED-018</references>
+    <action>ALERT</action>
+    <group>ai_red_team</group>
+  </rule>
+
+  <rule id="FSIEM-AIRAG-009" severity="HIGH" enabled="true">
+    <name>AI — RAG Pipeline — Embedding Collision Attack</name>
+    <description>Detects embedding collision attacks that craft inputs to produce embeddings that collide with target documents in vector space</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>RAG-QUERY</action>
+        <embedding_collision regex="true">true</embedding_collision>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Resource Development</tactic>
+      <technique>T1584.006</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RAG-016</references>
+    <action>ALERT</action>
+    <group>ai_rag_security</group>
+  </rule>
+
+  <rule id="FSIEM-AIRAG-010" severity="HIGH" enabled="true">
+    <name>AI — RAG Pipeline — Denial of Service via Embedding Flood</name>
+    <description>Detects denial of service attacks against RAG systems through flooding the vector database with malicious embeddings</description>
+    <pattern>
+      <event>
+        <product regex="true">(Pinecone|Weaviate|ChromaDB)</product>
+        <action>UPSERT</action>
+        <count regex="true">>1000</count>
+        <time_window>600</time_window>
+      </event>
+    </pattern>
+    <mitre>
+      <tactic>Impact</tactic>
+      <technique>T1499</technique>
+      <tactic>Impact</tactic>
+      <technique>T1498</technique>
+    </mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>15</control>
+    </compliance>
+    <references>AI-RAG-017</references>
+    <action>ALERT</action>
+    <group>ai_rag_security</group>
+  </rule>
+</rules>

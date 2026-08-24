@@ -1,15 +1,54 @@
 # =============================================================================
-# Suricata Rules — lateral-movement
-# Total rules: 10
+# Suricata Rules — Lateral Movement
+# Total rules: 27
+# MITRE ATT&CK: T1021, T1047, T1550, T1078, T1053, T1543, T1112
+# Compliance: PCI-DSS 8.1, NIST AC-17, SI-4, IA-5
 # =============================================================================
 
-SUR-LM-001 http any any -> $HOME_NET any (msg:"SIEM Pass-the-Hash Detection"; content:"pass-the-hash"; content:"windows"; classtype:attempted-admin; sid:3000000; rev:1; severity:1; metadata:mitre T1550.002;)
-SUR-LM-002 http any any -> $HOME_NET any (msg:"SIEM Pass-the-Ticket (Kerberos)"; content:"pass-the-ticket"; content:"kerberos"; classtype:attempted-admin; sid:3000001; rev:1; severity:1; metadata:mitre T1550.003;)
-SUR-LM-003 http any any -> $HOME_NET any (msg:"SIEM RDP Anomalous Connection"; content:"rdp"; content:"remote-desktop"; classtype:attempted-admin; sid:3000002; rev:1; severity:2; metadata:mitre T1021.001;)
-SUR-LM-004 http any any -> $HOME_NET any (msg:"SIEM SSH Lateral Movement"; content:"ssh"; content:"remote-access"; classtype:attempted-admin; sid:3000003; rev:1; severity:2; metadata:mitre T1021.004;)
-SUR-LM-005 http any any -> $HOME_NET any (msg:"SIEM WMI/PSExec Remote Execution"; content:"wmi"; content:"psexec"; classtype:attempted-admin; sid:3000004; rev:1; severity:1; metadata:mitre T1047,T1021.002;)
-SUR-LM-006 http any any -> $HOME_NET any (msg:"SIEM SMB Lateral Movement via Admin Shares"; content:"smb"; content:"admin-shares"; classtype:attempted-admin; sid:3000005; rev:1; severity:1; metadata:mitre T1021.002;)
-SUR-LM-007 http any any -> $HOME_NET any (msg:"SIEM DCOM Lateral Movement"; content:"dcom"; content:"distributed-com"; classtype:attempted-admin; sid:3000006; rev:1; severity:2; metadata:mitre T1021.003;)
-SUR-LM-008 http any any -> $HOME_NET any (msg:"SIEM WinRM Remote Shell Access"; content:"winrm"; content:"remote-shell"; classtype:attempted-admin; sid:3000007; rev:1; severity:2; metadata:mitre T1021.006;)
-SUR-LM-009 http any any -> $HOME_NET any (msg:"SIEM Golden Ticket Attack (Kerberos)"; content:"golden-ticket"; content:"kerberos"; classtype:attempted-admin; sid:3000008; rev:1; severity:1; metadata:mitre T1558.001;)
-SUR-LM-010 http any any -> $HOME_NET any (msg:"SIEM Silver Ticket Attack (Kerberos)"; content:"silver-ticket"; content:"kerberos"; classtype:attempted-admin; sid:3000009; rev:1; severity:1; metadata:mitre T1558.002;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"SIEM LATR-001: SMB admin share access"; flow:established,to_server; content:"IPC$"; nocase; sid:3015001; rev:1; metadata:mitre_t1021.002, pci_dss_8.1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"SIEM LATR-001: SMB ADMIN$ share access"; flow:established,to_server; content:"ADMIN$"; nocase; sid:3015002; rev:1; metadata:mitre_t1021.002, pci_dss_8.1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"SIEM LATR-001: SMB C$ share access"; flow:established,to_server; content:"C$"; nocase; sid:3015003; rev:1; metadata:mitre_t1021.002, pci_dss_8.1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"SIEM LATR-002: PsExec execution detected"; flow:established,to_server; content:"PSEXEC"; nocase; sid:3015004; rev:1; metadata:mitre_t1021.002, pci_dss_8.1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"SIEM LATR-002: Remote command execution via SMB"; flow:established,to_server; pcre:"/(exec\(|execute\(|cmd\.exe|powershell|wscript|cscript|mshta|rundll32|regsvr32)/i"; sid:3015005; rev:1; metadata:mitre_t1021, pci_dss_8.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"SIEM LATR-003: RDP connection detected"; flow:established,to_server; content:"Microsoft Terminal Services"; sid:3015006; rev:1; metadata:mitre_t1021.001, pci_dss_8.1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"SIEM LATR-004: RDP authentication failure"; flow:established,to_server; pcre:"/(Login Failed|Access Denied|Authentication failed)/i"; sid:3015007; rev:1; metadata:mitre_t1110, pci_dss_8.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 135 (msg:"SIEM LATR-005: WMI remote connection detected"; flow:established,to_server; pcre:"/(IEnumWbemClassObject|IWbemServices|IWbemLocator|Win32_Process|Win32_Service|Win32_OperatingSystem)/i"; sid:3015008; rev:1; metadata:mitre_t1047, pci_dss_8.1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 135 (msg:"SIEM LATR-006: WMI remote process creation"; flow:established,to_server; pcre:"/(Win32_Process\.Create|CreateProcess|cmd\.exe|powershell|wscript|cscript|mshta)/i"; sid:3015009; rev:1; metadata:mitre_t1047, pci_dss_8.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [5985,5986] (msg:"SIEM LATR-007: WinRM connection detected"; flow:established,to_server; content:"wsman"; nocase; sid:3015010; rev:1; metadata:mitre_t1021.006, pci_dss_8.1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET [5985,5986] (msg:"SIEM LATR-008: PowerShell remoting command"; flow:established,to_server; pcre:"/(Enter-PSSession|Invoke-Command|New-PSSession|Connect-PSSession)/i"; sid:3015011; rev:1; metadata:mitre_t1021.006, pci_dss_8.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"SIEM LATR-009: SSH connection detected"; flow:established,to_server; content:"SSH-2.0-"; sid:3015012; rev:1; metadata:mitre_t1021.004, nist_ac_17;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"SIEM LATR-010: SSH authentication failure"; flow:established,to_server; pcre:"/(Failed password|Permission denied|Authentication failed|invalid user)/i"; sid:3015013; rev:1; metadata:mitre_t1110, pci_dss_8.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 135 (msg:"SIEM LATR-011: DCOM activation detected"; flow:established,to_server; pcre:"/(IUnknown|IDispatch|IClassFactory|IClassActivator|IOleObject|DcomLaunch)/i"; sid:3015014; rev:1; metadata:mitre_t1021.003, pci_dss_8.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 53 (msg:"SIEM LATR-012: DNS tunneling - long subdomain query"; flow:established,to_server; pcre:"/[a-zA-Z0-9]{30,}.*\.(com|net|org|info|xyz|top|click|online|site|club)/i"; sid:3015015; rev:1; metadata:mitre_t1071, nist_si_4;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 53 (msg:"SIEM LATR-013: DNS TXT query with encoded data"; flow:established,to_server; content:"TXT"; pcre:"/[a-zA-Z0-9]{20,}/"; sid:3015016; rev:1; metadata:mitre_t1071, nist_si_4;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM LATR-014: Remote command execution via API"; flow:established,to_server; http.request_method; content:"POST"; http.uri; pcre:"/\/api\/v[0-9]+\/(exec|execute|run|command|shell|cmd|powershell|bash)/i"; http.header; content:"Authorization: Bearer "; sid:3015017; rev:1; metadata:mitre_t1021, pci_dss_8.1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM LATR-015: Remote access API endpoint"; flow:established,to_server; http.request_method; content:"POST"; http.uri; pcre:"/\/api\/v[0-9]+\/(ssh|rdp|winrm|wmi|remote|connect|terminal)/i"; http.header; content:"Authorization: Bearer "; sid:3015018; rev:1; metadata:mitre_t1021, pci_dss_8.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM LATR-016: Scheduled task creation with suspicious command"; flow:established,to_server; http.request_method; content:"POST"; http.uri; pcre:"/\/api\/v[0-9]+\/(scheduled|tasks?|jobs?|cron|timers?)/i"; http.request_body; pcre:"/(command|script|program|executable)[\":\\s]+[\":\\s]+(powershell|cmd\.exe|wscript|cscript|mshta|rundll32|regsvr32|certutil|bitsadmin)/i"; sid:3015019; rev:1; metadata:mitre_t1053, pci_dss_8.1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET [445,139] (msg:"SIEM LATR-017: Remote service/task creation via SMB"; flow:established,to_server; pcre:"/(schtasks|at\.exe|sc\.exe|net\s+start|net\s+stop|Create\s+Service)/i"; sid:3015020; rev:1; metadata:mitre_t1053, pci_dss_8.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM LATR-018: Privileged account login from unusual source"; flow:established,to_server; http.request_method; content:"POST"; http.uri; pcre:"/\/(login|auth|signin|authenticate)/i"; http.header; content:"X-Forwarded-For:"; http.request_body; pcre:"/(admin|root|service|system|operator|manager)/i"; sid:3015021; rev:1; metadata:mitre_t1078, pci_dss_8.1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM LATR-019: Multiple proxy headers - IP manipulation"; flow:established,to_server; http.header; content:"X-Forwarded-For:"; http.header; content:"X-Real-IP:"; sid:3015022; rev:1; metadata:mitre_t1090, pci_dss_8.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM LATR-020: Registry run key modification via API"; flow:established,to_server; http.request_method; content:"PUT"; http.uri; pcre:"/\/api\/v[0-9]+\/(config|settings|registry|preferences)/i"; http.request_body; pcre:"/(HKEY_LOCAL_MACHINE|HKEY_CURRENT_USER|HKLM|HKCU)\\\\(Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\Run|Software\\\\Microsoft\\\\Windows\\\\CurrentVersion\\\\RunOnce|SYSTEM\\\\CurrentControlSet\\\\Services)/i"; sid:3015023; rev:1; metadata:mitre_t1547, pci_dss_8.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [445,139,135] (msg:"SIEM LATR-021: Authentication relay attempt"; flow:established,to_server; pcre:"/(Negotiate|NTLM|Kerberos)/"; pcre:"/(challenge|response|relay|reflection|pass-the-hash|overpass-the-hash)/i"; sid:3015024; rev:1; metadata:mitre_t1550, pci_dss_8.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM LATR-022: Suspicious beaconing endpoint with bot user-agent"; flow:established,to_server; http.request_method; content:"POST"; http.uri; pcre:"/\/(checkin|poll|heartbeat|beacon|status|report|callback)/i"; http.header; content:"User-Agent:"; pcre:"/(python-requests|curl|wget|Go-http|node-fetch|Custom|Unknown)/i"; sid:3015025; rev:1; metadata:mitre_t1071, nist_si_4;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"SIEM LATR-023: Pass-the-hash via SMB"; flow:established,to_server; content:"NTLM"; nocase; sid:3015026; rev:1; metadata:mitre_t1550.002, pci_dss_8.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM LATR-024: NTLM authentication over HTTP"; flow:established,to_server; http.header; content:"Authorization: NTLM "; sid:3015027; rev:1; metadata:mitre_t1550.002, pci_dss_8.1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET [88,464] (msg:"SIEM LATR-025: Kerberos authentication - pass-the-ticket"; flow:established,to_server; pcre:"/(AS-REQ|TGS-REQ|AP-REQ)/"; sid:3015028; rev:1; metadata:mitre_t1550.003, pci_dss_8.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM LATR-026: Credential harvesting via fake login form"; flow:established,to_server; http.uri; pcre:"/\/(secure-login|account-verify|update-account|confirm-identity|security-check|auth-reset)/i"; sid:3015029; rev:1; metadata:mitre_t1056, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM LATR-027: Lateral movement via SSH key upload"; flow:established,to_server; http.request_method; content:"POST"; http.uri; pcre:"/\/api\/v[0-9]+\/(keys?|ssh|authorized_keys?)/i"; http.request_body; pcre:"/(ssh-(rsa|ed25519|ecdsa)|BEGIN\s+(RSA|OPENSSH|DSA)\s+PRIVATE\s+KEY)/i"; sid:3015030; rev:1; metadata:mitre_t1021.004, pci_dss_8.1;)
