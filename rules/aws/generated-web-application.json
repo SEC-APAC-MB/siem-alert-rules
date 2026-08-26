@@ -1,0 +1,51 @@
+[
+  {
+    "rule_id": "AWS-WEB-APPLICATION-017",
+    "name": "CVE-2026-34486 \u2014 Tomcat Exploitation",
+    "description": "Detects exploitation attempts targeting CVE-2026-34486: Apache Tomcat contains a missing encryption of sensitive data vulnerability that allows the bypass of the EncryptInterceptor. This vulnerability can be chained with CVE\u20112025\u201124813.. Product: Tomcat",
+    "severity": "critical",
+    "category": "web-application",
+    "mitre_attack": [
+      "T1059",
+      "T1548",
+      "T1190",
+      "T1592",
+      "T1213"
+    ],
+    "compliance": [
+      "PCI-DSS-6.5",
+      "NIST-800-53-SI-4",
+      "GDPR-32A"
+    ],
+    "source": [
+      "aws.cloudtrail"
+    ],
+    "detection": {
+      "query_type": "cloudwatch_metric_filter",
+      "filter_pattern": "{ ($.eventName = \"*\") }",
+      "log_group": "/aws/cloudtrail",
+      "metric_namespace": "Security/Monitoring",
+      "metric_name": "CVE-2026-34486\u2014TomcatExploitation",
+      "threshold": 5,
+      "evaluation_periods": 1,
+      "statistic": "Sum",
+      "period": 300
+    },
+    "actions": [
+      {
+        "type": "SNS",
+        "description": "Send alert to security team SNS topic"
+      },
+      {
+        "type": "Lambda",
+        "description": "Trigger automated remediation Lambda function"
+      }
+    ],
+    "tags": [
+      "web-application",
+      "cve",
+      "cve-2026-34486",
+      "exploited"
+    ]
+  }
+]

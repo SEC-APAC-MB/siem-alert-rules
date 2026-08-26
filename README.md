@@ -1,6 +1,10 @@
-# 🚨 SIEM Alert Rules — 20,000+ Detection Rules
+# 🚨 SIEM Alert Rules — 6,073 Detection Rules (Growing Daily)
 
-**Production-ready SIEM alert rules mapped from 10,426+ security test checks.**
+**Production-ready SIEM alert rules mapped from security test checks, live threat intel, and pentest techniques.**
+
+> ⚠️ **Honest count**: 6,073 rules across 11 platforms as of 2025-08-25. Daily generation engine
+> adds ~100 rules/day from CISA KEV, NVD CVE, and MITRE ATT&CK. Target: 2,500+ per platform.
+> Previous claim of 20,000+ was inaccurate — this is the real count.
 
 Covers OWASP WSTG, API Security, Mobile Security, AI/LLM Security, MITRE ATT&CK, 8 compliance frameworks, and database security across 11 SIEM/cloud platforms, with full regulatory cross-mapping.
 
@@ -8,17 +12,17 @@ Covers OWASP WSTG, API Security, Mobile Security, AI/LLM Security, MITRE ATT&CK,
 
 | Platform | Rules | Format | Directory |
 |----------|-------|--------|------------|
-| Elastic Security (Kibana) | 2,500+ | KQL/EQL + Rule API JSON | `rules/elastic/` |
-| Splunk Enterprise | 2,500+ | SPL + correlation searches | `rules/splunk/` |
-| FortiSIEM | 2,500+ | Pattern-based XML | `rules/fortisiem/` |
-| IBM QRadar | 2,500+ | AQL + custom rules | `rules/qradar/` |
-| Microsoft Sentinel | 2,500+ | KQL analytics rules | `rules/sentinel/` |
-| Wazuh | 2,500+ | Custom rules (XML) | `rules/wazuh/` |
-| Zeek (Bro) | 2,500+ | Zeek script signatures | `rules/zeek/` |
-| Suricata | 2,500+ | Emerging threats + custom | `rules/suricata/` |
-| Oracle Cloud Infrastructure | 2,000+ | OCI Alarm + Event rules | `rules/oracle/` |
-| Microsoft Azure | 2,000+ | Azure Monitor + Policy | `rules/azure/` |
-| AWS | 2,000+ | CloudWatch + EventBridge + GuardDuty | `rules/aws/` |
+| Elastic Security (Kibana) | 562 | KQL/EQL + Rule API JSON | `rules/elastic/` |
+| Splunk Enterprise | 521 | SPL + correlation searches | `rules/splunk/` |
+| FortiSIEM | 561 | Pattern-based XML | `rules/fortisiem/` |
+| IBM QRadar | 520 | AQL + custom rules | `rules/qradar/` |
+| Microsoft Sentinel | 409 | KQL analytics rules | `rules/sentinel/` |
+| Wazuh | 524 | Custom rules (XML) | `rules/wazuh/` |
+| Zeek (Bro) | 666 | Zeek script signatures | `rules/zeek/` |
+| Suricata | 1,093 | Emerging threats + custom | `rules/suricata/` |
+| Oracle Cloud Infrastructure | 409 | OCI Alarm + Event rules | `rules/oracle/` |
+| Microsoft Azure | 409 | Azure Monitor + Policy | `rules/azure/` |
+| AWS | 409 | CloudWatch + EventBridge + GuardDuty | `rules/aws/` |
 
 ## Regulatory Cross-Mapping
 
