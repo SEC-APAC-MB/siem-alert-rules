@@ -43,5 +43,50 @@
       "cve-2026-64849",
       "exploited"
     ]
+  },
+  {
+    "rule_id": "AWS-SSRF-015",
+    "name": "CVE-2026-64849 \u2014 MLflow Exploitation",
+    "description": "Detects exploitation attempts targeting CVE-2026-64849: MLflow contains a server-side request forgery vulnerability that can allow attackers to reach internal or cloud metadata services and receive response_status and response_body.. Product: MLflow",
+    "severity": "critical",
+    "category": "ssrf",
+    "mitre_attack": [
+      "T1190"
+    ],
+    "compliance": [
+      "PCI-DSS-6.5",
+      "NIST-800-53-SI-4",
+      "GDPR-32A"
+    ],
+    "source": [
+      "aws.cloudtrail"
+    ],
+    "detection": {
+      "query_type": "cloudwatch_metric_filter",
+      "filter_pattern": "{ ($.eventName = \"*\") }",
+      "log_group": "/aws/cloudtrail",
+      "metric_namespace": "Security/Monitoring",
+      "metric_name": "CVE-2026-64849\u2014MLflowExploitation",
+      "threshold": 5,
+      "evaluation_periods": 1,
+      "statistic": "Sum",
+      "period": 300
+    },
+    "actions": [
+      {
+        "type": "SNS",
+        "description": "Send alert to security team SNS topic"
+      },
+      {
+        "type": "Lambda",
+        "description": "Trigger automated remediation Lambda function"
+      }
+    ],
+    "tags": [
+      "ssrf",
+      "cve",
+      "cve-2026-64849",
+      "exploited"
+    ]
   }
 ]
