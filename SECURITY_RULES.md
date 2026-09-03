@@ -3,7 +3,7 @@
 **Repository:** siem-alert-rules
 **Version:** 1.0
 **Date:** 2026-08-25
-**Enforcement:** Same as R1-R24 redlines. Violation = STOP → PRESERVE → NOTIFY → WAIT.
+**Enforcement:** Same as R1-R26 redlines. Violation = STOP → PRESERVE → NOTIFY → WAIT.
 
 ---
 

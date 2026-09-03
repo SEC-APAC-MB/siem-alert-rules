@@ -133,5 +133,54 @@
       "cve-2026-64849",
       "exploited"
     ]
+  },
+  {
+    "rule_id": "AWS-SSRF-006",
+    "name": "CVE-2026-83548 \u2014 SMA1000 Appliances Exploitation",
+    "description": "Detects exploitation attempts targeting CVE-2026-83548: SonicWall SMA1000 Appliances contains a server-side request forgery vulnerability that could allow a remote unauthenticated attacker to gain unauthorized access to sensitive functionality and perform unauthorized operations.. Product: SMA1000 Appliances",
+    "severity": "critical",
+    "category": "ssrf",
+    "mitre_attack": [
+      "T1110",
+      "T1078",
+      "T1592",
+      "T1190",
+      "T1213"
+    ],
+    "compliance": [
+      "PCI-DSS-6.5",
+      "NIST-800-53-SI-4",
+      "GDPR-32A"
+    ],
+    "source": [
+      "aws.cloudtrail"
+    ],
+    "detection": {
+      "query_type": "cloudwatch_metric_filter",
+      "filter_pattern": "{ ($.eventName = \"*\") }",
+      "log_group": "/aws/cloudtrail",
+      "metric_namespace": "Security/Monitoring",
+      "metric_name": "CVE-2026-83548\u2014SMA1000AppliancesExploitation",
+      "threshold": 5,
+      "evaluation_periods": 1,
+      "statistic": "Sum",
+      "period": 300
+    },
+    "actions": [
+      {
+        "type": "SNS",
+        "description": "Send alert to security team SNS topic"
+      },
+      {
+        "type": "Lambda",
+        "description": "Trigger automated remediation Lambda function"
+      }
+    ],
+    "tags": [
+      "ssrf",
+      "cve",
+      "cve-2026-83548",
+      "exploited"
+    ]
   }
 ]
