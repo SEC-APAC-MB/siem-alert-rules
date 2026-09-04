@@ -1,0 +1,695 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "Azure Monitor and Policy rules \u2014 Multi-Stage Lateral Movement Chains",
+  "total_rules": 25,
+  "rules": [
+    {
+      "rule_id": "AZ-LAT-CHN-001",
+      "name": "Lateral Movement chain \u2014 RDP \u2192 Credential Access \u2192 Data Exfiltration",
+      "description": "Detects multi-stage lateral movement: initial RDP compromise followed by credential theft and data exfiltration",
+      "severity": 0,
+      "query": "let rdp_events = SecurityEvent | where EventID == 4624 and LogonType == 10 | summarize rdp_time=min(TimeGenerated), rdp_src=any(SourceIP) by TargetUserName, Computer;\nlet cred_events = SecurityEvent | where EventID in (4688, 4663) and ProcessName has_any (\"mimikatz\", \"procdump\", \"lsass\") | summarize cred_time=min(TimeGenerated) by TargetUserName, Computer;\nrdp_events | join kind=inner cred_events on TargetUserName, Computer | where cred_time - rdp_time between (0min .. 60min)",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1021.001",
+        "T1003",
+        "T1567"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "PCI-DSS-10.2"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "rdp",
+        "credential-access",
+        "exfiltration"
+      ],
+      "risk_score": 99
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-002",
+      "name": "Lateral movement chain \u2014 SMB \u2192 LSA Secrets \u2192 Domain Dominance",
+      "description": "Detects SMB lateral movement progressing to LSA secret extraction and domain controller compromise",
+      "severity": 0,
+      "query": "let smb_events = SecurityEvent | where EventID == 5140 and ShareName contains \"\\\\\" | summarize smb_time=min(TimeGenerated) by TargetUserName, Computer;\nlet lsa_events = SecurityEvent | where EventID == 4663 and ObjectName has_any (\"lsa\", \"lsa secrets\") | summarize lsa_time=min(TimeGenerated) by TargetUserName, Computer;\nsmb_events | join kind=inner lsa_events on TargetUserName | where lsa_time - smb_time between (0min .. 120min)",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1021.002",
+        "T1003.004",
+        "T1558"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "NIS2-Art.15"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "smb",
+        "lsa",
+        "domain"
+      ],
+      "risk_score": 98
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-003",
+      "name": "Lateral movement chain \u2014 SSH \u2192 Privilege Escalation \u2192 Root Access",
+      "description": "Detects SSH lateral movement followed by privilege escalation to root",
+      "severity": 0,
+      "query": "let ssh_events = Syslog | where Facility == \"auth\" and SyslogMessage contains \"Accepted\" and SyslogMessage contains \"ssh\" | summarize ssh_time=min(TimeGenerated), ssh_src=any(extract(@\"from ([0-9.]+)\", 1, SyslogMessage)) by TargetUserName, Computer;\nlet privesc_events = Syslog | where SyslogMessage has_any (\"sudo\", \"su root\", \"uid=0\") | summarize privesc_time=min(TimeGenerated) by TargetUserName, Computer;\nssh_events | join kind=inner privesc_events on TargetUserName, Computer | where privesc_time - ssh_time between (0min .. 60min)",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1021.004",
+        "T1548.001"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "ssh",
+        "privilege-escalation",
+        "root"
+      ],
+      "risk_score": 96
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-004",
+      "name": "Lateral movement chain \u2014 WinRM \u2192 PS Remoting \u2192 Domain Controller",
+      "description": "Detects WinRM-based lateral movement using PowerShell remoting to reach domain controllers",
+      "severity": 0,
+      "query": "let winrm_events = SecurityEvent | where EventID == 4624 and AuthenticationPackageName == \"Negotiate\" and ProcessName has \"winrm\" | summarize winrm_time=min(TimeGenerated) by TargetUserName, Computer;\nlet ps_events = SecurityEvent | where EventID == 4103 and ScriptBlockText has_any (\"Get-ADDomainController\", \"Get-ADUser\", \"Invoke-Command\") | summarize ps_time=min(TimeGenerated) by TargetUserName, Computer;\nwinrm_events | join kind=inner ps_events on TargetUserName | where ps_time - winrm_time between (0min .. 30min)",
+      "queryFrequency": "PT30M",
+      "queryPeriod": "PT30M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1021.006",
+        "T1059.001",
+        "T1018"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "NIS2-Art.15"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "winrm",
+        "powershell",
+        "domain-controller"
+      ],
+      "risk_score": 97
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-005",
+      "name": "Lateral movement chain \u2014 WMI \u2192 Scheduled Task \u2192 Persistence",
+      "description": "Detects WMI-based lateral movement creating scheduled tasks for persistence across multiple hosts",
+      "severity": 0,
+      "query": "let wmi_events = SecurityEvent | where EventID == 4624 and ProcessName has \"wmiprvse\" | summarize wmi_time=min(TimeGenerated) by TargetUserName, Computer;\nlet schtask_events = SecurityEvent | where EventID == 4698 and TaskName !startswith \"\\\\Microsoft\" | summarize schtask_time=min(TimeGenerated) by SubjectUserName, Computer;\nwmi_events | join kind=inner schtask_events on $left.TargetUserName == $right.SubjectUserName | where schtask_time - wmi_time between (0min .. 60min)",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1047",
+        "T1053.005",
+        "T1059"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "wmi",
+        "scheduled-task",
+        "persistence"
+      ],
+      "risk_score": 92
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-006",
+      "name": "Lateral movement chain \u2014 DCOM \u2192 Shell Execute \u2192 C2 Callback",
+      "description": "Detects DCOM lateral movement followed by shell execution and command-and-control callback",
+      "severity": 0,
+      "query": "let dcom_events = SecurityEvent | where EventID == 4624 and AuthenticationPackageName == \"Negotiate\" and ProcessName has_any (\"dcom\", \"rpcss\") | summarize dcom_time=min(TimeGenerated) by TargetUserName, Computer;\nlet shell_events = SecurityEvent | where EventID == 4688 and NewProcessName has_any (\"cmd.exe\", \"powershell.exe\", \"wscript.exe\") | summarize shell_time=min(TimeGenerated) by SubjectUserName, Computer;\nlet c2_events = NetworkEvents | where RemoteUrl has_any (\"pastebin\", \"github\", \"cloudflare\") or DestinationPort in (4444, 8888, 9999) | summarize c2_time=min(TimeGenerated) by Computer;\ndcom_events | join kind=inner shell_events on $left.TargetUserName == $right.SubjectUserName | where shell_time - dcom_time between (0min .. 30min)",
+      "queryFrequency": "PT30M",
+      "queryPeriod": "PT30M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1021.002",
+        "T1559.001",
+        "T1071"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "NIS2-Art.15"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "dcom",
+        "shell",
+        "c2"
+      ],
+      "risk_score": 97
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-007",
+      "name": "Lateral movement chain \u2014 Pass-the-Hash \u2192 SMB \u2192 Domain Admin",
+      "description": "Detects pass-the-hash attack followed by SMB lateral movement to gain domain admin privileges",
+      "severity": 0,
+      "query": "let pth_events = SecurityEvent | where EventID == 4624 and AuthenticationPackageName == \"NTLM\" and LogonType == 3 | summarize pth_time=min(TimeGenerated) by TargetUserName, Computer;\nlet smb_events = SecurityEvent | where EventID == 5140 | summarize smb_time=min(TimeGenerated) by TargetUserName, Computer;\nlet da_events = SecurityEvent | where EventID == 4624 and TargetUserName endswith \"-admin\" or TargetUserName in (\"Domain Admins\", \"Enterprise Admins\") | summarize da_time=min(TimeGenerated) by TargetUserName;\npth_events | join kind=inner smb_events on TargetUserName | where smb_time - pth_time between (0min .. 60min)",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1550.002",
+        "T1021.002",
+        "T1078.002"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "pth",
+        "smb",
+        "domain-admin"
+      ],
+      "risk_score": 99
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-008",
+      "name": "Lateral movement chain \u2014 Kerberoasting \u2192 Ticket \u2192 Service Account",
+      "description": "Detects Kerberoasting followed by TGS ticket usage to compromise service accounts",
+      "severity": 0,
+      "query": "let kerb_events = SecurityEvent | where EventID == 4769 and ServiceName !startswith \"krbtgt\" and TicketEncryptionType == \"0x17\" | summarize kerb_time=min(TimeGenerated) by ClientUserName, ServiceName;\nlet service_events = SecurityEvent | where EventID == 4624 and TargetUserName endswith \"$\" and LogonType == 3 | summarize svc_time=min(TimeGenerated) by TargetUserName;\nkerb_events | join kind=inner service_events on $left.ServiceName == $right.TargetUserName | where svc_time - kerb_time between (0min .. 120min)",
+      "queryFrequency": "PT2H",
+      "queryPeriod": "PT2H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1558.003",
+        "T1550.003",
+        "T1078.002"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "NIS2-Art.15"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "kerberoasting",
+        "service-account"
+      ],
+      "risk_score": 98
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-009",
+      "name": "Lateral movement chain \u2014 Phishing \u2192 Credential Harvest \u2192 Cloud Takeover",
+      "description": "Detects phishing attack followed by credential harvesting and cloud service takeover",
+      "severity": 0,
+      "query": "let phish_events = EmailEvents | where ThreatTypes has \"Phish\" | summarize phish_time=min(TimeGenerated) by RecipientEmailAddress;\nlet cred_events = SigninLogs | where ResultType == 0 and TimeGenerated > ago(24h) and ClientAppUsed has_any (\"Exchange ActiveSync\", \"IMAP\") | summarize cred_time=min(TimeGenerated) by UserPrincipalName;\nphish_events | join kind=inner cred_events on $left.RecipientEmailAddress == $right.UserPrincipalName | where cred_time - phish_time between (0min .. 1440min)",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT24H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1566.001",
+        "T1110",
+        "T1078"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "PCI-DSS-10.2"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "phishing",
+        "credential-harvest",
+        "cloud"
+      ],
+      "risk_score": 99
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-010",
+      "name": "Lateral movement chain \u2014 Supply Chain \u2192 Internal Pivot \u2192 Data Staging",
+      "description": "Detects supply chain compromise followed by internal lateral movement and data staging for exfiltration",
+      "severity": 0,
+      "query": "let supply_events = SecurityEvent | where EventID == 4688 and ParentProcessName has_any (\"update.exe\", \"installer.exe\", \"setup.exe\") and ProcessName has_any (\"powershell\", \"cmd\", \"wscript\") | summarize supply_time=min(TimeGenerated) by Computer;\nlet pivot_events = SecurityEvent | where EventID == 4624 and LogonType == 3 | summarize pivot_time=min(TimeGenerated) by TargetUserName, Computer;\nlet staging_events = SecurityEvent | where EventID == 4663 and ObjectName has_any (\"temp\", \"staging\", \"export\") | summarize stage_time=min(TimeGenerated) by SubjectUserName;\nsupply_events | join kind=inner pivot_events on Computer | where pivot_time - supply_time between (0min .. 120min)",
+      "queryFrequency": "PT2H",
+      "queryPeriod": "PT2H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1195.002",
+        "T1021",
+        "T1560"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "NIS2-Art.15"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "supply-chain",
+        "pivot",
+        "staging"
+      ],
+      "risk_score": 98
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-011",
+      "name": "Lateral movement chain \u2014 Exploit \u2192 Shell \u2192 Network Propagation",
+      "description": "Detects exploitation followed by shell access and network propagation across multiple hosts",
+      "severity": 0,
+      "query": "let exploit_events = SecurityEvent | where EventID == 4688 and NewProcessName has_any (\"mshta.exe\", \"wmic.exe\", \"certutil.exe\") | summarize exploit_time=min(TimeGenerated) by Computer;\nlet shell_events = SecurityEvent | where EventID == 4624 and LogonType == 10 | summarize shell_time=min(TimeGenerated) by Computer;\nlet propagation_events = NetworkEvents | where RemotePort in (445, 3389, 22, 135) | summarize prop_time=min(TimeGenerated), dest_count=dcount(DestinationIP) by SourceIP | where dest_count > 5;\nexploit_events | join kind=inner shell_events on Computer | where shell_time - exploit_time between (0min .. 30min)",
+      "queryFrequency": "PT30M",
+      "queryPeriod": "PT30M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1190",
+        "T1059",
+        "T1021"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "exploit",
+        "shell",
+        "propagation"
+      ],
+      "risk_score": 97
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-012",
+      "name": "Lateral movement chain \u2014 VPN \u2192 Internal Recon \u2192 Lateral Movement",
+      "description": "Detects VPN compromise followed by internal reconnaissance and lateral movement",
+      "severity": 0,
+      "query": "let vpn_events = SigninLogs | where AppDisplayName has_any (\"VPN\", \"GlobalProtect\", \"AnyConnect\") and ResultType == 0 | summarize vpn_time=min(TimeGenerated) by UserPrincipalName, IpAddress;\nlet recon_events = SecurityEvent | where EventID in (4662, 5136) | summarize recon_time=min(TimeGenerated) by SubjectUserName;\nlet lateral_events = SecurityEvent | where EventID == 4624 and LogonType == 3 | summarize lat_time=min(TimeGenerated) by TargetUserName;\nvpn_events | join kind=inner recon_events on $left.UserPrincipalName == $right.SubjectUserName | where recon_time - vpn_time between (0min .. 60min)",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1133",
+        "T1087",
+        "T1021"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "PCI-DSS-10.2"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "vpn",
+        "recon",
+        "lateral"
+      ],
+      "risk_score": 93
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-013",
+      "name": "Lateral movement chain \u2014 DNS Tunnel \u2192 Data Exfiltration",
+      "description": "Detects DNS tunneling followed by data exfiltration through DNS channels",
+      "severity": 0,
+      "query": "let dns_events = DnsEvents | where QueryType in (\"TXT\", \"NULL\") and QueryName has_any (\"data\", \"tunnel\") | summarize dns_time=min(TimeGenerated), query_count=count() by ClientIP | where query_count > 50;\nlet exfil_events = NetworkEvents | where BytesSent > 1000000 and DestinationPort == 53 | summarize exfil_time=min(TimeGenerated) by SourceIP;\ndns_events | join kind=inner exfil_events on $left.ClientIP == $right.SourceIP | where exfil_time - dns_time between (0min .. 60min)",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1071.004",
+        "T1048"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "dns-tunnel",
+        "exfiltration"
+      ],
+      "risk_score": 92
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-014",
+      "name": "Lateral movement chain \u2014 Service Account \u2192 Scheduled Task \u2192 Persistence",
+      "description": "Detects service account compromise followed by scheduled task creation for persistence on multiple systems",
+      "severity": 0,
+      "query": "let svc_events = SecurityEvent | where EventID == 4624 and TargetUserName endswith \"$\" and LogonType == 3 | summarize svc_time=min(TimeGenerated) by TargetUserName, Computer;\nlet schtask_events = SecurityEvent | where EventID == 4698 | summarize schtask_time=min(TimeGenerated) by SubjectUserName, Computer;\nsvc_events | join kind=inner schtask_events on $left.TargetUserName == $right.SubjectUserName, Computer | where schtask_time - svc_time between (0min .. 120min)",
+      "queryFrequency": "PT2H",
+      "queryPeriod": "PT2H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1078.002",
+        "T1053.005"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "service-account",
+        "scheduled-task",
+        "persistence"
+      ],
+      "risk_score": 91
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-015",
+      "name": "Lateral movement chain \u2014 Registry \u2192 Credential Store \u2192 Golden Ticket",
+      "description": "Detects registry modification followed by credential store access and golden ticket creation",
+      "severity": 0,
+      "query": "let reg_events = SecurityEvent | where EventID == 4657 and ObjectName has_any (\"SAM\", \"SYSTEM\", \"SECURITY\") | summarize reg_time=min(TimeGenerated) by SubjectUserName, Computer;\nlet cred_events = SecurityEvent | where EventID == 4663 and ObjectName has \"lsass\" | summarize cred_time=min(TimeGenerated) by SubjectUserName, Computer;\nlet golden_events = SecurityEvent | where EventID == 4768 and TicketEncryptionType == \"0x17\" | summarize golden_time=min(TimeGenerated) by TargetUserName;\nreg_events | join kind=inner cred_events on SubjectUserName, Computer | where cred_time - reg_time between (0min .. 120min)",
+      "queryFrequency": "PT2H",
+      "queryPeriod": "PT2H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1112",
+        "T1003",
+        "T1558.001"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "NIS2-Art.15"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "registry",
+        "credential-store",
+        "golden-ticket"
+      ],
+      "risk_score": 99
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-016",
+      "name": "Lateral movement chain \u2014 Cloud API \u2192 Resource Hijacking \u2192 Cryptomining",
+      "description": "Detects cloud API compromise followed by resource hijacking and cryptomining activity",
+      "severity": 0,
+      "query": "let api_events = AzureActivity | where OperationNameValue has_any (\"Microsoft.Compute/virtualMachines/write\", \"Microsoft.ContainerInstance/containerGroups/write\") and ActivityStatusValue == \"Success\" | summarize api_time=min(TimeGenerated) by Caller, ResourceGroup;\nlet cpu_events = Perf | where ObjectName == \"Processor\" and CounterName == \"% Processor Time\" | summarize avg_cpu=avg(CounterValue) by Computer, bin(TimeGenerated, 5m) | where avg_cpu > 95;\napi_events | join kind=inner cpu_events on $left.ResourceGroup == $right.Computer | where cpu_events_TimeGenerated - api_time between (0min .. 120min)",
+      "queryFrequency": "PT2H",
+      "queryPeriod": "PT2H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1190",
+        "T1059",
+        "T1496"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "NIS2-Art.15"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "cloud-api",
+        "resource-hijack",
+        "cryptomining"
+      ],
+      "risk_score": 96
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-017",
+      "name": "Lateral movement chain \u2014 Email \u2192 Macro \u2192 PowerShell \u2192 Exfiltration",
+      "description": "Detects email-delivered macro followed by PowerShell execution and data exfiltration",
+      "severity": 0,
+      "query": "let email_events = EmailEvents | where ThreatTypes has \"Macro\" or AttachmentExtension in (\"xlsm\", \"docm\", \"xlsb\") | summarize email_time=min(TimeGenerated) by RecipientEmailAddress;\nlet ps_events = SecurityEvent | where EventID == 4103 and ScriptBlockText has_any (\"Invoke-WebRequest\", \"Invoke-Expression\", \"DownloadString\") | summarize ps_time=min(TimeGenerated) by TargetUserName;\nlet exfil_events = NetworkEvents | where BytesSent > 5000000 | summarize exfil_time=min(TimeGenerated) by SourceIP;\nemail_events | join kind=inner ps_events on $left.RecipientEmailAddress == $right.TargetUserName | where ps_time - email_time between (0min .. 120min)",
+      "queryFrequency": "PT2H",
+      "queryPeriod": "PT2H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1566.001",
+        "T1059.001",
+        "T1041"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "PCI-DSS-10.2"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "email",
+        "macro",
+        "powershell",
+        "exfiltration"
+      ],
+      "risk_score": 99
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-018",
+      "name": "Lateral movement chain \u2014 Zero-Day Exploit \u2192 Service Account \u2192 Domain Enum",
+      "description": "Detects zero-day exploit followed by service account compromise and domain enumeration",
+      "severity": 0,
+      "query": "let exploit_events = SecurityEvent | where EventID == 4688 and NewProcessName has_any (\"mshta.exe\", \"certutil.exe\", \"bitsadmin.exe\") and ParentProcessName !has_any (\"explorer.exe\", \"task scheduler\") | summarize exploit_time=min(TimeGenerated) by Computer;\nlet enum_events = SecurityEvent | where EventID in (4662, 5136) and Properties has_any (\"Domain Admins\", \"Enterprise Admins\", \"DNS\") | summarize enum_time=min(TimeGenerated) by SubjectUserName;\nexploit_events | join kind=inner enum_events on $left.Computer == $right.Computer | where enum_time - exploit_time between (0min .. 60min)",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1190",
+        "T1087",
+        "T1018"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "NIS2-Art.15"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "zero-day",
+        "service-account",
+        "domain-enum"
+      ],
+      "risk_score": 98
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-019",
+      "name": "Lateral movement chain \u2014 Container Escape \u2192 Cloud Metadata \u2192 IAM Abuse",
+      "description": "Detects container escape followed by cloud metadata service access and IAM privilege escalation",
+      "severity": 0,
+      "query": "let container_events = KubeAuditLogs | where OperationName has_any (\"exec\", \"attach\", \"port-forward\") and StatusCode == \"Success\" | summarize container_time=min(TimeGenerated) by User, Namespace;\nlet metadata_events = NetworkEvents | where DestinationIP in (\"169.254.169.254\", \"fd00:ec2::254\") | summarize metadata_time=min(TimeGenerated) by SourceIP;\nlet iam_events = AzureActivity | where OperationNameValue has_any (\"Microsoft.Authorization/roleAssignments/write\", \"Microsoft.Authorization/roleDefinitions/write\") | summarize iam_time=min(TimeGenerated) by Caller;\ncontainer_events | join kind=inner metadata_events on $left.User == $right.SourceIP | where metadata_time - container_time between (0min .. 60min)",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1611",
+        "T1552.005",
+        "T1548"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "container-escape",
+        "cloud-metadata",
+        "iam"
+      ],
+      "risk_score": 97
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-020",
+      "name": "Lateral movement chain \u2014 IoT Device \u2192 Network Pivot \u2192 Data Access",
+      "description": "Detects IoT device compromise followed by network pivot to data stores",
+      "severity": 0,
+      "query": "let iot_events = SecurityEvent | where Computer startswith \"iot-\" or ProcessName has_any (\"firmware\", \"sensor\", \"gateway\") and EventID == 4624 | summarize iot_time=min(TimeGenerated) by Computer;\nlet pivot_events = SecurityEvent | where EventID == 4624 and LogonType == 3 | summarize pivot_time=min(TimeGenerated) by TargetUserName, Computer;\niot_events | join kind=inner pivot_events on Computer | where pivot_time - iot_time between (0min .. 120min)",
+      "queryFrequency": "PT2H",
+      "queryPeriod": "PT2H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1190",
+        "T1021",
+        "T1530"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "NIS2-Art.15"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "iot",
+        "network-pivot",
+        "data-access"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-021",
+      "name": "Lateral movement chain \u2014 Pass-the-Cert \u2192 AD CS \u2192 Domain Admin",
+      "description": "Detects certificate-based authentication abuse followed by AD CS exploitation for domain admin",
+      "severity": 0,
+      "query": "let cert_events = SecurityEvent | where EventID == 4624 and AuthenticationProtocol == \"X509\" | summarize cert_time=min(TimeGenerated) by TargetUserName, Computer;\nlet adcs_events = SecurityEvent | where EventID == 4898 or (EventID == 4662 and Properties has \"Certificate Templates\") | summarize adcs_time=min(TimeGenerated) by SubjectUserName;\ncert_events | join kind=inner adcs_events on $left.TargetUserName == $right.SubjectUserName | where adcs_time - cert_time between (0min .. 120min)",
+      "queryFrequency": "PT2H",
+      "queryPeriod": "PT2H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1550.004",
+        "T1558.004",
+        "T1078.002"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "pass-the-cert",
+        "adcs",
+        "domain-admin"
+      ],
+      "risk_score": 98
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-022",
+      "name": "Lateral movement chain \u2014 Brute Force \u2192 Account Takeover \u2192 Cloud Resource Access",
+      "description": "Detects brute force attack leading to account takeover and cloud resource access",
+      "severity": 0,
+      "query": "let bf_events = SigninLogs | where ResultType == 50126 | summarize bf_count=count(), bf_time=min(TimeGenerated) by UserPrincipalName, IpAddress | where bf_count > 10;\nlet takeover_events = SigninLogs | where ResultType == 0 and TimeGenerated > ago(1h) | summarize takeover_time=min(TimeGenerated) by UserPrincipalName, IpAddress;\nbf_events | join kind=inner takeover_events on UserPrincipalName | where takeover_time - bf_time between (0min .. 60min)",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1110",
+        "T1078",
+        "T1021"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "PCI-DSS-10.2"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "brute-force",
+        "account-takeover",
+        "cloud"
+      ],
+      "risk_score": 97
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-023",
+      "name": "Lateral movement chain \u2014 Admin Tool Abuse \u2192 Credential Dump \u2192 Lateral Spread",
+      "description": "Detects legitimate admin tool abuse followed by credential dumping and lateral movement across hosts",
+      "severity": 0,
+      "query": "let admin_events = SecurityEvent | where EventID == 4688 and NewProcessName has_any (\"procdump.exe\", \"mimikatz.exe\", \"lazagne.exe\", \"sharpkatz.exe\") | summarize admin_time=min(TimeGenerated) by SubjectUserName, Computer;\nlet cred_events = SecurityEvent | where EventID == 4663 and ObjectName has \"lsass\" | summarize cred_time=min(TimeGenerated) by SubjectUserName, Computer;\nlet spread_events = SecurityEvent | where EventID == 4624 and LogonType == 3 | summarize spread_time=min(TimeGenerated), host_count=dcount(Computer) by TargetUserName | where host_count > 3;\nadmin_events | join kind=inner cred_events on SubjectUserName, Computer | where cred_time - admin_time between (0min .. 30min)",
+      "queryFrequency": "PT30M",
+      "queryPeriod": "PT30M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1059",
+        "T1003",
+        "T1021"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "NIS2-Art.15"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "admin-tool",
+        "credential-dump",
+        "spread"
+      ],
+      "risk_score": 98
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-024",
+      "name": "Lateral movement chain \u2014 Cloud Storage \u2192 Key Theft \u2192 Subscription Takeover",
+      "description": "Detects cloud storage access followed by key theft and subscription takeover",
+      "severity": 0,
+      "query": "let storage_events = AzureActivity | where OperationNameValue has \"Microsoft.Storage/storageAccounts/listKeys\" and ActivityStatusValue == \"Success\" | summarize storage_time=min(TimeGenerated) by Caller, ResourceGroup;\nlet key_events = KeyVaultLogs | where OperationName == \"KeyGet\" or OperationName == \"SecretGet\" | summarize key_time=min(TimeGenerated) by Identity;\nlet sub_events = AzureActivity | where OperationNameValue has \"Microsoft.Subscription\" and ActivityStatusValue == \"Success\" | summarize sub_time=min(TimeGenerated) by Caller;\nstorage_events | join kind=inner key_events on $left.Caller == $right.Identity | where key_time - storage_time between (0min .. 60min)",
+      "queryFrequency": "PT1H",
+      "queryPeriod": "PT1H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1530",
+        "T1552.001",
+        "T1078"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "cloud-storage",
+        "key-theft",
+        "subscription-takeover"
+      ],
+      "risk_score": 97
+    },
+    {
+      "rule_id": "AZ-LAT-CHN-025",
+      "name": "Lateral movement chain \u2014 Supply Chain \u2192 Build Pipeline \u2192 Production Compromise",
+      "description": "Detects supply chain compromise progressing through build pipeline to production environment",
+      "severity": 0,
+      "query": "let supply_events = SecurityEvent | where EventID == 4688 and ProcessName has_any (\"npm\", \"pip\", \"gradle\", \"maven\") and ProcessCommandLine has_any (\"-g\", \"install\", \"--force\") | summarize supply_time=min(TimeGenerated) by Computer;\nlet build_events = SecurityEvent | where EventID == 4688 and ProcessName has_any (\"msbuild.exe\", \"docker\", \"kubectl\") | summarize build_time=min(TimeGenerated) by Computer;\nlet prod_events = SecurityEvent | where EventID == 4624 and Computer startswith \"prod-\" | summarize prod_time=min(TimeGenerated) by Computer;\nsupply_events | join kind=inner build_events on Computer | where build_time - supply_time between (0min .. 120min)",
+      "queryFrequency": "PT2H",
+      "queryPeriod": "PT2H",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 1,
+      "tactics": [
+        "T1195.002",
+        "T1054",
+        "T1190"
+      ],
+      "compliance": [
+        "NIST-800-53-SI-4",
+        "NIS2-Art.15"
+      ],
+      "tags": [
+        "lateral-movement",
+        "chain",
+        "supply-chain",
+        "build-pipeline",
+        "production"
+      ],
+      "risk_score": 98
+    }
+  ]
+}

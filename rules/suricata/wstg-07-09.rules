@@ -1,37 +1,85 @@
 # =============================================================================
-# Suricata Rules — wstg-07-09
-# Total rules: 32
+# Suricata Rules — WSTG 07-09 (Input Validation, Error Handling, Cryptography)
+# Total rules: 42
+# MITRE ATT&CK: T1190, T1059, T1189, T1040, T1111, T1548, T1078
+# Compliance: PCI-DSS 6.5, GDPR 32, HIPAA 164.312, NIST SI-4, SC-8
 # =============================================================================
 
-SUR-WSTG07-001 http any any -> $HOME_NET any (msg:"SIEM SQL Injection Attack Detected"; content:"input-validation"; content:"sql-injection"; classtype:attempted-admin; sid:3000000; rev:1; severity:1; metadata:mitre T1190;)
-SUR-WSTG07-002 http any any -> $HOME_NET any (msg:"SIEM Cross-Site Scripting (XSS) Reflected"; content:"input-validation"; content:"xss"; classtype:attempted-admin; sid:3000001; rev:1; severity:2; metadata:mitre T1059.007;)
-SUR-WSTG07-003 http any any -> $HOME_NET any (msg:"SIEM Cross-Site Scripting (XSS) Stored"; content:"input-validation"; content:"xss"; classtype:attempted-admin; sid:3000002; rev:1; severity:2; metadata:mitre T1059.007;)
-SUR-WSTG07-004 http any any -> $HOME_NET any (msg:"SIEM Command Injection Detection"; content:"input-validation"; content:"command-injection"; classtype:attempted-admin; sid:3000003; rev:1; severity:1; metadata:mitre T1190,T1059;)
-SUR-WSTG07-005 http any any -> $HOME_NET any (msg:"SIEM LDAP Injection Attack"; content:"input-validation"; content:"ldap-injection"; classtype:attempted-admin; sid:3000004; rev:1; severity:2; metadata:mitre T1190;)
-SUR-WSTG07-006 http any any -> $HOME_NET any (msg:"SIEM XML External Entity (XXE) Injection"; content:"input-validation"; content:"xxe"; classtype:attempted-admin; sid:3000005; rev:1; severity:1; metadata:mitre T1190;)
-SUR-WSTG07-007 http any any -> $HOME_NET any (msg:"SIEM Server-Side Request Forgery (SSRF)"; content:"input-validation"; content:"ssrf"; classtype:attempted-admin; sid:3000006; rev:1; severity:1; metadata:mitre T1190;)
-SUR-WSTG07-008 http any any -> $HOME_NET any (msg:"SIEM Server-Side Template Injection (SSTI)"; content:"input-validation"; content:"ssti"; classtype:attempted-admin; sid:3000007; rev:1; severity:1; metadata:mitre T1190;)
-SUR-WSTG07-009 http any any -> $HOME_NET any (msg:"SIEM NoSQL Injection Attack"; content:"input-validation"; content:"nosql-injection"; classtype:attempted-admin; sid:3000008; rev:1; severity:2; metadata:mitre T1190;)
-SUR-WSTG07-010 http any any -> $HOME_NET any (msg:"SIEM Insecure Deserialization Attack"; content:"input-validation"; content:"deserialization"; classtype:attempted-admin; sid:3000009; rev:1; severity:1; metadata:mitre T1190;)
-SUR-WSTG07-011 http any any -> $HOME_NET any (msg:"SIEM HTTP Parameter Pollution"; content:"input-validation"; content:"hpp"; classtype:attempted-admin; sid:3000010; rev:1; severity:3; metadata:mitre T1190;)
-SUR-WSTG07-012 http any any -> $HOME_NET any (msg:"SIEM File Upload Attack — Malicious File Type"; content:"input-validation"; content:"file-upload"; classtype:attempted-admin; sid:3000011; rev:1; severity:2; metadata:mitre T1190,T1105;)
-SUR-WSTG07-013 http any any -> $HOME_NET any (msg:"SIEM Host Header Injection"; content:"input-validation"; content:"host-header"; classtype:attempted-admin; sid:3000012; rev:1; severity:2; metadata:mitre T1190;)
-SUR-WSTG07-014 http any any -> $HOME_NET any (msg:"SIEM GraphQL Injection and Introspection Abuse"; content:"input-validation"; content:"graphql"; classtype:attempted-admin; sid:3000013; rev:1; severity:2; metadata:mitre T1190;)
-SUR-WSTG07-015 http any any -> $HOME_NET any (msg:"SIEM Buffer Overflow via HTTP Request"; content:"input-validation"; content:"buffer-overflow"; classtype:attempted-admin; sid:3000014; rev:1; severity:2; metadata:mitre T1190;)
-SUR-WSTG08-001 http any any -> $HOME_NET any (msg:"SIEM DOM-Based Cross-Site Scripting"; content:"client-side"; content:"dom-xss"; classtype:attempted-admin; sid:3000015; rev:1; severity:2; metadata:mitre T1059.007;)
-SUR-WSTG08-002 http any any -> $HOME_NET any (msg:"SIEM JavaScript Execution via eval or document.write"; content:"client-side"; content:"js-execution"; classtype:attempted-admin; sid:3000016; rev:1; severity:3; metadata:mitre T1059.007;)
-SUR-WSTG08-003 http any any -> $HOME_NET any (msg:"SIEM Client-Side URL Redirect (Open Redirect)"; content:"client-side"; content:"open-redirect"; classtype:attempted-admin; sid:3000017; rev:1; severity:3; metadata:mitre T1189;)
-SUR-WSTG08-004 http any any -> $HOME_NET any (msg:"SIEM CSS Injection via Style Attribute"; content:"client-side"; content:"css-injection"; classtype:attempted-admin; sid:3000018; rev:1; severity:4; metadata:mitre T1189;)
-SUR-WSTG08-005 http any any -> $HOME_NET any (msg:"SIEM PostMessage API Abuse — Wildcard Origin"; content:"client-side"; content:"postmessage"; classtype:attempted-admin; sid:3000019; rev:1; severity:3; metadata:mitre T1189;)
-SUR-WSTG08-006 http any any -> $HOME_NET any (msg:"SIEM Web Storage (localStorage/sessionStorage) Data Leakage"; content:"client-side"; content:"web-storage"; classtype:attempted-admin; sid:3000020; rev:1; severity:3; metadata:mitre T1539;)
-SUR-WSTG08-007 http any any -> $HOME_NET any (msg:"SIEM Service Worker Registration Abuse"; content:"client-side"; content:"service-worker"; classtype:attempted-admin; sid:3000021; rev:1; severity:2; metadata:mitre T1189;)
-SUR-WSTG08-008 http any any -> $HOME_NET any (msg:"SIEM CORS Wildcard Configuration"; content:"client-side"; content:"cors"; classtype:attempted-admin; sid:3000022; rev:1; severity:2; metadata:mitre T1189;)
-SUR-WSTG09-001 http any any -> $HOME_NET any (msg:"SIEM SSRF to Internal Services and Cloud Metadata"; content:"server-side"; content:"ssrf"; classtype:attempted-admin; sid:3000023; rev:1; severity:1; metadata:mitre T1190;)
-SUR-WSTG09-002 http any any -> $HOME_NET any (msg:"SIEM HTTP Request Smuggling"; content:"server-side"; content:"request-smuggling"; classtype:attempted-admin; sid:3000024; rev:1; severity:1; metadata:mitre T1190;)
-SUR-WSTG09-003 http any any -> $HOME_NET any (msg:"SIEM Race Condition — Concurrent Request Exploitation"; content:"server-side"; content:"race-condition"; classtype:attempted-admin; sid:3000025; rev:1; severity:2; metadata:mitre T1129;)
-SUR-WSTG09-004 http any any -> $HOME_NET any (msg:"SIEM File Inclusion (LFI/RFI)"; content:"server-side"; content:"file-inclusion"; classtype:attempted-admin; sid:3000026; rev:1; severity:1; metadata:mitre T1190;)
-SUR-WSTG09-005 http any any -> $HOME_NET any (msg:"SIEM Server-Side Code Injection"; content:"server-side"; content:"code-injection"; classtype:attempted-admin; sid:3000027; rev:1; severity:1; metadata:mitre T1190,T1059;)
-SUR-WSTG09-006 http any any -> $HOME_NET any (msg:"SIEM Denial of Service via Resource Exhaustion"; content:"server-side"; content:"dos"; classtype:attempted-admin; sid:3000028; rev:1; severity:2; metadata:mitre T1498,T1499;)
-SUR-WSTG09-007 http any any -> $HOME_NET any (msg:"SIEM Unsafe File Upload — Webshell"; content:"server-side"; content:"file-upload"; classtype:attempted-admin; sid:3000029; rev:1; severity:1; metadata:mitre T1190,T1105;)
-SUR-WSTG09-008 http any any -> $HOME_NET any (msg:"SIEM Cryptography — Weak TLS Cipher Suite"; content:"cryptography"; content:"weak-tls"; classtype:attempted-admin; sid:3000030; rev:1; severity:3; metadata:mitre T1573;)
-SUR-WSTG09-009 http any any -> $HOME_NET any (msg:"SIEM Cryptography — Hardcoded Encryption Keys"; content:"cryptography"; content:"hardcoded-keys"; classtype:attempted-admin; sid:3000031; rev:1; severity:1; metadata:mitre T1552;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-01: Reflected XSS in request parameter"; flow:established,to_server; http.uri; pcre:"/<script[\s\r\n]/i"; sid:3003001; rev:1; metadata:mitre_t1059.007, pci_dss_6.5, nist_si_4;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-01: Reflected XSS via img onerror"; flow:established,to_server; http.uri; content:"onerror="; nocase; sid:3003002; rev:1; metadata:mitre_t1059.007, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-01: Reflected XSS via SVG onload"; flow:established,to_server; http.uri; content:"<svg"; nocase; content:"onload="; nocase; sid:3003003; rev:1; metadata:mitre_t1059.007, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-01: Reflected XSS via body onerror"; flow:established,to_server; http.uri; content:"<body"; nocase; content:"onerror="; nocase; sid:3003004; rev:1; metadata:mitre_t1059.007, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-01: XSS via javascript URI in request"; flow:established,to_server; http.uri; content:"javascript:"; nocase; sid:3003005; rev:1; metadata:mitre_t1059.007, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-02: Stored XSS in POST body"; flow:established,to_server; http.request_method; content:"POST"; http.request_body; pcre:"/<script[\s\r\n]/i"; sid:3003101; rev:1; metadata:mitre_t1059.007, pci_dss_6.5, gdpr_32;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-02: Stored XSS via iframe injection"; flow:established,to_server; http.request_method; content:"POST"; http.request_body; content:"<iframe"; nocase; sid:3003102; rev:1; metadata:mitre_t1059.007, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-02: Stored XSS via event handler injection"; flow:established,to_server; http.request_method; content:"POST"; http.request_body; pcre:"/on(click|load|error|mouseover|focus|blur|submit)=/i"; sid:3003103; rev:1; metadata:mitre_t1059.007, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-03: SQL injection in query parameter - UNION SELECT"; flow:established,to_server; http.uri; pcre:"/UNION\s+(ALL\s+)?SELECT/i"; sid:3003201; rev:1; metadata:mitre_t1190, pci_dss_6.5, nist_si_4;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-03: SQL injection - OR 1=1"; flow:established,to_server; http.uri; pcre:"/(\?|%3F).*((\+|%20)OR(\+|%20)|')OR'/i"; sid:3003202; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-03: SQL injection - DROP TABLE"; flow:established,to_server; http.uri; pcre:"/DROP\s+TABLE/i"; sid:3003203; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-03: SQL injection - time-based blind"; flow:established,to_server; http.uri; pcre:"/(SLEEP\s*\(|BENCHMARK\s*\(|WAITFOR\s+DELAY|PG_SLEEP)/i"; sid:3003204; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-03: SQL injection in POST body"; flow:established,to_server; http.request_method; content:"POST"; http.request_body; pcre:"/(UNION\s+SELECT|OR\s+1\s*=\s*1|'\s*OR\s*'|;\s*DROP\s)/i"; sid:3003205; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-03: SQL injection - error-based via response"; flow:established,to_client; http.response_body; pcre:"/(SQL syntax|mysql_fetch|PostgreSQL query failed|ORA-\d{5}|Microsoft OLE DB|SQLSTATE)/i"; sid:3003206; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-04: OS command injection - semicolon separator"; flow:established,to_server; http.uri; pcre:"/;\s*(ls|cat|id|whoami|uname|pwd|wget|curl|nc|bash|sh|cmd|powershell)/i"; sid:3003301; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-04: OS command injection - pipe separator"; flow:established,to_server; http.uri; pcre:"/\|\s*(ls|cat|id|whoami|uname|pwd|wget|curl|nc|bash|sh|cmd)/i"; sid:3003302; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-04: OS command injection - backtick execution"; flow:established,to_server; http.uri; content:"`"; content:"`"; sid:3003303; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-04: OS command injection - $(command) substitution"; flow:established,to_server; http.uri; content:"$("; sid:3003304; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-04: OS command injection via POST body"; flow:established,to_server; http.request_method; content:"POST"; http.request_body; pcre:"/[;&|`]s*(ls|cat|id|whoami|uname|pwd|wget|curl|nc|bash|sh|cmd|powershell)/i"; sid:3003305; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-05: LDAP injection attempt"; flow:established,to_server; http.uri; pcre:"/(\*|\(|\)|\\|\/|\))(\s|%20)*(=|&|\|)/i"; sid:3003401; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-05: LDAP injection via asterisk wildcard"; flow:established,to_server; http.uri; content:"*)("; sid:3003402; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-06: XML external entity injection"; flow:established,to_server; http.request_body; content:"<!DOCTYPE"; nocase; content:"ENTITY"; nocase; content:"SYSTEM"; nocase; sid:3003501; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-06: XXE via file:// URI"; flow:established,to_server; http.request_body; content:"<!ENTITY"; nocase; content:"file://"; sid:3003502; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-06: XXE via http:// external entity"; flow:established,to_server; http.request_body; content:"<!ENTITY"; nocase; content:"http://"; sid:3003503; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-07: Server-side request forgery - internal IP"; flow:established,to_server; http.request_body; pcre:"/https?:\/\/(10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+|127\.0\.0\.1|0\.0\.0\.0|169\.254169\.254)/i"; sid:3003601; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-07: SSRF via cloud metadata endpoint"; flow:established,to_server; http.request_body; content:"169.254.169.254"; nocase; sid:3003602; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-07: SSRF via localhost URL"; flow:established,to_server; http.request_body; content:"localhost"; nocase; content:"http"; sid:3003603; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-08: Path traversal - directory traversal"; flow:established,to_server; http.uri; content:"../"; content:"../"; sid:3003701; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-08: Path traversal - encoded directory traversal"; flow:established,to_server; http.uri; content:"%2e%2e%2f"; nocase; sid:3003702; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-08: Path traversal - Windows style"; flow:established,to_server; http.uri; content:"..\\"; sid:3003703; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-08: Path traversal - /etc/passwd access"; flow:established,to_server; http.uri; content:"/etc/passwd"; nocase; sid:3003704; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-08: Path traversal - /etc/shadow access"; flow:established,to_server; http.uri; content:"/etc/shadow"; nocase; sid:3003705; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-09: File upload - executable extension"; flow:established,to_server; http.request_method; content:"POST"; http.request_body; pcre:"/filename=\"[^\"]+\.(php|jsp|asp|aspx|cgi|pl|py|rb|sh|exe|bat|cmd|com|vbs|wsf|msi|dll|so)/i"; sid:3003801; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-09: File upload - double extension bypass"; flow:established,to_server; http.request_body; pcre:"/filename=\"[^\"]+\.(jpg|png|gif|txt|pdf)\.(php|jsp|asp|aspx|sh|exe|bat|cmd)/i"; sid:3003802; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-09: File upload - null byte injection"; flow:established,to_server; http.request_body; pcre:"/filename=\"[^\"]*%00[^\"]*\.(php|jsp|asp|aspx)/i"; sid:3003803; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-10: CRLF injection in request header"; flow:established,to_server; http.uri; pcre:"/%0d%0a/i"; sid:3003901; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-10: HTTP response splitting attempt"; flow:established,to_server; http.uri; pcre:"/%0d(%0a)?\s*(Set-Cookie|Location|Content-Length|X-Frame-Options)/i"; sid:3003902; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ERR-01: Stack trace disclosure in error response"; flow:established,to_client; http.response_body; content:"Traceback"; nocase; content:"most recent call last"; sid:3004001; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ERR-01: Java stack trace disclosure"; flow:established,to_client; http.response_body; pcre:"/at\s+[a-zA-Z0-9_.]+\([A-Za-z0-9_]+\.java:\d+\)/i"; sid:3004002; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ERR-01: .NET stack trace disclosure"; flow:established,to_client; http.response_body; pcre:"/at\s+[A-Za-z0-9_.]+\(\)\s+in\s+[A-Za-z0-9_]+\.cs:line\s+\d+/i"; sid:3004003; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ERR-01: Database error disclosure in response"; flow:established,to_client; http.response_body; pcre:"/(ORA-\d{5}|SQLSTATE\[|MySQL Error|PostgreSQL query failed)/i"; sid:3004004; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ERR-02: Verbose error message with internal paths"; flow:established,to_client; http.response_body; pcre:"/[A-Z]:\\\\[^\s]+\.(asp|aspx|cs|vb|config)/i"; sid:3004101; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ERR-02: Verbose error message with Linux paths"; flow:established,to_client; http.response_body; pcre:"/\/(?:var|usr|home|etc|opt|tmp|srv)\/[^\s]+\.(py|rb|php|conf|log)/i"; sid:3004102; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-CRYP-01: Weak TLS version detected"; flow:established,to_server; tls.version; content:"0x0301"; sid:3004201; rev:1; metadata:mitre_t1040, pci_dss_4.1, nist_sc_8;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-CRYP-01: Sensitive data over unencrypted HTTP"; flow:established,to_server; http.header; content:"Authorization: Basic "; sid:3004202; rev:1; metadata:mitre_t1040, pci_dss_4.1, nist_sc_8;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-CRYP-01: Bearer token over HTTP"; flow:established,to_server; http.header; content:"Authorization: Bearer "; sid:3004203; rev:1; metadata:mitre_t1040, pci_dss_4.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-CRYP-02: Weak password hash - MD5 in response"; flow:established,to_client; http.response_body; pcre:"/[\"']password[\"']\\s*:\\s*[\"'][a-f0-9]{32}[\"']/i"; sid:3004301; rev:1; metadata:mitre_t1552, pci_dss_8.2;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-CRYP-02: Password stored in plaintext"; flow:established,to_client; http.response_body; pcre:"/[\"']password[\"']\\s*:\\s*[\"'][^\"']{6,}[\"']/i"; sid:3004302; rev:1; metadata:mitre_t1552, pci_dss_8.2, hipaa_164.312;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-CRYP-02: Sensitive data in cleartext response"; flow:established,to_client; http.response_body; pcre:"/[\"'](ssn|social_security|credit_card|card_number|cvv|bank_account)[\"']/i"; sid:3004303; rev:1; metadata:mitre_t1552, pci_dss_3.4, hipaa_164.312;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-CRYP-03: Weak cipher RC4"; flow:established,to_server; tls.cipher; content:"RC4"; sid:3004401; rev:1; metadata:mitre_t1040, pci_dss_4.1, nist_sc_8;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-CRYP-03: Weak cipher DES"; flow:established,to_server; tls.cipher; content:"DES"; sid:3004402; rev:1; metadata:mitre_t1040, pci_dss_4.1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-CRYP-04: Hardcoded encryption key in source"; flow:established,to_client; http.response_body; pcre:"/(encryption_key|secret_key|aes_key|private_key)\s*[:=]\s*[\"'][A-Za-z0-9+/=]{16,}/i"; sid:3004501; rev:1; metadata:mitre_t1552, pci_dss_6.5, gdpr_32;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-11: NoSQL injection - MongoDB operator"; flow:established,to_server; http.request_body; pcre:"/(\$where|\$gt|\$gte|\$lt|\$lte|\$ne|\$in|\$nin|\$regex|\$expr)/i"; sid:3004601; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-11: NoSQL injection - $where clause"; flow:established,to_server; http.request_body; content:"$where"; nocase; sid:3004602; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-12: Template injection - Jinja2"; flow:established,to_server; http.request_body; content:"{{"; content:"}}"; sid:3004701; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INPV-12: Template injection - expression language"; flow:established,to_server; http.request_body; content:"${"; content:"}"; sid:3004702; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ERR-03: Default error page exposes server version"; flow:established,to_client; http.response_body; pcre:"/(Apache\/|nginx\/|IIS\/|Tomcat\/|PHP\/)[0-9]+\.[0-9]+/i"; sid:3004801; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ERR-03: Debug mode enabled in production"; flow:established,to_client; http.response_body; pcre:"/(debug\s*=\s*true|DEBUG_MODE|django_debug|APP_DEBUG)/i"; sid:3004802; rev:1; metadata:mitre_t1592, pci_dss_6.5;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-CRYP-05: Insecure cookie without Secure flag"; flow:established,to_client; http.header; content:"Set-Cookie:"; content:"sessionid"; nocase; pcre:"/Set-Cookie:[^;\r\n]*sessionid[^;\r\n]*(?!.*Secure)/i"; sid:3004901; rev:1; metadata:mitre_t1187, pci_dss_6.5, nist_sc_8;)
