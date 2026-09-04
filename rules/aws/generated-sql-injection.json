@@ -1,0 +1,49 @@
+[
+  {
+    "rule_id": "AWS-SQL-INJECTION-013",
+    "name": "CVE-2026-72898 \u2014 Metabase Exploitation",
+    "description": "Detects exploitation attempts targeting CVE-2026-72898: Metabase contains a SQL Injection vulnerability that allows an unauthenticated remote attacker to inject arbitrary SQL into the Metabase application database, which can give them administrator access to the instance. From there, the attacker could change the application configuration, steal stored credentials for the connected databases, read any data accessible through those connections, and export data.. Product: Metabase",
+    "severity": "critical",
+    "category": "sql-injection",
+    "mitre_attack": [
+      "T1190",
+      "T1110",
+      "T1078"
+    ],
+    "compliance": [
+      "PCI-DSS-6.5",
+      "NIST-800-53-SI-4",
+      "GDPR-32A"
+    ],
+    "source": [
+      "aws.cloudtrail"
+    ],
+    "detection": {
+      "query_type": "cloudwatch_metric_filter",
+      "filter_pattern": "{ ($.eventName = \"*\") }",
+      "log_group": "/aws/cloudtrail",
+      "metric_namespace": "Security/Monitoring",
+      "metric_name": "CVE-2026-72898\u2014MetabaseExploitation",
+      "threshold": 5,
+      "evaluation_periods": 1,
+      "statistic": "Sum",
+      "period": 300
+    },
+    "actions": [
+      {
+        "type": "SNS",
+        "description": "Send alert to security team SNS topic"
+      },
+      {
+        "type": "Lambda",
+        "description": "Trigger automated remediation Lambda function"
+      }
+    ],
+    "tags": [
+      "sql-injection",
+      "cve",
+      "cve-2026-72898",
+      "exploited"
+    ]
+  }
+]

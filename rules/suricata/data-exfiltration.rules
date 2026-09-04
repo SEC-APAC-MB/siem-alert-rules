@@ -4,7 +4,6 @@
 #          covert channels, base64 encoded exfiltration, WebSocket exfil
 # Total rules: 55
 # SID range: 2304001 - 2304055
-# =============================================================================
 
 # --- DNS Tunneling ---
 alert udp $EXTERNAL_NET any -> $HOME_NET 53 (msg:"EXFIL - DNS Tunneling - Excessively Long Subdomain"; dsize:>200; pcre:"/([a-zA-Z0-9_-]{30,}\.){2,}/"; classtype:trojan-activity; sid:2304001; rev:1; metadata:created_at 2026-08-17;)
@@ -102,3 +101,31 @@ alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Memory Dump Transfer
 
 # --- Print Exfiltration ---
 alert tcp $HOME_NET any -> $EXTERNAL_NET 9100 (msg:"EXFIL - Network Printer Data Exfiltration"; flow:established,to_server; dsize:>100000; threshold:type both, track by_src, count 3, seconds 300; classtype:web-application-attack; sid:2304055; rev:1; metadata:created_at 2026-08-17;)
+||||||| a6f1179
+
+alert udp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"EXFIL - DNS Tunneling - Frequent High-Entropy Subdomain Queries to Single Domain"; pcre:"/([a-zA-Z0-9+\/=]{20,}\.){2,}[a-z]+\.[a-z]+/i"; threshold:type both, track by_src, count 100, seconds 60; classtype:trojan-activity; sid:2304005; rev:2; metadata:created_at 2026-08-17;)
+
+
+
+
+alert ip $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - ICMP Tunneling - Large Packet with Encoded Data Payload"; ip_proto:1; dsize:>1000; pcre:"/([A-Za-z0-9+\/=]{40,}|\x00{10,}|SSH-[12]\.\d|CMD\s|SHELL\s|\/bin\/|\/bin\/sh)/i"; classtype:trojan-activity; sid:2304027; rev:2; metadata:created_at 2026-08-17;)
+alert ip $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - ICMP Tunneling - High Frequency ICMP with DNS-like Encoded Payload"; ip_proto:1; pcre:"/([a-zA-Z0-9\-_]{30,}\.(com|net|org|io|xyz|top))/i"; threshold:type both, track by_src, count 50, seconds 60; classtype:trojan-activity; sid:2304028; rev:2; metadata:created_at 2026-08-17;)
+
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Slow Exfiltration - Persistent Connection with Periodic Base64 Chunks"; flow:established,to_server; pcre:"/[A-Za-z0-9+\/=]{80,}/i"; threshold:type both, track by_src, count 10, seconds 3600; classtype:trojan-activity; sid:2304029; rev:2; metadata:created_at 2026-08-17;)
+
+
+
+
+
+
+
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Timing Channel - Consistent Interval Beacon with Minimal Payload"; flow:established,to_server; dsize:<200; pcre:"/^(GET|POST|PUT)\s+\/[a-z0-9_\-]{4,12}\s+HTTP/i"; threshold:type both, track by_src, count 50, seconds 600; classtype:trojan-activity; sid:2304045; rev:2; metadata:created_at 2026-08-17;)
+
+
+
+
+
+
+
+
+alert tcp $HOME_NET any -> $EXTERNAL_NET 9100 (msg:"EXFIL - Network Printer Data Exfiltration - Encoded Payload via PJL/PostScript"; flow:established,to_server; dsize:>100000; pcre:"/(PJL|\x1b%-12345X|\%!PS-Adobe|@PJL|ENTER\s+LANGUAGE)/i"; threshold:type both, track by_src, count 3, seconds 300; classtype:web-application-attack; sid:2304055; rev:2; metadata:created_at 2026-08-17;)
