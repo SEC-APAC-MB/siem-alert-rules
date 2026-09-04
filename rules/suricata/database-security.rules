@@ -3,6 +3,9 @@
 # Total rules: 42
 # MITRE ATT&CK: T1190, T1552, T1548, T1485, T1567, T1078, T1213, T1040
 # Compliance: PCI-DSS 6.5, GDPR 32, HIPAA 164.312, NIST SI-4, AC-3, IA-5
+||||||| a6f1179
+# Suricata Rules — database-security
+# Total rules: 30
 
 alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521,27017] (msg:"SIEM DB-SEC-001: SQL injection on database port"; flow:established,to_server; content:"UNION"; content:"SELECT"; content:"FROM"; sid:3013001; rev:1; metadata:mitre_t1190, pci_dss_6.5, nist_si_4;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-002: OR 1=1 injection pattern"; flow:established,to_server; content:"OR"; content:"1=1"; sid:3013002; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
@@ -78,7 +81,6 @@ alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM DB-SEC-040: Unencrypted
 alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-041: Database connection without encryption"; flow:established,to_server; pcre:"/(SSL.*not.*enabled|TLS.*not.*configured|encryption.*disabled|plaintext.*connection)/i"; sid:3013041; rev:1; metadata:mitre_t1040, pci_dss_4.1;)
 
 alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521] (msg:"SIEM DB-SEC-042: Database multiple authentication failures - brute force"; flow:established,to_server; pcre:"/(Access denied|Login failed|Authentication failed|Invalid credentials|Wrong password|Login incorrect)/i"; sid:3013042; rev:1; metadata:mitre_t1110, pci_dss_8.1;)
-||||||| a6f1179
 SUR-DB-PG-001 http any any -> $HOME_NET any (msg:"SIEM PostgreSQL — Privilege Escalation via SET ROLE"; content:"postgresql"; content:"privilege-escalation"; classtype:attempted-admin; sid:3000000; rev:1; severity:1; metadata:mitre T1548;)
 SUR-DB-PG-002 http any any -> $HOME_NET any (msg:"SIEM PostgreSQL — pg_dump Data Exfiltration"; content:"postgresql"; content:"data-exfiltration"; classtype:attempted-admin; sid:3000001; rev:1; severity:2; metadata:mitre T1213;)
 SUR-DB-PG-003 http any any -> $HOME_NET any (msg:"SIEM PostgreSQL — Row-Level Security Bypass"; content:"postgresql"; content:"rls-bypass"; classtype:attempted-admin; sid:3000002; rev:1; severity:1; metadata:mitre T1078;)
@@ -111,6 +113,38 @@ SUR-DB-MEMC-001 http any any -> $HOME_NET any (msg:"SIEM Memcached — Amplifica
 SUR-DB-HBASE-001 http any any -> $HOME_NET any (msg:"SIEM HBase — Unauthorized ACL Modification"; content:"hbase"; content:"acl-modification"; classtype:attempted-admin; sid:3000029; rev:1; severity:1; metadata:mitre T1548;)
 
 alert tcp $EXTERNAL_NET any -> $HOME_NET [3306,5432,1433,1521,27017] (msg:"SIEM DB-SEC-007: Database Default Credential Login from External IP"; flow:established,to_server; pcre:"/(root|admin|sa|postgres|dba|sys|system|master|dbo|mysql|oracle|test|guest)[\x00-\x1f]*(password|\x00|admin|1234|test|blank)/i"; sid:3013007; rev:2; metadata:mitre_t1078.001, pci_dss_8.1, nist_ac_3;)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

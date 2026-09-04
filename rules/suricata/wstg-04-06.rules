@@ -3,6 +3,9 @@
 # Total rules: 52
 # MITRE ATT&CK: T1078, T1110, T1548, T1187, T1550, T1056, T1606, T1134
 # Compliance: PCI-DSS 8.1-8.6, GDPR 32, HIPAA 164.312, NIST IA-2, AC-2, AC-3
+||||||| a6f1179
+# Suricata Rules — wstg-04-06
+# Total rules: 20
 
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ATHN-01: Brute force login attempt detected"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/login"; nocase; flow:established,to_client; http.status_code; content:"401"; sid:3000101; rev:1; metadata:mitre_t1110, pci_dss_8.1, nist_ia_2;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ATHN-01: Brute force login with common passwords"; flow:established,to_server; http.request_method; content:"POST"; http.uri; content:"/login"; nocase; http.request_body; content:"password"; nocase; pcre:"/password[=:].*(123456|password|qwerty|admin|letmein|welcome|monkey|dragon|master)/i"; sid:3000102; rev:1; metadata:mitre_t1110, pci_dss_8.1, nist_ia_2;)
@@ -87,7 +90,6 @@ alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ATHZ-06: API autho
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ATHZ-06: API authorization bypass - user accessing admin resource"; flow:established,to_server; http.uri; content:"/api/v1/admin/"; nocase; http.header; content:"Authorization: Bearer "; flow:established,to_client; http.status_code; content:"200"; sid:3002402; rev:1; metadata:mitre_t1548, pci_dss_8.1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ATHN-11: Authentication bypass via HTTP method tampering"; flow:established,to_server; http.request_method; content:"PUT"; http.uri; content:"/login"; nocase; sid:3002501; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ATHN-11: HTTP verb tampering on auth endpoint"; flow:established,to_server; http.request_method; content:"HEAD"; http.uri; content:"/admin"; nocase; sid:3002502; rev:1; metadata:mitre_t1190, pci_dss_6.5;)
-||||||| a6f1179
 SUR-WSTG04-001 http any any -> $HOME_NET any (msg:"SIEM Credentials Transmitted Over Unencrypted Channel"; content:"authentication"; content:"cleartext-credentials"; classtype:attempted-admin; sid:3000000; rev:1; severity:1; metadata:mitre T1041;)
 SUR-WSTG04-002 http any any -> $HOME_NET any (msg:"SIEM Default Credentials Usage on Login"; content:"authentication"; content:"default-credentials"; classtype:attempted-admin; sid:3000001; rev:1; severity:1; metadata:mitre T1078.001;)
 SUR-WSTG04-003 http any any -> $HOME_NET any (msg:"SIEM Account Lockout Mechanism Failure"; content:"authentication"; content:"lockout"; classtype:attempted-admin; sid:3000002; rev:1; severity:2; metadata:mitre T1110.003;)
@@ -136,3 +138,25 @@ alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ATHN-09: Password 
 
 
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ATHZ-06: API admin endpoint accessed without authorization header"; flow:established,to_server; http.uri; content:"/api/admin"; nocase; http.header; content:!"Authorization"; http.header; content:!"X-Admin-Token"; sid:3002401; rev:2; metadata:mitre_t1548, pci_dss_8.1;)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

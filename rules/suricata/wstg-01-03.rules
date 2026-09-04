@@ -3,6 +3,9 @@
 # Total rules: 42
 # MITRE ATT&CK: T1592, T1595, T1083, T1190, T1078, T1110, T1548
 # Compliance: PCI-DSS 6.5, GDPR 32, HIPAA 164.312, NIST SI-4
+||||||| a6f1179
+# Suricata Rules — wstg-01-03
+# Total rules: 20
 
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INFO-01: Sensitive path accessed - admin panel"; flow:established,to_server; http.uri; content:"/admin"; nocase; http.uri; content:"/wp-admin"; nocase; sid:4000001; rev:1; metadata:mitre_t1592, pci_dss_6.5, nist_si_4;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-INFO-01: Git repository exposed"; flow:established,to_server; http.uri; content:"/.git/"; nocase; sid:4000002; rev:1; metadata:mitre_t1592, pci_dss_6.5, nist_si_4;)
@@ -88,7 +91,6 @@ alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-ATHN-07: OAuth cli
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-SESS-04: CSRF token missing on state-changing request"; flow:established,to_server; http.request_method; content:"POST"; http.header; content:"!" ; content:"X-CSRF-Token"; sid:4000073; rev:1; metadata:mitre_t1189, pci_dss_6.5;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-CRYP-01: Basic auth over unencrypted HTTP"; flow:established,to_server; http.header; content:"Authorization: Basic "; sid:4000074; rev:1; metadata:mitre_t1040, pci_dss_4.1, nist_sc_8;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-SESS-05: Auth cookie without Secure flag"; flow:established,to_client; http.header; content:"Set-Cookie:"; content:"auth"; nocase; content:"!"; content:"Secure"; sid:4000075; rev:1; metadata:mitre_t1187, pci_dss_6.5;)
-||||||| a6f1179
 SUR-WSTG01-001 http any any -> $HOME_NET any (msg:"SIEM Search Engine Discovery of Sensitive Content"; content:"information-gathering"; content:"reconnaissance"; classtype:attempted-admin; sid:3000000; rev:1; severity:4; metadata:mitre T1595,T1592;)
 SUR-WSTG01-002 http any any -> $HOME_NET any (msg:"SIEM Web Server Fingerprinting via Headers"; content:"information-gathering"; content:"fingerprinting"; classtype:attempted-admin; sid:3000001; rev:1; severity:4; metadata:mitre T1592.001;)
 SUR-WSTG01-003 http any any -> $HOME_NET any (msg:"SIEM Application Architecture Fingerprinting"; content:"information-gathering"; content:"fingerprinting"; classtype:attempted-admin; sid:3000002; rev:1; severity:4; metadata:mitre T1592.001;)
@@ -128,3 +130,12 @@ alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-CONF-01: Missing P
 alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"SIEM WSTG-CONF-02: CORS Origin Reflection - Reflected Origin in Access-Control-Allow-Origin"; flow:established,to_client; http.header; content:"Access-Control-Allow-Origin:"; pcre:"/^Access-Control-Allow-Origin:\s*https?:\/\/[^*]/mi"; content:"Access-Control-Allow-Credentials:"; content:"true"; sid:4000062; rev:2; metadata:mitre_t1189, pci_dss_6.5;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-SESS-04: CSRF token missing on state-changing request - Potential CSRF"; flow:established,to_server; http.request_method; content:"POST"; http.header; content:!"X-CSRF-Token"; http.header; content:!"X-XSRF-Token"; sid:4000073; rev:2; metadata:mitre_t1189, pci_dss_6.5;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM WSTG-SESS-05: Auth cookie without Secure flag - Session Hijacking Vector"; flow:established,to_client; http.header; content:"Set-Cookie:"; content:"auth"; nocase; content:!"Secure"; sid:4000075; rev:2; metadata:mitre_t1187, pci_dss_6.5;)
+
+
+
+
+
+
+
+
+
