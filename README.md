@@ -188,4 +188,40 @@ Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for detail
 
 ---
 
+## Security
+
+This repository contains security detection rules with exploit-specific signatures. To protect against malicious edits:
+
+- **Branch protection**: `main` branch requires PR review, linear history, no force pushes, conversation resolution
+- **Push access**: Repository owner only — no outside collaborators with write access
+- **Forks**: Allowed (GitHub requirement for user-owned repos) but all PRs require approval
+- **Self-review**: Disabled — push author cannot approve their own PR (`require_last_push_approval: true`)
+- **Stale reviews**: Automatically dismissed on new commits
+
+> ⚠️ Rules reference actively exploited CVEs from the [CISA KEV catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog). Exploit details are included for detection accuracy — this is intentional and necessary for effective security monitoring.
+
+## CISA KEV Rules
+
+Real-time detection rules from the CISA Known Exploited Vulnerabilities catalog (v2026.09.02, 1,694 entries). These rules target CVEs under **active exploitation in the wild** — not theoretical vulnerabilities.
+
+| Rule Set | Rules | Directory |
+|----------|-------|------------|
+| Suricata KEV rules | 1,210+ | `rules/suricata/` |
+| Elastic KEV rules | 764+ | `rules/elastic/` |
+| CISA KEV daily rules | Daily | `generated/` |
+| KEV detection rules (YAML) | 20+ | `config/rules/` |
+
+Key actively-exploited CVEs covered:
+- CVE-2026-83549: SonicWall SMA1000 RCE (forensic triage)
+- CVE-2026-81578+82078: PaperCut NG/MF chained zero-days
+- CVE-2026-49869: Kestra OSS pre-auth RCE (forensic triage)
+- CVE-2026-60004: Gitea pre-auth RCE via git hook injection
+- CVE-2026-72137: Linux Kernel root LPE (CVSS 9.8, PoC public)
+- CVE-2025-6452: PostGREshell 12-year PostgreSQL exploit chain
+- CVE-2019-1068: MSSQL RCE (ransomware-linked, 7+ years active exploitation)
+
+See `AUDIT.md` for full rule quality audit and `SECURITY_RULES.md` for repository governance.
+
+---
+
 **7,017 SIEM alert rules. 11 platforms. 8 regulatory frameworks. Full cross-mapping. Production-ready.**

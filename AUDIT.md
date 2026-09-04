@@ -1,9 +1,11 @@
 # SIEM Rules Audit — Exploit Technique & Chain Attack Coverage
 
-**Date:** 2026-08-21 (Updated)  
-**Auditor:** Ember  
-**Total Suricata Rules:** 1,093 (953 original + 140 chain rules)  
+**Date:** 2026-09-04 (Updated)
+**Auditor:** Ember
+**Total Suricata Rules:** 1,093 (953 original + 140 chain rules)
 **Total Elastic Rules:** ~370 (350 original + 1 mirror complete, 9 pending)
+**CISA KEV Active Exploit Rules:** 20 (PT-KEV-001 through PT-KEV-020)
+**Repository Security:** Public, branch-protected (enforce_admins, require_last_push_approval, linear history, no force pushes, conversation resolution required)
 
 ---
 

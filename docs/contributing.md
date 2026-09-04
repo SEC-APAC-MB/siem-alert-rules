@@ -2,6 +2,18 @@
 
 Thank you for contributing to the SIEM Alert Rules repository. This guide covers how to add new rules, follow naming conventions, meet required fields, submit pull requests, and maintain cross-reference integrity across all 11 platforms and 8 regulatory frameworks.
 
+## Security Policy
+
+This repository contains security detection rules with exploit-specific signatures from the CISA KEV catalog. Exploit details are included **intentionally** for detection accuracy — this is necessary for effective security monitoring.
+
+- **Branch protection**: `main` requires PR review, linear history, no force pushes, conversation resolution
+- **Push access**: Repository owner only — no outside write collaborators
+- **Self-review**: Disabled — push author cannot approve their own PR
+- **Stale reviews**: Automatically dismissed on new commits
+- **All PRs**: Require 1 approving review before merge
+
+> ⚠️ Do not submit PRs that remove or weaken detection signatures for actively exploited CVEs.
+
 ---
 
 ## How to Contribute New Rules
