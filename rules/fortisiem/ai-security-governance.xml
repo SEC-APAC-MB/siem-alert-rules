@@ -1,0 +1,561 @@
+<!-- FortiSIEM SIEM Alert Rules — AI Security: Governance Violations, Bias Detection, and Policy Enforcement -->
+<rules>
+  <rule id="FSIEM-AIGOV-001" severity="HIGH" enabled="true">
+    <name>AI Governance — Missing AI Risk Assessment</name>
+    <description>Detects deployment of AI systems without required risk assessment documentation per EU AI Act</description>
+    <pattern>
+      <event>
+        <product>CI/CD</product>
+        <action>DEPLOY</action>
+        <tags>AI-MODEL</tags>
+        <risk_assessment_completed regex="false">false</risk_assessment_completed>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>9</control>
+      <standard>NIST-AI-RMF</standard>
+      <control>GOV</control>
+    </compliance>
+    <references>AI-GOV-010</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-002" severity="CRITICAL" enabled="true">
+    <name>AI Governance — High-Risk AI Without Human Oversight</name>
+    <description>Detects high-risk AI systems operating without required human oversight mechanisms per EU AI Act Article 14</description>
+    <pattern>
+      <event>
+        <product>CI/CD</product>
+        <action>DEPLOY</action>
+        <tags>AI-MODEL</tags>
+        <high_risk regex="true">true</high_risk>
+        <human_oversight_enabled regex="false">false</human_oversight_enabled>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>14</control>
+      <standard>NIST-AI-RMF</standard>
+      <control>GOV</control>
+    </compliance>
+    <references>AI-GOV-011</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-003" severity="HIGH" enabled="true">
+    <name>AI Governance — Missing Transparency Requirements</name>
+    <description>Detects AI systems deployed without required transparency disclosures including AI identification and content labeling</description>
+    <pattern>
+      <event>
+        <product>CI/CD</product>
+        <action>DEPLOY</action>
+        <tags>AI-MODEL</tags>
+        <transparency_disclosure regex="false">false</transparency_disclosure>
+        <user_facing regex="true">true</user_facing>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>52</control>
+      <standard>NIST-AI-RMF</standard>
+      <control>GOV</control>
+    </compliance>
+    <references>AI-GOV-012</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-004" severity="CRITICAL" enabled="true">
+    <name>AI Governance — Biometric AI System Without DPIA</name>
+    <description>Detects deployment of biometric AI systems without a Data Protection Impact Assessment as required by GDPR Article 35</description>
+    <pattern>
+      <event>
+        <product>CI/CD</product>
+        <action>DEPLOY</action>
+        <tags>AI-MODEL</tags>
+        <biometric regex="true">true</biometric>
+        <dpia_completed regex="false">false</dpia_completed>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>5</control>
+      <standard>GDPR</standard>
+      <control>35</control>
+    </compliance>
+    <references>AI-GOV-013</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-005" severity="HIGH" enabled="true">
+    <name>AI Governance — Bias Detection — Demographic Disparities in AI Output</name>
+    <description>Detects statistically significant demographic disparities in AI model outputs indicating potential bias in decision-making</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-DECISION</action>
+        <demographic_disparity regex="true">true</demographic_disparity>
+        <disparity_score regex="true">>0.15</disparity_score>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>10</control>
+      <standard>NYC-LL144</standard>
+    </compliance>
+    <references>AI-GOV-014</references>
+    <action>ALERT</action>
+    <group>ai_governance_bias</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-006" severity="MEDIUM" enabled="true">
+    <name>AI Governance — Bias Detection — Gender Bias in Language Model</name>
+    <description>Detects gender bias patterns in language model outputs including stereotypical associations and exclusionary language</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-RESPONSE</action>
+        <gender_bias_detected regex="true">true</gender_bias_detected>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>10</control>
+    </compliance>
+    <references>AI-GOV-015</references>
+    <action>ALERT</action>
+    <group>ai_governance_bias</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-007" severity="CRITICAL" enabled="true">
+    <name>AI Governance — Bias Detection — Racial Bias in Decision System</name>
+    <description>Detects racial or ethnic bias in AI-driven decision systems including lending, hiring, and criminal justice applications</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-DECISION</action>
+        <racial_bias_detected regex="true">true</racial_bias_detected>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>10</control>
+      <standard>EEOC-Guidelines</standard>
+    </compliance>
+    <references>AI-GOV-016</references>
+    <action>ALERT</action>
+    <group>ai_governance_bias</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-008" severity="CRITICAL" enabled="true">
+    <name>AI Governance — Prohibited AI Activity Detection</name>
+    <description>Detects deployment or use of prohibited AI systems including social scoring, real-time biometric mass surveillance, and manipulative AI</description>
+    <pattern>
+      <event>
+        <product>CI/CD</product>
+        <action>DEPLOY</action>
+        <tags regex="true">(social-scoring|mass-surveillance|manipulation)</tags>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>5</control>
+      <standard>GDPR</standard>
+      <control>22</control>
+    </compliance>
+    <references>AI-GOV-017</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-009" severity="HIGH" enabled="true">
+    <name>AI Governance — Unauthorized Model Deployment</name>
+    <description>Detects deployment of AI models that bypass the organization's model registry and approval workflow</description>
+    <pattern>
+      <event>
+        <product>CI/CD</product>
+        <action>DEPLOY</action>
+        <tags>AI-MODEL</tags>
+        <model_registry_approved regex="false">false</model_registry_approved>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>9</control>
+      <standard>ISO-42001</standard>
+    </compliance>
+    <references>AI-GOV-018</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-010" severity="HIGH" enabled="true">
+    <name>AI Governance — Model Version Drift Without Re-Approval</name>
+    <description>Detects AI model version changes that occurred without re-approval through the governance workflow</description>
+    <pattern>
+      <event>
+        <product>CI/CD</product>
+        <action>DEPLOY</action>
+        <tags>AI-MODEL</tags>
+        <version_change regex="true">true</version_change>
+        <re_approval_completed regex="false">false</re_approval_completed>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>9</control>
+    </compliance>
+    <references>AI-GOV-019</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-011" severity="MEDIUM" enabled="true">
+    <name>AI Governance — Missing Model Documentation (Model Card)</name>
+    <description>Detects AI models deployed without required model documentation including model cards and data sheets</description>
+    <pattern>
+      <event>
+        <product>CI/CD</product>
+        <action>DEPLOY</action>
+        <tags>AI-MODEL</tags>
+        <model_card_available regex="false">false</model_card_available>
+        <data_sheet_available regex="false">false</data_sheet_available>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>11</control>
+      <standard>ISO-42001</standard>
+    </compliance>
+    <references>AI-GOV-020</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-012" severity="CRITICAL" enabled="true">
+    <name>AI Governance — Data Processing Without Consent</name>
+    <description>Detects AI data processing activities that lack required consent documentation or legitimate basis</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <action>AI-TRAINING-WRITE</action>
+        <consent_documented regex="false">false</consent_documented>
+        <legitimate_basis regex="false">false</legitimate_basis>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>6</control>
+      <standard>GDPR</standard>
+      <control>13</control>
+      <standard>AI-ACT</standard>
+      <control>10</control>
+    </compliance>
+    <references>AI-GOV-021</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-013" severity="CRITICAL" enabled="true">
+    <name>AI Governance — Automated Decision Without Opt-Out</name>
+    <description>Detects AI-driven automated decisions without providing the required opt-out mechanism per GDPR Article 22</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-DECISION</action>
+        <automated_decision regex="true">true</automated_decision>
+        <opt_out_available regex="false">false</opt_out_available>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>22</control>
+      <standard>AI-ACT</standard>
+      <control>14</control>
+    </compliance>
+    <references>AI-GOV-022</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-014" severity="HIGH" enabled="true">
+    <name>AI Governance — Audit Trail Gap in AI Decision</name>
+    <description>Detects AI decisions that lack required audit trail logging including input data, model version, and decision rationale</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-DECISION</action>
+        <audit_trail_complete regex="false">false</audit_trail_complete>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>12</control>
+      <standard>ISO-42001</standard>
+    </compliance>
+    <references>AI-GOV-023</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-015" severity="HIGH" enabled="true">
+    <name>AI Governance — Right to Explanation Violation</name>
+    <description>Detects AI decisions where the required explanation was not provided to the affected individual</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-DECISION</action>
+        <explanation_required regex="true">true</explanation_required>
+        <explanation_provided regex="false">false</explanation_provided>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>22.3</control>
+      <standard>AI-ACT</standard>
+      <control>13</control>
+    </compliance>
+    <references>AI-GOV-024</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-016" severity="CRITICAL" enabled="true">
+    <name>AI Governance — Cross-Border AI Transfer Without Safeguards</name>
+    <description>Detects AI system data or model transfers to jurisdictions without adequate data protection safeguards</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-DATA-TRANSFER</action>
+        <adequate_safeguard regex="false">false</adequate_safeguard>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>46</control>
+      <standard>AI-ACT</standard>
+      <control>50</control>
+    </compliance>
+    <references>AI-GOV-025</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-017" severity="HIGH" enabled="true">
+    <name>AI Governance — Bias Detection — Age Discrimination in AI Screening</name>
+    <description>Detects age discrimination patterns in AI-based screening systems for employment, insurance, or credit</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-DECISION</action>
+        <age_bias_detected regex="true">true</age_bias_detected>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>10</control>
+      <standard>ADEA</standard>
+    </compliance>
+    <references>AI-GOV-026</references>
+    <action>ALERT</action>
+    <group>ai_governance_bias</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-018" severity="HIGH" enabled="true">
+    <name>AI Governance — Bias Detection — Disability Bias in AI System</name>
+    <description>Detects disability bias in AI systems that make decisions affecting accessibility, employment, or service provision</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-DECISION</action>
+        <disability_bias_detected regex="true">true</disability_bias_detected>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>10</control>
+      <standard>ADA</standard>
+    </compliance>
+    <references>AI-GOV-027</references>
+    <action>ALERT</action>
+    <group>ai_governance_bias</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-019" severity="MEDIUM" enabled="true">
+    <name>AI Governance — Model Performance Degradation</name>
+    <description>Detects significant degradation in AI model performance metrics that may indicate drift, data quality issues, or poisoning</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-MODEL-METRICS</action>
+        <performance_degradation regex="true">true</performance_degradation>
+        <degradation_percent regex="true">>10</degradation_percent>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>9</control>
+    </compliance>
+    <references>AI-GOV-028</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-020" severity="HIGH" enabled="true">
+    <name>AI Governance — Data Minimization Violation</name>
+    <description>Detects AI systems collecting or processing more data than necessary for their stated purpose violating data minimization principles</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <action>AI-DATA-PROCESSING</action>
+        <data_minimization_violation regex="true">true</data_minimization_violation>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>5.1.c</control>
+      <standard>AI-ACT</standard>
+      <control>10</control>
+    </compliance>
+    <references>AI-GOV-029</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-021" severity="HIGH" enabled="true">
+    <name>AI Governance — Purpose Limitation Violation</name>
+    <description>Detects AI systems using data for purposes beyond what was originally consented to or documented</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-DATA-USE</action>
+        <purpose_limitation_violation regex="true">true</purpose_limitation_violation>
+        <consent_for_purpose regex="false">false</consent_for_purpose>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>5.1.b</control>
+      <standard>AI-ACT</standard>
+      <control>10</control>
+    </compliance>
+    <references>AI-GOV-030</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-022" severity="HIGH" enabled="true">
+    <name>AI Governance — Deepfake Content Without Disclosure</name>
+    <description>Detects generation of synthetic content (deepfakes) without required disclosure labels per AI Act Article 52</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>AI-GENERATION</action>
+        <deepfake_content regex="true">true</deepfake_content>
+        <disclosure_label regex="false">false</disclosure_label>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>52</control>
+    </compliance>
+    <references>AI-GOV-031</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-023" severity="CRITICAL" enabled="true">
+    <name>AI Governance — Emotion Recognition Without Consent</name>
+    <description>Detects AI emotion recognition systems processing biometric data without explicit consent as required by AI Act Article 5</description>
+    <pattern>
+      <event>
+        <product>AI Platform</product>
+        <action>EMOTION-RECOGNITION</action>
+        <explicit_consent regex="false">false</explicit_consent>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>5</control>
+      <standard>GDPR</standard>
+      <control>9</control>
+    </compliance>
+    <references>AI-GOV-032</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-024" severity="CRITICAL" enabled="true">
+    <name>AI Governance — Social Scoring System Detection</name>
+    <description>Detects deployment of AI-based social scoring systems that evaluate or classify persons, prohibited by EU AI Act Article 5</description>
+    <pattern>
+      <event>
+        <product>CI/CD</product>
+        <action>DEPLOY</action>
+        <tags>social-scoring</tags>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>AI-ACT</standard>
+      <control>5</control>
+      <standard>GDPR</standard>
+      <control>22</control>
+    </compliance>
+    <references>AI-GOV-033</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+
+  <rule id="FSIEM-AIGOV-025" severity="HIGH" enabled="true">
+    <name>AI Governance — Incidental Data Collection in AI Training</name>
+    <description>Detects AI training processes that incorporate incidentally collected data without proper consent or documentation</description>
+    <pattern>
+      <event>
+        <product>Database</product>
+        <action>AI-TRAINING</action>
+        <incidental_data regex="true">true</incidental_data>
+        <consent_for_training regex="false">false</consent_for_training>
+      </event>
+    </pattern>
+    <mitre></mitre>
+    <compliance>
+      <standard>GDPR</standard>
+      <control>6</control>
+      <standard>GDPR</standard>
+      <control>13</control>
+      <standard>AI-ACT</standard>
+      <control>10</control>
+    </compliance>
+    <references>AI-GOV-034</references>
+    <action>ALERT</action>
+    <group>ai_governance</group>
+  </rule>
+</rules>

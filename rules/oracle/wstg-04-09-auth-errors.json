@@ -1,0 +1,773 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "OCI Alarm and Event rules — WSTG 04-09 Authentication Error Detection",
+  "total_rules": 45,
+  "rules": [
+    {
+      "rule_id": "OCI-AUTH-001",
+      "name": "Authentication — Brute Force Login Attempts",
+      "description": "Detects high volume of failed authentication attempts from a single source IP indicating brute force attack",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "auth_failed_count",
+        "operator": "GT",
+        "threshold": 10
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-01"],
+      "mitre": ["T1110"],
+      "tags": ["auth", "brute-force", "login", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-002",
+      "name": "Authentication — Credential Stuffing Attack",
+      "description": "Detects credential stuffing attempts using leaked username/password pairs across multiple accounts",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "auth_failed_distinct_users",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-02"],
+      "mitre": ["T1110.004"],
+      "tags": ["auth", "credential-stuffing", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-003",
+      "name": "Authentication — Password Spraying Detection",
+      "description": "Detects password spraying where a single password is tried against many accounts",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "auth_spray_attempts",
+        "operator": "GT",
+        "threshold": 8
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-03"],
+      "mitre": ["T1110.003"],
+      "tags": ["auth", "password-spraying", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-004",
+      "name": "Authentication — Account Lockout Storm",
+      "description": "Detects mass account lockouts indicating potential denial-of-service via authentication flooding",
+      "severity": "WARNING",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "account_lockout_count",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-04"],
+      "mitre": ["T1531"],
+      "tags": ["auth", "lockout", "dos", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-005",
+      "name": "Authentication — Impossible Travel Login",
+      "description": "Detects successful logins from geographically distant locations within impossible timeframes",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.identity"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "impossible_travel_login",
+        "operator": "GT",
+        "threshold": 1
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-05"],
+      "mitre": ["T1078"],
+      "tags": ["auth", "impossible-travel", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-006",
+      "name": "Authentication — Failed Login Then Success (Password Compromise)",
+      "description": "Detects failed login followed by success from same source indicating potential password compromise",
+      "severity": "WARNING",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "auth_fail_then_success",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-06"],
+      "mitre": ["T1110"],
+      "tags": ["auth", "password-compromise", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-007",
+      "name": "Authentication — Default Credential Usage",
+      "description": "Detects login attempts using known default credentials on systems or devices",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "default_credential_login",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-07"],
+      "mitre": ["T1078.001"],
+      "tags": ["auth", "default-credentials", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-008",
+      "name": "Authentication — Kerberoasting Attack",
+      "description": "Detects Kerberos TGS ticket requests consistent with Kerberoasting attacks",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "kerberos_tgs_requests",
+        "operator": "GT",
+        "threshold": 10
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-08"],
+      "mitre": ["T1558.003"],
+      "tags": ["auth", "kerberoasting", "kerberos", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-009",
+      "name": "Authentication — Pass-the-Hash Detection",
+      "description": "Detects NTLM authentication patterns consistent with pass-the-hash attacks",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "ntlm_pass_the_hash",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-09"],
+      "mitre": ["T1550.002"],
+      "tags": ["auth", "pass-the-hash", "ntlm", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-010",
+      "name": "Authentication — Pass-the-Ticket Detection",
+      "description": "Detects Kerberos ticket reuse patterns consistent with pass-the-ticket attacks",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "kerberos_ticket_reuse",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-10"],
+      "mitre": ["T1550.003"],
+      "tags": ["auth", "pass-the-ticket", "kerberos", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-011",
+      "name": "Authentication — Golden Ticket Detection",
+      "description": "Detects forged Kerberos TGT tickets consistent with Golden Ticket attacks",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "golden_ticket_detected",
+        "operator": "GT",
+        "threshold": 1
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-11"],
+      "mitre": ["T1558.001"],
+      "tags": ["auth", "golden-ticket", "kerberos", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-012",
+      "name": "Authentication — Silver Ticket Detection",
+      "description": "Detects forged Kerberos TGS tickets consistent with Silver Ticket attacks",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "silver_ticket_detected",
+        "operator": "GT",
+        "threshold": 1
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-12"],
+      "mitre": ["T1558.002"],
+      "tags": ["auth", "silver-ticket", "kerberos", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-013",
+      "name": "Authentication — AS-REP Roasting",
+      "description": "Detects AS-REP roasting attacks targeting accounts with pre-authentication disabled",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "asrep_roasting_attempts",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-13"],
+      "mitre": ["T1558.004"],
+      "tags": ["auth", "asrep-roasting", "kerberos", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-014",
+      "name": "Authentication — LLMNR/NBT-NS Poisoning",
+      "description": "Detects LLMNR or NBT-NS name resolution poisoning attempts for credential relay attacks",
+      "severity": "WARNING",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "llmnr_nbns_poisoning",
+        "operator": "GT",
+        "threshold": 10
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-14"],
+      "mitre": ["T1557"],
+      "tags": ["auth", "llmnr", "nbt-ns", "poisoning", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-015",
+      "name": "Authentication — Credential Dumping via LSASS",
+      "description": "Detects process access to LSASS memory indicative of credential dumping",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "lsass_access_anomaly",
+        "operator": "GT",
+        "threshold": 1
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-15"],
+      "mitre": ["T1003.001"],
+      "tags": ["auth", "credential-dumping", "lsass", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-016",
+      "name": "Authentication — SAM Database Access",
+      "description": "Detects unauthorized access to the SAM database for credential extraction",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "sam_db_unauthorized_access",
+        "operator": "GT",
+        "threshold": 1
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-16"],
+      "mitre": ["T1003.002"],
+      "tags": ["auth", "sam", "credential-dumping", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-017",
+      "name": "Authentication — NTDS.DIT Extraction",
+      "description": "Detects access to NTDS.DIT Active Directory database for credential harvesting",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "ntds_dit_access",
+        "operator": "GT",
+        "threshold": 1
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-17"],
+      "mitre": ["T1003.003"],
+      "tags": ["auth", "ntds", "active-directory", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-018",
+      "name": "Authentication — DCSync Attack",
+      "description": "Detects DCSync replication requests used to extract domain credentials",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "dcsync_replication_request",
+        "operator": "GT",
+        "threshold": 1
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-18"],
+      "mitre": ["T1003.006"],
+      "tags": ["auth", "dcsync", "active-directory", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-019",
+      "name": "Authentication — MFA Bypass Attempt",
+      "description": "Detects authentication flows that bypass multi-factor authentication controls",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.identity"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "mfa_bypass_attempt",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-19"],
+      "mitre": ["T1110"],
+      "tags": ["auth", "mfa-bypass", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-020",
+      "name": "Authentication — OAuth Token Abuse",
+      "description": "Detects suspicious OAuth token usage patterns indicating token theft or abuse",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.identity"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "oauth_token_abuse",
+        "operator": "GT",
+        "threshold": 20
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-20"],
+      "mitre": ["T1528"],
+      "tags": ["auth", "oauth", "token-abuse", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-021",
+      "name": "Authentication — Privileged Account Anomalous Login",
+      "description": "Detects anomalous login patterns for privileged accounts outside normal hours or locations",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.identity"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "privileged_anomalous_login",
+        "operator": "GT",
+        "threshold": 1
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-21"],
+      "mitre": ["T1078", "T1078.002"],
+      "tags": ["auth", "privileged", "anomaly", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-022",
+      "name": "Authentication — Session Token Replay",
+      "description": "Detects session token reuse from different source IPs indicating token replay attacks",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "session_token_replay",
+        "operator": "GT",
+        "threshold": 2
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-22"],
+      "mitre": ["T1550"],
+      "tags": ["auth", "session-replay", "token", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-023",
+      "name": "Authentication — LDAP Simple Bind",
+      "description": "Detects LDAP simple bind operations that transmit credentials in cleartext",
+      "severity": "WARNING",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "ldap_simple_bind_count",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-23"],
+      "mitre": ["T1040"],
+      "tags": ["auth", "ldap", "cleartext", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-024",
+      "name": "Authentication — SQL Injection Authentication Bypass",
+      "description": "Detects SQL injection patterns in authentication forms that bypass login controls",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "auth_sqli_bypass",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-24"],
+      "mitre": ["T1190"],
+      "tags": ["auth", "sql-injection", "bypass", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-025",
+      "name": "Authentication — JWT Token Manipulation",
+      "description": "Detects JWT token manipulation attempts including algorithm confusion and signature bypass",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "jwt_manipulation_attempt",
+        "operator": "GT",
+        "threshold": 1
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-25"],
+      "mitre": ["T1550"],
+      "tags": ["auth", "jwt", "token-manipulation", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-026",
+      "name": "Authentication — SAML Token Forging",
+      "description": "Detects SAML token forging attempts and XML signature wrapping attacks",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.identity"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "saml_token_forging",
+        "operator": "GT",
+        "threshold": 2
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-26"],
+      "mitre": ["T1606.002"],
+      "tags": ["auth", "saml", "token-forging", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-027",
+      "name": "Authentication — Credential Relaying via NTLM",
+      "description": "Detects NTLM relay attacks forwarding authentication to downstream servers",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "ntlm_relay_attack",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-27"],
+      "mitre": ["T1557.001"],
+      "tags": ["auth", "ntlm-relay", "credential-relay", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-028",
+      "name": "Authentication — DNS-Based Authentication Bypass",
+      "description": "Detects DNS manipulation used to bypass authentication or redirect traffic",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.dns"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "dns_auth_bypass",
+        "operator": "GT",
+        "threshold": 2
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-28"],
+      "mitre": ["T1071.004", "T1557"],
+      "tags": ["auth", "dns", "bypass", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-029",
+      "name": "Authentication — Weak Password Detection",
+      "description": "Detects accounts authenticating with weak passwords found in known breach databases",
+      "severity": "WARNING",
+      "condition": {
+        "eventType": ["com.oracle.cloud.identity"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "weak_password_auth",
+        "operator": "GT",
+        "threshold": 1
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-29"],
+      "mitre": ["T1110.001"],
+      "tags": ["auth", "weak-password", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-030",
+      "name": "Authentication — Admin Account Enumeration",
+      "description": "Detects attempts to enumerate admin or privileged accounts via LDAP or directory queries",
+      "severity": "WARNING",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "admin_account_enumeration",
+        "operator": "GT",
+        "threshold": 10
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-30"],
+      "mitre": ["T1087.002", "T1087.001"],
+      "tags": ["auth", "enumeration", "admin", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-031",
+      "name": "Authentication — Service Account Abuse",
+      "description": "Detects service accounts used for interactive logins or unusual access patterns",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "service_account_abuse",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-31"],
+      "mitre": ["T1078.002"],
+      "tags": ["auth", "service-account", "abuse", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-032",
+      "name": "Authentication — Certificate-based Auth Fraud",
+      "description": "Detects fraudulent certificate-based authentication including stolen or forged certificates",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.identity"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "cert_auth_fraud",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-32"],
+      "mitre": ["T1550.004"],
+      "tags": ["auth", "certificate-fraud", "x509", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-033",
+      "name": "Authentication — PTH Over WinRM",
+      "description": "Detects pass-the-hash attack patterns over WinRM connections",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "pth_winrm_attack",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-33"],
+      "mitre": ["T1550.002", "T1021.006"],
+      "tags": ["auth", "pass-the-hash", "winrm", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-034",
+      "name": "Authentication — Forged PAC Attack",
+      "description": "Detects privilege attribute certificate manipulation in Kerberos tickets",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "forged_pac_attack",
+        "operator": "GT",
+        "threshold": 1
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-34"],
+      "mitre": ["T1558"],
+      "tags": ["auth", "pac", "kerberos", "forged", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-035",
+      "name": "Authentication — Downgrade Attack on Auth Protocol",
+      "description": "Detects authentication protocol downgrade from Kerberos to NTLM indicating potential downgrade attacks",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "auth_protocol_downgrade",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-35"],
+      "mitre": ["T1557"],
+      "tags": ["auth", "downgrade", "ntlm", "kerberos", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-036",
+      "name": "Authentication — Idle Session Hijacking",
+      "description": "Detects session hijacking of idle authenticated sessions",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "idle_session_hijack",
+        "operator": "GT",
+        "threshold": 2
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-36"],
+      "mitre": ["T1550"],
+      "tags": ["auth", "session-hijack", "idle", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-037",
+      "name": "Authentication — Broken Authentication Session Management",
+      "description": "Detects broken authentication session management including session fixation and insecure cookie flags",
+      "severity": "WARNING",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "broken_session_mgmt",
+        "operator": "GT",
+        "threshold": 10
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-37"],
+      "mitre": ["T1550"],
+      "tags": ["auth", "session-management", "cookies", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-038",
+      "name": "Authentication — Cross-Site Request Forgery on Auth",
+      "description": "Detects CSRF attacks targeting authentication endpoints",
+      "severity": "WARNING",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "csrf_auth_attack",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-38"],
+      "mitre": ["T1190"],
+      "tags": ["auth", "csrf", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-039",
+      "name": "Authentication — Insecure Password Reset",
+      "description": "Detects abuse of insecure password reset mechanisms including predictable tokens",
+      "severity": "WARNING",
+      "condition": {
+        "eventType": ["com.oracle.cloud.identity"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "insecure_password_reset",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-39"],
+      "mitre": ["T1110"],
+      "tags": ["auth", "password-reset", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-040",
+      "name": "Authentication — Concurrent Session Anomaly",
+      "description": "Detects anomalous concurrent sessions from multiple locations for the same user",
+      "severity": "WARNING",
+      "condition": {
+        "eventType": ["com.oracle.cloud.identity"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "concurrent_session_anomaly",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-40"],
+      "mitre": ["T1078"],
+      "tags": ["auth", "concurrent-sessions", "anomaly", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-041",
+      "name": "Authentication — Expired Credential Usage",
+      "description": "Detects authentication attempts with expired credentials suggesting credential reuse or theft",
+      "severity": "WARNING",
+      "condition": {
+        "eventType": ["com.oracle.cloud.identity"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "expired_credential_usage",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-41"],
+      "mitre": ["T1110"],
+      "tags": ["auth", "expired-credentials", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-042",
+      "name": "Authentication — RDP Brute Force",
+      "description": "Detects brute force attacks targeting Remote Desktop Protocol authentication",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "rdp_brute_force",
+        "operator": "GT",
+        "threshold": 10
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-42"],
+      "mitre": ["T1110", "T1021.001"],
+      "tags": ["auth", "rdp", "brute-force", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-043",
+      "name": "Authentication — SSH Brute Force",
+      "description": "Detects brute force attacks targeting SSH authentication on Linux systems",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.monitoring"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "ssh_brute_force",
+        "operator": "GT",
+        "threshold": 10
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-43"],
+      "mitre": ["T1110", "T1021.004"],
+      "tags": ["auth", "ssh", "brute-force", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-044",
+      "name": "Authentication — Account Manipulation",
+      "description": "Detects account manipulation including privilege escalation, group modification, and attribute changes",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.identity"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "account_manipulation",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-44"],
+      "mitre": ["T1098"],
+      "tags": ["auth", "account-manipulation", "privilege-escalation", "wstg"]
+    },
+    {
+      "rule_id": "OCI-AUTH-045",
+      "name": "Authentication — Conditional Access Policy Bypass",
+      "description": "Detects attempts to bypass conditional access policies through legacy protocols or exemption abuse",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": ["com.oracle.cloud.identity"],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "conditional_access_bypass",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [{"actionType": "ONS", "description": "Send alert notification"}],
+      "references": ["WSTG-ATHN-45"],
+      "mitre": ["T1078", "T1098"],
+      "tags": ["auth", "conditional-access", "bypass", "wstg"]
+    }
+  ]
+}

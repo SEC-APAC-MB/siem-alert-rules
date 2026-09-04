@@ -1,0 +1,104 @@
+# =============================================================================
+# Suricata Rules — Data Exfiltration
+# Covers: DNS tunneling, HTTP data leakage, unusual data transfer patterns,
+#          covert channels, base64 encoded exfiltration, WebSocket exfil
+# Total rules: 55
+# SID range: 2304001 - 2304055
+# =============================================================================
+
+# --- DNS Tunneling ---
+alert udp $EXTERNAL_NET any -> $HOME_NET 53 (msg:"EXFIL - DNS Tunneling - Excessively Long Subdomain"; dsize:>200; pcre:"/([a-zA-Z0-9_-]{30,}\.){2,}/"; classtype:trojan-activity; sid:2304001; rev:1; metadata:created_at 2026-08-17;)
+alert udp $EXTERNAL_NET any -> $HOME_NET 53 (msg:"EXFIL - DNS Tunneling - High Entropy Subdomain"; pcre:"/[a-zA-Z0-9]{50,}\.[a-z]+\.[a-z]+/"; classtype:trojan-activity; sid:2304002; rev:1; metadata:created_at 2026-08-17;)
+alert udp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"EXFIL - DNS Tunneling - TXT Record Query with Data Payload"; content:"|00 10|"; within:2; distance:4; pcre:"/[a-zA-Z0-9+\/=]{40,}/i"; classtype:trojan-activity; sid:2304003; rev:1; metadata:created_at 2026-08-17;)
+alert udp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"EXFIL - DNS Tunneling - Unusual Record Type Query - NULL"; content:"|00 0a|"; within:2; distance:4; classtype:trojan-activity; sid:2304004; rev:1; metadata:created_at 2026-08-17;)
+alert udp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"EXFIL - DNS Tunneling - Frequent DNS Queries to Single Domain"; threshold:type both, track by_src, count 100, seconds 60; classtype:trojan-activity; sid:2304005; rev:1; metadata:created_at 2026-08-17;)
+alert udp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"EXFIL - DNS Tunneling - Known DNS Tunnel Service Domain"; pcre:"/(dns2tcp|iodine|dnscat2|dnstun|dnscrypt|tunnel\.xyz|data\.dns\.(com|net|org)|[a-z0-9]{16,}\.(dns|tun|data|exfil|beacon)\.)/i"; classtype:trojan-activity; sid:2304006; rev:1; metadata:created_at 2026-08-17;)
+alert udp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"EXFIL - DNS Tunneling - Hex-Encoded Subdomain Pattern"; pcre:"/([0-9a-fA-F]{2,}\.){4,}/"; classtype:trojan-activity; sid:2304007; rev:1; metadata:created_at 2026-08-17;)
+alert udp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"EXFIL - DNS Tunneling - Base64-Encoded Subdomain Pattern"; pcre:"/([A-Za-z0-9+\/=]{4,}\.){3,}[a-z]+\.[a-z]+/"; classtype:trojan-activity; sid:2304008; rev:1; metadata:created_at 2026-08-17;)
+
+# --- HTTP Data Leakage ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Large Response Body - Potential Data Exfiltration"; flow:established,to_client; dsize:>5000000; content:"200"; http_stat_code; classtype:web-application-attack; sid:2304009; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Unusual File Download - Database Dump Extension"; flow:established,to_client; pcre:"/\.(sql|dump|bak|db|sqlite|mysqldump|pg_dump|mdb|dbf|bak)$/i"; http_uri; classtype:web-application-attack; sid:2304010; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Sensitive File Extension Download"; flow:established,to_client; pcre:"/\.(conf|cfg|ini|env|yaml|yml|json|xml|pem|key|p12|pfx|jks|keystore|truststore|ssh|ppk)$/i"; http_uri; classtype:web-application-attack; sid:2304011; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Credential File Exfiltration"; flow:established,to_client; pcre:"/\.(shadow|passwd|htpasswd|htaccess|wp-config|config\.php|\.htpasswd|credentials|\.env)$/i"; http_uri; classtype:web-application-attack; sid:2304012; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - /etc/passwd or /etc/shadow Download Response"; flow:established,to_client; content:"root:"; http_server_body; content:":/bin/"; http_server_body; pcre:"/root:[x*!]{0,20}:\d+:\d+/"; http_server_body; classtype:web-application-attack; sid:2304013; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - AWS Key Pattern in Response"; flow:established,to_client; pcre:"/AKIA[A-Z0-9]{16}/"; http_server_body; classtype:web-application-attack; sid:2304014; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Private Key in Response"; flow:established,to_client; content:"-----BEGIN"; http_server_body; content:"PRIVATE KEY-----"; http_server_body; classtype:web-application-attack; sid:2304015; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Credit Card Number in Response"; flow:established,to_client; pcre:"/\b\d{4}[-\s]?\d{4}[-\s]?\d{4}[-\s]?\d{4}\b/"; http_server_body; classtype:web-application-attack; sid:2304016; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - SSN Pattern in Response"; flow:established,to_client; pcre:"/\b\d{3}-\d{2}-\d{4}\b/"; http_server_body; classtype:web-application-attack; sid:2304017; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Large Upload to File Sharing Service"; flow:established,to_server; pcre:"/(transfer\.sh|file\.io|upload\.dd|0x0\.st|uguu\.se|catbox\.moe|litter\.catbox\.moe|tmpfiles\.org)/i"; http_header; dsize:>1000000; classtype:web-application-attack; sid:2304018; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Data Upload to Cloud Storage - AWS S3"; flow:established,to_server; content:"PUT"; http_method; pcre:"/[a-z0-9.-]+\.s3[.-][a-z0-9.-]*amazonaws\.com/i"; http_header; dsize:>500000; classtype:web-application-attack; sid:2304019; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Data Upload to Cloud Storage - Azure Blob"; flow:established,to_server; content:"PUT"; http_method; pcre:"/[a-z0-9-]+\.blob\.core\.windows\.net/i"; http_header; dsize:>500000; classtype:web-application-attack; sid:2304020; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Covert Channels ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Steganography Tool User-Agent"; flow:established,to_server; pcre:"/(steghide|stegexpose|openstego|silenteye|stegsolve)/i"; http_header; classtype:trojan-activity; sid:2304021; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Large POST to Image Sharing Service"; flow:established,to_server; content:"POST"; http_method; pcre:"/(imgur\.com|cloudinary\.com|imagebin\.org|postimages\.org)/i"; http_header; dsize:>500000; classtype:web-application-attack; sid:2304022; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Base64 Encoded Data in Unusual Parameter"; flow:established,to_server; pcre:"/[?&](data|payload|content|msg|text|q|query|param)=[A-Za-z0-9+\/=]{200,}/i"; http_uri; classtype:web-application-attack; sid:2304023; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Hex-Encoded Data in Parameter"; flow:established,to_server; pcre:"/[?&](data|payload|content|msg|text|q)=[0-9a-fA-F]{100,}/i"; http_uri; classtype:web-application-attack; sid:2304024; rev:1; metadata:created_at 2026-08-17;)
+
+# --- WebSocket Exfiltration ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - WebSocket - Upgrade with Large Payload"; flow:established,to_server; content:"Upgrade"; nocase:true; content:"websocket"; nocase:true; dsize:>100000; classtype:web-application-attack; sid:2304025; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - WebSocket - Binary Frame Data Transfer"; flow:established,to_server; content:"Upgrade"; http_header; content:"websocket"; http_header; pcre:"/Sec-WebSocket-Extensions:\s*permessage-deflate/i"; http_header; classtype:web-application-attack; sid:2304026; rev:1; metadata:created_at 2026-08-17;)
+
+# --- ICMP Tunneling ---
+alert ip $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - ICMP - Unusually Large ICMP Packet"; ip_proto:1; dsize:>1000; classtype:trojan-activity; sid:2304027; rev:1; metadata:created_at 2026-08-17;)
+alert ip $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - ICMP - High Frequency ICMP Traffic"; ip_proto:1; threshold:type both, track by_src, count 100, seconds 60; classtype:trojan-activity; sid:2304028; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Slow Data Exfiltration ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Slow Exfiltration - Low-Bandwidth Persistent Connection"; flow:established,to_server; threshold:type both, track by_src, count 1, seconds 3600; classtype:trojan-activity; sid:2304029; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - HTTP - Chunked Transfer Encoding for Data Exfiltration"; flow:established,to_server; content:"Transfer-Encoding"; http_header; content:"chunked"; http_header; dsize:>1000000; classtype:web-application-attack; sid:2304030; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Email Exfiltration ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET 25 (msg:"EXFIL - SMTP - Large Email Attachment"; flow:established,to_server; content:"Content-Type"; content:"application/"; distance:0; within:50; content:"Content-Transfer-Encoding"; distance:0; within:100; content:"base64"; distance:0; within:30; dsize:>5000000; classtype:web-application-attack; sid:2304031; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET 587 (msg:"EXFIL - SMTP Submission - Bulk Email with Attachments"; flow:established,to_server; content:"Content-Type"; content:"multipart/mixed"; distance:0; within:30; threshold:type both, track by_src, count 5, seconds 300; classtype:web-application-attack; sid:2304032; rev:1; metadata:created_at 2026-08-17;)
+
+# --- FTP Exfiltration ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET 21 (msg:"EXFIL - FTP - Large File PUT to External Server"; flow:established,to_server; content:"STOR"; nocase:true; dsize:>100; classtype:web-application-attack; sid:2304033; rev:1; metadata:created_at 2026-08-17;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET 21 (msg:"EXFIL - FTP - Sensitive File Transfer OUT"; flow:established,to_server; content:"STOR"; nocase:true; pcre:"/\.(sql|dump|bak|db|conf|env|yaml|pem|key|shadow|passwd)/i"; classtype:web-application-attack; sid:2304034; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Database Exfiltration ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Database Dump File Download"; flow:established,to_client; pcre:"/\.(sql|mysqldump|pg_dump|dump|bak|backup)\b/i"; http_uri; dsize:>1000000; classtype:web-application-attack; sid:2304035; rev:1; metadata:created_at 2026-08-17;)
+
+# --- API Exfiltration ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - API - Unusual Volume of Data Export Endpoints"; flow:established,to_server; pcre:"/\/api\/v[0-9]+\/(export|download|backup|dump|report|generate)/i"; http_uri; threshold:type both, track by_src, count 10, seconds 60; classtype:web-application-attack; sid:2304036; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - API - PII Bulk Extraction"; flow:established,to_client; content:"200"; http_stat_code; content:"application/json"; http_header; pcre:"/\"(ssn|social_security|sin|national_id|passport|tax_id|ein)\"/i"; http_server_body; threshold:type both, track by_src, count 5, seconds 300; classtype:web-application-attack; sid:2304037; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - API - GDPR Data Subject Request Exfiltration"; flow:established,to_server; pcre:"/\/api\/v[0-9]+\/(gdpr|dpo|data-subject|data-export|privacy-export|sar)/i"; http_uri; threshold:type both, track by_src, count 3, seconds 3600; classtype:web-application-attack; sid:2304038; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Cloud Storage Exfiltration ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Cloud Storage - Upload to Dropbox"; flow:established,to_server; content:"content.dropboxapi.com"; http_header; dsize:>500000; classtype:web-application-attack; sid:2304039; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Cloud Storage - Upload to Google Drive"; flow:established,to_server; content:"www.googleapis.com"; http_header; content:"upload"; nocase:true; dsize:>500000; classtype:web-application-attack; sid:2304040; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Cloud Storage - Upload to OneDrive"; flow:established,to_server; pcre:"/[a-z0-9]+\.sharepoint\.com|onedrive\.live\.com/i"; http_header; dsize:>500000; classtype:web-application-attack; sid:2304041; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Paste Site Exfiltration ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Paste Site Upload - Pastebin"; flow:established,to_server; content:"POST"; http_method; content:"pastebin.com"; http_header; dsize:>5000; classtype:web-application-attack; sid:2304042; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Paste Site Upload - Ghostbin/Hastebin"; flow:established,to_server; content:"POST"; http_method; pcre:"/(ghostbin\.com|hastebin\.com|dpaste\.org|paste\.ee|justpaste\.it|paste\.rs|termbin\.com)/i"; http_header; classtype:web-application-attack; sid:2304043; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - GitHub Gist Upload with Sensitive Data"; flow:established,to_server; content:"POST"; http_method; content:"api.github.com"; http_header; content:"gists"; http_uri; dsize:>10000; classtype:web-application-attack; sid:2304044; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Covert Exfiltration via Timing ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Timing Channel - Unusually Consistent Connection Intervals"; flow:established,to_server; threshold:type both, track by_src, count 100, seconds 600; classtype:trojan-activity; sid:2304045; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Encrypted Tunnel Detection ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Suspicious TLS to Non-Standard Port"; flow:established,to_server; content:"|16 03|"; within:2; content:!"443"; within:0; threshold:type both, track by_src, count 5, seconds 300; classtype:trojan-activity; sid:2304046; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Clipboard / Screenshot Exfiltration ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Screenshot Data Exfiltration via HTTP"; flow:established,to_server; content:"POST"; http_method; content:"image/png"; http_header; pcre:"/\/(upload|send|submit|api\/v[0-9]+\/file)/i"; http_uri; dsize:>500000; classtype:web-application-attack; sid:2304047; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Clipboard Data Exfiltration"; flow:established,to_server; content:"POST"; http_method; pcre:"/(clipboard|clip|paste|buffer)/i"; http_uri; pcre:"/(password|secret|key|token|credential|ssn|social_security)/i"; http_client_body; classtype:web-application-attack; sid:2304048; rev:1; metadata:created_at 2026-08-17;)
+
+# --- DNS over HTTPS Exfiltration ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - DNS over HTTPS - Unusual DoH Provider"; flow:established,to_server; pcre:"/\/dns-query\?/i"; http_uri; pcre:"/(cloudflare-dns\.com|dns\.google|doh\.cleanbrowsing\.org|doh\.quad9\.net)/i"; http_header; threshold:type both, track by_src, count 50, seconds 60; classtype:trojan-activity; sid:2304049; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Keyboard Exfiltration ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Keylogger Data Exfiltration"; flow:established,to_server; content:"POST"; http_method; pcre:"/\/(log|track|record|key|capture|monitor|report)/i"; http_uri; pcre:"/(keystroke|keypress|keydown|keyup|keyboard|input_log)/i"; http_client_body; classtype:trojan-activity; sid:2304050; rev:1; metadata:created_at 2026-08-17;)
+
+# --- QR Code Phishing / Exfiltration ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - QR Code Phishing Image Generation"; flow:established,to_server; pcre:"/\/api\/(qr|qrcode|generate.*qr|create.*qr)/i"; http_uri; pcre:"/(login|signin|auth|authenticate|verify|account|password|secure|update)/i"; http_client_body; classtype:web-application-attack; sid:2304051; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Encrypted Archive Exfiltration ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Encrypted Archive Upload - ZIP/RAR with Password"; flow:established,to_server; content:"POST"; http_method; content:"application/zip"; http_header; dsize:>1000000; classtype:web-application-attack; sid:2304052; rev:1; metadata:created_at 2026-08-17;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Encrypted Archive Upload - 7z/GPG"; flow:established,to_server; content:"POST"; http_method; pcre:"/\.(7z|gpg|pgp|enc|aes)$/i"; http_uri; dsize:>500000; classtype:web-application-attack; sid:2304053; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Memory Dump Exfiltration ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"EXFIL - Memory Dump Transfer"; flow:established,to_server; pcre:"/\.(dmp|dump|hprof|core|mdmp|hdmp)$/i"; http_uri; classtype:web-application-attack; sid:2304054; rev:1; metadata:created_at 2026-08-17;)
+
+# --- Print Exfiltration ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET 9100 (msg:"EXFIL - Network Printer Data Exfiltration"; flow:established,to_server; dsize:>100000; threshold:type both, track by_src, count 3, seconds 300; classtype:web-application-attack; sid:2304055; rev:1; metadata:created_at 2026-08-17;)
