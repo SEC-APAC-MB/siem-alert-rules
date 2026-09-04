@@ -2,10 +2,6 @@
 
 **Production-ready SIEM alert rules mapped from security test checks, live threat intel, and pentest techniques.**
 
-> ⚠️ **Honest count**: 7,017 rules across 11 platforms as of 2026-08-31. Daily generation engine
-> adds rules from CISA KEV, NVD CVE, and MITRE ATT&CK. Target: 2,500+ per platform.
-> Previous claim of 20,000+ was inaccurate — this is the real count.
-
 Covers OWASP WSTG, API Security, Mobile Security, AI/LLM Security, MITRE ATT&CK, 8 compliance frameworks, and database security across 11 SIEM/cloud platforms, with full regulatory cross-mapping.
 
 ## Platforms
