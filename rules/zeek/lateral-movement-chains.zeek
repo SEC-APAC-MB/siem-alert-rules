@@ -3,7 +3,7 @@
 # Multi-stage lateral movement detection: pass-the-hash, pass-the-ticket,
 # RDP/SMB/SSH chaining, DCOM exploitation, living-off-the-land, and more.
 # Total rules: 35
-# MITRE ATT&CK: T1021, T1550, T1563, T1570, T1080, T1047, T1053, T1059
+# MITRE ATT&CK: T1021, T1550, T1563, T1570, T1021, T1047, T1053, T1059
 # =============================================================================
 
 # --- Pass-the-Hash & Credential Replay (T1550.002) ---
