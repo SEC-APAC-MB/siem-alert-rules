@@ -1,0 +1,405 @@
+# Generated Suricata Detection Rules - 2026-09-09
+# Based on: Latest CVEs from GitHub Advisory Database (2026-08-27+)
+# MITRE ATT&CK techniques not yet covered
+# Current threat landscape: Acrobat Reader mass CVE, Auth0 AD/LDAP priv esc, Waves macOS priv esc, Okta Hyperdrive MFA bypass
+# Total rules: 100
+# SID range: 4000076 - 4000175
+
+# ============================================================
+# CVE-2026-86819: Waves Central macOS Local Privilege Escalation (CVSS 7.1)
+# MITRE ATT&CK: T1548.001 - Abuse Elevation Control Mechanism: Setuid/Setgid
+# ============================================================
+alert http any any -> any any (msg:"ET CURRENT_EVENTS Waves Central Privileged Helper XPC Client Authorization Bypass - CVE-2026-86819"; flow:established,to_server; content:"Waves"; http_header; content:"XPC"; http_header; nocase; reference:cve,2026-86819; reference:ghsa,GHSA-pvv8-qxr5-pq93; classtype:trojan-activity; sid:4000076; rev:1;)
+
+alert http any any -> any any (msg:"ET CURRENT_EVENTS Waves Central Helper Service Code-Signing Verification Bypass Attempt - CVE-2026-86819"; flow:established,to_server; content:"WavesCentral"; http_uri; nocase; reference:cve,2026-86819; classtype:trojan-activity; sid:4000077; rev:1;)
+
+# ============================================================
+# CVE-2026-85983: Auth0 AD/LDAP Connector Privilege Escalation (CVSS 7.8)
+# MITRE ATT&CK: T1543.003 - Create or Modify System Process: Windows Service
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Auth0 AD/LDAP Connector Configuration Manipulation - CVE-2026-85983"; flow:established,to_server; content:"ad-ldap-connector"; http_uri; nocase; content:"config"; http_uri; nocase; reference:cve,2026-85983; reference:ghsa,GHSA-pvm6-cj89-m3wx; classtype:attempted-admin; sid:4000078; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Auth0 AD/LDAP Connector Service Restart Trigger Privilege Escalation - CVE-2026-85983"; flow:established,to_server; content:"ad-ldap-connector"; http_uri; nocase; content:"restart"; http_uri; nocase; reference:cve,2026-85983; classtype:attempted-admin; sid:4000079; rev:1;)
+
+# ============================================================
+# CVE-2026-81994: Acrobat Reader Prototype Pollution to Arbitrary File Read (CVSS 8.2)
+# MITRE ATT&CK: T1055 - Process Injection
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Prototype Pollution Arbitrary File Read - CVE-2026-81994"; flow:established,to_client; content:"__proto__"; http_body; nocase; content:"Acrobat"; http_header; nocase; reference:cve,2026-81994; reference:ghsa,GHSA-48q3-3jc4-wq7c; classtype:attempted-admin; sid:4000080; rev:1;)
+
+# ============================================================
+# CVE-2026-81996: Acrobat Reader Incorrect Authorization Privilege Escalation (CVSS 8.8)
+# MITRE ATT&CK: T1548 - Abuse Elevation Control Mechanism
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Incorrect Authorization Privilege Escalation - CVE-2026-81996"; flow:established,to_server; content:"AcroRd32"; http_header; nocase; content:"authorization"; http_header; nocase; reference:cve,2026-81996; reference:ghsa,GHSA-5p3x-77gx-c43v; classtype:attempted-admin; sid:4000081; rev:1;)
+
+# ============================================================
+# Acrobat Reader Use-After-Free CVEs (CVSS 7.8)
+# CVE-2026-81990, CVE-2026-81989, CVE-2026-81988, CVE-2026-81986, CVE-2026-81985, CVE-2026-81976, CVE-2026-81975, CVE-2026-81973
+# MITRE ATT&CK: T1055.012 - Process Injection: Process Hollowing
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Use-After-Free Arbitrary Code Execution CVE-2026-81990"; flow:established,to_client; file_data; content:"|FF FE FF|"; content:"AcroRd32"; nocase; distance:0; reference:cve,2026-81990; reference:ghsa,GHSA-vrxv-297c-8399; classtype:attempted-user; sid:4000082; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Use-After-Free Memory Corruption CVE-2026-81989"; flow:established,to_client; file_data; content:"|25 50|"; content:"AcroForm"; nocase; distance:0; reference:cve,2026-81989; classtype:attempted-user; sid:4000083; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Use-After-Free Object Destruction CVE-2026-81988"; flow:established,to_client; file_data; content:"/AcroForm"; content:"/JS"; distance:0; reference:cve,2026-81988; classtype:attempted-user; sid:4000084; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Use-After-Free Reference Exploitation CVE-2026-81986"; flow:established,to_client; file_data; content:"%PDF"; content:"/Annot"; distance:0; reference:cve,2026-81986; classtype:attempted-user; sid:4000085; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Use-After-Free Dangling Pointer CVE-2026-81985"; flow:established,to_client; file_data; content:"%PDF"; content:"/Widget"; distance:0; reference:cve,2026-81985; classtype:attempted-user; sid:4000086; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Use-After-Free Object Reuse CVE-2026-81976"; flow:established,to_client; file_data; content:"%PDF"; content:"/Font"; distance:0; content:"/Encoding"; distance:0; reference:cve,2026-81976; classtype:attempted-user; sid:4000087; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Use-After-Free Memory Reference CVE-2026-81975"; flow:established,to_client; file_data; content:"%PDF"; content:"/Page"; distance:0; content:"/Resources"; distance:0; reference:cve,2026-81975; classtype:attempted-user; sid:4000088; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Use-After-Free Heap Exploitation CVE-2026-81973"; flow:established,to_client; file_data; content:"%PDF"; content:"/Root"; distance:0; content:"/AcroForm"; distance:0; reference:cve,2026-81973; classtype:attempted-user; sid:4000089; rev:1;)
+
+# ============================================================
+# Acrobat Reader Out-of-Bounds Write CVEs (CVSS 7.8)
+# CVE-2026-81983, CVE-2026-81981, CVE-2026-81980, CVE-2026-81979
+# MITRE ATT&CK: T1055 - Process Injection
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Out-of-Bounds Write Code Execution CVE-2026-81983"; flow:established,to_client; file_data; content:"%PDF"; content:"/FlateDecode"; distance:0; reference:cve,2026-81983; reference:ghsa,GHSA-854q-jg29-q8v4; classtype:attempted-user; sid:4000090; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Out-of-Bounds Write Memory Corruption CVE-2026-81981"; flow:established,to_client; file_data; content:"%PDF"; content:"/DCTDecode"; distance:0; reference:cve,2026-81981; classtype:attempted-user; sid:4000091; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Out-of-Bounds Write Arbitrary Code Execution CVE-2026-81980"; flow:established,to_client; file_data; content:"%PDF"; content:"/ASCIIHexDecode"; distance:0; reference:cve,2026-81980; classtype:attempted-user; sid:4000092; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Out-of-Bounds Write Buffer Overflow CVE-2026-81979"; flow:established,to_client; file_data; content:"%PDF"; content:"/LZWDecode"; distance:0; reference:cve,2026-81979; classtype:attempted-user; sid:4000093; rev:1;)
+
+# ============================================================
+# Acrobat Reader Heap-Based Buffer Overflow CVEs (CVSS 7.8)
+# CVE-2026-81992, CVE-2026-81993
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Heap Buffer Overflow Code Execution CVE-2026-81992"; flow:established,to_client; file_data; content:"%PDF"; content:"/CCITTFaxDecode"; distance:0; reference:cve,2026-81992; reference:ghsa,GHSA-6vjw-c2jh-f42r; classtype:attempted-user; sid:4000094; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Heap Buffer Overflow Info Disclosure CVE-2026-81993"; flow:established,to_client; file_data; content:"%PDF"; content:"/JBIG2Decode"; distance:0; reference:cve,2026-81993; classtype:attempted-user; sid:4000095; rev:1;)
+
+# ============================================================
+# Acrobat Reader Integer Overflow CVE-2026-81987 (CVSS 7.8)
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Integer Overflow Wraparound Code Execution CVE-2026-81987"; flow:established,to_client; file_data; content:"%PDF"; content:"/Length"; distance:0; content:"/Filter"; distance:0; reference:cve,2026-81987; classtype:attempted-user; sid:4000096; rev:1;)
+
+# ============================================================
+# Acrobat Reader Double Free CVE-2026-79907 (CVSS 7.8)
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Double Free Arbitrary Code Execution CVE-2026-79907"; flow:established,to_client; file_data; content:"%PDF"; content:"/ObjStm"; distance:0; reference:cve,2026-79907; reference:ghsa,GHSA-q8qg-f338-5g6r; classtype:attempted-user; sid:4000097; rev:1;)
+
+# ============================================================
+# Acrobat Reader Type Confusion CVE-2026-80161 (CVSS 7.8)
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Type Confusion Arbitrary Code Execution CVE-2026-80161"; flow:established,to_client; file_data; content:"%PDF"; content:"/XRef"; distance:0; content:"/Type"; distance:0; reference:cve,2026-80161; classtype:attempted-user; sid:4000098; rev:1;)
+
+# ============================================================
+# Acrobat Reader Out-of-Bounds Read CVEs (CVSS 5.5 - Info Disclosure)
+# CVE-2026-81991, CVE-2026-81982, CVE-2026-81978, CVE-2026-80160
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Out-of-Bounds Read Information Disclosure CVE-2026-81991"; flow:established,to_client; file_data; content:"%PDF"; content:"/Linearized"; distance:0; reference:cve,2026-81991; classtype:attempted-recon; sid:4000099; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Out-of-Bounds Read Sensitive Memory Leak CVE-2026-81982"; flow:established,to_client; file_data; content:"%PDF"; content:"/Crypt"; distance:0; reference:cve,2026-81982; classtype:attempted-recon; sid:4000100; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Out-of-Bounds Read Memory Disclosure CVE-2026-81978"; flow:established,to_client; file_data; content:"%PDF"; content:"/ExtGState"; distance:0; reference:cve,2026-81978; classtype:attempted-recon; sid:4000101; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Out-of-Bounds Read Data Leak CVE-2026-80160"; flow:established,to_client; file_data; content:"%PDF"; content:"/Pattern"; distance:0; reference:cve,2026-80160; classtype:attempted-recon; sid:4000102; rev:1;)
+
+# ============================================================
+# Acrobat Reader Use-After-Free Info Disclosure CVE-2026-81984 (CVSS 5.5)
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Use-After-Free Sensitive Memory Disclosure CVE-2026-81984"; flow:established,to_client; file_data; content:"%PDF"; content:"/StructTreeRoot"; distance:0; reference:cve,2026-81984; classtype:attempted-recon; sid:4000103; rev:1;)
+
+# ============================================================
+# Acrobat Reader Integer Underflow CVE-2026-81977 (CVSS 5.5)
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Integer Underflow Memory Disclosure CVE-2026-81977"; flow:established,to_client; file_data; content:"%PDF"; content:"/DecodeParms"; distance:0; reference:cve,2026-81977; classtype:attempted-recon; sid:4000104; rev:1;)
+
+# ============================================================
+# Acrobat Reader Incorrect Authorization CVE-2026-81997 (CVSS 6.3)
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Adobe Acrobat Reader Incorrect Authorization Security Bypass CVE-2026-81997"; flow:established,to_server; content:"AcroRd32"; http_header; nocase; content:"/Action"; http_uri; reference:cve,2026-81997; classtype:attempted-user; sid:4000105; rev:1;)
+
+# ============================================================
+# Acrobat Reader Uncontrolled Resource Consumption CVE-2026-82001 (CVSS 5.5)
+# ============================================================
+alert http any any -> any any (msg:"ET DOS Adobe Acrobat Reader Uncontrolled Resource Consumption Denial of Service CVE-2026-82001"; flow:established,to_client; file_data; content:"%PDF"; content:"/Length"; distance:0; content:"999999"; distance:0; reference:cve,2026-82001; classtype:attempted-dos; sid:4000106; rev:1;)
+
+# ============================================================
+# CVE-2026-79588: U-speed WIFI4 N300 Cleartext Credential Transmission
+# MITRE ATT&CK: T1040 - Network Sniffing
+# ============================================================
+alert http any any -> any any (msg:"ET CREDENTIAL U-speed WIFI4 N300 Admin Credentials Cleartext Transmission - CVE-2026-79588"; flow:established,to_server; content:"/login.cgi"; http_uri; content:"password"; http_client_body; nocase; reference:cve,2026-79588; reference:ghsa,GHSA-wmqx-pqxm-c42c; classtype:credential-access; sid:4000107; rev:1;)
+
+# ============================================================
+# CVE-2026-77827: Maono Link Windows Service Privilege Escalation (CVSS 7.1)
+# MITRE ATT&CK: T1543.003 - Create or Modify System Process: Windows Service
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Maono Link MaonoAiServices Local Privilege Escalation - CVE-2026-77827"; flow:established,to_server; content:"MaonoAiServices"; http_uri; nocase; reference:cve,2026-77827; reference:ghsa,GHSA-gx86-6f2h-rhf6; classtype:attempted-admin; sid:4000108; rev:1;)
+
+# ============================================================
+# CVE-2026-78629: Okta Hyperdrive Agent MFA Response Bypass (CVSS 5.6)
+# MITRE ATT&CK: T1111 - Multi-Factor Authentication Interception
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Okta Hyperdrive Agent MFA Response Authentication Bypass - CVE-2026-78629"; flow:established,to_server; content:"okta"; http_header; nocase; content:"hyperdrive"; http_uri; nocase; content:"mfa"; http_uri; nocase; reference:cve,2026-78629; reference:ghsa,GHSA-p4wq-g97j-pcf5; classtype:attempted-admin; sid:4000109; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK Coverage Gaps - Tactic: Reconnaissance (TA0043)
+# ============================================================
+alert http any any -> any any (msg:"ET RECON Active Directory Domain Enumeration via LDAP"; flow:established,to_server; content:"DC="; http_uri; content:"objectClass"; http_client_body; nocase; classtype:attempted-recon; sid:4000110; rev:1;)
+
+alert dns any any -> any any (msg:"ET DNS Large Volume Subdomain Enumeration Attempt"; dns.query; content:""; threshold:type both, track by_src, count 100, seconds 60; classtype:attempted-recon; sid:4000111; rev:1;)
+
+alert http any any -> any any (msg:"ET RECON Kubernetes API Server Enumeration via OpenAPI Endpoint"; flow:established,to_server; content:"/openapi/v2"; http_uri; content:"kubernetes"; http_header; nocase; classtype:attempted-recon; sid:4000112; rev:1;)
+
+alert http any any -> any any (msg:"ET RECON AWS S3 Bucket Enumeration via ListObjects"; flow:established,to_server; content:"?list-type=2"; http_uri; content:"s3"; http_host; nocase; classtype:attempted-recon; sid:4000113; rev:1;)
+
+alert http any any -> any any (msg:"ET RECON GCP Project Metadata Enumeration via Instance Identity"; flow:established,to_server; content:"/computeMetadata/v1/"; http_uri; content:"Metadata-Flavor"; http_header; content:"Google"; classtype:attempted-recon; sid:4000114; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: Initial Access - T1190 Exploit Public-Facing Application
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Apache Struts2 OGNL Remote Code Execution Pattern"; flow:established,to_server; content:"/action"; http_uri; content:"ognl"; http_uri; nocase; content:"Runtime"; http_client_body; nocase; reference:url,blog.securelist.com; classtype:attempted-admin; sid:4000115; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Confluence Server Remote Code Execution via Template Injection"; flow:established,to_server; content:"/template"; http_uri; content:"runtime"; http_client_body; nocase; content:"exec"; http_client_body; nocase; classtype:attempted-admin; sid:4000116; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Jenkins Script Console Remote Code Execution"; flow:established,to_server; content:"/script"; http_uri; content:"jenkins"; http_host; nocase; content:"Groovy"; http_client_body; nocase; classtype:attempted-admin; sid:4000117; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1133 - External Remote Services
+# ============================================================
+alert tls any any -> any any (msg:"ET TROJAN Suspicious SSL Certificate for Auth0 AD-LDAP Connector C2 Channel"; tls.cert_subject; content:"ad-ldap-connector"; nocase; classtype:trojan-activity; sid:4000118; rev:1;)
+
+alert http any any -> any any (msg:"ET TROJAN Suspicious VPN Portal Credential Harvesting Page Detection"; flow:established,to_client; content:"password"; http_body; nocase; content:"vpn"; http_body; nocase; content:"token"; http_body; nocase; classtype:trojan-activity; sid:4000119; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1078 - Valid Accounts
+# ============================================================
+alert http any any -> any any (msg:"ET ATTEMPT_BRUTE_FORCE Okta Authentication Brute Force Rapid Login Attempts"; flow:established,to_server; content:"/api/v1/authn"; http_uri; content:"okta"; http_header; nocase; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:4000120; rev:1;)
+
+alert http any any -> any any (msg:"ET ATTEMPT_BRUTE_FORCE Azure AD Password Spray Attack Pattern"; flow:established,to_server; content:"/common/oauth2/token"; http_uri; content:"password"; http_client_body; nocase; threshold:type both, track by_src, count 10, seconds 300; classtype:attempted-admin; sid:4000121; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1059.001 - Command and Scripting Interpreter: PowerShell
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN PowerShell Download Cradle Pattern via HTTP"; flow:established,to_server; content:"powershell"; http_client_body; nocase; content:"DownloadString"; http_client_body; nocase; content:"IEX"; http_client_body; nocase; classtype:trojan-activity; sid:4000122; rev:1;)
+
+alert http any any -> any any (msg:"ET TROJAN PowerShell Encoded Command Execution via HTTP"; flow:established,to_server; content:"powershell"; http_client_body; nocase; content:"-enc"; http_client_body; content:"FromBase64String"; http_client_body; nocase; classtype:trojan-activity; sid:4000123; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1566.001 - Phishing: Spearphishing Attachment
+# ============================================================
+alert http any any -> any any (msg:"ET CURRENT_EVENTS Malicious PDF with Embedded JavaScript Payload"; flow:established,to_client; file_data; content:"%PDF"; content:"/JavaScript"; distance:0; content:"eval("; distance:0; nocase; classtype:trojan-activity; sid:4000124; rev:1;)
+
+alert http any any -> any any (msg:"ET CURRENT_EVENTS Malicious PDF with Suspicious Launch Action"; flow:established,to_client; file_data; content:"%PDF"; content:"/Launch"; distance:0; content:"/Win"; distance:0; classtype:trojan-activity; sid:4000125; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1059.003 - Command and Scripting Interpreter: Windows Command Shell
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN Windows CMD Reverse Shell Pattern via HTTP"; flow:established,to_server; content:"cmd.exe"; http_client_body; nocase; content:"/c"; http_client_body; content:"connect"; http_client_body; nocase; classtype:trojan-activity; sid:4000126; rev:1;)
+
+alert http any any -> any any (msg:"ET TROJAN Suspicious CMD Pipe Data Exfiltration via HTTP"; flow:established,to_server; content:"cmd.exe"; http_client_body; nocase; content:"|"; http_client_body; content:"type"; http_client_body; nocase; classtype:trojan-activity; sid:4000127; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1071.001 - Application Layer Protocol: Web Protocols
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN Cobalt Strike HTTP Beacon Pattern with Jitter"; flow:established,to_server; content:"/"; http_uri; depth:1; pcre:"/^[a-zA-Z0-9]{3,5}$/"; content:"Cookie"; http_header; pcre:"/^[A-Za-z0-9+/]{60,}={0,2}$/"; classtype:trojan-activity; sid:4000128; rev:1;)
+
+alert http any any -> any any (msg:"ET TROJAN Sliver C2 HTTP Profile Pattern Detection"; flow:established,to_server; content:"/tasks"; http_uri; content:"session"; http_header; nocase; classtype:trojan-activity; sid:4000129; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1048 - Exfiltration Over Alternative Protocol
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN DNS-over-HTTPS Data Exfiltration Pattern"; flow:established,to_server; content:"dns.google"; http_host; content:"/resolve"; http_uri; content:"type=TXT"; http_uri; pcre:"/[a-zA-Z0-9]{40,}/"; classtype:trojan-activity; sid:4000130; rev:1;)
+
+alert http any any -> any any (msg:"ET TROJAN Suspicious Cloud Storage Data Exfiltration via WebDAV"; flow:established,to_server; content:"PUT"; http_method; content:"webdav"; http_uri; nocase; content:"Content-Type"; http_header; content:"application/octet-stream"; classtype:trojan-activity; sid:4000131; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1573 - Encrypted Channel
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN Suspicious TLS Certificate with Short-Lived Domain Pattern"; tls.cert_subject; content:".xyz"; tls_cert_serial; pcre:"/^[0-9a-f]{16,}$/"; classtype:trojan-activity; sid:4000132; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1119 - Automated Collection
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN Automated Data Collection Archive Upload via HTTP"; flow:established,to_server; content:"POST"; http_method; content:"Content-Type"; http_header; content:"application/x-tar"; http_header; pcre:"/\.(7z|rar|tar|zip)/"; classtype:trojan-activity; sid:4000133; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1486 - Data Encrypted for Impact (Ransomware)
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN Ransomware Note Pattern Delivery via HTTP"; flow:established,to_client; content:"DECRYPT"; http_body; nocase; content:"bitcoin"; http_body; nocase; content:"payment"; http_body; nocase; classtype:trojan-activity; sid:4000134; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1489 - Service Stop
+# ============================================================
+alert http any any -> any any (msg:"ET ATTEMPT_DENIAL Windows Service Termination via Remote Management"; flow:established,to_server; content:"/api/v1/services"; http_uri; content:"stop"; http_client_body; nocase; content:"Vss"; http_client_body; nocase; classtype:attempted-dos; sid:4000135; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1087.002 - Account Discovery: Domain Account
+# ============================================================
+alert http any any -> any any (msg:"ET RECON Active Directory User Enumeration via SAMR Protocol"; flow:established,to_server; content:"samr"; http_uri; nocase; content:"EnumUsers"; http_client_body; nocase; classtype:attempted-recon; sid:4000136; rev:1;)
+
+alert http any any -> any any (msg:"ET RECON LDAP Domain Group Membership Enumeration"; flow:established,to_server; content:"member"; http_client_body; nocase; content:"distinguishedName"; http_client_body; nocase; content:"domain"; http_client_body; nocase; classtype:attempted-recon; sid:4000137; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1003.001 - OS Credential Dumping: LSASS Memory
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT LSASS Memory Access via Procdump Upload"; flow:established,to_server; content:"procdump"; http_client_body; nocase; content:"lsass"; http_client_body; nocase; classtype:attempted-admin; sid:4000138; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1070.004 - Indicator Removal: File Deletion
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN Log File Deletion Pattern via HTTP"; flow:established,to_server; content:"cmd.exe"; http_client_body; nocase; content:"del"; http_client_body; nocase; content:".log"; http_client_body; nocase; content:"/q"; http_client_body; classtype:trojan-activity; sid:4000139; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1562.001 - Impair Defenses: Disable or Modify Tools
+# ============================================================
+alert http any any -> any any (msg:"ET ATTEMPT_ADMIN Windows Defender Exclusion Addition via HTTP API"; flow:established,to_server; content:"/api/v1/exclusions"; http_uri; content:"path"; http_client_body; nocase; classtype:attempted-admin; sid:4000140; rev:1;)
+
+alert http any any -> any any (msg:"ET ATTEMPT_ADMIN Windows Defender Real-Time Protection Disable Attempt"; flow:established,to_server; content:"Set-MpPreference"; http_client_body; nocase; content:"DisableRealtimeMonitoring"; http_client_body; nocase; content:"true"; http_client_body; classtype:attempted-admin; sid:4000141; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1547.001 - Boot or Logon Autostart Execution: Registry Run Keys
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN Registry Run Key Persistence via Remote Management"; flow:established,to_server; content:"Software\\Microsoft\\Windows\\CurrentVersion\\Run"; http_client_body; nocase; classtype:trojan-activity; sid:4000142; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1056.001 - Input Capture: Keylogging
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN Keylogger Data Exfiltration Pattern via HTTP POST"; flow:established,to_server; content:"POST"; http_method; content:"keystroke"; http_client_body; nocase; content:"window_title"; http_client_body; nocase; content:"timestamp"; http_client_body; classtype:trojan-activity; sid:4000143; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1199 - Trusted Relationship
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Trusted SaaS Application OAuth Token Abuse Pattern"; flow:established,to_server; content:"/oauth2/token"; http_uri; content:"grant_type=refresh_token"; http_client_body; nocase; threshold:type both, track by_src, count 20, seconds 300; classtype:attempted-admin; sid:4000144; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1550 - Use Alternate Authentication Material
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Kerberos Ticket Pass-the-Ticket via HTTP"; flow:established,to_server; content:"Authorization"; http_header; content:"Negotiate"; http_header; pcre:"/^YI[a-zA-Z0-9+/=]{100,}/"; classtype:attempted-admin; sid:4000145; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1021 - Remote Services
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Suspicious WinRM Remote Command Execution via HTTP"; flow:established,to_server; content:"/wsman"; http_uri; content:"Create"; http_client_body; nocase; content:"CommandLine"; http_client_body; nocase; classtype:attempted-admin; sid:4000146; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1068 - Exploitation for Privilege Escalation
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Linux Kernel io_uring Privilege Escalation Exploit Pattern"; flow:established,to_server; content:"io_uring"; http_client_body; nocase; content:"SQSET"; http_client_body; content:"CAP_DAC_OVERRIDE"; http_client_body; classtype:attempted-admin; sid:4000147; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1210 - Exploitation of Remote Services
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT Exchange Server ProxyShell Exploit Chain Detection"; flow:established,to_server; content:"/powershell"; http_uri; content:"autodiscover"; http_uri; nocase; content:"X-BEResource"; http_header; classtype:attempted-admin; sid:4000148; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Exchange Server ProxyLogon SSRF to RCE Pattern"; flow:established,to_server; content:"/owa/auth/logon.aspx"; http_uri; content:"X-BEResource"; http_header; content:"Cookie"; http_header; classtype:attempted-admin; sid:4000149; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1195 - Supply Chain Compromise
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN Suspicious NPM Package Install with Post-Install Script Execution"; flow:established,to_server; content:"registry.npmjs.org"; http_host; content:"postinstall"; http_client_body; nocase; content:"curl"; http_client_body; nocase; classtype:trojan-activity; sid:4000150; rev:1;)
+
+alert http any any -> any any (msg:"ET TROJAN Suspicious PyPI Package Download with Setup.py Remote Code Fetch"; flow:established,to_server; content:"pypi.org"; http_host; content:"setup.py"; http_client_body; nocase; content:"urllib.request"; http_client_body; nocase; classtype:trojan-activity; sid:4000151; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1134 - Access Token Manipulation
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT AWS STS AssumeRole Token Manipulation for Privilege Escalation"; flow:established,to_server; content:"sts.amazonaws.com"; http_host; content:"AssumeRole"; http_uri; nocase; content:"Action"; http_client_body; nocase; classtype:attempted-admin; sid:4000152; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1537 - Transfer Data to Cloud Account
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN Suspicious Large Data Transfer to Cloud Storage via S3 API"; flow:established,to_server; content:"s3.amazonaws.com"; http_host; content:"PUT"; http_method; content:"Content-Length"; http_header; pcre:"/Content-Length:\s*[0-9]{8,}/"; classtype:trojan-activity; sid:4000153; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1059.004 - Command and Scripting Interpreter: Unix Shell
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN Linux Reverse Shell Pattern via HTTP"; flow:established,to_server; content:"/bin/bash"; http_client_body; nocase; content:"/dev/tcp/"; http_client_body; nocase; classtype:trojan-activity; sid:4000154; rev:1;)
+
+alert http any any -> any any (msg:"ET TROJAN Linux Chmod and Execute Pattern via HTTP"; flow:established,to_server; content:"chmod"; http_client_body; nocase; content:"+x"; http_client_body; content:"/tmp/"; http_client_body; nocase; classtype:trojan-activity; sid:4000155; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1498 - Network Denial of Service
+# ============================================================
+alert http any any -> any any (msg:"ET DOS HTTP Flood Attack Pattern Rapid Request Rate"; flow:established,to_server; content:"GET"; http_method; threshold:type both, track by_src, count 500, seconds 10; classtype:attempted-dos; sid:4000156; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1136 - Create Account
+# ============================================================
+alert http any any -> any any (msg:"ET ATTEMPT_ADMIN Suspicious Cloud Account Creation via Admin API"; flow:established,to_server; content:"/admin/directory/v1/users"; http_uri; content:"POST"; http_method; content:"primaryEmail"; http_client_body; nocase; classtype:attempted-admin; sid:4000157; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1070.006 - Indicator Removal: Timestomp
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN File Timestomp Pattern via Remote Execution"; flow:established,to_server; content:"touch"; http_client_body; nocase; content:"-t"; http_client_body; content:"-r"; http_client_body; classtype:trojan-activity; sid:4000158; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1621 - Multi-Factor Authentication Request Generation
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT MFA Fatigue Attack Rapid Push Notification Pattern"; flow:established,to_server; content:"/mfa/challenge"; http_uri; content:"push"; http_client_body; nocase; threshold:type both, track by_src, count 10, seconds 60; classtype:attempted-admin; sid:4000159; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1556 - Modify Authentication Process
+# ============================================================
+alert http any any -> any any (msg:"ET EXPLOIT OAuth Token Replay Attack Pattern"; flow:established,to_server; content:"/oauth2/token"; http_uri; content:"grant_type=authorization_code"; http_client_body; threshold:type both, track by_src, count 5, seconds 120; classtype:attempted-admin; sid:4000160; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1110.003 - Brute Force: Password Spraying
+# ============================================================
+alert http any any -> any any (msg:"ET ATTEMPT_BRUTE_FORCE SSH Password Spraying via Web-based Terminal"; flow:established,to_server; content:"/api/terminal"; http_uri; content:"ssh"; http_client_body; nocase; threshold:type both, track by_src, count 10, seconds 300; classtype:attempted-admin; sid:4000161; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1098 - Account Manipulation
+# ============================================================
+alert http any any -> any any (msg:"ET ATTEMPT_ADMIN Cloud Admin Role Elevation via API"; flow:established,to_server; content:"/api/v1/users"; http_uri; content:"PATCH"; http_method; content:"role"; http_client_body; nocase; content:"admin"; http_client_body; nocase; classtype:attempted-admin; sid:4000162; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1071.004 - Application Layer Protocol: DNS
+# ============================================================
+alert dns any any -> any any (msg:"ET TROJAN DNS TXT Record Large Response Data Exfiltration"; dns.query; content:""; threshold:type both, track by_src, count 1, seconds 60; dns.answer; content:""; pcre:"/[a-zA-Z0-9+/=]{80,}/"; classtype:trojan-activity; sid:4000163; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1602 - Data from Configuration Repository
+# ============================================================
+alert http any any -> any any (msg:"ET RECON Cloud Configuration Data Exfiltration via Metadata Service"; flow:established,to_server; content:"169.254.169.254"; http_host; content:"/latest/meta-data/"; http_uri; classtype:attempted-recon; sid:4000164; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK: T1083 - File and Directory Discovery
+# ============================================================
+alert http any any -> any any (msg:"ET RECON Recursive Directory Listing via Web Shell"; flow:established,to_server; content:"cmd.exe"; http_client_body; nocase; content:"dir"; http_client_body; content:"/s"; http_client_body; content:"/b"; http_client_body; classtype:attempted-recon; sid:4000165; rev:1;)
+
+# ============================================================
+# OWASP Top 10: A01 - Broken Access Control
+# ============================================================
+alert http any any -> any any (msg:"ET WEB_SERVER IDOR Mass Data Enumeration via Sequential ID Pattern"; flow:established,to_server; content:"/api/v1/users/"; http_uri; pcre:"/\/api\/v1\/users\/\d{1,5}$/"; threshold:type both, track by_src, count 50, seconds 60; classtype:attempted-recon; sid:4000166; rev:1;)
+
+alert http any any -> any any (msg:"ET WEB_SERVER Privilege Escalation via Role Manipulation in API Request"; flow:established,to_server; content:"PATCH"; http_method; content:"role"; http_client_body; nocase; content:"admin"; http_client_body; nocase; content:"user_id"; http_client_body; classtype:attempted-admin; sid:4000167; rev:1;)
+
+# ============================================================
+# OWASP Top 10: A02 - Cryptographic Failures
+# ============================================================
+alert http any any -> any any (msg:"ET CREDENTIAL Sensitive Data Transmission Over Unencrypted HTTP"; flow:established,to_server; content:"password"; http_client_body; nocase; content:"POST"; http_method; content:"http://"; http_header; nocase; classtype:credential-access; sid:4000168; rev:1;)
+
+# ============================================================
+# OWASP Top 10: A03 - Injection
+# ============================================================
+alert http any any -> any any (msg:"ET WEB_SERVER SQL Injection via UNION SELECT with Comment Obfuscation"; flow:established,to_server; content:"UNION"; http_uri; nocase; content:"SELECT"; http_uri; nocase; content:"--"; http_uri; pcre:"/UNION[\s\/\*]+SELECT/i"; classtype:web-application-attack; sid:4000169; rev:1;)
+
+alert http any any -> any any (msg:"ET WEB_SERVER NoSQL Injection via MongoDB Operator in Request"; flow:established,to_server; content:"$where"; http_client_body; nocase; content:"$gt"; http_client_body; nocase; content:"$ne"; http_client_body; nocase; classtype:web-application-attack; sid:4000170; rev:1;)
+
+alert http any any -> any any (msg:"ET WEB_SERVER LDAP Injection via Special Character Pattern"; flow:established,to_server; content:"("; http_uri; content:")"; http_uri; content:"|"; http_uri; content:"="; http_uri; classtype:web-application-attack; sid:4000171; rev:1;)
+
+# ============================================================
+# OWASP Top 10: A05 - Security Misconfiguration
+# ============================================================
+alert http any any -> any any (msg:"ET WEB_SERVER Debug Mode Exposure via Stack Trace in HTTP Response"; flow:established,to_client; content:"StackTrace"; http_body; nocase; content:"at "; http_body; content:".java"; http_body; classtype:web-application-activity; sid:4000172; rev:1;)
+
+alert http any any -> any any (msg:"ET WEB_SERVER Cloud Storage Bucket Public Access Exposure via HTTP"; flow:established,to_client; content:"ListBucketResult"; http_body; content:"s3.amazonaws.com"; http_body; classtype:web-application-activity; sid:4000173; rev:1;)
+
+# ============================================================
+# OWASP Top 10: A07 - Identification and Authentication Failures
+# ============================================================
+alert http any any -> any any (msg:"ET WEB_SERVER JWT Algorithm Confusion Attack (alg=none)"; flow:established,to_server; content:"Bearer"; http_header; content:"ey"; http_header; pcre:"/^Bearer ey[A-Za-z0-9_-]+\.ey[A-Za-z0-9_-]+\.$/"; classtype:web-application-attack; sid:4000174; rev:1;)
+
+# ============================================================
+# OWASP Top 10: A08 - Software and Data Integrity Failures
+# ============================================================
+alert http any any -> any any (msg:"ET TROJAN Software Update Interception via Untrusted CDN Pattern"; flow:established,to_server; content:"/update"; http_uri; content:"sha256"; http_client_body; nocase; content:"http://"; http_client_body; content:"download"; http_client_body; nocase; classtype:trojan-activity; sid:4000175; rev:1;)
