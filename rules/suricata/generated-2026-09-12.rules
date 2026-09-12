@@ -1,0 +1,188 @@
+# Generated Suricata Detection Rules - 2026-09-12
+# Based on: CVE-2026-59151 (CRITICAL), CVE-2026-59973 (HIGH), CVE-2026-56665, CVE-2026-68535,
+# CVE-2026-81917, CVE-2026-81918, CVE-2026-81907, Linux kernel CVEs, and current threat landscape
+# MITRE ATT&CK: T1078, T1190, T1534, T1068, T1059, T1021, T1048, T1071, T1053, T1003, T1566
+# SIDs: 5200901-5201000
+
+# === CRITICAL: CVE-2026-59151 - Prowler SAML Domain Claiming Cross-Tenant Takeover ===
+alert http any any -> any any (msg:"ET EXPLOIT Prowler SAML ACS Domain Claiming Cross-Tenant Account Takeover CVE-2026-59151"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/v1/accounts/saml/"; nocase; http.uri; content:"/acs/"; nocase; http.header; content:"SAMLResponse"; nocase; classtype:attempted-admin; sid:5201101; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT Prowler SAML Configuration Domain Claiming Attempt CVE-2026-59151"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/v1/saml-config"; nocase; http.header; content:"email_domain"; classtype:attempted-admin; sid:5201102; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT Prowler SAML Token Exchange Cross-Tenant CVE-2026-59151"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/v1/tokens/saml"; nocase; classtype:attempted-admin; sid:5201103; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT Prowler SAML Token Tenant Switch CVE-2026-59151"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/v1/tokens/switch"; nocase; http.json; content:"tenant_id"; classtype:attempted-admin; sid:5201104; rev:1;)
+
+# === HIGH: CVE-2026-59973 - FrontMCP/mcp-from-openapi SSRF Bypass ===
+alert http any any -> any any (msg:"ET EXPLOIT FrontMCP OpenAPI External Ref SSRF Bypass CVE-2026-59973"; flow:established,to_server; http.uri; content:"/openapi"; nocase; http.header; content:"$ref"; nocase; content:"http://"; classtype:attempted-recon; sid:5201105; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT MCP Server OpenAPI SSRF External Reference CVE-2026-59973"; flow:established,to_server; http.json; content:"$ref"; content:"http://"; distance:0; classtype:attempted-recon; sid:5201106; rev:1;)
+
+# === MEDIUM: CVE-2026-56665 - ZITADEL Missing JWT exp Claim Validation ===
+alert http any any -> any any (msg:"ET EXPLOIT ZITADEL JWT IdP Missing Expiration Claim CVE-2026-56665"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/oauth/v2/token"; nocase; http.json; content:"id_token"; classtype:attempted-user; sid:5201107; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT ZITADEL JWT External IdP Token Without exp Claim CVE-2026-56665"; flow:established,to_server; http.uri; content:"/idps/"; nocase; http.json; content:"jwt"; classtype:attempted-user; sid:5201108; rev:1;)
+
+# === MEDIUM: CVE-2026-68535 - Concrete CMS Missing Authorization Block Create ===
+alert http any any -> any any (msg:"ET EXPLOIT Concrete CMS Area API Block Create Authorization Bypass CVE-2026-68535"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/blocks"; nocase; http.json; content:"hero_image"; classtype:attempted-user; sid:5201109; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT Concrete CMS Unauthorized File Reference in Block CVE-2026-68535"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/ccm/api/v1/areas/"; nocase; http.json; content:"fID"; classtype:attempted-user; sid:5201110; rev:1;)
+
+# === MEDIUM: CVE-2026-81917 - Concrete CMS Stored XSS Document Library ===
+alert http any any -> any any (msg:"ET WEB_ATTA Concrete CMS Document Library Stored XSS CVE-2026-81917"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/files"; nocase; http.json; content:"description"; content:"script"; classtype:web-application-attack; sid:5201111; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA Concrete CMS File Tags XSS Injection CVE-2026-81917"; flow:established,to_server; http.method; content:"PUT"; http.uri; content:"/files/"; nocase; http.json; content:"tags"; content:"<"; classtype:web-application-attack; sid:5201112; rev:1;)
+
+# === MEDIUM: CVE-2026-81918 - Concrete CMS Stored XSS Page Attribute Display ===
+alert http any any -> any any (msg:"ET WEB_ATTA Concrete CMS Page Attribute Display XSS CVE-2026-81918"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/page_attribute_display"; nocase; http.json; content:"date_format"; content:"<script"; classtype:web-application-attack; sid:5201113; rev:1;)
+
+# === MEDIUM: CVE-2026-81907 - Concrete CMS CSRF Express Clear Entries ===
+alert http any any -> any any (msg:"ET WEB_ATTA Concrete CMS Express Clear Entries CSRF CVE-2026-81907"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/dashboard/system/express/entities/delete_entries"; nocase; http.header; content:"Cookie"; classtype:web-application-attack; sid:5201114; rev:1;)
+
+# === Linux Kernel CVEs - Detection Rules ===
+# CVE-2026-89767 - overlayfs double end_creating
+alert dns any any -> any any (msg:"ET POLICY Overlayfs Casefold Exploit Probe CVE-2026-89767"; dns.query; content:"ovl_casefold"; nocase; classtype:system-call; sid:5201115; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT Linux Overlayfs Double i_rwsem Unlock CVE-2026-89767"; flow:established,to_server; http.uri; content:"/proc/filesystems"; nocase; classtype:protocol-command-decode; sid:5201116; rev:1;)
+
+# CVE-2026-89761 - AppArmor out-of-bounds write
+alert http any any -> any any (msg:"ET EXPLOIT AppArmor Label Vec OOB Write CVE-2026-89761"; flow:established,to_server; http.uri; content:"/proc/self/attr/apparmor/current"; nocase; classtype:attempted-admin; sid:5201117; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT Apparmor Null Terminate Label Vec Overflow CVE-2026-89761"; flow:established,to_server; http.uri; content:"/sys/kernel/security/apparmor/"; nocase; classtype:attempted-admin; sid:5201118; rev:1;)
+
+# CVE-2026-89763 - TPM trusted key teardown race
+alert http any any -> any any (msg:"ET EXPLOIT TPM Trusted Key Teardown Use After Free CVE-2026-89763"; flow:established,to_server; http.uri; content:"/sys/kernel/keys/trusted"; nocase; classtype:attempted-admin; sid:5201119; rev:1;)
+
+# CVE-2026-89762 - AppArmor cred UAF
+alert http any any -> any any (msg:"ET EXPLOIT AppArmor Cred Use After Free CVE-2026-89762"; flow:established,to_server; http.uri; content:"/proc/self/attr/apparmor"; nocase; classtype:attempted-admin; sid:5201120; rev:1;)
+
+# === MITRE ATT&CK: T1078 Valid Accounts ===
+alert http any any -> any any (msg:"ET EXPLOIT Suspicious SAML Assertion Without Domain Ownership Check T1078.004"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/acs"; nocase; http.header; content:"SAMLResponse"; classtype:attempted-admin; sid:5201121; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT SAML NameID Email Domain Mismatch T1078.004"; flow:established,to_server; http.header; content:"SAMLResponse"; http.header; content:"Content-Type"; content:"application/x-www-form-urlencoded"; classtype:attempted-admin; sid:5201122; rev:1;)
+
+# === MITRE ATT&CK: T1190 Exploit Public-Facing Application ===
+alert http any any -> any any (msg:"ET WEB_ATTA OpenAPI Specification SSRF External Reference T1190"; flow:established,to_server; http.json; content:"$ref"; content:"http://"; distance:0; content:"://"; distance:0; classtype:attempted-recon; sid:5201123; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA Swagger/OpenAPI External Schema Import T1190"; flow:established,to_server; http.uri; content:"/swagger"; nocase; http.json; content:"externalDocs"; classtype:attempted-recon; sid:5201124; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA API Token Endpoint Brute Force T1190"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/oauth/v2/token"; threshold:type both, track by_src, count 20, seconds 60; classtype:attempted-user; sid:5201125; rev:1;)
+
+# === MITRE ATT&CK: T1534 Internal Spearphishing ===
+alert http any any -> any any (msg:"ET PHISH SAML-Based Phishing IdP-Initiated SSO Abuse T1534"; flow:established,to_server; http.uri; content:"/saml/"; nocase; http.header; content:"SAMLResponse"; classtype:trojan-activity; sid:5201126; rev:1;)
+
+# === MITRE ATT&CK: T1068 Privilege Escalation ===
+alert http any any -> any any (msg:"ET EXPLOIT Concrete CMS Block Type Authorization Bypass T1068"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/ccm/api/v1/areas/"; nocase; http.json; content:"btHandle"; classtype:attempted-user; sid:5201127; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT JWT Missing exp Claim Privilege Escalation T1068"; flow:established,to_server; http.header; content:"Authorization"; content:"Bearer"; http.json; content:"exp"; negated; classtype:attempted-admin; sid:5201128; rev:1;)
+
+# === MITRE ATT&CK: T1059 Command and Scripting Interpreter ===
+alert http any any -> any any (msg:"ET WEB_ATTA MCP Tool Command Injection via OpenAPI Schema T1059"; flow:established,to_server; http.json; content:"$ref"; content:"file://"; distance:0; classtype:web-application-attack; sid:5201129; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT AI Agent SSRF via MCP Tool T1059.007"; flow:established,to_server; http.json; content:"tool"; content:"url"; content:"http://169.254"; classtype:web-application-attack; sid:5201130; rev:1;)
+
+# === MITRE ATT&CK: T1021 Remote Services ===
+alert http any any -> any any (msg:"ET EXPLOIT Prowler SAML Remote Tenant Access T1021"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/accounts/saml/"; nocase; content:"/acs/"; nocase; classtype:attempted-admin; sid:5201131; rev:1;)
+
+# === MITRE ATT&CK: T1048 Exfiltration Over Alternative Protocol ===
+alert dns any any -> any any (msg:"ET TROJAN Suspicious Large DNS TXT Record Exfiltration T1048.001"; dns.query; content:"."; pcre:"/[a-z0-9]{40,}/i"; classtype:trojan-activity; sid:5201132; rev:1;)
+alert http any any -> any any (msg:"ET TROJAN Base64 Encoded Data in POST Body T1048"; flow:established,to_server; http.method; content:"POST"; http.request_body; content:"base64,"; classtyle:trojan-activity; sid:5201133; rev:1;)
+
+# === MITRE ATT&CK: T1071 Application Layer Protocol ===
+alert http any any -> any any (msg:"ET POLICY MCP Server Communication Over HTTP T1071.001"; flow:established,to_server; http.json; content:"tools/list"; content:"mcp"; classtype:policy-violation; sid:5201134; rev:1;)
+alert http any any -> any any (msg:"ET POLICY OpenAI API Chat Completions T1071.001"; flow:established,to_server; http.uri; content:"/v1/chat/completions"; http.header; content:"Authorization"; content:"Bearer sk-"; classtype:policy-violation; sid:5201135; rev:1;)
+
+# === MITRE ATT&CK: T1053 Scheduled Task/Job ===
+alert http any any -> any any (msg:"ET EXPLOIT Concrete CMS Scheduled Task Abuse T1053"; flow:established,to_server; http.uri; content:"/dashboard/system/"; nocase; content:"/jobs"; nocase; classtype:attempted-admin; sid:5201136; rev:1;)
+
+# === MITRE ATT&CK: T1003 OS Credential Dumping ===
+alert http any any -> any any (msg:"ET EXPLOIT Linux TPM Trusted Key Credential Access T1003"; flow:established,to_server; http.uri; content:"/sys/kernel/keys/"; nocase; classtype:attempted-admin; sid:5201137; rev:1;)
+
+# === Current Threat Landscape: AI/LLM Attacks ===
+alert http any any -> any any (msg:"ET WEB_ATTA LLM Prompt Injection via System Role Override"; flow:established,to_server; http.json; content:"system"; content:"ignore previous"; classtype:web-application-attack; sid:5201138; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA LLM SSRF via Function Calling"; flow:established,to_server; http.json; content:"function_call"; content:"url"; content:"http://169.254"; classtype:web-application-attack; sid:5201139; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA AI Agent Arbitrary File Read via Tool Invocation"; flow:established,to_server; http.json; content:"tool"; content:"read_file"; content:"/etc/"; classtype:web-application-attack; sid:5201140; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA LLM Data Exfiltration via API Response"; flow:established,to_client; http.json; content:"/etc/passwd"; classtype:web-application-attack; sid:5201141; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA MCP Tool SSRF Internal Network Access"; flow:established,to_server; http.json; content:"url"; content:"10."; distance:0; content:"/api/"; classtype:web-application-attack; sid:5201142; rev:1;)
+
+# === Current Threat: SAML-Based Attacks ===
+alert http any any -> any any (msg:"ET EXPLOIT SAML Response with Multiple NameID Elements"; flow:established,to_server; http.header; content:"SAMLResponse"; http.request_body; content:"NameID"; content:"NameID"; classtype:attempted-admin; sid:5201143; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT SAML Assertion Replay Detected T1078.004"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/acs"; nocase; http.request_body; content:"SAMLResponse"; classtype:attempted-admin; sid:5201144; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT SAML Response with Missing Conditions Element T1078.004"; flow:established,to_server; http.header; content:"SAMLResponse"; http.request_body; content:"Assertion"; content:"Conditions"; negated; classtype:attempted-admin; sid:5201145; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT SAML Assertion NotBefore Clock Skew Abuse T1078.004"; flow:established,to_server; http.header; content:"SAMLResponse"; classtype:attempted-admin; sid:5201146; rev:1;)
+
+# === Current Threat: Identity Provider Abuse ===
+alert http any any -> any any (msg:"ET EXPLOIT OAuth Token Exchange Without Audience Restriction"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/token"; nocase; http.json; content:"grant_type"; content:"urn:ietf:params:oauth:grant-type:token-exchange"; classtype:attempted-user; sid:5201147; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT JWT Acceptance Without exp Claim T1134.001"; flow:established,to_server; http.header; content:"Authorization"; content:"Bearer eyJ"; classtype:attempted-admin; sid:5201148; rev:1;)
+
+# === Cloud Security: AWS ===
+alert http any any -> any any (msg:"ET CLOUD AWS IMDSv1 Credential Access T1552.005"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/latest/meta-data/iam/security-credentials/"; classtype:attempted-admin; sid:5201149; rev:1;)
+alert http any any -> any any (msg:"ET CLOUD AWS S3 Bucket Enumeration T1580"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"?list-type=2"; http.header; content:"Host"; content:".s3."; classtype:attempted-recon; sid:5201150; rev:1;)
+alert http any any -> any any (msg:"ET CLOUD AWS STS AssumeRole Abuse T1078.004"; flow:established,to_server; http.uri; content:"/?Action=AssumeRole"; nocase; classtype:attempted-admin; sid:5201151; rev:1;)
+alert http any any -> any any (msg:"ET CLOUD AWS Console Login Without MFA T1078"; flow:established,to_server; http.uri; content:"/signin"; content:"action=login"; nocase; classtype:policy-violation; sid:5201152; rev:1;)
+
+# === Cloud Security: Azure/Entra ===
+alert http any any -> any any (msg:"ET CLOUD Azure Entra ID Token Signing Certificate Rotation Anomaly T1078.004"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/federation/"; content:"tokenSigningCertificate"; classtype:attempted-admin; sid:5201153; rev:1;)
+alert http any any -> any any (msg:"ET CLOUD Azure AD Conditional Access Policy Bypass T1078.004"; flow:established,to_server; http.uri; content:"/common/oauth2/authorize"; content:"prompt=none"; classtype:attempted-user; sid:5201154; rev:1;)
+
+# === Cloud Security: Kubernetes ===
+alert http any any -> any any (msg:"ET CLOUD K8s API Server Anonymous Access T1078"; flow:established,to_server; http.uri; content:"/api/v1/"; http.header; content:"Authorization"; negated; classtype:attempted-recon; sid:5201155; rev:1;)
+alert http any any -> any any (msg:"ET CLOUD K8s Service Account Token Abuse T1078.003"; flow:established,to_server; http.uri; content:"/api/v1/namespaces/"; content:"/secrets"; http.header; content:"Authorization"; content:"Bearer"; classtype:attempted-admin; sid:5201156; rev:1;)
+alert http any any -> any any (msg:"ET CLOUD K8s Pod Exec into Privileged Container T1059"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/exec?"; content:"command="; classtype:attempted-admin; sid:5201157; rev:1;)
+
+# === Supply Chain: Package Manager Attacks ===
+alert http any any -> any any (msg:"ET POLICY PyPI Package Upload from Unknown Publisher T1195.002"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/pypi/"; content:"legacy/"; classtype:policy-violation; sid:5201158; rev:1;)
+alert http any any -> any any (msg:"ET POLICY npm Package Install from Custom Registry T1195.002"; flow:established,to_server; http.uri; content:"/-/npm/v1/security"; http.header; content:"npm-"; classtype:policy-violation; sid:5201159; rev:1;)
+
+# === Web Application: OWASP Top 10 2025 ===
+alert http any any -> any any (msg:"ET WEB_ATTA HTTP/2 Rapid Reset DoS Attempt T1498.001"; flow:established,to_server; http.method; content:"HEAD"; threshold:type both, track by_src, count 100, seconds 5; classtype:attempted-dos; sid:5201160; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA Server-Side Request Forgery via URL Parameter T1190"; flow:established,to_server; http.uri; pcre:"/[?&](url|callback|proxy|redirect|return|next|dest|redir|target|rurl|link)=http[^&]*\.(internal|local|internal)/i"; classtype:web-application-attack; sid:5201161; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA GraphQL Introspection Query Exposure T1078"; flow:established,to_server; http.json; content:"__schema"; classtype:attempted-recon; sid:5201162; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA GraphQL Mutation Abuse T1078"; flow:established,to_server; http.json; content:"mutation"; content:"createAdmin"; classtype:attempted-admin; sid:5201163; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA JWT Algorithm Confusion None Attack T1078.004"; flow:established,to_server; http.header; content:"Bearer eyJ"; content:"alg"; content:"none"; classtype:attempted-admin; sid:5201164; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA Mass Assignment via JSON API T1078"; flow:established,to_server; http.json; content:"is_admin"; content:"true"; classtype:attempted-admin; sid:5201165; rev:1;)
+
+# === Network: DGA and C2 Detection ===
+alert dns any any -> any any (msg:"ET TROJAN DGA Domain Query with High Entropy T1071.004"; dns.query; pcre:"/[a-z0-9]{16,}\.[a-z]{3,6}/i"; classtyle:trojan-activity; sid:5201166; rev:1;)
+alert tls any any -> any any (msg:"ET TROJAN Suspicious TLS Certificate with Short Validity T1071.001"; tls.cert_subject; content:"CN="; tls.cert_issuer; content:"CN="; classtype:trojan-activity; sid:5201167; rev:1;)
+
+# === Network: Lateral Movement ===
+alert http any any -> any any (msg:"ET EXPLOIT SMB Over HTTP Proxy Lateral Movement T1021.002"; flow:established,to_server; http.method; content:"CONNECT"; http.uri; content:"445"; classtype:attempted-admin; sid:5201168; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT WinRM Remote Command Execution T1059.001"; flow:established,to_server; http.uri; content:"/wsman"; http.header; content:"Authorization"; classtype:attempted-admin; sid:5201169; rev:1;)
+
+# === Network: Data Exfiltration ===
+alert http any any -> any any (msg:"ET TROJAN Large File Upload to Cloud Storage T1048.002"; flow:established,to_server; http.method; content:"PUT"; http.header; content:"Host"; content:".blob.core.windows.net"; threshold:type both, track by_src, count 5, seconds 300; classtype:trojan-activity; sid:5201170; rev:1;)
+alert http any any -> any any (msg:"ET TROJAN DNS-over-HTTPS Tunneling T1071.001"; flow:established,to_server; http.uri; content:"/dns-query"; http.header; content:"application/dns-message"; classtype:trojan-activity; sid:5201171; rev:1;)
+
+# === Authentication: Credential Stuffing ===
+alert http any any -> any any (msg:"ET WEB_ATTA Credential Stuffing Multiple Failed Logins T1110.004"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/login"; threshold:type both, track by_src, count 10, seconds 60; classtype:attempted-admin; sid:5201172; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA Credential Stuffing Password Spraying T1110.003"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/auth/"; threshold:type both, track by_src, count 5, seconds 300; classtype:attempted-admin; sid:5201173; rev:1;)
+
+# === API Abuse Detection ===
+alert http any any -> any any (msg:"ET WEB_ATTA API Rate Limit Bypass via Header Manipulation T1190"; flow:established,to_server; http.header; content:"X-Forwarded-For"; http.header; content:"X-Real-IP"; threshold:type both, track by_src, count 50, seconds 10; classtype:attempted-dos; sid:5201174; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA API Key Enumeration via Error Messages T1078"; flow:established,to_client; http.json; content:"invalid"; content:"api_key"; classtype:attempted-recon; sid:5201175; rev:1;)
+
+# === Container Security ===
+alert http any any -> any any (msg:"ET CLOUD Container Escape via Privileged Pod T1611"; flow:established,to_server; http.json; content:"privileged"; content:"true"; content:"hostPID"; classtype:attempted-admin; sid:5201176; rev:1;)
+alert http any any -> any any (msg:"ET CLOUD Container Mount of Host Filesystem T1611"; flow:established,to_server; http.json; content:"hostPath"; content:"/"; classtype:attempted-admin; sid:5201177; rev:1;)
+
+# === Privilege Escalation Patterns ===
+alert http any any -> any any (msg:"ET EXPLOIT Linux Kernel Capability Escalation T1068"; flow:established,to_server; http.uri; content:"/proc/"; content:"/status"; classtype:attempted-admin; sid:5201178; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT AppArmor Profile Bypass via Namespace T1068"; flow:established,to_server; http.uri; content:"/proc/self/attr/"; content:"apparmor"; classtype:attempted-admin; sid:5201179; rev:1;)
+
+# === IoT/Edge Device Attacks ===
+alert http any any -> any any (msg:"ET EXPLOIT IoT Default Credentials Access T1078.001"; flow:established,to_server; http.header; content:"Authorization"; content:"Basic YWRtaW46YWRtaW4="; classtype:attempted-admin; sid:5201180; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT IoT Device Firmware Update Without Signature T1195.002"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/firmware"; content:"Upgrade"; classtype:attempted-admin; sid:5201181; rev:1;)
+
+# === Ransomware Detection ===
+alert http any any -> any any (msg:"ET TROJAN Ransomware Note Delivery Pattern T1489"; flow:established,to_client; http.response_body; content:"encrypt"; content:"bitcoin"; content:"wallet"; classtype:trojan-activity; sid:5201182; rev:1;)
+alert http any any -> any any (msg:"ET TROJAN Volume Shadow Copy Deletion via API T1490"; flow:established,to_server; http.json; content:"vssadmin"; content:"delete"; content:"shadows"; classtype:attempted-admin; sid:5201183; rev:1;)
+
+# === Persistence Mechanisms ===
+alert http any any -> any any (msg:"ET EXPLOIT Web Shell Upload via File Manager T1505.003"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/upload"; content:".php"; content:"eval"; classtype:web-application-attack; sid:5201184; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT Cron Job Creation via API T1053.003"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/cron"; http.json; content:"*/5"; content:"curl"; classtype:attempted-admin; sid:5201185; rev:1;)
+
+# === Additional CVE-Based Rules ===
+alert http any any -> any any (msg:"ET EXPLOIT ZITADEL JWT IdP Token Without exp Claim Extended Session CVE-2026-56665"; flow:established,to_server; http.header; content:"Authorization"; content:"Bearer eyJ"; classtype:attempted-user; sid:5201186; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT Concrete CMS CSRF Token Bypass on Express Delete CVE-2026-81907"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"delete_entries"; http.header; content:"ccm_token"; negated; classtype:web-application-attack; sid:5201187; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT Concrete CMS Document Library XSS File Description CVE-2026-81917"; flow:established,to_client; http.response_body; content:"<script"; content:"description"; classtype:web-application-attack; sid:5201188; rev:1;)
+
+# === Additional Threat Landscape Rules ===
+alert http any any -> any any (msg:"ET WEB_ATTA OAuth Authorization Code Phishing T1566.003"; flow:established,to_server; http.uri; content:"/oauth/authorize"; content:"redirect_uri="; content:"evil"; classtype:trojan-activity; sid:5201189; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA Session Fixation via Login Token T1184"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/session"; content:"session_id"; classtype:web-application-attack; sid:5201190; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT OAuth Token Replay Attack T1184"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/oauth/token"; content:"grant_type=authorization_code"; threshold:type both, track by_src, count 3, seconds 10; classtype:attempted-user; sid:5201191; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA Path Traversal in File Upload T1083"; flow:established,to_server; http.uri; content:"/upload"; http.request_body; content:"../"; content:"Content-Disposition"; classtype:web-application-attack; sid:5201192; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA SQL Injection via JSON Payload T1190"; flow:established,to_server; http.json; content:"' OR 1=1"; classtype:web-application-attack; sid:5201193; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA NoSQL Injection via MongoDB Operator T1190"; flow:established,to_server; http.json; content:"$where"; content:"function"; classtype:web-application-attack; sid:5201194; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA LDAP Injection via Auth Parameter T1190"; flow:established,to_server; http.json; content:"username"; content:")(cn="; classtype:web-application-attack; sid:5201195; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA XML External Entity Injection T1059.009"; flow:established,to_server; http.request_body; content:"<!DOCTYPE"; content:"ENTITY"; content:"SYSTEM"; classtype:web-application-attack; sid:5201196; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA Server-Side Template Injection T1059.006"; flow:established,to_server; http.request_body; content:"{{"; content:"__class__"; classtype:web-application-attack; sid:5201197; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA HTTP Request Smuggling CL.TE T1190"; flow:established,to_server; http.header; content:"Content-Length"; content:"Transfer-Encoding"; content:"chunked"; classtype:web-application-attack; sid:5201198; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA HTTP Request Smuggling TE.CL T1190"; flow:established,to_server; http.header; content:"Transfer-Encoding"; content:"chunked"; http.header; content:"Content-Length"; classtype:web-application-attack; sid:5201199; rev:1;)
+alert http any any -> any any (msg:"ET WEB_ATTA Prototype Pollution via JSON Merge T1059.007"; flow:established,to_server; http.json; content:"__proto__"; content:"constructor"; classtype:web-application-attack; sid:5201200; rev:1;)

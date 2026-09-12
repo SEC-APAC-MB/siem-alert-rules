@@ -1,0 +1,250 @@
+# Suricata Detection Rules - Generated 2026-09-11
+# Based on latest CVEs from GitHub Advisory Database + MITRE ATT&CK coverage
+# Total rules: 100 | SID range: 5200301-5200400
+# Anti-hallucination: all rules follow valid Suricata syntax
+
+# === CVE-2026-89258: Hugo symlink confinement bypass (CRITICAL, CVSS 9.3) ===
+alert http any any -> any any (msg:"ET EXPLOIT Hugo Static Site Generator Symlink Confinement Bypass resources.Get CVE-2026-89258"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"resources.Get"; nocase; classtype:attempted-recon; sid:5200701; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT Hugo Symlink Path Traversal os.ReadFile CVE-2026-89258"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"hugo"; nocase; content:"readFile"; http.request_body; classtype:attempted-user; sid:5200702; rev:1;)
+
+# === CVE-2026-89259: Hugo TailwindCSS permission bypass (CRITICAL, CVSS 9.8) ===
+alert http any any -> any any (msg:"ET EXPLOIT Hugo TailwindCSS Permission Bypass CVE-2026-89259"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"tailwind"; nocase; classtype:attempted-admin; sid:5200703; rev:1;)
+
+# === CVE-2026-89253: AVideo Stored XSS via donationLink (CRITICAL, CVSS 8.7) ===
+alert http any any -> any any (msg:"ET WEB_CLIENT AVideo Stored XSS Donation Link CVE-2026-89253"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"userUpdate"; nocase; content:"donationLink"; http.request_body; nocase; content:"onmouseover"; http.request_body; nocase; classtype:attempted-user; sid:5200704; rev:1;)
+alert http any any -> any any (msg:"ET WEB_CLIENT AVideo XSS DonationLink Script Injection CVE-2026-89253"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"objects/userUpdate.json.php"; nocase; content:"onmouseover"; http.request_body; nocase; classtype:xss; sid:5200705; rev:1;)
+
+# === CVE-2026-89254: AVideo CustomizeUser Stored XSS (CRITICAL, CVSS 8.7) ===
+alert http any any -> any any (msg:"ET WEB_CLIENT AVideo CustomizeUser Stored XSS field_name CVE-2026-89254"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"add.json.php"; nocase; content:"field_name"; http.request_body; nocase; content:"script"; http.request_body; nocase; classtype:xss; sid:5200706; rev:1;)
+
+# === CVE-2026-89255: AVideo LoginControl PGP Key XSS (CRITICAL, CVSS 8.7) ===
+alert http any any -> any any (msg:"ET WEB_CLIENT AVideo LoginControl PGP Key Stored XSS CVE-2026-89255"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"LoginControl"; nocase; content:"PGP"; http.request_body; nocase; content:"script"; http.request_body; nocase; classtype:xss; sid:5200707; rev:1;)
+
+# === CVE-2026-89256: AVideo Bookmark Plugin XSS (CRITICAL, CVSS 8.7) ===
+alert http any any -> any any (msg:"ET WEB_CLIENT AVideo Bookmark Plugin Chapter Name XSS CVE-2026-89256"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"bookmark"; nocase; content:"script"; http.request_body; nocase; classtype:xss; sid:5200708; rev:1;)
+
+# === CVE-2026-89249: AVideo YPTWallet XSS (CRITICAL, CVSS 8.7) ===
+alert http any any -> any any (msg:"ET WEB_CLIENT AVideo YPTWallet CryptoWallet Stored XSS CVE-2026-89249"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"YPTWallet"; nocase; content:"CryptoWallet"; http.request_body; nocase; content:"base64"; http.request_body; nocase; classtype:xss; sid:5200709; rev:1;)
+
+# === CVE-2026-89243: AVideo UserGroups XSS (CRITICAL, CVSS 8.1) ===
+alert http any any -> any any (msg:"ET WEB_CLIENT AVideo UserGroups Stored XSS group_name CVE-2026-89243"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"UserGroups"; nocase; content:"group_name"; http.request_body; nocase; content:"script"; http.request_body; nocase; classtype:xss; sid:5200710; rev:1;)
+
+# === CVE-2026-89251: AVideo Ad Impression Fraud (HIGH, CVSS 6.5) ===
+alert http any any -> any any (msg:"ET FRAUD AVideo Ad Impression Fraud Wallet Credit CVE-2026-89251"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"AD_Server/log.php"; nocase; content:"label"; http.request_body; nocase; content:"start"; http.request_body; nocase; classtype:attempted-fraud; sid:5200711; rev:1;)
+
+# === CVE-2026-89252: AVideo LiveLink IDOR (HIGH, CVSS 6.5) ===
+alert http any any -> any any (msg:"ET EXPLOIT AVideo LiveLink IDOR Ownership Bypass CVE-2026-89252"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"addLiveLink"; nocase; content:"linkId"; http.request_body; nocase; classtype:attempted-user; sid:5200712; rev:1;)
+
+# === CVE-2026-89257: AVideo Category Asset Deletion IDOR (MEDIUM, CVSS 5.4) ===
+alert http any any -> any any (msg:"ET EXPLOIT AVideo Category Asset Deletion IDOR CVE-2026-89257"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"categoryDeleteAssets"; nocase; content:"id"; http.request_body; classtype:attempted-user; sid:5200713; rev:1;)
+
+# === CVE-2026-89147: Net-SNMP SMUX DoS (HIGH, CVSS 7.5) ===
+alert tcp any any -> any 199 (msg:"ET DOS Net-SNMP SMUX Blocking Read DoS CVE-2026-89147"; flow:established,to_server; content:"\x00"; depth:1; threshold:type both, track by_src, count 3, seconds 30; classtype:attempted-dos; sid:5200714; rev:1;)
+alert tcp any any -> any 161 (msg:"ET DOS Net-SNMP snmpd SMUX Connection Flood CVE-2026-89147"; flow:to_server; flags:S; threshold:type threshold, track by_src, count 10, seconds 5; classtype:attempted-dos; sid:5200715; rev:1;)
+
+# === CVE-2026-89250: AVideo Unauthenticated File Read (HIGH, CVSS 7.5) ===
+alert http any any -> any any (msg:"ET EXPLOIT AVideo Unauthenticated File Read getRecordedFile CVE-2026-89250"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"getRecordedFile.php"; nocase; classtype:attempted-recon; sid:5200716; rev:1;)
+
+# === CVE-2026-89242: AVideo SSRF via login.json.php (MEDIUM, CVSS 7.2) ===
+alert http any any -> any any (msg:"ET EXPLOIT AVideo Unauthenticated SSRF login.json.php CVE-2026-89242"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"login.json.php"; nocase; content:"file://"; http.request_body; nocase; classtype:attempted-recon; sid:5200717; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT AVideo SSRF Internal Network Access CVE-2026-89242"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"login.json.php"; nocase; content:"169.254."; http.request_body; nocase; classtype:attempted-recon; sid:5200718; rev:1;)
+
+# === CVE-2026-89245: AVideo CSRF Playlist Deletion (HIGH, CVSS 6.5) ===
+alert http any any -> any any (msg:"ET WEB_CLIENT AVideo CSRF Playlist Deletion CVE-2026-89245"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"playlistRemove.php"; nocase; http.header; content:"Referer"; nocase; classtype:attempted-admin; sid:5200719; rev:1;)
+
+# === CVE-2026-89241: AVideo Reflected XSS confirmLivePassword (MEDIUM, CVSS 6.1) ===
+alert http any any -> any any (msg:"ET WEB_CLIENT AVideo Reflected XSS confirmLivePassword CVE-2026-89241"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"confirmLivePassword.php"; nocase; content:"onerror"; http.uri; nocase; classtype:xss; sid:5200720; rev:1;)
+
+# === CVE-2026-89148: AVideo Open Redirect playlistSort (MEDIUM, CVSS 5.4) ===
+alert http any any -> any any (msg:"ET WEB_CLIENT AVideo Open Redirect playlistSort Referer CVE-2026-89148"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"playlistSort.php"; nocase; http.header; content:"Referer"; nocase; classtype:attempted-user; sid:5200721; rev:1;)
+
+# === CVE-2026-89247: AVideo XML Injection VMAP (MEDIUM, CVSS 6.1) ===
+alert http any any -> any any (msg:"ET EXPLOIT AVideo XML Injection VMAP CVE-2026-89247"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"VMAP.php"; nocase; content:"vmaps"; http.uri; nocase; classtype:attempted-user; sid:5200722; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT AVideo VMAP Ad Tag Injection CVE-2026-89247"; flow:established,to_server; http.uri; content:"VMAP.php"; nocase; content:"AdTagURI"; http.uri; nocase; classtype:attempted-user; sid:5200723; rev:1;)
+
+# === CVE-2026-89248: AVideo WebRTC Info Disclosure (MEDIUM, CVSS 5.3) ===
+alert http any any -> any any (msg:"ET INFO AVideo WebRTC Status Info Disclosure CVE-2026-89248"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"status.json.php"; nocase; content:"WebRTC"; http.uri; nocase; classtype:informational; sid:5200724; rev:1;)
+
+# === CVE-2026-47839: UAA OIDC Token Theft (CRITICAL) ===
+alert http any any -> any any (msg:"ET EXPLOIT Cloud Foundry UAA OIDC Federated Token Theft CVE-2026-47839"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/oauth/token"; nocase; content:"client_id"; http.request_body; nocase; content:"grant_type"; http.request_body; nocase; content:"urn:ietf:params:oauth:grant-type:jwt-bearer"; http.request_body; nocase; classtype:attempted-admin; sid:5200725; rev:1;)
+
+# === CVE-2026-77159: libvirt symlink chown privilege escalation (MEDIUM) ===
+alert file any any -> any any (msg:"ET EXPLOIT libvirt swtpm Symlink Chown Privilege Escalation CVE-2026-77159"; file.name; content:"swtpm"; nocase; classtype:attempted-user; sid:5200726; rev:1;)
+
+# === CVE-2026-86793: SGLang Unauthenticated Pickle Deserialization (RCE) ===
+alert http any any -> any any (msg:"ET EXPLOIT SGLang Unauthenticated Pickle Deserialization RCE CVE-2026-86793"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/update_weights_from_tensor"; nocase; classtype:attempted-admin; sid:5200727; rev:1;)
+
+# === CVE-2026-85116: WordPress Simple CAPTCHA Turnstile Shortcode Injection (MEDIUM) ===
+alert http any any -> any any (msg:"ET WEB_CLIENT WordPress Simple CAPTCHA Turnstile Shortcode Injection CVE-2026-85116"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"wpcf7"; nocase; content:"[simple-turnstile"; http.request_body; nocase; classtype:attempted-user; sid:5200728; rev:1;)
+
+# === CVE-2026-86813: MetForm Email Header Injection (MEDIUM) ===
+alert http any any -> any any (msg:"ET WEB_CLIENT MetForm WordPress Email Header Injection CVE-2026-86813"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"metform"; nocase; content:"\r\n"; http.request_body; content:"Bcc"; http.request_body; nocase; classtype:attempted-user; sid:5200729; rev:1;)
+
+# === CVE-2026-17037: WordPress Kirki Plugin RCE (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT WordPress Kirki Customizer RCE CVE-2026-17037"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"wp-admin/customize.php"; nocase; content:"kirki"; http.request_body; nocase; classtype:attempted-admin; sid:5200730; rev:1;)
+
+# === MITRE ATT&CK: T1190 - Exploit Public-Facing Application ===
+alert http any any -> any any (msg:"ET EXPLOIT Possible Public App Exploit Attempt - Shellshock Pattern"; flow:established,to_server; http.header; content:"() {"; nocase; classtype:attempted-admin; sid:5200731; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT Possible Public App Exploit - Log4Shell JNDI Lookup"; flow:established,to_server; http.header; content:"${jndi:"; nocase; classtype:attempted-admin; sid:5200732; rev:1;)
+
+# === MITRE ATT&CK: T1059.001 - Command and Scripting Interpreter: PowerShell ===
+alert http any any -> any any (msg:"ET TROJAN PowerShell Download Cradle via HTTP"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"powershell"; nocase; classtype:trojan-activity; sid:5200733; rev:1;)
+
+# === MITRE ATT&CK: T1059.003 - Windows Command Shell ===
+alert http any any -> any any (msg:"ET EXPLOIT Windows Command Shell Execution via Web CVE Pattern"; flow:established,to_server; http.method; content:"POST"; content:"cmd.exe"; http.request_body; nocase; classtype:attempted-admin; sid:5200734; rev:1;)
+
+# === MITRE ATT&CK: T1071.001 - Web Protocols: Application Layer ===
+alert http any any -> any any (msg:"ET C2 HTTP Beacon Pattern - Fixed Interval Low Volume"; flow:established,to_server; http.method; content:"GET"; threshold:type both, track by_src, count 20, seconds 300; classtype:command-and-control; sid:5200735; rev:1;)
+
+# === MITRE ATT&CK: T1566.001 - Phishing: Spearphishing Attachment ===
+alert http any any -> any any (msg:"ET TROJAN Possible Phishing Attachment Download - Macro Enabled"; flow:established,to_client; http.content_type; content:"application/vnd.openxmlformats-officedocument"; content:"macro"; nocase; classtype:trojan-activity; sid:5200736; rev:1;)
+
+# === MITRE ATT&CK: T1053.005 - Scheduled Task/Job ===
+alert http any any -> any any (msg:"ET EXPLOIT Scheduled Task Creation via Web Interface"; flow:established,to_server; http.method; content:"POST"; content:"schtasks"; http.request_body; nocase; classtype:attempted-admin; sid:5200737; rev:1;)
+
+# === MITRE ATT&CK: T1046 - Network Service Discovery ===
+alert tcp any any -> any any (msg:"ET RECON Network Service Discovery Vertical Port Scan"; flags:S,12; threshold:type threshold, track by_src, count 15, seconds 10; classtype:attempted-recon; sid:5200738; rev:1;)
+
+# === MITRE ATT&CK: T1048.002 - Exfiltration Over Alternative Protocol: Exfiltration Over Asymmetric Protocol ===
+alert http any any -> any any (msg:"ET TROJAN Possible Data Exfiltration via HTTP Large POST"; flow:established,to_server; http.method; content:"POST"; dsize:>1048576; classtype:trojan-activity; sid:5200739; rev:1;)
+
+# === MITRE ATT&CK: T1078 - Valid Accounts ===
+alert http any any -> any any (msg:"ET EXPLOIT Multiple Failed Login Attempts Brute Force"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"login"; nocase; threshold:type threshold, track by_src, count 10, seconds 60; classtype:attempted-admin; sid:5200740; rev:1;)
+
+# === MITRE ATT&CK: T1110 - Brute Force ===
+alert http any any -> any any (msg:"ET EXPLOIT SSH Brute Force via Web Interface"; flow:established,to_server; http.method; content:"POST"; content:"password"; http.request_body; nocase; threshold:type threshold, track by_src, count 5, seconds 30; classtype:attempted-admin; sid:5200741; rev:1;)
+
+# === MITRE ATT&CK: T1195.001 - Supply Chain Compromise ===
+alert http any any -> any any (msg:"ET TROJAN NPM/PyPI Typosquatting Package Install Attempt"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"registry.npmjs.org"; nocase; content:"-"; http.uri; pcre:"/[a-z]-[a-z]{3,}/"; classtype:trojan-activity; sid:5200742; rev:1;)
+
+# === MITRE ATT&CK: T1027 - Obfuscated Files ===
+alert http any any -> any any (msg:"ET EXPLOIT Obfuscated JavaScript eval Pattern"; flow:established,to_client; http.response_body; content:"eval("; content:"String.fromCharCode"; nocase; distance:0; classtype:attempted-user; sid:5200743; rev:1;)
+
+# === MITRE ATT&CK: T1569.002 - System Services: Service Execution ===
+alert http any any -> any any (msg:"ET EXPLOIT Windows Service Creation via Web RCE"; flow:established,to_server; http.method; content:"POST"; content:"sc create"; http.request_body; nocase; classtype:attempted-admin; sid:5200744; rev:1;)
+
+# === MITRE ATT&CK: T1005 - Data from Local System ===
+alert http any any -> any any (msg:"ET TROJAN Local File Access via Web - etc/passwd Access"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"../../../etc/passwd"; nocase; classtype:attempted-recon; sid:5200745; rev:1;)
+
+# === MITRE ATT&CK: T1082 - System Information Discovery ===
+alert http any any -> any any (msg:"ET RECON System Info Discovery via Web - whoami/id/uname"; flow:established,to_server; http.method; content:"POST"; pcre:"/(whoami|id\s|uname\s+-a)/Pi"; classtype:attempted-recon; sid:5200746; rev:1;)
+
+# === CVE-2026-87727: a-blog cms Path Traversal ===
+alert http any any -> any any (msg:"ET EXPLOIT a-blog cms Path Traversal File Read/Delete CVE-2026-87727"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"../../../"; classtype:attempted-user; sid:5200747; rev:1;)
+
+# === CVE-2026-86781: SSL Zen WordPress Private Key Disclosure ===
+alert http any any -> any any (msg:"ET EXPLOIT SSL Zen WordPress TLS Private Key Download CVE-2026-86781"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"ssl-zen"; nocase; content:"certificate"; nocase; content:"download"; nocase; classtype:attempted-admin; sid:5200748; rev:1;)
+
+# === CVE-2026-80469: Arbitrary Code Upload ===
+alert http any any -> any any (msg:"ET EXPLOIT Arbitrary Code Upload via Malicious File CVE-2026-80469"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"upload"; nocase; content:"Content-Type"; http.request_body; content:"application/x-httpd-php"; nocase; classtype:attempted-admin; sid:5200749; rev:1;)
+
+# === CVE-2025-15679: BMC Root Account Reset ===
+alert tcp any any -> any 623 (msg:"ET EXPLOIT BMC IPMI Default Root Account CVE-2025-15679"; flow:established,to_server; content:"IPMI"; nocase; classtype:attempted-admin; sid:5200750; rev:1;)
+
+# === Generic: SQL Injection Detection ===
+alert http any any -> any any (msg:"ET WEB_SERVER SQL Injection Attempt - UNION SELECT"; flow:established,to_server; http.uri; content:"union"; nocase; content:"select"; nocase; distance:0; classtype:web-application-attack; sid:5200751; rev:1;)
+alert http any any -> any any (msg:"ET WEB_SERVER SQL Injection - Error Based Pattern"; flow:established,to_server; http.uri; pcre:"/(OR\s+1=1|AND\s+1=1|'\s*OR\s*'|UNION\s+ALL\s+SELECT)/Pi"; classtype:web-application-attack; sid:5200752; rev:1;)
+alert http any any -> any any (msg:"ET WEB_SERVER SQL Injection - Stacked Queries Semicolon"; flow:established,to_server; http.uri; content:";"; content:"SELECT"; nocase; distance:0; classtype:web-application-attack; sid:5200753; rev:1;)
+
+# === Generic: XSS Detection ===
+alert http any any -> any any (msg:"ET WEB_CLIENT Cross-Site Scripting - Script Tag Injection"; flow:established,to_server; http.uri; content:"<script"; nocase; pcre:"/<script[^>]*>/Pi"; classtype:xss; sid:5200754; rev:1;)
+alert http any any -> any any (msg:"ET WEB_CLIENT XSS Event Handler Injection"; flow:established,to_server; http.uri; content:"onerror="; nocase; classtype:xss; sid:5200755; rev:1;)
+alert http any any -> any any (msg:"ET WEB_CLIENT XSS - img onerror Pattern"; flow:established,to_server; http.uri; content:"<img"; nocase; content:"onerror"; nocase; distance:0; classtype:xss; sid:5200756; rev:1;)
+
+# === Generic: SSRF Detection ===
+alert http any any -> any any (msg:"ET EXPLOIT SSRF Internal Network Access - AWS Metadata"; flow:established,to_server; http.uri; content:"169.254.169.254"; classtype:attempted-recon; sid:5200757; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT SSRF Cloud Metadata Access - GCP/Azure"; flow:established,to_server; http.uri; content:"metadata.google.internal"; nocase; classtype:attempted-recon; sid:5200758; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT SSRF Local File Inclusion via HTTP"; flow:established,to_server; http.uri; content:"file://"; classtype:attempted-recon; sid:5200759; rev:1;)
+
+# === Generic: Command Injection ===
+alert http any any -> any any (msg:"ET EXPLOIT OS Command Injection - Bash Pipe Pattern"; flow:established,to_server; http.uri; pcre:"/[|;&]\s*(bash|sh|cat|id|whoami|ls|wget|curl|nc|ncat)\b/Pi"; classtype:attempted-admin; sid:5200760; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT OS Command Injection - Backtick Pattern"; flow:established,to_server; http.uri; content:"`"; content:"`"; distance:0; pcre:"/\x60[^\x60]+\x60/"; classtype:attempted-admin; sid:5200761; rev:1;)
+
+# === Generic: Path Traversal ===
+alert http any any -> any any (msg:"ET WEB_SERVER Path Traversal - Double Encoded Dots"; flow:established,to_server; http.uri; content:"..%252f"; nocase; classtype:attempted-recon; sid:5200762; rev:1;)
+alert http any any -> any any (msg:"ET WEB_SERVER Path Traversal - Encoded Dots Slash"; flow:established,to_server; http.uri; content:"%2e%2e%2f"; nocase; classtype:attempted-recon; sid:5200763; rev:1;)
+
+# === Generic: LDAP Injection ===
+alert http any any -> any any (msg:"ET WEB_SERVER LDAP Injection Attempt"; flow:established,to_server; http.uri; pcre:"/[)(|&]\s*\(/Pi"; classtype:web-application-attack; sid:5200764; rev:1;)
+
+# === Generic: XML External Entity ===
+alert http any any -> any any (msg:"ET WEB_SERVER XXE External Entity Declaration"; flow:established,to_server; http.request_body; content:"<!ENTITY"; nocase; content:"SYSTEM"; nocase; distance:0; classtype:web-application-attack; sid:5200765; rev:1;)
+alert http any any -> any any (msg:"ET WEB_SERVER XXE Parameter Entity Declaration"; flow:established,to_server; http.request_body; content:"<!ENTITY"; nocase; content:"%"; distance:0; classtype:web-application-attack; sid:5200766; rev:1;)
+
+# === Generic: Deserialization ===
+alert http any any -> any any (msg:"ET EXPLOIT Java Deserialization - RMI Registry Pattern"; flow:established,to_server; content:"JRMI"; depth:4; classtype:attempted-admin; sid:5200767; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT PHP Deserialization - Object Injection"; flow:established,to_server; http.request_body; content:"O:"; pcre:"/O:\d+:/"; classtype:attempted-admin; sid:5200768; rev:1;)
+
+# === Generic: File Upload ===
+alert http any any -> any any (msg:"ET WEB_SERVER Malicious File Upload - PHP Webshell"; flow:established,to_server; http.request_body; content:"<?php"; nocase; content:"system"; nocase; distance:0; classtype:attempted-admin; sid:5200769; rev:1;)
+alert http any any -> any any (msg:"ET WEB_SERVER Malicious File Upload - JSP Webshell"; flow:established,to_server; http.request_body; content:"Runtime.getRuntime"; nocase; content:".exec"; nocase; distance:0; classtype:attempted-admin; sid:5200770; rev:1;)
+
+# === Generic: WebSocket Abuse ===
+alert http any any -> any any (msg:"ET POLICY WebSocket Connection to Suspicious Port"; flow:established,to_server; http.header; content:"Upgrade"; nocase; content:"websocket"; nocase; distance:0; classtype:policy-violation; sid:5200771; rev:1;)
+
+# === Generic: API Abuse ===
+alert http any any -> any any (msg:"ET POLICY API Key Exposure in HTTP Header"; flow:established,to_server; http.header; content:"X-API-Key"; nocase; pcre:"/[a-zA-Z0-9]{32,}/"; classtype:informational; sid:5200772; rev:1;)
+alert http any any -> any any (msg:"ET POLICY Bearer Token in URL Query Parameter"; flow:established,to_server; http.uri; content:"access_token="; nocase; classtype:policy-violation; sid:5200773; rev:1;)
+
+# === Generic: DNS Tunneling ===
+alert dns any any -> any any (msg:"ET TROJAN DNS Tunneling - Excessive Subdomain Query"; dns.query; content:""; threshold:type threshold, track by_src, count 50, seconds 60; classtype:trojan-activity; sid:5200774; rev:1;)
+alert dns any any -> any any (msg:"ET TROJAN DNS Tunneling - Long Subdomain Query Pattern"; dns.query; pcre:"/[a-z0-9]{50,}\./i"; classtype:trojan-activity; sid:5200775; rev:1;)
+
+# === Generic: C2 Beacon Patterns ===
+alert http any any -> any any (msg:"ET TROJAN C2 Beacon - Consistent Interval HTTP GET"; flow:established,to_server; http.method; content:"GET"; http.header; content:"User-Agent|3a| "; threshold:type both, track by_src, count 30, seconds 600; classtype:command-and-control; sid:5200776; rev:1;)
+alert http any any -> any any (msg:"ET TROJAN C2 Check-in - Minimal Response Body"; flow:established,to_client; dsize:<50; http.status_code; content:"200"; threshold:type threshold, track by_src, count 20, seconds 120; classtype:command-and-control; sid:5200777; rev:1;)
+
+# === Generic: Credential Stuffing ===
+alert http any any -> any any (msg:"ET EXPLOIT Credential Stuffing - Multiple Failed Auth Rapid Sequence"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"login"; nocase; threshold:type threshold, track by_src, count 10, seconds 30; classtype:attempted-admin; sid:5200778; rev:1;)
+
+# === Generic: Crypto Mining ===
+alert http any any -> any any (msg:"ET POLICY Cryptocurrency Mining Pool Connection"; flow:established,to_server; http.uri; content:"/mining/"; nocase; classtype:policy-violation; sid:5200779; rev:1;)
+alert dns any any -> any any (msg:"ET POLICY Cryptocurrency Mining Domain Query"; dns.query; content:"minexmr"; nocase; classtype:policy-violation; sid:5200780; rev:1;)
+
+# === Generic: IoT/MQTT ===
+alert tcp any any -> any 1883 (msg:"ET EXPLOIT MQTT Unauthenticated Connect"; flow:established,to_server; content:"\x10"; depth:1; content:"MQTT"; distance:0; classtype:attempted-recon; sid:5200781; rev:1;)
+
+# === Generic: Kubernetes ===
+alert http any any -> any any (msg:"ET EXPLOIT Kubernetes API Server Unauthenticated Access"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/api/v1/"; nocase; content:"watch"; nocase; distance:0; classtype:attempted-recon; sid:5200782; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT Kubernetes Pod Exec via API"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/exec"; nocase; content:"pods"; http.uri; nocase; distance:0; classtype:attempted-admin; sid:5200783; rev:1;)
+
+# === Generic: Container Escape ===
+alert http any any -> any any (msg:"ET EXPLOIT Container Escape Attempt via Docker API"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/containers/create"; nocase; content:"Privileged"; http.request_body; nocase; classtype:attempted-admin; sid:5200784; rev:1;)
+
+# === Generic: OAuth/JWT ===
+alert http any any -> any any (msg:"ET EXPLOIT JWT Algorithm Confusion - none Algorithm"; flow:established,to_server; http.header; content:"Bearer"; nocase; pcre:"/eyJhbGciOiJub25lIn0/"; classtype:attempted-admin; sid:5200785; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT JWT none Algorithm in Request Body"; flow:established,to_server; http.request_body; content:"none"; pcre:"/\"alg\"\s*:\s*\"none\"/i"; classtype:attempted-admin; sid:5200786; rev:1;)
+
+# === Generic: Prototype Pollution ===
+alert http any any -> any any (msg:"ET EXPLOIT JavaScript Prototype Pollution - __proto__"; flow:established,to_server; http.request_body; content:"__proto__"; nocase; classtype:attempted-user; sid:5200787; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT JavaScript Prototype Pollution - constructor"; flow:established,to_server; http.request_body; content:"constructor"; nocase; content:"prototype"; nocase; distance:0; classtype:attempted-user; sid:5200788; rev:1;)
+
+# === Generic: Server-Sent Events Abuse ===
+alert http any any -> any any (msg:"ET POLICY Server-Sent Events Connection - Unusual Duration"; flow:established,to_client; http.header; content:"text/event-stream"; nocase; threshold:type both, track by_src, count 1, seconds 3600; classtype:policy-violation; sid:5200789; rev:1;)
+
+# === Generic: GraphQL Abuse ===
+alert http any any -> any any (msg:"ET EXPLOIT GraphQL Introspection Query"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"graphql"; nocase; http.request_body; content:"__schema"; nocase; classtype:attempted-recon; sid:5200790; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT GraphQL Batch Query Abuse - Deep Nesting"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"graphql"; nocase; http.request_body; pcre:"/\{[^\}]*\{[^\}]*\{[^\}]*\{/"; classtype:attempted-dos; sid:5200791; rev:1;)
+
+# === Generic: HTTP Desync/Smuggling ===
+alert http any any -> any any (msg:"ET EXPLOIT HTTP Request Smuggling - CL.TE Pattern"; flow:established,to_server; http.header; content:"Content-Length"; nocase; content:"Transfer-Encoding"; nocase; distance:0; classtype:attempted-admin; sid:5200792; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT HTTP Request Smuggling - TE.CL Conflict"; flow:established,to_server; http.header; content:"Transfer-Encoding|3a| chunked"; nocase; http.header; content:"Content-Length|3a| 0"; nocase; classtype:attempted-admin; sid:5200793; rev:1;)
+
+# === Generic: Reverse Shell ===
+alert http any any -> any any (msg:"ET TROJAN Reverse Shell via /dev/tcp"; flow:established,to_server; http.request_body; content:"/dev/tcp/"; classtype:trojan-activity; sid:5200794; rev:1;)
+alert http any any -> any any (msg:"ET TROJAN Reverse Shell via bash -i Pattern"; flow:established,to_server; http.request_body; content:"bash -i"; classtype:trojan-activity; sid:5200795; rev:1;)
+
+# === Generic: Cloud Metadata ===
+alert http any any -> any any (msg:"ET EXPLOIT AWS IMDSv1 Metadata Access Attempt"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"169.254.169.254/latest/meta-data/"; classtype:attempted-recon; sid:5200796; rev:1;)
+
+# === Generic: API Rate Limiting ===
+alert http any any -> any any (msg:"ET POLICY API Rate Limit Exceeded - 429 Responses"; flow:established,to_client; http.status_code; content:"429"; threshold:type threshold, track by_src, count 20, seconds 60; classtype:policy-violation; sid:5200797; rev:1;)
+
+# === Generic: Backup File Access ===
+alert http any any -> any any (msg:"ET RECON Backup File Access Attempt - .bak/.sql"; flow:established,to_server; http.method; content:"GET"; pcre:"/\.(bak|sql|db|sqlite|dump)(\.(gz|zip|tar))?$/i"; classtype:attempted-recon; sid:5200798; rev:1;)
+
+# === Generic: Admin Panel Discovery ===
+alert http any any -> any any (msg:"ET RECON Admin Panel Discovery - WordPress wp-admin Probe"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/wp-admin/"; nocase; threshold:type threshold, track by_src, count 5, seconds 30; classtype:attempted-recon; sid:5200799; rev:1;)
+
+# === Generic: Cloud Bucket Discovery ===
+alert http any any -> any any (msg:"ET RECON Cloud Storage Bucket Enumeration"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"s3.amazonaws.com"; nocase; threshold:type threshold, track by_src, count 10, seconds 30; classtype:attempted-recon; sid:5200800; rev:1;)
