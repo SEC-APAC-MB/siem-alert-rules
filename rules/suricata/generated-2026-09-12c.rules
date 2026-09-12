@@ -1,0 +1,501 @@
+# Suricata Detection Rules - Generated 2026-09-12 Cron
+# Based on GitHub Advisory Database CVEs published >2026-08-27
+# Covers: CVE-2026-78159, CVE-2026-78006, CVE-2026-87719, CVE-2026-90474,
+#          CVE-2026-78175, CVE-2026-85200, CVE-2026-16482, CVE-2026-90472,
+#          CVE-2026-90473, CVE-2026-77161, CVE-2026-85198, CVE-2026-17585,
+#          CVE-2026-11355, CVE-2026-87919, CVE-2026-87892, CVE-2026-87842,
+#          CVE-2026-87916, CVE-2026-87797, CVE-2026-87894, CVE-2026-87891,
+#          CVE-2026-87888, CVE-2026-87918, CVE-2026-84099, CVE-2026-84171,
+#          CVE-2026-84024, CVE-2026-82851, CVE-2026-77705
+# MITRE ATT&CK: T1190, T1133, T1068, T1059, T1078, T1071, T1083, T1021,
+#               T1053, T1566, T1078.001, T1210, T1055, T1569, T1048,
+#               T1041, T1033, T1087, T1018, T1005, T1003
+# OWASP WSTG: WSTG-INPV-01..12, WSTG-ATHN-01..06, WSTG-ATHZ-01..04,
+#             WSTG-SESS-01..07, WSTG-CRYP-01..04, WSTG-ERR-01..02
+
+# --- CRITICAL: CVE-2026-78159 - The Events Calendar RCE via parse_array ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT The Events Calendar WordPress Plugin parse_array RCE CVE-2026-78159"; flow:established,to_server; content:"tribe_events"; http_uri; content:"wp-json"; http_uri; content:"classes"; http_client_body; reference:cve,2026-78159; reference:ghsa,9c57-9fxg-8x9j; classtype:attempted-admin; sid:5201501; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT The Events Calendar RCE Response CVE-2026-78159"; flow:established,to_client; content:"parse_array"; content:"Element_Classes"; reference:cve,2026-78159; reference:ghsa,9c57-9fxg-8x9j; classtype:attempted-admin; sid:5201502; rev:1;)
+
+# --- CRITICAL: CVE-2026-78006 - The Events Calendar RCE via is_safe_widget_instance bypass ---
+alert http $HOME_NET any -> $HOME_NET 80 (msg:"ET EXPLOIT The Events Calendar Widget Deserialization RCE CVE-2026-78006"; flow:established,to_server; content:"wp_hash"; content:"legacy-widget"; http_client_body; reference:cve,2026-78006; reference:ghsa,4q25-cq4p-f83q; classtype:attempted-admin; sid:5201503; rev:1;)
+alert http $HOME_NET any -> $HOME_NET 443 (msg:"ET EXPLOIT The Events Calendar Widget Deserialization RCE CVE-2026-78006 TLS"; flow:established,to_server; content:"wp_hash"; content:"legacy-widget"; http_client_body; reference:cve,2026-78006; reference:ghsa,4q25-cq4p-f83q; classtype:attempted-admin; sid:5201504; rev:1;)
+
+# --- CRITICAL: CVE-2026-87719 - GitLab EE Duo Chat GraphQL Deserialization ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT GitLab EE Duo Chat GraphQL Deserialization CVE-2026-87719"; flow:established,to_server; content:"graphql"; http_uri; content:"duoChat"; content:"subscription"; http_client_body; reference:cve,2026-87719; reference:ghsa,prp4-5w2g-8v2c; classtype:attempted-admin; sid:5201505; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT GitLab Duo Chat GraphQL Exploit Response CVE-2026-87719"; flow:established,to_client; content:"advanced_search"; content:"graphql"; reference:cve,2026-87719; reference:ghsa,prp4-5w2g-8v2c; classtype:attempted-admin; sid:5201506; rev:1;)
+
+# --- HIGH: CVE-2026-90474 - MCPHub OAuth 2.0 Authentication Bypass ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT MCPHub OAuth2 PKCE Bypass CVE-2026-90474"; flow:established,to_server; content:"/oauth/authorize"; http_uri; content:"code="; http_uri; reference:cve,2026-90474; reference:ghsa,c47m-m826-fc8g; classtype:attempted-user; sid:5201507; rev:1;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT MCPHub OAuth2 Token Exchange Without Client Secret CVE-2026-90474"; flow:established,to_server; content:"/oauth/token"; http_uri; content:"grant_type=authorization_code"; http_client_body; content:"!code_verifier"; reference:cve,2026-90474; reference:ghsa,c47m-m826-fc8g; classtype:attempted-user; sid:5201508; rev:1;)
+
+# --- HIGH: CVE-2026-78175 - Tutor LMS PHP Object Injection → RCE ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Tutor LMS PHP Object Injection RCE CVE-2026-78175"; flow:established,to_server; content:"tutor_save_withdraw_account"; http_client_body; content:"withdraw_method_field"; http_client_body; content:"GuzzleHttp"; reference:cve,2026-78175; reference:ghsa,cg5c-mg8j-jqc2; classtype:attempted-admin; sid:5201509; rev:1;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Tutor LMS PHP Object Injection via Nonce Bypass CVE-2026-78175"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=tutor_save_withdraw_account"; http_client_body; reference:cve,2026-78175; reference:ghsa,cg5c-mg8j-jqc2; classtype:attempted-admin; sid:5201510; rev:1;)
+
+# --- HIGH: CVE-2026-85200 - GEO my WP LFI ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT GEO my WP Local File Inclusion CVE-2026-85200"; flow:established,to_server; content:"gmw_posts_locator_ajax_info_window_loader"; http_uri; content:".php"; reference:cve,2026-85200; reference:ghsa,6hw9-7gx5-mw88; classtype:attempted-user; sid:5201511; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT GEO my WP LFI Path Traversal CVE-2026-85200"; flow:established,to_server; content:"action=gmw_posts_locator_ajax_info_window_loader"; http_uri; content:"../"; reference:cve,2026-85200; reference:ghsa,6hw9-7gx5-mw88; classtype:attempted-user; sid:5201512; rev:1;)
+
+# --- HIGH: CVE-2026-16482 - rtMedia Unauthenticated SQL Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT rtMedia SQL Injection via compare Parameter CVE-2026-16482"; flow:established,to_server; content:"rtmedia_shortcode"; http_uri; content:"compare"; http_uri; pcre:"/compare[^&]*[']/"; reference:cve,2026-16482; reference:ghsa,qjq8-433v-gm7m; classtype:attempted-user; sid:5201513; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT rtMedia Time-Based Blind SQLi CVE-2026-16482"; flow:established,to_server; content:"rtmedia_shortcode"; http_uri; content:"SLEEP"; http_uri; reference:cve,2026-16482; reference:ghsa,qjq8-433v-gm7m; classtype:attempted-user; sid:5201514; rev:1;)
+
+# --- MEDIUM: CVE-2026-90472 - msgpack-java Stack Overflow ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT msgpack-java Stack Overflow via Nested Arrays CVE-2026-90472"; flow:established,to_server; content:"|d9|"; depth:1; content:"|cf|"; within:10; reference:cve,2026-90472; reference:ghsa,h5hr-vppv-v9cg; classtype:attempted-dos; sid:5201515; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT msgpack-java Deeply Nested Deserialization CVE-2026-90472"; flow:established,to_client; content:"|dc|"; depth:1; reference:cve,2026-90472; reference:ghsa,h5hr-vppv-v9cg; classtype:attempted-dos; sid:5201516; rev:1;)
+
+# --- MEDIUM: CVE-2026-90473 - msgpack-java Integer Overflow ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT msgpack-java MAP32 Integer Overflow CVE-2026-90473"; flow:established,to_client; content:"|df|"; depth:1; reference:cve,2026-90473; reference:ghsa,9vjp-f3jg-99pq; classtype:attempted-user; sid:5201517; rev:1;)
+
+# --- MEDIUM: CVE-2026-77161 - Smart Marketing SMS SQL Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Smart Marketing WordPress Plugin SQL Injection CVE-2026-77161"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=egoi_sync"; http_client_body; content:"egoi_mapping"; reference:cve,2026-77161; reference:ghsa,f69h-9mwp-64rp; classtype:attempted-user; sid:5201518; rev:1;)
+
+# --- MEDIUM: CVE-2026-85198 - MPG Multiple Page Generator SQL Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT MPG WordPress Plugin SQL Injection via URL Path CVE-2026-85198"; flow:established,to_server; content:"mpg_spintax"; http_uri; pcre:"/[UNION%20|%27%20OR%20]/i"; reference:cve,2026-85198; reference:ghsa,49rv-c869-35hw; classtype:attempted-user; sid:5201519; rev:1;)
+
+# --- MEDIUM: CVE-2026-17585 - Royal Elementor Data Exposure ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Royal Elementor Sensitive Data Exposure via wpr_keyword CVE-2026-17585"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=wpr_ajax_search"; content:"wpr_keyword"; reference:cve,2026-17585; reference:ghsa,637j-vv5r-2x85; classtype:attempted-recon; sid:5201520; rev:1;)
+
+# --- MEDIUM: CVE-2026-11355 - DT LMS Unauth Option Overwrite ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT DT LMS WordPress Plugin Unauth Settings Overwrite CVE-2026-11355"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=dtlms_save_poc_settings"; http_client_body; reference:cve,2026-11355; reference:ghsa,xcq8-9qm4-gwm6; classtype:attempted-admin; sid:5201521; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT DT LMS Unauth Skin Settings Overwrite CVE-2026-11355"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=dtlms_save_skin_settings"; http_client_body; reference:cve,2026-11355; reference:ghsa,xcq8-9qm4-gwm6; classtype:attempted-admin; sid:5201522; rev:1;)
+
+# --- WordPress Plugin Vulnerabilities (unknown severity) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Product XML Feed WooCommerce Arbitrary Method Call CVE-2026-87919"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"product_xml_feed"; http_client_body; content:"delete"; reference:cve,2026-87919; reference:ghsa,cxxw-8wrv-x9fj; classtype:attempted-admin; sid:5201523; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Rox Appointment Booking Price Manipulation CVE-2026-87892"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=rox_appointment"; content:"total_price"; reference:cve,2026-87892; reference:ghsa,85vh-crr4-c67p; classtype:attempted-user; sid:5201524; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Zonify WordPress Plugin Token Disclosure CVE-2026-87842"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=zonify_get_token"; reference:cve,2026-87842; reference:ghsa,xqw2-vwjg-w56m; classtype:attempted-user; sid:5201525; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT WPBot Chat Session Data Exposure CVE-2026-87916"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=wpbot_chat_sessions"; reference:cve,2026-87916; reference:ghsa,gpj8-3p6v-p7h3; classtype:attempted-user; sid:5201526; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT WPBot Unauth AI API Key Abuse CVE-2026-87918"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=wpbot_send_message"; reference:cve,2026-87918; reference:ghsa,54cr-fg97-fjjx; classtype:attempted-user; sid:5201527; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Sprout Invoices Private Note Overwrite CVE-2026-87797"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=si_update_private_note"; reference:cve,2026-87797; reference:ghsa,ff5j-g23h-37gw; classtype:attempted-user; sid:5201528; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Rox Appointment Booking Data Enumeration CVE-2026-87894"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=rox_booking_confirmation"; reference:cve,2026-87894; reference:ghsa,q7rp-7xmv-xrww; classtype:attempted-recon; sid:5201529; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Rox Appointment Booking Holiday Override CVE-2026-87891"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=rox_save_holiday"; reference:cve,2026-87891; reference:ghsa,82fg-m2x5-cqp7; classtype:attempted-admin; sid:5201530; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT YayPricing Stored XSS via REST API CVE-2026-87888"; flow:established,to_server; content:"/wp-json/yaypricing/"; http_uri; content:"pricing_rules"; reference:cve,2026-87888; reference:ghsa,7hp7-3c46-m2c9; classtype:attempted-user; sid:5201531; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT wpstorecart Unauth PHP Object Injection CVE-2026-84099"; flow:established,to_server; content:"wpstorecart"; http_uri; content:"serialize"; reference:cve,2026-84099; reference:ghsa,w3rx-h7m8-2ggf; classtype:attempted-admin; sid:5201532; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT WP Images Upload Unrestricted File Upload CVE-2026-84171"; flow:established,to_server; content:"piclect_upload"; http_client_body; content:".php"; reference:cve,2026-84171; reference:ghsa,qgr2-56q2-3f39; classtype:attempted-admin; sid:5201533; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT BEAR WordPress Plugin CSRF Settings Override CVE-2026-84024"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=bear_save_meta_fields"; reference:cve,2026-84024; reference:ghsa,mf8h-3jc5-v68j; classtype:attempted-user; sid:5201534; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Booking for Appointments Account Takeover CVE-2026-77705"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=amelia"; content:"password"; reference:cve,2026-77705; reference:ghsa,67xq-jjpf-484h; classtype:attempted-admin; sid:5201535; rev:1;)
+
+# --- MITRE ATT&CK T1190 - Exploit Public-Facing Application ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress XML-RPC Multicall Brute Force"; flow:established,to_server; content:"/xmlrpc.php"; http_uri; content:"system.multicall"; http_client_body; content:"wp.getCategories"; http_client_body; classtype:attempted-admin; sid:5201536; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress REST API Users Enumeration"; flow:established,to_server; content:"/wp-json/wp/v2/users"; http_uri; classtype:attempted-recon; sid:5201537; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress WP-Cron DoS Attempt"; flow:established,to_server; content:"/wp-cron.php"; http_uri; threshold:type both, track by_src, count 20, seconds 30; classtype:attempted-dos; sid:5201538; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Login Brute Force via XML-RPC"; flow:established,to_server; content:"/xmlrpc.php"; http_uri; content:"wp.getUsersBlogs"; http_client_body; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-user; sid:5201539; rev:1;)
+
+# --- MITRE ATT&CK T1133 - External Remote Services ---
+alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Suspicious TLS Certificate - Possible C2 Domain Mismatch"; tls.cert_subject; content:"CN="; pcre:"/CN=[a-f0-9]{16,}\./"; classtype:trojan-activity; sid:5201540; rev:1;)
+
+alert dns $HOME_NET any -> any any (msg:"ET DNS Suspicious Long Subdomain DNS Query - DGA Pattern"; dns.query; pcre:"/^[a-z0-9]{20,}\./"; classtype:trojan-activity; sid:5201541; rev:1;)
+
+alert dns $HOME_NET any -> any any (msg:"ET DNS New Domain Lookup with High Entropy Subdomain"; dns.query; content:".top"; nocase; pcre:"/^[a-f0-9]{8,}\./"; classtype:trojan-activity; sid:5201542; rev:1;)
+
+# --- MITRE ATT&CK T1068 - Privilege Escalation ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT WordPress Admin Bar Manipulation for Privilege Escalation"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=update_option"; http_client_body; content:"administrator"; classtype:attempted-admin; sid:5201543; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT WordPress User Role Escalation via REST API"; flow:established,to_server; content:"/wp-json/wp/v2/users/"; http_uri; content:"roles"; http_client_body; content:"administrator"; classtype:attempted-admin; sid:5201544; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT WordPress Options Table Manipulation - Privilege Escalation"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"update_option"; content:"default_role"; classtype:attempted-admin; sid:5201545; rev:1;)
+
+# --- MITRE ATT&CK T1059 - Command and Scripting Interpreter ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Possible Web Shell Command Execution - cmd.exe"; flow:established,to_server; content:"cmd.exe"; nocase; pcre:"/(cmd\.exe|\/bin\/(ba)?sh|powershell\.exe)/i"; classtype:trojan-activity; sid:5201546; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB PHP Web Shell Command Execution Pattern"; flow:established,to_server; content:"eval("; content:"base64_decode"; classtype:trojan-activity; sid:5201547; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB PHP System Command Execution via Web Shell"; flow:established,to_server; content:"shell_exec"; content:"$_POST"; classtype:trojan-activity; sid:5201548; rev:1;)
+
+# --- MITRE ATT&CK T1078 - Valid Accounts ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB WordPress Admin Login from Unusual ASN"; flow:established,to_server; content:"/wp-login.php"; http_uri; content:"wp-admin"; http_referer; threshold:type both, track by_src, count 3, seconds 300; classtype:attempted-admin; sid:5201549; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Authentication with Default Credentials"; flow:established,to_server; content:"/wp-login.php"; http_uri; content:"log=admin"; http_client_body; content:"pwd=admin"; http_client_body; classtype:attempted-user; sid:5201550; rev:1;)
+
+# --- MITRE ATT&CK T1071 - Application Layer Protocol ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Possible Data Exfiltration via HTTP POST to Cloud Storage"; flow:established,to_server; content:"PUT"; http_method; content:"storage.googleapis.com"; http_host; content:"Content-Type"; http_header; dsize:>1048576; classtype:trojan-activity; sid:5201551; rev:1;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN DNS Tunneling via TXT Record - Large Response"; flow:established,to_client; content:"|00 10 01 00|"; depth:4; content:"CNAME"; classtype:trojan-activity; sid:5201552; rev:1;)
+
+# --- MITRE ATT&CK T1083 - File and Directory Discovery ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Directory Traversal Attempt - etc/passwd"; flow:established,to_server; pcre:"/(?:\.\.\/|\.\.\\)(?:etc|proc|var|tmp)/i"; content:"passwd"; classtype:attempted-recon; sid:5201553; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Directory Traversal - Windows System Files"; flow:established,to_server; pcre:"/(?:\.\.\\|%2e%2e%5c|%2e%2e\/)/i"; content:"system32"; nocase; classtype:attempted-recon; sid:5201554; rev:1;)
+
+# --- MITRE ATT&CK T1021 - Remote Services ---
+alert ssh $EXTERNAL_NET any -> $HOME_NET 22 (msg:"ET SCAN SSH Brute Force Attempt"; flow:established,to_server; content:"SSH"; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:5201555; rev:1;)
+
+alert ssh $EXTERNAL_NET any -> $HOME_NET any (msg:"ET SCAN SSH Version Scan Detected"; flow:established,to_server; content:"SSH-2.0-OpenSSH"; threshold:type both, track by_src, count 1, seconds 60; classtype:attempted-recon; sid:5201556; rev:1;)
+
+# --- MITRE ATT&CK T1053 - Scheduled Task/Job ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT WordPress Cron Job Injection"; flow:established,to_server; content:"/wp-cron.php"; http_uri; content:"POST"; http_method; content:"spawn="; classtype:attempted-admin; sid:5201557; rev:1;)
+
+# --- MITRE ATT&CK T1566 - Phishing ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET PHISHING Possible Credential Harvesting - Spoofed Login Page"; flow:established,to_client; content:"<form"; content:"password"; content:"login"; threshold:type both, track by_src, count 1, seconds 300; classtype:trojan-activity; sid:5201558; rev:1;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET PHISHING Microsoft 365 Credential Harvesting Page"; flow:established,to_client; content:"login.microsoftonline.com"; nocase; content:"<form"; content:"password"; classtype:trojan-activity; sid:5201559; rev:1;)
+
+# --- MITRE ATT&CK T1210 - Exploitation of Remote Services ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB GitLab GraphQL API SSRF Attempt"; flow:established,to_server; content:"/api/graphql"; http_uri; content:"127.0.0.1"; http_client_body; classtype:attempted-user; sid:5201560; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB GitLab Project Import SSRF"; flow:established,to_server; content:"/import/gitlab"; http_uri; content:"url=http://"; http_client_body; classtype:attempted-user; sid:5201561; rev:1;)
+
+# --- MITRE ATT&CK T1055 - Process Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB PHP Deserialization Attack - Object Injection"; flow:established,to_server; pcre:"/O:\d+:/"; content:"__wakeup"; classtype:attempted-admin; sid:5201562; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB PHP Deserialization - POP Chain Gadget"; flow:established,to_server; content:"GuzzleHttp"; content:"FileCookieJar"; classtype:attempted-admin; sid:5201563; rev:1;)
+
+# --- MITRE ATT&CK T1569 - Hijack Execution Flow: Services ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Plugin AJAX Handler Unauth Access Pattern"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action="; pcre:"/action=[a-z_]+(&(?:user|role|privilege|capability)=|nonce=(&|\"))/i"; classtype:attempted-user; sid:5201564; rev:1;)
+
+# --- MITRE ATT&CK T1048 - Exfiltration Over Alternative Protocol ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Large HTTP POST Data Exfiltration to Unknown Host"; flow:established,to_server; content:"POST"; http_method; dsize:>524288; classtype:trojan-activity; sid:5201565; rev:1;)
+
+alert dns $HOME_NET any -> any any (msg:"ET TROJAN DNS TXT Record Exfiltration - Large Response"; dns.query; content:".com"; threshold:type both, track by_src, count 10, seconds 60; classtype:trojan-activity; sid:5201566; rev:1;)
+
+# --- MITRE ATT&CK T1041 - Exfiltration Over C2 Channel ---
+alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Beacon Pattern - Regular TLS Connections to Same Host"; threshold:type both, track by_src, count 50, seconds 300; classtype:trojan-activity; sid:5201567; rev:1;)
+
+# --- MITRE ATT&CK T1033 - System Owner/User Discovery ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Author Enumeration via ?author= Parameter"; flow:established,to_server; content:"?author="; http_uri; pcre:"/\?author=\d/"; classtype:attempted-recon; sid:5201568; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress REST API User ID Enumeration"; flow:established,to_server; content:"/wp-json/wp/v2/users/"; http_uri; pcre:"/users\/\d+/"; classtype:attempted-recon; sid:5201569; rev:1;)
+
+# --- MITRE ATT&CK T1087 - Account Discovery ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress User Enumeration via WP-JSON with Large Page Size"; flow:established,to_server; content:"/wp-json/wp/v2/users"; http_uri; content:"per_page=100"; classtype:attempted-recon; sid:5201570; rev:1;)
+
+# --- MITRE ATT&CK T1018 - Remote System Discovery ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Site Scanner - Aggressive Version Detection"; flow:established,to_server; content:"/wp-json/"; http_uri; content:"/wp-json/wp/v2/"; threshold:type both, track by_src, count 10, seconds 30; classtype:attempted-recon; sid:5201571; rev:1;)
+
+# --- MITRE ATT&CK T1005 - Data from Local System ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Database Dump via SQL Injection"; flow:established,to_server; content:"INTO OUTFILE"; http_client_body; nocase; content:".sql"; classtype:attempted-admin; sid:5201572; rev:1;)
+
+# --- MITRE ATT&CK T1003 - OS Credential Dumping ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress wp-config.php Disclosure Attempt"; flow:established,to_server; content:"wp-config.php"; http_uri; pcre:"/wp-config\.php(?:~|\.bak|\.orig|\.swp|\.save)/"; classtype:attempted-recon; sid:5201573; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Configuration Backup File Access"; flow:established,to_server; content:"wp-config"; http_uri; content:".bak"; classtype:attempted-recon; sid:5201574; rev:1;)
+
+# --- OWASP WSTG-INPV-01: Reflected XSS ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB_REFLECTED XSS Attempt - Script Tag in Parameter"; flow:established,to_server; content:"<script"; nocase; pcre:"/<script[^>]+src\s*=/i"; classtype:web-application-attack; sid:5201575; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB_REFLECTED XSS Attempt - Event Handler Injection"; flow:established,to_server; pcre:"/on(?:error|load|click|mouseover|focus|blur)\s*=/i"; classtype:web-application-attack; sid:5201576; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB_REFLECTED XSS Attempt - JavaScript URI Scheme"; flow:established,to_server; content:"javascript:"; nocase; classtype:web-application-attack; sid:5201577; rev:1;)
+
+# --- OWASP WSTG-INPV-02: Stored XSS ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB_STORED XSS via WordPress Comment - Script Injection"; flow:established,to_server; content:"/wp-comments-post.php"; http_uri; content:"<script"; nocase; classtype:web-application-attack; sid:5201578; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB_STORED XSS via WordPress Comment - Event Handler"; flow:established,to_server; content:"/wp-comments-post.php"; http_uri; pcre:"/on(?:error|load|click)\s*=/i"; classtype:web-application-attack; sid:5201579; rev:1;)
+
+# --- OWASP WSTG-INPV-03: HTTP Verb Tampering ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB HTTP Verb Tampering - PUT Method on Authenticated Endpoint"; flow:established,to_server; content:"PUT"; http_method; content:"/wp-admin/"; http_uri; classtype:attempted-user; sid:5201580; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB HTTP Verb Tampering - DELETE Method Attempt"; flow:established,to_server; content:"DELETE"; http_method; content:"/wp-json/"; http_uri; classtype:attempted-user; sid:5201581; rev:1;)
+
+# --- OWASP WSTG-INPV-04: SQL Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB SQL Injection - UNION SELECT Attempt via HTTP"; flow:established,to_server; content:"UNION"; nocase; content:"SELECT"; nocase; content:"FROM"; nocase; classtype:web-application-attack; sid:5201582; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB SQL Injection - Boolean-Based Blind SQLi Pattern"; flow:established,to_server; pcre:"/\bOR\b\s+\d+\s*=\s*\d+/i"; classtype:web-application-attack; sid:5201583; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB SQL Injection - Time-Based Blind SQLi via SLEEP/BENCHMARK"; flow:established,to_server; pcre:"/(?:SLEEP|BENCHMARK)\s*\(\s*\d+/i"; classtype:web-application-attack; sid:5201584; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB SQL Injection - Error-Based SQLi Pattern"; flow:established,to_server; pcre:"/(\')\s*(?:OR|AND)\s+.*--/i"; classtype:web-application-attack; sid:5201585; rev:1;)
+
+# --- OWASP WSTG-INPV-05: LDAP Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB LDAP Injection Attempt"; flow:established,to_server; pcre:"/(?:\)|\()\s*\|\s*(?:\(|\))/"; content:"uid="; classtype:web-application-attack; sid:5201586; rev:1;)
+
+# --- OWASP WSTG-INPV-06: ORM Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB ORM Injection - HQL Query Manipulation"; flow:established,to_server; content:"from"; nocase; content:"where"; nocase; content:"select"; nocase; pcre:"/from\s+\w+\s+where\s+/i"; classtype:web-application-attack; sid:5201587; rev:1;)
+
+# --- OWASP WSTG-INPV-08: Server-Side Template Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Server-Side Template Injection - Jinja2/Python"; flow:established,to_server; content:"{{"; content:"__class__"; classtype:web-application-attack; sid:5201588; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Server-Side Template Injection - Twig/PHP"; flow:established,to_server; content:"{{"; content:"_self"; classtype:web-application-attack; sid:5201589; rev:1;)
+
+# --- OWASP WSTG-INPV-09: Server-Side Request Forgery ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB SSRF Attempt - Internal IP in Parameter"; flow:established,to_server; pcre:"/(?:url|path|src|dest|callback|return)=(?:https?:\/\/)?(?:127\.0\.0\.1|10\.\d|172\.(?:1[6-9]|2\d|3[01])|192\.168)/i"; classtype:web-application-attack; sid:5201590; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB SSRF Attempt - Cloud Metadata Endpoint"; flow:established,to_server; content:"169.254.169.254"; classtype:web-application-attack; sid:5201591; rev:1;)
+
+# --- OWASP WSTG-INPV-10: XPath Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB XPath Injection Attempt"; flow:established,to_server; content:"' or '1'='1"; nocase; classtype:web-application-attack; sid:5201592; rev:1;)
+
+# --- OWASP WSTG-INPV-11: Code Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB PHP Code Injection via assert"; flow:established,to_server; content:"assert("; nocase; pcre:"/assert\s*\(\s*(?:\$_(?:GET|POST|REQUEST))/i"; classtype:web-application-attack; sid:5201593; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB PHP Code Injection via preg_replace with /e"; flow:established,to_server; content:"preg_replace"; nocase; content:"/e"; classtype:web-application-attack; sid:5201594; rev:1;)
+
+# --- OWASP WSTG-INPV-12: Command Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB OS Command Injection - Semicolon Separator"; flow:established,to_server; pcre:"/(?:;|%3b)\s*(?:cat|ls|id|whoami|uname|wget|curl|ping|nc|bash|sh|cmd)\b/i"; classtype:web-application-attack; sid:5201595; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB OS Command Injection - Pipe Separator"; flow:established,to_server; pcre:"/(?:\||%7c)\s*(?:cat|ls|id|whoami|uname|wget|curl|ping|nc|bash|sh|cmd)\b/i"; classtype:web-application-attack; sid:5201596; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB OS Command Injection - Backtick Execution"; flow:established,to_server; pcre:"/`[^`]*(?:cat|ls|id|whoami|uname|wget|curl)[^`]*`/"; classtype:web-application-attack; sid:5201597; rev:1;)
+
+# --- OWASP WSTG-ATHN-01: Authentication Bypass ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Authentication Bypass - Missing Nonce"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action="; content:"update_option"; http_client_body; classtype:attempted-admin; sid:5201598; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Authentication Bypass via JWT None Algorithm"; flow:established,to_server; content:"eyJhbGciOiJub25lIn0"; http_client_body; classtype:attempted-user; sid:5201599; rev:1;)
+
+# --- OWASP WSTG-ATHN-03: Weak Lockout Mechanism ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Brute Force - Rapid WordPress Login Attempts"; flow:established,to_server; content:"/wp-login.php"; http_uri; content:"POST"; http_method; threshold:type both, track by_src, count 10, seconds 60; classtype:attempted-user; sid:5201600; rev:1;)
+
+# --- OWASP WSTG-SESS-01: Session Management ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Session Fixation Attempt via Set-Cookie in URL"; flow:established,to_server; content:"PHPSESSID"; http_uri; classtype:web-application-attack; sid:5201601; rev:1;)
+
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Session Token in URL - Possible Leakage"; flow:established,to_server; content:"session_id="; http_uri; classtype:web-application-attack; sid:5201602; rev:1;)
+
+# --- OWASP WSTG-SESS-07: Session Puzzling ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Session Puzzling - Multiple Auth Contexts Same Session"; flow:established,to_server; content:"login"; nocase; content:"session"; nocase; threshold:type both, track by_src, count 3, seconds 30; classtype:web-application-attack; sid:5201603; rev:1;)
+
+# --- OWASP WSTG-CRYP-01: Weak Cryptography ---
+alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Weak TLS Version - SSLv3"; tls.version; content:"0300"; classtype:web-application-attack; sid:5201604; rev:1;)
+
+alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Weak TLS Version - TLS 1.0"; tls.version; content:"0301"; classtype:web-application-attack; sid:5201605; rev:1;)
+
+# --- OWASP WSTG-ERR-01: Error Handling ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Information Disclosure - Stack Trace in Response"; flow:established,to_client; content:"Traceback"; content:"File "; content:"line "; threshold:type both, track by_src, count 1, seconds 300; classtype:attempted-recon; sid:5201606; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Information Disclosure - PHP Error Message Exposure"; flow:established,to_client; content:"Fatal error"; nocase; content:"in <b>"; classtype:attempted-recon; sid:5201607; rev:1;)
+
+# --- CVE-2026-89172: Microchip Side Channel ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Microchip AN1044/AN953 Side Channel Attack Pattern CVE-2026-89172"; flow:established,to_server; content:"AN1044"; nocase; classtype:attempted-user; sid:5201608; rev:1;)
+
+# --- General WordPress Security ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress wp-config.php Direct Access Attempt"; flow:established,to_server; content:"wp-config.php"; http_uri; nocase; classtype:attempted-recon; sid:5201609; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Debug Log Access Attempt"; flow:established,to_server; content:"debug.log"; http_uri; nocase; content:"/wp-content/"; classtype:attempted-recon; sid:5201610; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Install.php Access - Reinstallation Attempt"; flow:established,to_server; content:"/wp-admin/install.php"; http_uri; classtype:attempted-recon; sid:5201611; rev:1;)
+
+# --- Supply Chain / Dependency Attacks ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Suspicious npm/PyPI Package Download from Mirror"; flow:established,to_server; content:"registry.npmjs.org"; http_host; content:".tgz"; threshold:type both, track by_src, count 50, seconds 300; classtype:attempted-user; sid:5201612; rev:1;)
+
+# --- API Security ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB API Rate Limiting Bypass - Rapid Requests"; flow:established,to_server; content:"/api/"; http_uri; content:"/v1/"; threshold:type both, track by_src, count 100, seconds 10; classtype:attempted-dos; sid:5201613; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB API Mass Assignment Attempt"; flow:established,to_server; content:"/api/"; http_uri; content:"role"; http_client_body; content:"admin"; http_client_body; classtype:attempted-admin; sid:5201614; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB API IDOR Attempt - Sequential ID Access Pattern"; flow:established,to_server; content:"/api/v1/users/"; http_uri; pcre:"/\/users\/\d{1,5}/"; threshold:type both, track by_src, count 20, seconds 60; classtype:attempted-recon; sid:5201615; rev:1;)
+
+# --- Container/Cloud Security ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET CLOUD Kubernetes API Server Unauthorized Access"; flow:established,to_server; content:"/api/v1/"; http_uri; content:"Authorization"; http_header; content:"Bearer"; classtype:attempted-admin; sid:5201616; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET CLOUD Docker API Unauthenticated Access"; flow:established,to_server; content:"/containers/json"; http_uri; content:"GET"; http_method; classtype:attempted-admin; sid:5201617; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET CLOUD AWS Metadata Service SSRF via IMDSv1"; flow:established,to_server; content:"169.254.169.254"; content:"/latest/meta-data/"; classtype:attempted-user; sid:5201618; rev:1;)
+
+# --- LLM/AI Security (Emerging) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB LLM Prompt Injection - System Override Attempt"; flow:established,to_server; content:"ignore previous instructions"; nocase; content:"system"; nocase; classtype:attempted-user; sid:5201619; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB LLM API Abuse - Excessive Token Consumption"; flow:established,to_server; content:"/v1/chat/completions"; http_uri; threshold:type both, track by_src, count 100, seconds 60; classtype:attempted-dos; sid:5201620; rev:1;)
+
+# --- IoT/Embedded ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT IoT Device Default Credential Login Attempt"; flow:established,to_server; content:"root"; content:"admin"; content:"password"; classtype:attempted-user; sid:5201621; rev:1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT MQTT Broker Unauthenticated Connection"; flow:established,to_server; content:"|10|"; depth:1; content:"|04|MQTT"; within:6; classtype:attempted-recon; sid:5201622; rev:1;)
+
+# --- Additional CVE-based rules ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT GitLab GraphQL Subscription SSRF CVE-2026-87719"; flow:established,to_server; content:"/api/graphql"; http_uri; content:"subscription"; content:"duoChat"; reference:cve,2026-87719; classtype:attempted-admin; sid:5201623; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT GitLab Duo Chat Credential Exposure CVE-2026-87719"; flow:established,to_client; content:"advanced_search"; content:"password"; reference:cve,2026-87719; classtype:attempted-user; sid:5201624; rev:1;)
+
+# --- Additional WordPress plugin exploitation patterns ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Plugin Arbitrary File Upload via AJAX"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"upload"; http_client_body; content:".php"; http_client_body; classtype:attempted-admin; sid:5201625; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Plugin CSRF via Missing Referer"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action="; content:"save"; http_client_body; content:"!Referer"; classtype:attempted-user; sid:5201626; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress REST API Unauthenticated Data Access"; flow:established,to_server; content:"/wp-json/wp/v2/"; http_uri; content:"per_page=100"; classtype:attempted-recon; sid:5201627; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress XML-RPC System ListMethods Probe"; flow:established,to_server; content:"/xmlrpc.php"; http_uri; content:"system.listMethods"; classtype:attempted-recon; sid:5201628; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress XML-RPC Pingback Abuse"; flow:established,to_server; content:"/xmlrpc.php"; http_uri; content:"pingback.ping"; classtype:attempted-recon; sid:5201629; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Theme/Plugin Editor Access"; flow:established,to_server; content:"/wp-admin/theme-editor.php"; http_uri; classtype:attempted-admin; sid:5201630; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Plugin Activation from Untrusted Source"; flow:established,to_server; content:"/wp-admin/plugins.php"; http_uri; content:"action=activate"; classtype:attempted-admin; sid:5201631; rev:1;)
+
+# --- Web Application Firewall Evasion ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WAF Evasion - Double URL Encoding"; flow:established,to_server; pcre:"/%25[0-9a-fA-F]{2}/"; classtype:web-application-attack; sid:5201632; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WAF Evasion - Unicode Normalization Attack"; flow:established,to_server; pcre:"/%u[0-9a-fA-F]{4}/i"; classtype:web-application-attack; sid:5201633; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WAF Evasion - HTTP Parameter Pollution"; flow:established,to_server; content:"&"; pcre:"/(?:^|&)([^=&]+)=[^&]*&\1=/"; classtype:web-application-attack; sid:5201634; rev:1;)
+
+# --- OAuth/JWT Attacks ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB OAuth Token Theft - Authorization Code in Referrer"; flow:established,to_client; content:"code="; http_uri; content:"Referer"; classtype:attempted-user; sid:5201635; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB JWT Algorithm Confusion Attack"; flow:established,to_server; content:"eyJhbGciOiJIUzI1NiI"; content:"HS256"; classtype:attempted-user; sid:5201636; rev:1;)
+
+# --- Additional Network Protocol Attacks ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3306 (msg:"ET EXPLOIT MySQL Brute Force Attempt"; flow:established,to_server; content:"|00 00 00|"; depth:4; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-user; sid:5201637; rev:1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5432 (msg:"ET EXPLOIT PostgreSQL Brute Force Attempt"; flow:established,to_server; content:"User"; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-user; sid:5201638; rev:1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6379 (msg:"ET EXPLOIT Redis Unauthenticated Access"; flow:established,to_server; content:"INFO"; threshold:type both, track by_src, count 1, seconds 300; classtype:attempted-user; sid:5201639; rev:1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 27017 (msg:"ET EXPLOIT MongoDB Unauthenticated Access"; flow:established,to_server; content:"listDatabases"; threshold:type both, track by_src, count 1, seconds 300; classtype:attempted-user; sid:5201640; rev:1;)
+
+# --- HTTP/HTTPS Anomalies ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Suspicious User-Agent - Known Scanner"; flow:established,to_server; content:"User-Agent"; http_header; pcre:"/(?:Nikto|Nmap|sqlmap|dirbuster|gobuster|wfuzz|Masscan|ZAP)/i"; classtype:attempted-recon; sid:5201641; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB HTTP Request with Unusual Method TRACE"; flow:established,to_server; content:"TRACE"; http_method; classtype:attempted-recon; sid:5201642; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB HTTP Request with Unusual Method OPTIONS"; flow:established,to_server; content:"OPTIONS"; http_method; threshold:type both, track by_src, count 20, seconds 30; classtype:attempted-recon; sid:5201643; rev:1;)
+
+# --- DNS Security ---
+alert dns $HOME_NET any -> any any (msg:"ET DNS Suspicious Domain - Newly Registered Domain Pattern"; dns.query; pcre:"/^[a-z0-9]{12,}\.(xyz|top|click|link|club|work|bid|loan)$/i"; classtype:trojan-activity; sid:5201644; rev:1;)
+
+alert dns $HOME_NET any -> any any (msg:"ET DNS DNS-over-HTTPS Tunnel Indicator"; dns.query; content:".dns."; pcre:"/\.dns\.(google|cloudflare|quad9)/i"; classtype:policy-violation; sid:5201645; rev:1;)
+
+# --- Additional CVE-2026 coverage ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress AJAX Handler Missing Authorization Pattern CVE-2026-11355"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=dtlms_save_options_settings"; reference:cve,2026-11355; classtype:attempted-admin; sid:5201646; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Plugin Nonce Verification Bypass Pattern"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action="; pcre:"/action=[a-z]+_save_[a-z]+/i"; content:"!X-WP-Nonce"; classtype:attempted-user; sid:5201647; rev:1;)
+
+# --- Ransomware / Extortion ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Possible Ransomware C2 - Known Ransom Note Pattern"; flow:established,to_server; content:"README"; content:"decrypt"; nocase; content:"bitcoin"; nocase; classtype:trojan-activity; sid:5201648; rev:1;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Possible Ransomware File Extension Rename Bulk Pattern"; flow:established,to_server; content:"Content-Type"; http_header; content:"encrypted"; nocase; threshold:type both, track by_src, count 5, seconds 60; classtype:trojan-activity; sid:5201649; rev:1;)
+
+# --- Supply Chain: Package Confusion ---
+alert dns $HOME_NET any -> any any (msg:"ET DNS Typosquatting Domain - Similar to Popular Package"; dns.query; pcre:"/\b(npmjs|pypi|mvnrepository)\.[a-z]{2,4}\b/i"; classtype:trojan-activity; sid:5201650; rev:1;)
+
+# --- Cloud Metadata / SSRF additional ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET CLOUD GCP Metadata Service SSRF"; flow:established,to_server; content:"metadata.google.internal"; http_host; classtype:attempted-user; sid:5201651; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET CLOUD Azure Metadata Service SSRF"; flow:established,to_server; content:"169.254.169.254"; content:"/metadata/instance"; classtype:attempted-user; sid:5201652; rev:1;)
+
+# --- Password Spraying ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Password Spraying - Single Password Multiple Accounts"; flow:established,to_server; content:"/wp-login.php"; http_uri; threshold:type both, track by_src, count 20, seconds 300; classtype:attempted-user; sid:5201653; rev:1;)
+
+# --- Cookie Security ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Session Cookie without Secure Flag"; flow:established,to_client; content:"Set-Cookie"; http_header; content:"session"; content:"!Secure"; classtype:policy-violation; sid:5201654; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Session Cookie without HttpOnly Flag"; flow:established,to_client; content:"Set-Cookie"; http_header; content:"session"; content:"!HttpOnly"; classtype:policy-violation; sid:5201655; rev:1;)
+
+# --- Content Security Policy ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Missing Content-Security-Policy Header"; flow:established,to_client; content:"200"; http_stat_code; content:"!Content-Security-Policy"; http_header; classtype:policy-violation; sid:5201656; rev:1;)
+
+# --- CORS Misconfiguration ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Overly Permissive CORS - Wildcard Origin"; flow:established,to_client; content:"Access-Control-Allow-Origin"; http_header; content:"*"; classtype:policy-violation; sid:5201657; rev:1;)
+
+# --- Additional LLM/AI attack patterns ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB LLM Prompt Injection - Data Exfiltration via URL"; flow:established,to_server; content:"/api/chat"; http_uri; content:"http"; content:"ignore"; nocase; content:"previous"; nocase; classtype:attempted-user; sid:5201658; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB LLM Jailbreak Attempt - DAN Pattern"; flow:established,to_server; content:"DAN"; content:"jailbreak"; nocase; classtype:attempted-user; sid:5201659; rev:1;)
+
+# --- HTTP Header Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB HTTP Response Splitting - CRLF Injection"; flow:established,to_server; pcre:"/%0d%0a/i"; content:"Location"; classtype:web-application-attack; sid:5201660; rev:1;)
+
+# --- File Inclusion ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Local File Inclusion via PHP Wrapper"; flow:established,to_server; content:"php://filter"; nocase; content:"convert.base64-encode"; nocase; classtype:web-application-attack; sid:5201661; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Local File Inclusion via Expect Wrapper"; flow:established,to_server; content:"expect://"; classtype:web-application-attack; sid:5201662; rev:1;)
+
+# --- XXE ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB XML External Entity Injection - SYSTEM Keyword"; flow:established,to_server; content:"<!DOCTYPE"; content:"SYSTEM"; content:"<!ENTITY"; classtype:web-application-attack; sid:5201663; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB XML External Entity Injection - Parameter Entity"; flow:established,to_server; content:"<!DOCTYPE"; content:"<!ENTITY %"; content:"SYSTEM"; classtype:web-application-attack; sid:5201664; rev:1;)
+
+# --- Server-Side Request Forgery Additional ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB SSRF via URL Parameter - AWS Internal Hostname"; flow:established,to_server; content:"url="; content:"ec2-"; classtype:web-application-attack; sid:5201665; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB SSRF via URL Parameter - File Protocol"; flow:established,to_server; content:"url=file://"; nocase; classtype:web-application-attack; sid:5201666; rev:1;)
+
+# --- Additional Deserialization patterns ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Java Deserialization - serialVersionUID Pattern"; flow:established,to_server; content:"rO0AB"; pcre:"/^rO0AB/"; classtype:attempted-admin; sid:5201667; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Python Pickle Deserialization"; flow:established,to_server; content:"c__builtin__"; nocase; content:"eval"; classtype:attempted-admin; sid:5201668; rev:1;)
+
+# --- Additional Recon Detection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Vulnerability Scanner - Wappalyzer Header Pattern"; flow:established,to_server; content:"User-Agent"; http_header; content:"Wappalyzer"; classtype:attempted-recon; sid:5201669; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Vulnerability Scanner - Acunetix Header"; flow:established,to_server; content:"User-Agent"; http_header; content:"Acunetix"; classtype:attempted-recon; sid:5201670; rev:1;)
+
+# --- MFA Bypass ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB MFA Bypass Attempt - OTP Brute Force"; flow:established,to_server; content:"/mfa/verify"; http_uri; threshold:type both, track by_src, count 10, seconds 60; classtype:attempted-user; sid:5201671; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB MFA Bypass - Direct API Access Without MFA"; flow:established,to_server; content:"/api/v2/"; http_uri; content:"Authorization"; http_header; content:"Bearer"; threshold:type both, track by_src, count 50, seconds 300; classtype:attempted-user; sid:5201672; rev:1;)
+
+# --- Cryptojacking ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Cryptojacking - Coinhive Script Download"; flow:established,to_client; content:"coinhive.min.js"; classtype:trojan-activity; sid:5201673; rev:1;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Cryptojacking - WebAssembly Mining Pattern"; flow:established,to_client; content:"WebAssembly"; content:"mine"; nocase; classtype:trojan-activity; sid:5201674; rev:1;)
+
+# --- Protocol-level attacks ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB HTTP Request Smuggling - Content-Length/Transfer-Encoding Conflict"; flow:established,to_server; content:"Content-Length"; http_header; content:"Transfer-Encoding"; http_header; classtype:web-application-attack; sid:5201675; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB HTTP Request Smuggling - Chunked Encoding Anomaly"; flow:established,to_server; content:"Transfer-Encoding"; http_header; content:"chunked"; http_header; content:"0"; classtype:web-application-attack; sid:5201676; rev:1;)
+
+# --- Additional Cloud/Container patterns ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET CLOUD Container Escape via Docker Socket"; flow:established,to_server; content:"/var/run/docker.sock"; http_uri; classtype:attempted-admin; sid:5201677; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET CLOUD Kubernetes etcd Unauthenticated Access"; flow:established,to_server; content:"/v2/keys/"; http_uri; content:"2379"; classtype:attempted-admin; sid:5201678; rev:1;)
+
+# --- API Key Leakage ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB API Key Leakage - AWS Key Pattern in Response"; flow:established,to_client; content:"AKIA"; pcre:"/AKIA[0-9A-Z]{16}/"; classtype:attempted-user; sid:5201679; rev:1;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB API Key Leakage - Private Key Pattern in Response"; flow:established,to_client; content:"-----BEGIN RSA PRIVATE KEY-----"; classtype:attempted-user; sid:5201680; rev:1;)
+
+# --- Additional WordPress patterns based on today's CVEs ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Plugin Settings Import/Export Unauthorized Access"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action="; content:"import_settings"; nocase; classtype:attempted-admin; sid:5201681; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress REST API Unauthenticated POST to Options"; flow:established,to_server; content:"POST"; http_method; content:"/wp-json/wp/v2/"; http_uri; content:"meta"; classtype:attempted-admin; sid:5201682; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Usermeta Enumeration via REST API"; flow:established,to_server; content:"/wp-json/wp/v2/users/"; http_uri; content:"_fields=id,name,meta"; classtype:attempted-recon; sid:5201683; rev:1;)
+
+# --- Additional SSRF patterns ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB SSRF via gopher Protocol"; flow:established,to_server; content:"gopher://"; nocase; classtype:web-application-attack; sid:5201684; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB SSRF via dict Protocol"; flow:established,to_server; content:"dict://"; nocase; classtype:web-application-attack; sid:5201685; rev:1;)
+
+# --- Additional Phishing patterns ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET PHISHING Credential Submission to Recently Registered Domain"; flow:established,to_server; content:"password"; http_client_body; content:"email"; http_client_body; threshold:type both, track by_src, count 1, seconds 86400; classtype:trojan-activity; sid:5201686; rev:1;)
+
+# --- Additional Brute Force patterns ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB XML-RPC Multicall Authentication Brute Force"; flow:established,to_server; content:"/xmlrpc.php"; http_uri; content:"system.multicall"; http_client_body; content:"wp.getUsersBlogs"; http_client_body; threshold:type both, track by_src, count 3, seconds 300; classtype:attempted-user; sid:5201687; rev:1;)
+
+# --- Additional File Upload ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB PHP Web Shell Upload via File Upload"; flow:established,to_server; content:"multipart/form-data"; http_header; content:".php"; content:"application/x-httpd-php"; classtype:attempted-admin; sid:5201688; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Double Extension File Upload Bypass"; flow:established,to_server; content:"filename="; content:".php."; nocase; classtype:attempted-admin; sid:5201689; rev:1;)
+
+# --- Additional Deserialization ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB .NET Deserialization - ViewState Pattern"; flow:established,to_server; content:"__VIEWSTATE"; content:"/wE"; classtype:attempted-admin; sid:5201690; rev:1;)
+
+# --- Additional OAuth patterns ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB OAuth Redirect URI Manipulation"; flow:established,to_server; content:"/oauth/authorize"; http_uri; content:"redirect_uri"; pcre:"/redirect_uri=https?:\/\/(?!([a-z0-9-]+\.)?[a-z0-9-]+\.example\.com)/i"; classtype:attempted-user; sid:5201691; rev:1;)
+
+# --- Additional Database attacks ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1433 (msg:"ET EXPLOIT Microsoft SQL Server Brute Force"; flow:established,to_server; content:"Login"; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-user; sid:5201692; rev:1;)
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ET EXPLOIT Oracle Database Brute Force"; flow:established,to_server; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-user; sid:5201693; rev:1;)
+
+# --- Additional Cloud patterns ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET CLOUD Suspicious Data Transfer to Cloud Storage - Large Upload"; flow:established,to_server; content:"PUT"; http_method; content:"blob.core.windows.net"; http_host; dsize:>10485760; classtype:trojan-activity; sid:5201694; rev:1;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET CLOUD Suspicious Data Transfer to AWS S3 - Large Upload"; flow:established,to_server; content:"PUT"; http_method; content:"s3.amazonaws.com"; http_host; dsize:>10485760; classtype:trojan-activity; sid:5201695; rev:1;)
+
+# --- Additional Reconnaissance ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Directory Listing Exposure"; flow:established,to_client; content:"Index of"; content:"Parent Directory"; classtype:attempted-recon; sid:5201696; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Git Repository Exposure - .git/HEAD"; flow:established,to_server; content:"/.git/HEAD"; http_uri; classtype:attempted-recon; sid:5201697; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB SVN Repository Exposure - .svn/entries"; flow:established,to_server; content:"/.svn/entries"; http_uri; classtype:attempted-recon; sid:5201698; rev:1;)
+
+# --- Additional Web Application Security ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Host Header Injection"; flow:established,to_server; content:"Host"; http_header; pcre:"/\r\nHost:\s*(?:\r\n|\$)/"; classtype:web-application-attack; sid:5201699; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Open Redirect via Parameter Manipulation"; flow:established,to_server; content:"redirect="; http_uri; pcre:"/redirect=https?:\/\/[a-z0-9.-]+(?!\.example\.com)/i"; classtype:web-application-attack; sid:5201700; rev:1;)
