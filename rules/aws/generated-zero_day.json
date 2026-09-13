@@ -1,342 +1,508 @@
-[
-  {
-    "rule_id": "AWS-ZERO_DAY-087",
-    "name": "Unexpected Process Execution from Web Directory",
-    "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
-    "severity": "critical",
-    "category": "zero_day",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "UnexpectedProcessExecutionfromWebDirectory",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
-    },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+{
+  "description": "SIEM alert rules \u2014 generated-zero_day (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-13T22:00:56.798805Z",
+  "total_rules": 10,
+  "rules": [
+    {
+      "rule_id": "AWS-ZERO_DAY-087",
+      "name": "Unexpected Process Execution from Web Directory",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "critical",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"zero_day\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "UnexpectedProcessExecutionfromWebDirectory",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "zero_day"
-    ]
-  },
-  {
-    "rule_id": "AWS-ZERO_DAY-088",
-    "name": "Anomalous Child Process from Service",
-    "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
-    "severity": "high",
-    "category": "zero_day",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "AnomalousChildProcessfromService",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
-    },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Unexpected Process Execution from Web Directory"
+            ]
+          }
+        },
+        "state": "ENABLED"
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "zero_day"
-    ]
-  },
-  {
-    "rule_id": "AWS-ZERO_DAY-089",
-    "name": "Unusual Network Connection from System Process",
-    "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
-    "severity": "high",
-    "category": "zero_day",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "UnusualNetworkConnectionfromSystemProcess",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ZERO_DAY-088",
+      "name": "Anomalous Child Process from Service",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "high",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"zero_day\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "AnomalousChildProcessfromService",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "zero_day"
-    ]
-  },
-  {
-    "rule_id": "AWS-ZERO_DAY-090",
-    "name": "Memory Injection Pattern Detection",
-    "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
-    "severity": "critical",
-    "category": "zero_day",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "MemoryInjectionPatternDetection",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Anomalous Child Process from Service"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ZERO_DAY-089",
+      "name": "Unusual Network Connection from System Process",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "high",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"zero_day\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "UnusualNetworkConnectionfromSystemProcess",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "zero_day"
-    ]
-  },
-  {
-    "rule_id": "AWS-ZERO_DAY-091",
-    "name": "Unexpected DLL Loading",
-    "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
-    "severity": "high",
-    "category": "zero_day",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "UnexpectedDLLLoading",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Unusual Network Connection from System Process"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ZERO_DAY-090",
+      "name": "Memory Injection Pattern Detection",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "critical",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"zero_day\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "MemoryInjectionPatternDetection",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "zero_day"
-    ]
-  },
-  {
-    "rule_id": "AWS-ZERO_DAY-092",
-    "name": "Abnormal Token Privilege Elevation",
-    "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
-    "severity": "critical",
-    "category": "zero_day",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "AbnormalTokenPrivilegeElevation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Memory Injection Pattern Detection"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ZERO_DAY-091",
+      "name": "Unexpected DLL Loading",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "high",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"zero_day\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "UnexpectedDLLLoading",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "zero_day"
-    ]
-  },
-  {
-    "rule_id": "AWS-ZERO_DAY-093",
-    "name": "Process Hollowing Indicator",
-    "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
-    "severity": "critical",
-    "category": "zero_day",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "ProcessHollowingIndicator",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Unexpected DLL Loading"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ZERO_DAY-092",
+      "name": "Abnormal Token Privilege Elevation",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "critical",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"zero_day\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "AbnormalTokenPrivilegeElevation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "zero_day"
-    ]
-  },
-  {
-    "rule_id": "AWS-ZERO_DAY-094",
-    "name": "Reflective DLL Injection",
-    "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
-    "severity": "critical",
-    "category": "zero_day",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "ReflectiveDLLInjection",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Abnormal Token Privilege Elevation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ZERO_DAY-093",
+      "name": "Process Hollowing Indicator",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "critical",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"zero_day\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ProcessHollowingIndicator",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "zero_day"
-    ]
-  },
-  {
-    "rule_id": "AWS-ZERO_DAY-095",
-    "name": "Unusual Named Pipe Activity",
-    "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
-    "severity": "medium",
-    "category": "zero_day",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "UnusualNamedPipeActivity",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Process Hollowing Indicator"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ZERO_DAY-094",
+      "name": "Reflective DLL Injection",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "critical",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"zero_day\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ReflectiveDLLInjection",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "zero_day"
-    ]
-  },
-  {
-    "rule_id": "AWS-ZERO_DAY-096",
-    "name": "Anomalous Service Installation",
-    "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
-    "severity": "high",
-    "category": "zero_day",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "AnomalousServiceInstallation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Reflective DLL Injection"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ZERO_DAY-095",
+      "name": "Unusual Named Pipe Activity",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "medium",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"zero_day\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "UnusualNamedPipeActivity",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "zero_day"
-    ]
-  }
-]
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Unusual Named Pipe Activity"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
+    },
+    {
+      "rule_id": "AWS-ZERO_DAY-096",
+      "name": "Anomalous Service Installation",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "high",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"zero_day\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "AnomalousServiceInstallation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Anomalous Service Installation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
+    }
+  ]
+}

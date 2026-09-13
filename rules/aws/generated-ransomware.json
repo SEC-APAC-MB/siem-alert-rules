@@ -1,342 +1,508 @@
-[
-  {
-    "rule_id": "AWS-RANSOMWARE-077",
-    "name": "Mass File Encryption Pattern",
-    "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
-    "severity": "critical",
-    "category": "ransomware",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "MassFileEncryptionPattern",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
-    },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+{
+  "description": "SIEM alert rules \u2014 generated-ransomware (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-13T22:00:56.795962Z",
+  "total_rules": 10,
+  "rules": [
+    {
+      "rule_id": "AWS-RANSOMWARE-077",
+      "name": "Mass File Encryption Pattern",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "critical",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"DeleteBucket\" || $.eventName = \"DeleteObjects\" || $.eventName = \"PutBucketReplication\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "MassFileEncryptionPattern",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "ransomware"
-    ]
-  },
-  {
-    "rule_id": "AWS-RANSOMWARE-078",
-    "name": "Shadow Copy Deletion",
-    "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
-    "severity": "critical",
-    "category": "ransomware",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "ShadowCopyDeletion",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
-    },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Mass File Encryption Pattern"
+            ]
+          }
+        },
+        "state": "ENABLED"
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "ransomware"
-    ]
-  },
-  {
-    "rule_id": "AWS-RANSOMWARE-079",
-    "name": "Ransom Note Creation",
-    "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
-    "severity": "critical",
-    "category": "ransomware",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "RansomNoteCreation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-RANSOMWARE-078",
+      "name": "Shadow Copy Deletion",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "critical",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"DeleteBucket\" || $.eventName = \"DeleteObjects\" || $.eventName = \"PutBucketReplication\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ShadowCopyDeletion",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "ransomware"
-    ]
-  },
-  {
-    "rule_id": "AWS-RANSOMWARE-080",
-    "name": "Volume Shadow Copy Tampering",
-    "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
-    "severity": "critical",
-    "category": "ransomware",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "VolumeShadowCopyTampering",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Shadow Copy Deletion"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-RANSOMWARE-079",
+      "name": "Ransom Note Creation",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "critical",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"DeleteBucket\" || $.eventName = \"DeleteObjects\" || $.eventName = \"PutBucketReplication\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "RansomNoteCreation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "ransomware"
-    ]
-  },
-  {
-    "rule_id": "AWS-RANSOMWARE-081",
-    "name": "Backup Deletion via Vssadmin",
-    "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
-    "severity": "critical",
-    "category": "ransomware",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "BackupDeletionviaVssadmin",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Ransom Note Creation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-RANSOMWARE-080",
+      "name": "Volume Shadow Copy Tampering",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "critical",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"DeleteBucket\" || $.eventName = \"DeleteObjects\" || $.eventName = \"PutBucketReplication\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "VolumeShadowCopyTampering",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "ransomware"
-    ]
-  },
-  {
-    "rule_id": "AWS-RANSOMWARE-082",
-    "name": "Ransomware C2 Beacon Pattern",
-    "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
-    "severity": "critical",
-    "category": "ransomware",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "RansomwareC2BeaconPattern",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Volume Shadow Copy Tampering"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-RANSOMWARE-081",
+      "name": "Backup Deletion via Vssadmin",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "critical",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"DeleteBucket\" || $.eventName = \"DeleteObjects\" || $.eventName = \"PutBucketReplication\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "BackupDeletionviaVssadmin",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "ransomware"
-    ]
-  },
-  {
-    "rule_id": "AWS-RANSOMWARE-083",
-    "name": "Mimikatz Credential Dumping Pre-Encryption",
-    "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
-    "severity": "critical",
-    "category": "ransomware",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "MimikatzCredentialDumpingPre-Encryption",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Backup Deletion via Vssadmin"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-RANSOMWARE-082",
+      "name": "Ransomware C2 Beacon Pattern",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "critical",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"DeleteBucket\" || $.eventName = \"DeleteObjects\" || $.eventName = \"PutBucketReplication\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "RansomwareC2BeaconPattern",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "ransomware"
-    ]
-  },
-  {
-    "rule_id": "AWS-RANSOMWARE-084",
-    "name": "Lateral Movement via PsExec/WMI",
-    "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
-    "severity": "high",
-    "category": "ransomware",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "LateralMovementviaPsExec/WMI",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Ransomware C2 Beacon Pattern"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-RANSOMWARE-083",
+      "name": "Mimikatz Credential Dumping Pre-Encryption",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "critical",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"DeleteBucket\" || $.eventName = \"DeleteObjects\" || $.eventName = \"PutBucketReplication\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "MimikatzCredentialDumpingPreEncryption",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "ransomware"
-    ]
-  },
-  {
-    "rule_id": "AWS-RANSOMWARE-085",
-    "name": "Scheduled Task Creation for Encryption",
-    "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
-    "severity": "high",
-    "category": "ransomware",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "ScheduledTaskCreationforEncryption",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Mimikatz Credential Dumping Pre-Encryption"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-RANSOMWARE-084",
+      "name": "Lateral Movement via PsExec/WMI",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "high",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"DeleteBucket\" || $.eventName = \"DeleteObjects\" || $.eventName = \"PutBucketReplication\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "LateralMovementviaPsExecWMI",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "ransomware"
-    ]
-  },
-  {
-    "rule_id": "AWS-RANSOMWARE-086",
-    "name": "Registry Run Key Persistence for Ransomware",
-    "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
-    "severity": "high",
-    "category": "ransomware",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "emerging",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "RegistryRunKeyPersistenceforRansomware",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Lateral Movement via PsExec/WMI"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-RANSOMWARE-085",
+      "name": "Scheduled Task Creation for Encryption",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "high",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"DeleteBucket\" || $.eventName = \"DeleteObjects\" || $.eventName = \"PutBucketReplication\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ScheduledTaskCreationforEncryption",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "ransomware"
-    ]
-  }
-]
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Scheduled Task Creation for Encryption"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
+    },
+    {
+      "rule_id": "AWS-RANSOMWARE-086",
+      "name": "Registry Run Key Persistence for Ransomware",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "high",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"DeleteBucket\" || $.eventName = \"DeleteObjects\" || $.eventName = \"PutBucketReplication\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "RegistryRunKeyPersistenceforRansomware",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Registry Run Key Persistence for Ransomware"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
+    }
+  ]
+}

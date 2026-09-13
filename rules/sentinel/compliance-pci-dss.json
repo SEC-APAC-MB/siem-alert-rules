@@ -1,27 +1,21 @@
 {
-  "version": "1.0.0",
-  "generated": "2026-08-17",
-  "description": "Microsoft Sentinel analytics rules \u2014 PCI-DSS Specific Detection",
+  "description": "SIEM alert rules \u2014 compliance-pci-dss (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-13T22:00:56.735708Z",
   "total_rules": 25,
   "rules": [
     {
       "rule_id": "MS-PCI-001",
       "name": "PCI-DSS \u2014 Unencrypted Cardholder Data Transmission",
       "description": "Detects transmission of cardholder data over unencrypted channels violating PCI-DSS Requirement 4",
-      "severity": "Critical",
+      "severity": "Medium",
       "query": "network_traffic_events\n| where protocol in (\"HTTP\", \"FTP\", \"Telnet\", \"SMTP\") and data_classification == \"cardholder_data\"\n| summarize count() by SourceIP, DestinationIP, Protocol, bin(TimeGenerated, 5m)\n| where count_ > 1",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 1,
-      "tactics": [
-        "Exfiltration",
-        "CredentialAccess"
-      ],
-      "techniques": [
-        "T1040",
-        "T1567"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-4"
       ],
@@ -36,26 +30,20 @@
         "cardholder-data",
         "transmission"
       ],
-      "risk_score": 98
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-002",
       "name": "PCI-DSS \u2014 Default Credentials in Cardholder Environment",
       "description": "Detects use of default vendor credentials in cardholder data environment violating PCI-DSS Requirement 8",
-      "severity": "Critical",
+      "severity": "Medium",
       "query": "auth_events\n| where username in (\"admin\", \"root\", \"default\", \"password\", \"vendor\") and environment == \"cardholder_data\"\n| summarize count() by Username, SystemName, bin(TimeGenerated, 5m)\n| where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 3,
-      "tactics": [
-        "InitialAccess",
-        "CredentialAccess"
-      ],
-      "techniques": [
-        "T1078.001",
-        "T1552.001"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-8"
       ],
@@ -69,26 +57,20 @@
         "default-credentials",
         "cardholder-environment"
       ],
-      "risk_score": 97
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-003",
       "name": "PCI-DSS \u2014 Unauthorized Access to Cardholder Data",
       "description": "Detects unauthorized access attempts to cardholder data stores violating PCI-DSS Requirement 7",
-      "severity": "Critical",
+      "severity": "Medium",
       "query": "data_access_events\n| where data_classification == \"cardholder_data\" and access_result == \"unauthorized\"\n| summarize count() by SourceIP, UserID, DataStore, bin(TimeGenerated, 5m)\n| where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 3,
-      "tactics": [
-        "CredentialAccess",
-        "Collection"
-      ],
-      "techniques": [
-        "T1552",
-        "T1530"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-7"
       ],
@@ -102,24 +84,20 @@
         "unauthorized-access",
         "cardholder-data"
       ],
-      "risk_score": 96
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-004",
       "name": "PCI-DSS \u2014 Missing MFA for CDE Access",
       "description": "Detects access to cardholder data environment without required multi-factor authentication violating PCI-DSS Requirement 8",
-      "severity": "Critical",
+      "severity": "Medium",
       "query": "auth_events\n| where environment == \"cardholder_data\" and mfa_used == false and mfa_required == true\n| summarize count() by UserID, SystemName, bin(TimeGenerated, 5m)\n| where count_ > 1",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 1,
-      "tactics": [
-        "CredentialAccess"
-      ],
-      "techniques": [
-        "T1110"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-8"
       ],
@@ -133,26 +111,20 @@
         "mfa",
         "cardholder-environment"
       ],
-      "risk_score": 97
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-005",
       "name": "PCI-DSS \u2014 PAN Displayed in Cleartext",
       "description": "Detects primary account numbers displayed in cleartext violating PCI-DSS Requirement 3",
-      "severity": "Critical",
+      "severity": "Medium",
       "query": "data_access_events\n| where pan_visible == true and masking_applied == false and environment == \"cardholder_data\"\n| summarize count() by UserID, ApplicationName, bin(TimeGenerated, 5m)\n| where count_ > 1",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 1,
-      "tactics": [
-        "Collection",
-        "Exfiltration"
-      ],
-      "techniques": [
-        "T1530",
-        "T1567"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-3"
       ],
@@ -167,25 +139,20 @@
         "cleartext",
         "masking"
       ],
-      "risk_score": 96
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-006",
       "name": "PCI-DSS \u2014 Weak Cryptography in CDE",
       "description": "Detects use of weak or deprecated cryptographic algorithms in cardholder data environment",
-      "severity": "High",
+      "severity": "Medium",
       "query": "encryption_events\n| where algorithm in (\"DES\", \"RC4\", \"MD5\", \"SHA1\", \"SSLv3\", \"TLS1.0\", \"TLS1.1\") and environment == \"cardholder_data\"\n| summarize count() by Algorithm, SystemName, bin(TimeGenerated, 10m)\n| where count_ > 3",
       "queryFrequency": "PT10M",
       "queryPeriod": "PT10M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 3,
-      "tactics": [
-        "CredentialAccess"
-      ],
-      "techniques": [
-        "T1552.001",
-        "T1110"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-4"
       ],
@@ -198,26 +165,20 @@
         "weak-cryptography",
         "cde"
       ],
-      "risk_score": 90
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-007",
       "name": "PCI-DSS \u2014 Wireless Access Point in CDE",
       "description": "Detects unauthorized wireless access points in or near cardholder data environment",
-      "severity": "Critical",
+      "severity": "Medium",
       "query": "network_events\n| where device_type == \"wireless_access_point\" and cde_zone == true and authorized == false\n| summarize count() by DeviceMAC, ZoneName, bin(TimeGenerated, 5m)\n| where count_ > 1",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 1,
-      "tactics": [
-        "InitialAccess",
-        "Persistence"
-      ],
-      "techniques": [
-        "T1190",
-        "T1133"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-1"
       ],
@@ -231,25 +192,20 @@
         "rogue-ap",
         "cde"
       ],
-      "risk_score": 95
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-008",
       "name": "PCI-DSS \u2014 Excessive Privileges in CDE",
       "description": "Detects users with excessive privileges in cardholder data environment violating least privilege",
-      "severity": "High",
+      "severity": "Medium",
       "query": "privilege_events\n| where environment == \"cardholder_data\" and privilege_level in (\"admin\", \"superuser\", \"root\") and least_privilege_violation == true\n| summarize count() by UserID, PrivilegeLevel, bin(TimeGenerated, 1h)\n| where count_ > 3",
       "queryFrequency": "PT1H",
       "queryPeriod": "PT1H",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 3,
-      "tactics": [
-        "PrivilegeEscalation"
-      ],
-      "techniques": [
-        "T1548",
-        "T1078.002"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-7"
       ],
@@ -264,25 +220,20 @@
         "least-privilege",
         "cde"
       ],
-      "risk_score": 88
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-009",
       "name": "PCI-DSS \u2014 Audit Log Tampering in CDE",
       "description": "Detects tampering or disabling of audit logs in cardholder data environment",
-      "severity": "Critical",
+      "severity": "Medium",
       "query": "audit_log_events\n| where environment == \"cardholder_data\" and operation_type in (\"disable\", \"delete\", \"modify\", \"clear\") and authorized == false\n| summarize count() by UserID, OperationType, SystemName, bin(TimeGenerated, 5m)\n| where count_ > 1",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 1,
-      "tactics": [
-        "DefenseEvasion"
-      ],
-      "techniques": [
-        "T1070",
-        "T1562"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-10"
       ],
@@ -297,26 +248,20 @@
         "tampering",
         "cde"
       ],
-      "risk_score": 97
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-010",
       "name": "PCI-DSS \u2014 SQL Injection Against Payment System",
       "description": "Detects SQL injection attacks targeting payment processing systems",
-      "severity": "Critical",
-      "query": "let sqli_patterns = dynamic([\"' OR 1=1\", \"' UNION SELECT\", \"'; DROP TABLE\", \"'--\", \"1=1\", \"exec(\", \"xp_cmdshell\"]);\napplication_logs\n| where environment == \"cardholder_data\" and (request_query has_any (sqli_patterns) or request_body has_any (sqli_patterns))\n| summarize count() by SourceIP, ApplicationName, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"pci-dss\" or Message contains \"sql-injection\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 2,
-      "tactics": [
-        "InitialAccess",
-        "Execution"
-      ],
-      "techniques": [
-        "T1190",
-        "T1059"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-6"
       ],
@@ -329,26 +274,20 @@
         "sql-injection",
         "payment-system"
       ],
-      "risk_score": 99
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-011",
       "name": "PCI-DSS \u2014 Payment Skimming Detection",
       "description": "Detects web skimming or JavaScript injection targeting payment pages",
-      "severity": "Critical",
+      "severity": "Medium",
       "query": "web_application_events\n| where page_type == \"payment\" and script_injection == true or dom_mutation_score > 0.8\n| summarize count() by SourceIP, PageURL, bin(TimeGenerated, 5m)\n| where count_ > 1",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 1,
-      "tactics": [
-        "InitialAccess",
-        "Collection"
-      ],
-      "techniques": [
-        "T1190",
-        "T1059.007"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-6"
       ],
@@ -362,26 +301,20 @@
         "javascript-injection",
         "payment"
       ],
-      "risk_score": 98
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-012",
       "name": "PCI-DSS \u2014 Network Segmentation Violation in CDE",
       "description": "Detects traffic crossing network segmentation boundaries in cardholder data environment",
-      "severity": "Critical",
+      "severity": "Medium",
       "query": "network_traffic_events\n| where source_zone == \"cde\" and destination_zone != \"cde\" and traffic_type == \"unauthorized\"\n| summarize count() by SourceIP, DestinationZone, Protocol, bin(TimeGenerated, 5m)\n| where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 3,
-      "tactics": [
-        "Exfiltration",
-        "LateralMovement"
-      ],
-      "techniques": [
-        "T1567",
-        "T1021"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-1"
       ],
@@ -395,24 +328,20 @@
         "network-segmentation",
         "cde-isolation"
       ],
-      "risk_score": 96
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-013",
       "name": "PCI-DSS \u2014 Physical Access to CDE Without Badge",
       "description": "Detects physical access to cardholder data environment without proper badge or authorization",
-      "severity": "High",
+      "severity": "Medium",
       "query": "physical_access_events\n| where zone == \"cardholder_data\" and badge_present == false or authorization == false\n| summarize count() by BadgeID, ZoneName, EntryType, bin(TimeGenerated, 10m)\n| where count_ > 3",
       "queryFrequency": "PT10M",
       "queryPeriod": "PT10M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 3,
-      "tactics": [
-        "PhysicalAccess"
-      ],
-      "techniques": [
-        "T1566.002"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-9"
       ],
@@ -426,24 +355,20 @@
         "badge",
         "cde"
       ],
-      "risk_score": 85
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-014",
       "name": "PCI-DSS \u2014 Vulnerability Scanner Disabled in CDE",
       "description": "Detects disabling or misconfiguration of vulnerability scanning in cardholder data environment",
-      "severity": "High",
+      "severity": "Medium",
       "query": "vulnerability_scanner_events\n| where environment == \"cardholder_data\" and scanner_status in (\"disabled\", \"misconfigured\", \"offline\")\n| summarize count() by ScannerName, ZoneName, bin(TimeGenerated, 1h)\n| where count_ > 1",
       "queryFrequency": "PT1H",
       "queryPeriod": "PT1H",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 1,
-      "tactics": [
-        "DefenseEvasion"
-      ],
-      "techniques": [
-        "T1562.001"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-11"
       ],
@@ -456,24 +381,20 @@
         "vulnerability-scanning",
         "cde"
       ],
-      "risk_score": 82
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-015",
       "name": "PCI-DSS \u2014 Expired SSL/TLS Certificate in CDE",
       "description": "Detects expired or expiring SSL/TLS certificates in cardholder data environment",
-      "severity": "High",
+      "severity": "Medium",
       "query": "certificate_events\n| where environment == \"cardholder_data\" and (certificate_status == \"expired\" or days_until_expiry < 30)\n| summarize count() by CertificateCN, ExpiryDate, bin(TimeGenerated, 1d)\n| where count_ > 1",
       "queryFrequency": "P1D",
       "queryPeriod": "P1D",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 1,
-      "tactics": [
-        "CredentialAccess"
-      ],
-      "techniques": [
-        "T1552.004"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-4"
       ],
@@ -487,26 +408,20 @@
         "tls",
         "cde"
       ],
-      "risk_score": 80
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-016",
       "name": "PCI-DSS \u2014 Insecure Data Storage of PAN",
       "description": "Detects storage of unencrypted primary account numbers violating PCI-DSS Requirement 3",
-      "severity": "Critical",
+      "severity": "Medium",
       "query": "data_storage_events\n| where data_type == \"PAN\" and encryption_status == \"unencrypted\" and storage_location != \"tokenized\"\n| summarize count() by StorageLocation, DatabaseName, bin(TimeGenerated, 5m)\n| where count_ > 1",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 1,
-      "tactics": [
-        "Collection",
-        "Exfiltration"
-      ],
-      "techniques": [
-        "T1530",
-        "T1567"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-3"
       ],
@@ -521,24 +436,20 @@
         "unencrypted",
         "cde"
       ],
-      "risk_score": 98
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-017",
       "name": "PCI-DSS \u2014 Malware Protection Disabled in CDE",
       "description": "Detects disabled or misconfigured malware protection in cardholder data environment",
-      "severity": "High",
+      "severity": "Medium",
       "query": "malware_protection_events\n| where environment == \"cardholder_data\" and protection_status in (\"disabled\", \"outdated\", \"misconfigured\")\n| summarize count() by SystemName, ProtectionType, bin(TimeGenerated, 1h)\n| where count_ > 1",
       "queryFrequency": "PT1H",
       "queryPeriod": "PT1H",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 1,
-      "tactics": [
-        "DefenseEvasion"
-      ],
-      "techniques": [
-        "T1562.001"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-5"
       ],
@@ -551,7 +462,7 @@
         "malware-protection",
         "cde"
       ],
-      "risk_score": 84
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-018",
@@ -577,26 +488,20 @@
         "penetration-test",
         "remediation"
       ],
-      "risk_score": 70
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-019",
       "name": "PCI-DSS \u2014 Third-Party Remote Access to CDE",
       "description": "Detects unauthorized third-party remote access to cardholder data environment",
-      "severity": "Critical",
+      "severity": "Medium",
       "query": "remote_access_events\n| where environment == \"cardholder_data\" and access_type == \"third_party\" and authorized == false\n| summarize count() by VendorName, UserID, AccessType, bin(TimeGenerated, 5m)\n| where count_ > 1",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 1,
-      "tactics": [
-        "InitialAccess",
-        "Persistence"
-      ],
-      "techniques": [
-        "T1190",
-        "T1133"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-8",
         "PCI-DSS-12"
@@ -611,26 +516,20 @@
         "remote-access",
         "cde"
       ],
-      "risk_score": 95
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-020",
       "name": "PCI-DSS \u2014 Change Control Violation in CDE",
       "description": "Detects unauthorized changes to cardholder data environment without proper change control",
-      "severity": "High",
+      "severity": "Medium",
       "query": "change_events\n| where environment == \"cardholder_data\" and change_approved == false and change_documented == false\n| summarize count() by ChangeType, SystemName, UserID, bin(TimeGenerated, 10m)\n| where count_ > 3",
       "queryFrequency": "PT10M",
       "queryPeriod": "PT10M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 3,
-      "tactics": [
-        "Persistence",
-        "DefenseEvasion"
-      ],
-      "techniques": [
-        "T1195.002",
-        "T1562"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-6"
       ],
@@ -643,26 +542,20 @@
         "change-control",
         "cde"
       ],
-      "risk_score": 85
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-021",
       "name": "PCI-DSS \u2014 Insider Threat Card Data Access Anomaly",
       "description": "Detects anomalous access patterns to cardholder data by insiders indicating potential data theft",
-      "severity": "Critical",
+      "severity": "Medium",
       "query": "data_access_events\n| where data_classification == \"cardholder_data\" and access_anomaly_score > 0.8 and user_type == \"internal\"\n| summarize count() by UserID, AccessPattern, bin(TimeGenerated, 15m)\n| where count_ > 5",
       "queryFrequency": "PT15M",
       "queryPeriod": "PT15M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "Collection",
-        "Exfiltration"
-      ],
-      "techniques": [
-        "T1530",
-        "T1567"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-7",
         "PCI-DSS-10"
@@ -677,7 +570,7 @@
         "card-data",
         "anomaly"
       ],
-      "risk_score": 94
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-022",
@@ -689,12 +582,8 @@
       "queryPeriod": "PT1H",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "DefenseEvasion"
-      ],
-      "techniques": [
-        "T1070"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-10"
       ],
@@ -708,24 +597,20 @@
         "ntp",
         "cde"
       ],
-      "risk_score": 65
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-023",
       "name": "PCI-DSS \u2014 Insecure Password Policy in CDE",
       "description": "Detects accounts in cardholder data environment with password policies not meeting PCI-DSS requirements",
-      "severity": "High",
+      "severity": "Medium",
       "query": "password_policy_events\n| where environment == \"cardholder_data\" and (min_password_length < 7 or complexity_required == false or history_count < 4)\n| summarize count() by PolicyName, SystemName, bin(TimeGenerated, 1d)\n| where count_ > 1",
       "queryFrequency": "P1D",
       "queryPeriod": "P1D",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 1,
-      "tactics": [
-        "CredentialAccess"
-      ],
-      "techniques": [
-        "T1110"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-8"
       ],
@@ -738,24 +623,20 @@
         "password-policy",
         "cde"
       ],
-      "risk_score": 82
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-024",
       "name": "PCI-DSS \u2014 Data Retention Violation in CDE",
       "description": "Detects cardholder data retained beyond required periods or not destroyed properly",
-      "severity": "High",
+      "severity": "Medium",
       "query": "data_retention_events\n| where environment == \"cardholder_data\" and (data_age_days > retention_days and data_deleted == false) or destruction_method == \"insecure\"\n| summarize count() by DataCategory, RetentionPolicyDays, bin(TimeGenerated, 1d)\n| where count_ > 5",
       "queryFrequency": "P1D",
       "queryPeriod": "P1D",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "Collection"
-      ],
-      "techniques": [
-        "T1530"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "PCI-DSS-3"
       ],
@@ -769,13 +650,13 @@
         "destruction",
         "cde"
       ],
-      "risk_score": 80
+      "risk_score": 50
     },
     {
       "rule_id": "MS-PCI-025",
       "name": "PCI-DSS \u2014 Incident Response Plan Gaps in CDE",
       "description": "Detects security incidents in cardholder data environment without corresponding incident response plan activation",
-      "severity": "High",
+      "severity": "Medium",
       "query": "incident_events\n| where environment == \"cardholder_data\" and severity in (\"high\", \"critical\") and ir_plan_activated == false\n| summarize count() by IncidentType, Severity, bin(TimeGenerated, 15m)\n| where count_ > 1",
       "queryFrequency": "PT15M",
       "queryPeriod": "PT15M",
@@ -796,7 +677,7 @@
         "cde",
         "governance"
       ],
-      "risk_score": 88
+      "risk_score": 50
     }
   ]
 }

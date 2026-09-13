@@ -1,401 +1,533 @@
-[
-  {
-    "rule_id": "AWS-ENDPOINT-006",
-    "name": "CVE-2026-33824 \u2014 Internet Key Exchange (IKE) Service Extensions Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-33824: Microsoft Internet Key Exchange (IKE) Service Extensions contains a double free vulnerability that could enable remote code execution.. Product: Internet Key Exchange (IKE) Service Extensions",
-    "severity": "critical",
-    "category": "endpoint",
-    "mitre_attack": [
-      "T1059",
-      "T1190"
-    ],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "source": [
-      "aws.cloudtrail"
-    ],
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CVE-2026-33824\u2014InternetKeyExchange(IKE)ServiceExtensionsExploitation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
-    },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+{
+  "description": "SIEM alert rules \u2014 generated-endpoint (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-13T22:00:56.789953Z",
+  "total_rules": 9,
+  "rules": [
+    {
+      "rule_id": "AWS-ENDPOINT-006",
+      "name": "CVE-2026-33824 \u2014 Internet Key Exchange (IKE) Service Extensions Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-33824: Microsoft Internet Key Exchange (IKE) Service Extensions contains a double free vulnerability that could enable remote code execution.. Product: Internet Key Exchange (IKE) Service Extensions",
+      "severity": "critical",
+      "category": "endpoint",
+      "mitre_attack": [
+        "T1059",
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-33824\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202633824InternetKeyExchangeIKEServiceExtensionsExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "endpoint",
-      "cve",
-      "cve-2026-33824",
-      "exploited"
-    ]
-  },
-  {
-    "rule_id": "AWS-ENDPOINT-012",
-    "name": "CVE-2026-68820 \u2014 Windows Ancillary Function Driver for WinSock  Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-68820: Microsoft Windows Ancillary Function Driver for WinSock contains a use-after-free vulnerability that allows an authorized attacker to elevate privileges locally.. Product: Windows Ancillary Function Driver for WinSock ",
-    "severity": "critical",
-    "category": "endpoint",
-    "mitre_attack": [
-      "T1110",
-      "T1078"
-    ],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "source": [
-      "aws.cloudtrail"
-    ],
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CVE-2026-68820\u2014WindowsAncillaryFunctionDriverforWinSockExploitation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
-    },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-33824 \u2014 Internet Key Exchange (IKE) Servi"
+            ]
+          }
+        },
+        "state": "ENABLED"
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "endpoint",
-      "cve",
-      "cve-2026-68820",
-      "exploited"
-    ]
-  },
-  {
-    "rule_id": "AWS-ENDPOINT-016",
-    "name": "CVE-2026-33824 \u2014 Internet Key Exchange (IKE) Service Extensions Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-33824: Microsoft Internet Key Exchange (IKE) Service Extensions contains a double free vulnerability that could enable remote code execution.. Product: Internet Key Exchange (IKE) Service Extensions",
-    "severity": "critical",
-    "category": "endpoint",
-    "mitre_attack": [
-      "T1059",
-      "T1190"
-    ],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "source": [
-      "aws.cloudtrail"
-    ],
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CVE-2026-33824\u2014InternetKeyExchange(IKE)ServiceExtensionsExploitation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "endpoint",
+        "cve",
+        "cve-2026-33824",
+        "exploited"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ENDPOINT-012",
+      "name": "CVE-2026-68820 \u2014 Windows Ancillary Function Driver for WinSock  Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-68820: Microsoft Windows Ancillary Function Driver for WinSock contains a use-after-free vulnerability that allows an authorized attacker to elevate privileges locally.. Product: Windows Ancillary Function Driver for WinSock ",
+      "severity": "critical",
+      "category": "endpoint",
+      "mitre_attack": [
+        "T1110",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-68820\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202668820WindowsAncillaryFunctionDriverforWinSockExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "endpoint",
-      "cve",
-      "cve-2026-33824",
-      "exploited"
-    ]
-  },
-  {
-    "rule_id": "AWS-ENDPOINT-018",
-    "name": "CVE-2026-33824 \u2014 Internet Key Exchange (IKE) Service Extensions Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-33824: Microsoft Internet Key Exchange (IKE) Service Extensions contains a double free vulnerability that could enable remote code execution.. Product: Internet Key Exchange (IKE) Service Extensions",
-    "severity": "critical",
-    "category": "endpoint",
-    "mitre_attack": [
-      "T1059",
-      "T1190"
-    ],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "source": [
-      "aws.cloudtrail"
-    ],
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CVE-2026-33824\u2014InternetKeyExchange(IKE)ServiceExtensionsExploitation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-68820 \u2014 Windows Ancillary Function Driver"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "endpoint",
+        "cve",
+        "cve-2026-68820",
+        "exploited"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ENDPOINT-016",
+      "name": "CVE-2026-33824 \u2014 Internet Key Exchange (IKE) Service Extensions Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-33824: Microsoft Internet Key Exchange (IKE) Service Extensions contains a double free vulnerability that could enable remote code execution.. Product: Internet Key Exchange (IKE) Service Extensions",
+      "severity": "critical",
+      "category": "endpoint",
+      "mitre_attack": [
+        "T1059",
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-33824\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202633824InternetKeyExchangeIKEServiceExtensionsExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "endpoint",
-      "cve",
-      "cve-2026-33824",
-      "exploited"
-    ]
-  },
-  {
-    "rule_id": "AWS-ENDPOINT-002",
-    "name": "CVE-2026-81963 \u2014 Windows Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-81963: Microsoft Windows Update Stack contains a link following vulnerability that allows a local attacker to escalate privileges locally up to SYSTEM.. Product: Windows",
-    "severity": "critical",
-    "category": "endpoint",
-    "mitre_attack": [],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "source": [
-      "aws.cloudtrail"
-    ],
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CVE-2026-81963\u2014WindowsExploitation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-33824 \u2014 Internet Key Exchange (IKE) Servi"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "endpoint",
+        "cve",
+        "cve-2026-33824",
+        "exploited"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ENDPOINT-018",
+      "name": "CVE-2026-33824 \u2014 Internet Key Exchange (IKE) Service Extensions Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-33824: Microsoft Internet Key Exchange (IKE) Service Extensions contains a double free vulnerability that could enable remote code execution.. Product: Internet Key Exchange (IKE) Service Extensions",
+      "severity": "critical",
+      "category": "endpoint",
+      "mitre_attack": [
+        "T1059",
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-33824\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202633824InternetKeyExchangeIKEServiceExtensionsExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "endpoint",
-      "cve",
-      "cve-2026-81963",
-      "exploited"
-    ]
-  },
-  {
-    "rule_id": "AWS-ENDPOINT-004",
-    "name": "CVE-2026-85880 \u2014 Windows Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-85880: Microsoft Windows Advanced Local Procedure Call contains a heap-based buffer overflow vulnerability that allows an attacker to elevate privileges locally.. Product: Windows",
-    "severity": "critical",
-    "category": "endpoint",
-    "mitre_attack": [],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "source": [
-      "aws.cloudtrail"
-    ],
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CVE-2026-85880\u2014WindowsExploitation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-33824 \u2014 Internet Key Exchange (IKE) Servi"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "endpoint",
+        "cve",
+        "cve-2026-33824",
+        "exploited"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ENDPOINT-002",
+      "name": "CVE-2026-81963 \u2014 Windows Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-81963: Microsoft Windows Update Stack contains a link following vulnerability that allows a local attacker to escalate privileges locally up to SYSTEM.. Product: Windows",
+      "severity": "critical",
+      "category": "endpoint",
+      "mitre_attack": [],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-81963\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202681963WindowsExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "endpoint",
-      "cve",
-      "cve-2026-85880",
-      "exploited"
-    ]
-  },
-  {
-    "rule_id": "AWS-ENDPOINT-008",
-    "name": "CVE-2026-85880 \u2014 Windows Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-85880: Microsoft Windows Advanced Local Procedure Call contains a heap-based buffer overflow vulnerability that allows an attacker to elevate privileges locally.. Product: Windows",
-    "severity": "critical",
-    "category": "endpoint",
-    "mitre_attack": [],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "source": [
-      "aws.cloudtrail"
-    ],
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CVE-2026-85880\u2014WindowsExploitation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-81963 \u2014 Windows Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "endpoint",
+        "cve",
+        "cve-2026-81963",
+        "exploited"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ENDPOINT-004",
+      "name": "CVE-2026-85880 \u2014 Windows Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-85880: Microsoft Windows Advanced Local Procedure Call contains a heap-based buffer overflow vulnerability that allows an attacker to elevate privileges locally.. Product: Windows",
+      "severity": "critical",
+      "category": "endpoint",
+      "mitre_attack": [],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-85880\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202685880WindowsExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "endpoint",
-      "cve",
-      "cve-2026-85880",
-      "exploited"
-    ]
-  },
-  {
-    "rule_id": "AWS-ENDPOINT-010",
-    "name": "CVE-2026-85880 \u2014 Windows Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-85880: Microsoft Windows Advanced Local Procedure Call contains a heap-based buffer overflow vulnerability that allows an attacker to elevate privileges locally.. Product: Windows",
-    "severity": "critical",
-    "category": "endpoint",
-    "mitre_attack": [],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "source": [
-      "aws.cloudtrail"
-    ],
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CVE-2026-85880\u2014WindowsExploitation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-85880 \u2014 Windows Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "endpoint",
+        "cve",
+        "cve-2026-85880",
+        "exploited"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ENDPOINT-008",
+      "name": "CVE-2026-85880 \u2014 Windows Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-85880: Microsoft Windows Advanced Local Procedure Call contains a heap-based buffer overflow vulnerability that allows an attacker to elevate privileges locally.. Product: Windows",
+      "severity": "critical",
+      "category": "endpoint",
+      "mitre_attack": [],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-85880\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202685880WindowsExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "endpoint",
-      "cve",
-      "cve-2026-85880",
-      "exploited"
-    ]
-  },
-  {
-    "rule_id": "AWS-ENDPOINT-014",
-    "name": "CVE-2026-85880 \u2014 Windows Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-85880: Microsoft Windows Advanced Local Procedure Call contains a heap-based buffer overflow vulnerability that allows an attacker to elevate privileges locally.. Product: Windows",
-    "severity": "critical",
-    "category": "endpoint",
-    "mitre_attack": [],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "source": [
-      "aws.cloudtrail"
-    ],
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CVE-2026-85880\u2014WindowsExploitation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-85880 \u2014 Windows Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "endpoint",
+        "cve",
+        "cve-2026-85880",
+        "exploited"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-ENDPOINT-010",
+      "name": "CVE-2026-85880 \u2014 Windows Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-85880: Microsoft Windows Advanced Local Procedure Call contains a heap-based buffer overflow vulnerability that allows an attacker to elevate privileges locally.. Product: Windows",
+      "severity": "critical",
+      "category": "endpoint",
+      "mitre_attack": [],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-85880\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202685880WindowsExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "endpoint",
-      "cve",
-      "cve-2026-85880",
-      "exploited"
-    ]
-  }
-]
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-85880 \u2014 Windows Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "endpoint",
+        "cve",
+        "cve-2026-85880",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-ENDPOINT-014",
+      "name": "CVE-2026-85880 \u2014 Windows Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-85880: Microsoft Windows Advanced Local Procedure Call contains a heap-based buffer overflow vulnerability that allows an attacker to elevate privileges locally.. Product: Windows",
+      "severity": "critical",
+      "category": "endpoint",
+      "mitre_attack": [],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-85880\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202685880WindowsExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-85880 \u2014 Windows Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "endpoint",
+        "cve",
+        "cve-2026-85880",
+        "exploited"
+      ]
+    }
+  ]
+}

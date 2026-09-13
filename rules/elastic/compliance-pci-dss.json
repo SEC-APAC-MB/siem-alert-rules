@@ -1,384 +1,1106 @@
 {
-  "description": "Elastic Security SIEM alert rules — PCI-DSS Specific Detection Rules",
-  "version": "1.0.0",
-  "elastic_version": "8.x",
+  "description": "SIEM alert rules \u2014 compliance-pci-dss (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-13T22:00:56.693590Z",
   "total_rules": 25,
   "rules": [
     {
       "rule_id": "ES-PCI-001",
-      "name": "PCI-DSS — Unencrypted Cardholder Data in Transit",
+      "name": "PCI-DSS \u2014 Unencrypted Cardholder Data in Transit",
       "description": "Detects transmission of cardholder data over unencrypted channels violating PCI-DSS Requirement 4",
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND (http.response.status_code:200 OR event.outcome:\"success\") AND (url.scheme:\"http\" OR NOT tls.version:*) AND (tags:\"cardholder-data\" OR tags:\"payment\")",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-4"],
-      "mitre": ["T1566", "T1530"],
-      "compliance": ["PCI-DSS-4", "PCI-DSS-4.1", "PCI-DSS-4.2"],
-      "tags": ["pci-dss", "encryption", "cardholder-data", "transit"],
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-4"
+      ],
+      "threat": [],
       "risk_score": 95,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "encryption",
+        "cardholder-data",
+        "transit"
+      ],
+      "compliance": [
+        "PCI-DSS-4",
+        "PCI-DSS-4.1",
+        "PCI-DSS-4.2"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-002",
-      "name": "PCI-DSS — Cardholder Data Stored in Cleartext",
+      "name": "PCI-DSS \u2014 Cardholder Data Stored in Cleartext",
       "description": "Detects storage of cardholder data in cleartext format violating PCI-DSS Requirement 3",
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"database\" AND event.action:\"write\" AND (tags:\"cardholder-data\" OR tags:\"pan\" OR tags:\"track-data\") AND NOT _marker:encrypted",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-3"],
-      "mitre": ["T1555", "T1530"],
-      "compliance": ["PCI-DSS-3", "PCI-DSS-3.4", "PCI-DSS-3.5"],
-      "tags": ["pci-dss", "encryption", "cardholder-data", "storage"],
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-3"
+      ],
+      "threat": [],
       "risk_score": 95,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "encryption",
+        "cardholder-data",
+        "storage"
+      ],
+      "compliance": [
+        "PCI-DSS-3",
+        "PCI-DSS-3.4",
+        "PCI-DSS-3.5"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-003",
-      "name": "PCI-DSS — Default Credentials in Cardholder Environment",
+      "name": "PCI-DSS \u2014 Default Credentials in Cardholder Environment",
       "description": "Detects use of default vendor-supplied credentials in the cardholder data environment violating PCI-DSS Requirement 8",
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"authentication\" AND event.outcome:\"success\" AND _marker:default_credential AND tags:\"cardholder-environment\"",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-8"],
-      "mitre": ["T1078.001"],
-      "compliance": ["PCI-DSS-8.1", "PCI-DSS-8.2", "PCI-DSS-8.4"],
-      "tags": ["pci-dss", "default-credentials", "cardholder-environment"],
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-8"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
+          },
+          "technique": [
+            {
+              "id": "T1078.001",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078.001/"
+            }
+          ]
+        }
+      ],
       "risk_score": 95,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "default-credentials",
+        "cardholder-environment"
+      ],
+      "compliance": [
+        "PCI-DSS-8.1",
+        "PCI-DSS-8.2",
+        "PCI-DSS-8.4"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-004",
-      "name": "PCI-DSS — Excessive Failed Logins in CDE",
+      "name": "PCI-DSS \u2014 Excessive Failed Logins in CDE",
       "description": "Detects excessive failed login attempts within the cardholder data environment requiring account lockout per PCI-DSS 8.1.6",
       "severity": "high",
       "type": "threshold",
       "query": "event.category:\"authentication\" AND event.outcome:\"failure\" AND tags:\"cardholder-environment\"",
-      "threshold": { "field": "source.ip", "value": 6, "time_window": "5m" },
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-8.1.6"],
-      "mitre": ["T1110.001"],
-      "compliance": ["PCI-DSS-8.1.6"],
-      "tags": ["pci-dss", "brute-force", "cde", "authentication"],
-      "risk_score": 85,
-      "interval": "1m"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-8.1.6"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1110.001",
+              "name": "Brute Force",
+              "reference": "https://attack.mitre.org/techniques/T1110.001/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 75,
+      "interval": "1m",
+      "tags": [
+        "pci-dss",
+        "brute-force",
+        "cde",
+        "authentication"
+      ],
+      "compliance": [
+        "PCI-DSS-8.1.6"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-005",
-      "name": "PCI-DSS — Missing MFA for CDE Admin Access",
+      "name": "PCI-DSS \u2014 Missing MFA for CDE Admin Access",
       "description": "Detects administrative access to the cardholder data environment without multi-factor authentication",
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"authentication\" AND event.outcome:\"success\" AND tags:\"cardholder-environment\" AND user.name:*admin* AND NOT event.action:\"mfa-verify\"",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-8.3"],
-      "mitre": ["T1078"],
-      "compliance": ["PCI-DSS-8.3.1", "PCI-DSS-8.3.2"],
-      "tags": ["pci-dss", "mfa", "cde", "admin-access"],
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-8.3"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
+          },
+          "technique": [
+            {
+              "id": "T1078",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078/"
+            }
+          ]
+        }
+      ],
       "risk_score": 95,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "mfa",
+        "cde",
+        "admin-access"
+      ],
+      "compliance": [
+        "PCI-DSS-8.3.1",
+        "PCI-DSS-8.3.2"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-006",
-      "name": "PCI-DSS — Unauthorized Network Access to CDE",
+      "name": "PCI-DSS \u2014 Unauthorized Network Access to CDE",
       "description": "Detects unauthorized network access attempts to the cardholder data environment violating PCI-DSS Requirement 1",
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND event.action:\"connection\" AND destination.ip:* AND tags:\"cardholder-environment\" AND NOT _marker:authorized_network_access",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-1"],
-      "mitre": ["T1190", "T1078"],
-      "compliance": ["PCI-DSS-1", "PCI-DSS-1.1", "PCI-DSS-1.2"],
-      "tags": ["pci-dss", "network-access", "cde", "firewall"],
-      "risk_score": 90,
-      "interval": "5m"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-1"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
+          },
+          "technique": [
+            {
+              "id": "T1078",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "network-access",
+        "cde",
+        "firewall"
+      ],
+      "compliance": [
+        "PCI-DSS-1",
+        "PCI-DSS-1.1",
+        "PCI-DSS-1.2"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-007",
-      "name": "PCI-DSS — PAN Masking Violation",
+      "name": "PCI-DSS \u2014 PAN Masking Violation",
       "description": "Detects display or logging of unmasked Primary Account Numbers violating PCI-DSS Requirement 3.3",
       "severity": "critical",
       "type": "query",
       "query": "event.category:* AND _marker:unmasked_pan AND NOT tags:\"pan-authorized\"",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-3.3"],
-      "mitre": ["T1530"],
-      "compliance": ["PCI-DSS-3.3"],
-      "tags": ["pci-dss", "pan-masking", "cardholder-data"],
-      "risk_score": 90,
-      "interval": "5m"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-3.3"
+      ],
+      "threat": [],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "pan-masking",
+        "cardholder-data"
+      ],
+      "compliance": [
+        "PCI-DSS-3.3"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-008",
-      "name": "PCI-DSS — Wireless Access Point in CDE",
+      "name": "PCI-DSS \u2014 Wireless Access Point in CDE",
       "description": "Detects unauthorized wireless access points in or near the cardholder data environment violating PCI-DSS Requirement 1",
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND network.type:\"wireless\" AND NOT _marker:authorized_wireless AND tags:\"cardholder-environment\"",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-1.2.3"],
-      "mitre": ["T1590.004", "T1078"],
-      "compliance": ["PCI-DSS-1.2.3", "PCI-DSS-11.1"],
-      "tags": ["pci-dss", "wireless", "rogue-ap", "cde"],
-      "risk_score": 90,
-      "interval": "5m"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-1.2.3"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
+          },
+          "technique": [
+            {
+              "id": "T1078",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "wireless",
+        "rogue-ap",
+        "cde"
+      ],
+      "compliance": [
+        "PCI-DSS-1.2.3",
+        "PCI-DSS-11.1"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-009",
-      "name": "PCI-DSS — Missing Log Review for Critical Systems",
+      "name": "PCI-DSS \u2014 Missing Log Review for Critical Systems",
       "description": "Detects gaps in daily log review for critical systems in the CDE as required by PCI-DSS Requirement 10",
       "severity": "high",
       "type": "query",
       "query": "event.category:* AND _marker:log_review_gap AND tags:\"cardholder-environment\"",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-10"],
-      "mitre": [],
-      "compliance": ["PCI-DSS-10.2", "PCI-DSS-10.4"],
-      "tags": ["pci-dss", "logging", "log-review", "cde"],
-      "risk_score": 70,
-      "interval": "1h"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-10"
+      ],
+      "threat": [],
+      "risk_score": 75,
+      "interval": "1h",
+      "tags": [
+        "pci-dss",
+        "logging",
+        "log-review",
+        "cde"
+      ],
+      "compliance": [
+        "PCI-DSS-10.2",
+        "PCI-DSS-10.4"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-010",
-      "name": "PCI-DSS — Shared Accounts in CDE",
+      "name": "PCI-DSS \u2014 Shared Accounts in CDE",
       "description": "Detects use of shared or generic accounts in the cardholder data environment violating PCI-DSS Requirement 8",
       "severity": "high",
       "type": "query",
       "query": "event.category:\"authentication\" AND event.outcome:\"success\" AND tags:\"cardholder-environment\" AND _marker:shared_account",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-8.1.1"],
-      "mitre": ["T1078"],
-      "compliance": ["PCI-DSS-8.1.1", "PCI-DSS-8.1.2"],
-      "tags": ["pci-dss", "shared-accounts", "cde", "authentication"],
-      "risk_score": 80,
-      "interval": "5m"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-8.1.1"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
+          },
+          "technique": [
+            {
+              "id": "T1078",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 75,
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "shared-accounts",
+        "cde",
+        "authentication"
+      ],
+      "compliance": [
+        "PCI-DSS-8.1.1",
+        "PCI-DSS-8.1.2"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-011",
-      "name": "PCI-DSS — Insecure Services in CDE",
+      "name": "PCI-DSS \u2014 Insecure Services in CDE",
       "description": "Detects use of insecure protocols and services within the cardholder data environment including Telnet, FTP, and HTTP",
       "severity": "high",
       "type": "query",
       "query": "event.category:\"network\" AND (service.name:\"telnet\" OR service.name:\"ftp\" OR service.name:\"http\" OR service.name:\"rlogin\" OR service.name:\"rsh\") AND tags:\"cardholder-environment\"",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-2.2.4"],
-      "mitre": ["T1071", "T1048"],
-      "compliance": ["PCI-DSS-2.2.4", "PCI-DSS-4.1"],
-      "tags": ["pci-dss", "insecure-services", "cde", "encryption"],
-      "risk_score": 80,
-      "interval": "5m"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-2.2.4"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0011",
+            "name": "CommandAndControl",
+            "reference": "https://attack.mitre.org/tactics/TA0011/"
+          },
+          "technique": [
+            {
+              "id": "T1071",
+              "name": "T1071",
+              "reference": "https://attack.mitre.org/techniques/T1071/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 75,
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "insecure-services",
+        "cde",
+        "encryption"
+      ],
+      "compliance": [
+        "PCI-DSS-2.2.4",
+        "PCI-DSS-4.1"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-012",
-      "name": "PCI-DSS — Unrestricted Outbound Traffic from CDE",
+      "name": "PCI-DSS \u2014 Unrestricted Outbound Traffic from CDE",
       "description": "Detects unrestricted outbound network traffic from the cardholder data environment violating PCI-DSS Requirement 1",
       "severity": "high",
       "type": "query",
       "query": "event.category:\"network\" AND event.action:\"connection\" AND source.ip:* AND tags:\"cardholder-environment\" AND destination.ip:* AND NOT _marker:authorized_egress",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-1.3.4"],
-      "mitre": ["T1048", "T1071"],
-      "compliance": ["PCI-DSS-1.3.4", "PCI-DSS-1.4"],
-      "tags": ["pci-dss", "egress-filtering", "cde", "network"],
-      "risk_score": 80,
-      "interval": "5m"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-1.3.4"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0011",
+            "name": "CommandAndControl",
+            "reference": "https://attack.mitre.org/tactics/TA0011/"
+          },
+          "technique": [
+            {
+              "id": "T1071",
+              "name": "T1071",
+              "reference": "https://attack.mitre.org/techniques/T1071/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 75,
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "egress-filtering",
+        "cde",
+        "network"
+      ],
+      "compliance": [
+        "PCI-DSS-1.3.4",
+        "PCI-DSS-1.4"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-013",
-      "name": "PCI-DSS — Weak Cryptographic Keys in CDE",
+      "name": "PCI-DSS \u2014 Weak Cryptographic Keys in CDE",
       "description": "Detects use of weak or deprecated cryptographic algorithms in the cardholder data environment",
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND (tls.version:\"1.0\" OR tls.version:\"1.1\" OR tls.cipher:*DES* OR tls.cipher:*RC4* OR tls.cipher:*MD5*) AND tags:\"cardholder-environment\"",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-4.1"],
-      "mitre": ["T1573.001", "T1525"],
-      "compliance": ["PCI-DSS-4.1", "PCI-DSS-4.1.1"],
-      "tags": ["pci-dss", "cryptography", "weak-crypto", "cde"],
-      "risk_score": 90,
-      "interval": "5m"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-4.1"
+      ],
+      "threat": [],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "cryptography",
+        "weak-crypto",
+        "cde"
+      ],
+      "compliance": [
+        "PCI-DSS-4.1",
+        "PCI-DSS-4.1.1"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-014",
-      "name": "PCI-DSS — Physical Access Tampering to CDE Systems",
+      "name": "PCI-DSS \u2014 Physical Access Tampering to CDE Systems",
       "description": "Detects physical access tampering events on systems within the cardholder data environment",
       "severity": "high",
       "type": "query",
       "query": "event.category:\"physical\" AND event.action:(\"case-open\" OR \"tamper\" OR \"unauthorized-access\") AND tags:\"cardholder-environment\"",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-9"],
-      "mitre": ["T1190", "T1546"],
-      "compliance": ["PCI-DSS-9.1", "PCI-DSS-9.3", "PCI-DSS-9.4"],
-      "tags": ["pci-dss", "physical-access", "cde", "tampering"],
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-9"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
+        }
+      ],
       "risk_score": 75,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "physical-access",
+        "cde",
+        "tampering"
+      ],
+      "compliance": [
+        "PCI-DSS-9.1",
+        "PCI-DSS-9.3",
+        "PCI-DSS-9.4"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-015",
-      "name": "PCI-DSS — Malware Protection Gap in CDE",
+      "name": "PCI-DSS \u2014 Malware Protection Gap in CDE",
       "description": "Detects systems in the cardholder data environment without active malware protection violating PCI-DSS Requirement 5",
       "severity": "high",
       "type": "query",
       "query": "event.category:\"host\" AND _marker:malware_protection_disabled AND tags:\"cardholder-environment\"",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-5"],
-      "mitre": ["T1589.001", "T1203"],
-      "compliance": ["PCI-DSS-5.1", "PCI-DSS-5.2", "PCI-DSS-5.3"],
-      "tags": ["pci-dss", "malware-protection", "cde", "antivirus"],
-      "risk_score": 80,
-      "interval": "1h"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-5"
+      ],
+      "threat": [],
+      "risk_score": 75,
+      "interval": "1h",
+      "tags": [
+        "pci-dss",
+        "malware-protection",
+        "cde",
+        "antivirus"
+      ],
+      "compliance": [
+        "PCI-DSS-5.1",
+        "PCI-DSS-5.2",
+        "PCI-DSS-5.3"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-016",
-      "name": "PCI-DSS — SQL Injection Against Payment System",
+      "name": "PCI-DSS \u2014 SQL Injection Against Payment System",
       "description": "Detects SQL injection attacks targeting payment processing systems in the cardholder data environment",
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND tags:\"payment-system\" AND (url.original:*UNION*SELECT* OR url.original:*OR*1=1* OR url.original:*--* OR url.original:*DROP*TABLE*)",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-6.5"],
-      "mitre": ["T1190"],
-      "compliance": ["PCI-DSS-6.5", "PCI-DSS-6.5.1"],
-      "tags": ["pci-dss", "sql-injection", "payment-system", "cde"],
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-6.5"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
+        }
+      ],
       "risk_score": 95,
-      "interval": "1m"
+      "interval": "1m",
+      "tags": [
+        "pci-dss",
+        "sql-injection",
+        "payment-system",
+        "cde"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "PCI-DSS-6.5.1"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-017",
-      "name": "PCI-DSS — XSS Attack Against Payment Page",
+      "name": "PCI-DSS \u2014 XSS Attack Against Payment Page",
       "description": "Detects cross-site scripting attacks targeting payment pages and checkout systems",
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND tags:\"payment-page\" AND (url.original:*<script* OR url.original:*javascript:* OR url.original:*onerror* OR url.original:*onload*)",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-6.5"],
-      "mitre": ["T1059.007"],
-      "compliance": ["PCI-DSS-6.5", "PCI-DSS-6.5.7"],
-      "tags": ["pci-dss", "xss", "payment-page", "cde"],
-      "risk_score": 90,
-      "interval": "1m"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-6.5"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0002",
+            "name": "Execution",
+            "reference": "https://attack.mitre.org/tactics/TA0002/"
+          },
+          "technique": [
+            {
+              "id": "T1059.007",
+              "name": "Command and Scripting Interpreter",
+              "reference": "https://attack.mitre.org/techniques/T1059.007/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "1m",
+      "tags": [
+        "pci-dss",
+        "xss",
+        "payment-page",
+        "cde"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "PCI-DSS-6.5.7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-018",
-      "name": "PCI-DSS — Privilege Escalation in CDE",
+      "name": "PCI-DSS \u2014 Privilege Escalation in CDE",
       "description": "Detects privilege escalation attempts within the cardholder data environment",
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"authentication\" AND event.action:\"privilege-escalation\" AND event.outcome:\"success\" AND tags:\"cardholder-environment\"",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-8.6"],
-      "mitre": ["T1548", "T1078.002"],
-      "compliance": ["PCI-DSS-8.6", "PCI-DSS-7.1"],
-      "tags": ["pci-dss", "privilege-escalation", "cde"],
-      "risk_score": 90,
-      "interval": "5m"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-8.6"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0004",
+            "name": "PrivilegeEscalation",
+            "reference": "https://attack.mitre.org/tactics/TA0004/"
+          },
+          "technique": [
+            {
+              "id": "T1548",
+              "name": "Abuse Elevation Control Mechanism",
+              "reference": "https://attack.mitre.org/techniques/T1548/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
+          },
+          "technique": [
+            {
+              "id": "T1078.002",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078.002/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "privilege-escalation",
+        "cde"
+      ],
+      "compliance": [
+        "PCI-DSS-8.6",
+        "PCI-DSS-7.1"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-019",
-      "name": "PCI-DSS — Change Without Approval in CDE",
+      "name": "PCI-DSS \u2014 Change Without Approval in CDE",
       "description": "Detects configuration changes in the cardholder data environment that lack proper change management approval",
       "severity": "high",
       "type": "query",
       "query": "event.category:\"configuration\" AND event.action:\"change\" AND tags:\"cardholder-environment\" AND NOT _marker:change_approved",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-6.4"],
-      "mitre": ["T1542", "T1546"],
-      "compliance": ["PCI-DSS-6.4", "PCI-DSS-6.4.1", "PCI-DSS-6.4.2"],
-      "tags": ["pci-dss", "change-management", "cde"],
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-6.4"
+      ],
+      "threat": [],
       "risk_score": 75,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "change-management",
+        "cde"
+      ],
+      "compliance": [
+        "PCI-DSS-6.4",
+        "PCI-DSS-6.4.1",
+        "PCI-DSS-6.4.2"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-020",
-      "name": "PCI-DSS — Payment Card Skimmer Detection",
+      "name": "PCI-DSS \u2014 Payment Card Skimmer Detection",
       "description": "Detects web-based payment card skimmers (Magecart) injecting JavaScript into payment pages",
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND tags:\"payment-page\" AND (url.original:*document.createElement*script* OR url.original:*eval(atob* OR url.original:*fetch(*https://*) AND _marker:skimmer_pattern)",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-6.5", "MAGECART"],
-      "mitre": ["T1059.007", "T1190"],
-      "compliance": ["PCI-DSS-6.5", "PCI-DSS-6.4.3"],
-      "tags": ["pci-dss", "card-skimmer", "magecart", "payment-page"],
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-6.5",
+        "MAGECART"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0002",
+            "name": "Execution",
+            "reference": "https://attack.mitre.org/tactics/TA0002/"
+          },
+          "technique": [
+            {
+              "id": "T1059.007",
+              "name": "Command and Scripting Interpreter",
+              "reference": "https://attack.mitre.org/techniques/T1059.007/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
+        }
+      ],
       "risk_score": 95,
-      "interval": "1m"
+      "interval": "1m",
+      "tags": [
+        "pci-dss",
+        "card-skimmer",
+        "magecart",
+        "payment-page"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "PCI-DSS-6.4.3"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-021",
-      "name": "PCI-DSS — Data Exfiltration from CDE",
+      "name": "PCI-DSS \u2014 Data Exfiltration from CDE",
       "description": "Detects potential data exfiltration from the cardholder data environment through unusual outbound data transfers",
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND event.action:\"connection\" AND source.ip:* AND tags:\"cardholder-environment\" AND destination.ip:* AND network.bytes:>10485760 AND NOT _marker:authorized_transfer",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-1.3.4"],
-      "mitre": ["T1048", "T1567"],
-      "compliance": ["PCI-DSS-1.3.4", "PCI-DSS-3.5", "PCI-DSS-4.1"],
-      "tags": ["pci-dss", "data-exfiltration", "cde", "egress"],
-      "risk_score": 90,
-      "interval": "5m"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-1.3.4"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0010",
+            "name": "Exfiltration",
+            "reference": "https://attack.mitre.org/tactics/TA0010/"
+          },
+          "technique": [
+            {
+              "id": "T1567",
+              "name": "Exfiltration Over Web Service",
+              "reference": "https://attack.mitre.org/techniques/T1567/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "data-exfiltration",
+        "cde",
+        "egress"
+      ],
+      "compliance": [
+        "PCI-DSS-1.3.4",
+        "PCI-DSS-3.5",
+        "PCI-DSS-4.1"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-022",
-      "name": "PCI-DSS — Non-Compliant Password Policy in CDE",
+      "name": "PCI-DSS \u2014 Non-Compliant Password Policy in CDE",
       "description": "Detects accounts in the CDE with passwords that do not meet PCI-DSS 8.2.x requirements including length and complexity",
       "severity": "high",
       "type": "query",
       "query": "event.category:\"authentication\" AND event.action:\"password-change\" AND tags:\"cardholder-environment\" AND _marker:weak_password_policy",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-8.2"],
-      "mitre": ["T1110.001"],
-      "compliance": ["PCI-DSS-8.2.1", "PCI-DSS-8.2.2", "PCI-DSS-8.2.3", "PCI-DSS-8.2.4", "PCI-DSS-8.2.5"],
-      "tags": ["pci-dss", "password-policy", "cde", "authentication"],
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-8.2"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1110.001",
+              "name": "Brute Force",
+              "reference": "https://attack.mitre.org/techniques/T1110.001/"
+            }
+          ]
+        }
+      ],
       "risk_score": 75,
-      "interval": "1h"
+      "interval": "1h",
+      "tags": [
+        "pci-dss",
+        "password-policy",
+        "cde",
+        "authentication"
+      ],
+      "compliance": [
+        "PCI-DSS-8.2.1",
+        "PCI-DSS-8.2.2",
+        "PCI-DSS-8.2.3",
+        "PCI-DSS-8.2.4",
+        "PCI-DSS-8.2.5"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-023",
-      "name": "PCI-DSS — Session Timeout Exceeded in CDE",
+      "name": "PCI-DSS \u2014 Session Timeout Exceeded in CDE",
       "description": "Detects sessions in the cardholder data environment exceeding the 15-minute inactivity timeout requirement",
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"authentication\" AND event.action:\"session-timeout\" AND tags:\"cardholder-environment\" AND session.duration:>15m",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-8.1.8"],
-      "mitre": ["T1184"],
-      "compliance": ["PCI-DSS-8.1.8"],
-      "tags": ["pci-dss", "session-timeout", "cde"],
-      "risk_score": 60,
-      "interval": "15m"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-8.1.8"
+      ],
+      "threat": [],
+      "risk_score": 50,
+      "interval": "15m",
+      "tags": [
+        "pci-dss",
+        "session-timeout",
+        "cde"
+      ],
+      "compliance": [
+        "PCI-DSS-8.1.8"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-024",
-      "name": "PCI-DSS — Missing File Integrity Monitoring in CDE",
+      "name": "PCI-DSS \u2014 Missing File Integrity Monitoring in CDE",
       "description": "Detects absence of file integrity monitoring alerts for critical configuration files in the cardholder data environment",
       "severity": "high",
       "type": "query",
       "query": "event.category:\"host\" AND _marker:fim_gap AND tags:\"cardholder-environment\"",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-10.5.5", "PCI-DSS-Req-11.5"],
-      "mitre": ["T1565", "T1542"],
-      "compliance": ["PCI-DSS-10.5.5", "PCI-DSS-11.5"],
-      "tags": ["pci-dss", "file-integrity", "fim", "cde"],
-      "risk_score": 70,
-      "interval": "1h"
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-10.5.5",
+        "PCI-DSS-Req-11.5"
+      ],
+      "threat": [],
+      "risk_score": 75,
+      "interval": "1h",
+      "tags": [
+        "pci-dss",
+        "file-integrity",
+        "fim",
+        "cde"
+      ],
+      "compliance": [
+        "PCI-DSS-10.5.5",
+        "PCI-DSS-11.5"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-PCI-025",
-      "name": "PCI-DSS — Segmentation Failure Between CDE and Corporate Network",
+      "name": "PCI-DSS \u2014 Segmentation Failure Between CDE and Corporate Network",
       "description": "Detects network segmentation failures between the cardholder data environment and the corporate network",
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND event.action:\"connection\" AND source.ip:* AND tags:\"corporate-network\" AND destination.ip:* AND tags:\"cardholder-environment\" AND NOT _marker:authorized_segmentation",
-      "index": ["logs-*"],
-      "references": ["PCI-DSS-Req-1.3"],
-      "mitre": ["T1190", "T1078"],
-      "compliance": ["PCI-DSS-1.3", "PCI-DSS-1.3.1", "PCI-DSS-1.3.2", "PCI-DSS-1.3.3"],
-      "tags": ["pci-dss", "network-segmentation", "cde", "isolation"],
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "PCI-DSS-Req-1.3"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
+          },
+          "technique": [
+            {
+              "id": "T1078",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078/"
+            }
+          ]
+        }
+      ],
       "risk_score": 95,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "pci-dss",
+        "network-segmentation",
+        "cde",
+        "isolation"
+      ],
+      "compliance": [
+        "PCI-DSS-1.3",
+        "PCI-DSS-1.3.1",
+        "PCI-DSS-1.3.2",
+        "PCI-DSS-1.3.3"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     }
   ]
 }

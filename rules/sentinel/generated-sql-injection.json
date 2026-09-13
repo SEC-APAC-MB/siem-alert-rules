@@ -1,31 +1,42 @@
-[
-  {
-    "rule_id": "AZ-SQL-INJECTION-013",
-    "name": "CVE-2026-72898 \u2014 Metabase Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-72898: Metabase contains a SQL Injection vulnerability that allows an unauthenticated remote attacker to inject arbitrary SQL into the Metabase application database, which can give them administrator access to the instance. From there, the attacker could change the application configuration, steal stored credentials for the connected databases, read any data accessible through those connections, and export data.. Product: Metabase",
-    "severity": "High",
-    "category": "sql-injection",
-    "tactics": [],
-    "mitre_attack": [
-      "T1078",
-      "T1110",
-      "T1190"
-    ],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "query": "KQL: CVE-2026-72898 \u2014 Metabase Exploitation -- Azure Monitor/Sentinel detection",
-    "queryFrequency": "5m",
-    "queryPeriod": "10m",
-    "triggerOperator": "gt",
-    "triggerThreshold": 5,
-    "tags": [
-      "sql-injection",
-      "cve",
-      "cve-2026-72898",
-      "exploited"
-    ]
-  }
-]
+{
+  "description": "SIEM alert rules \u2014 generated-sql-injection (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-13T22:00:56.740163Z",
+  "total_rules": 1,
+  "rules": [
+    {
+      "rule_id": "AZ-SQL-INJECTION-013",
+      "name": "CVE-2026-72898 \u2014 Metabase Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-72898: Metabase contains a SQL Injection vulnerability that allows an unauthenticated remote attacker to inject arbitrary SQL into the Metabase application database, which can give them administrator access to the instance. From there, the attacker could change the application configuration, steal stored credentials for the connected databases, read any data accessible through those connections, and export data.. Product: Metabase",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where (Message contains \"CVE-2026-72898\" or Message contains \"METABASE\") | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "gt",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess",
+        "DefenseEvasion",
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1078",
+        "T1110",
+        "T1190"
+      ],
+      "references": [],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "tags": [
+        "sql-injection",
+        "cve",
+        "cve-2026-72898",
+        "exploited"
+      ],
+      "risk_score": 50
+    }
+  ]
+}

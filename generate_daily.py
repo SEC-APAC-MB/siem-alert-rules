@@ -31,6 +31,10 @@ import argparse
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+# Shared detection query builder — generates REAL platform-native queries
+# and response workflows from rule metadata (CVE, MITRE, category, tags)
+from detection_queries import build_detection_query, is_placeholder_query, get_response_workflow
+
 BASE = Path(__file__).parent
 RULES_DIR = BASE / "rules"
 INTEL_DIR = BASE / "threat_intel"
@@ -67,15 +71,17 @@ CATEGORIES = {
 # ─── Platform Formatters ─────────────────────────────────────
 
 def format_elastic(rule, seq):
-    """Format rule for Elastic Security (KQL/EQL + Rule API JSON)."""
+    """Format rule for Elastic Security with real KQL/EQL query and response workflow."""
     severity_map = {"critical": "critical", "high": "high", "medium": "medium", "low": "low", "informational": "info"}
+    existing = rule.get("query", rule.get("detection", {}).get("query", ""))
+    real_query = existing if existing and not is_placeholder_query(existing, "elastic") else build_detection_query(rule, "elastic")
     return {
         "rule_id": rule.get("rule_id", f"ES-{rule.get('category', 'GEN').upper()}-{seq:03d}"),
         "name": rule["name"],
         "description": rule["description"],
         "severity": severity_map.get(rule.get("severity", "medium"), "medium"),
         "type": rule.get("rule_type", "query"),
-        "query": rule.get("query", rule.get("detection", {}).get("query", "")),
+        "query": real_query,
         "index": rule.get("index", ["logs-*", "apm-*"]),
         "references": rule.get("references", []),
         "mitre": rule.get("mitre_attack", rule.get("mitre", [])),
@@ -83,27 +89,37 @@ def format_elastic(rule, seq):
         "tags": rule.get("tags", [rule.get("category", "general")]),
         "risk_score": {"critical": 95, "high": 75, "medium": 50, "low": 25, "informational": 10}.get(rule.get("severity", "medium"), 50),
         "interval": rule.get("interval", "5m"),
+        "response_workflow": get_response_workflow(rule),
     }
 
 
 def format_splunk(rule, seq):
-    """Format rule for Splunk Enterprise (SPL + correlation searches)."""
+    """Format rule for Splunk Enterprise with real SPL search and response workflow."""
+    existing = rule.get("query", rule.get("detection", {}).get("query", ""))
+    real_search = existing if existing and not is_placeholder_query(existing, "splunk") else build_detection_query(rule, "splunk")
     return {
         "rule_id": rule.get("rule_id", f"SPL-{rule.get('category', 'GEN').upper()}-{seq:03d}"),
         "name": rule["name"],
         "description": rule["description"],
         "severity": rule.get("severity", "medium"),
-        "search": rule.get("query", rule.get("detection", {}).get("query", "")),
+        "search": real_search,
         "action": rule.get("actions", [{"type": "alert", "description": "Send to SOC"}]),
         "references": rule.get("references", []),
         "mitre": rule.get("mitre_attack", rule.get("mitre", [])),
         "compliance": rule.get("compliance", []),
         "tags": rule.get("tags", [rule.get("category", "general")]),
+        "response_workflow": get_response_workflow(rule),
     }
 
 
 def format_oracle(rule, seq):
-    """Format rule for Oracle Cloud Infrastructure (OCI Alarm)."""
+    """Format rule for Oracle Cloud Infrastructure with real MQL query and response workflow."""
+    existing = rule.get("query", "")
+    if existing and not is_placeholder_query(existing, "oracle"):
+        real_query = existing
+    else:
+        metric_name = build_detection_query(rule, "oracle")
+        real_query = f'SELECT metric VALUE FROM "SIEM/Security" WHERE metric = \'{metric_name}\' AND value > 0'
     return {
         "rule_id": rule.get("rule_id", f"OCI-{rule.get('category', 'GEN').upper()}-{seq:03d}"),
         "name": rule["name"],
@@ -112,7 +128,7 @@ def format_oracle(rule, seq):
         "category": rule.get("category", "general"),
         "mitre_attack": rule.get("mitre_attack", rule.get("mitre", [])),
         "compliance": rule.get("compliance", []),
-        "query": rule.get("query", f"MQL: {rule['name']} -- OCI Monitoring Query Language detection"),
+        "query": real_query,
         "rule_type": rule.get("rule_type", "query"),
         "interval": rule.get("interval", "5m"),
         "condition": rule.get("condition", {
@@ -124,12 +140,15 @@ def format_oracle(rule, seq):
         }),
         "actions": rule.get("actions", [{"actionType": "ONS", "description": "Send alert notification"}]),
         "tags": rule.get("tags", [rule.get("category", "general")]),
+        "response_workflow": get_response_workflow(rule),
     }
 
 
 def format_azure(rule, seq):
-    """Format rule for Microsoft Azure Monitor/Sentinel (KQL)."""
+    """Format rule for Microsoft Azure Monitor/Sentinel with real KQL query and response workflow."""
     severity_map = {"critical": "High", "high": "High", "medium": "Medium", "low": "Low", "informational": "Informational"}
+    existing = rule.get("query", "")
+    real_query = existing if existing and not is_placeholder_query(existing, "azure") else build_detection_query(rule, "azure")
     return {
         "rule_id": rule.get("rule_id", f"AZ-{rule.get('category', 'GEN').upper()}-{seq:03d}"),
         "name": rule["name"],
@@ -139,17 +158,35 @@ def format_azure(rule, seq):
         "tactics": rule.get("tactics", []),
         "mitre_attack": rule.get("mitre_attack", rule.get("mitre", [])),
         "compliance": rule.get("compliance", []),
-        "query": rule.get("query", f"KQL: {rule['name']} -- Azure Monitor/Sentinel detection"),
+        "query": real_query,
         "queryFrequency": rule.get("interval", "5m"),
         "queryPeriod": rule.get("query_period", "10m"),
         "triggerOperator": rule.get("trigger_operator", "gt"),
         "triggerThreshold": rule.get("trigger_threshold", 5),
         "tags": rule.get("tags", [rule.get("category", "general")]),
+        "response_workflow": get_response_workflow(rule),
     }
 
 
 def format_aws(rule, seq):
-    """Format rule for AWS (CloudWatch + EventBridge + GuardDuty)."""
+    """Format rule for AWS with real CloudWatch filter pattern and response workflow."""
+    existing_detection = rule.get("detection", {})
+    existing_filter = existing_detection.get("filter_pattern", "") if isinstance(existing_detection, dict) else ""
+    if existing_filter and not is_placeholder_query(existing_filter, "aws"):
+        real_detection = existing_detection
+    else:
+        real_filter = build_detection_query(rule, "aws")
+        real_detection = {
+            "query_type": "cloudwatch_metric_filter",
+            "filter_pattern": real_filter,
+            "log_group": "/aws/cloudtrail",
+            "metric_namespace": "Security/Monitoring",
+            "metric_name": rule["name"].replace(" ", "")[:100],
+            "threshold": 5,
+            "evaluation_periods": 1,
+            "statistic": "Sum",
+            "period": 300
+        }
     return {
         "rule_id": rule.get("rule_id", f"AWS-{rule.get('category', 'GEN').upper()}-{seq:03d}"),
         "name": rule["name"],
@@ -159,27 +196,20 @@ def format_aws(rule, seq):
         "mitre_attack": rule.get("mitre_attack", rule.get("mitre", [])),
         "compliance": rule.get("compliance", []),
         "source": rule.get("source", ["aws.cloudtrail"]),
-        "detection": rule.get("detection", {
-            "query_type": "cloudwatch_metric_filter",
-            "filter_pattern": f"{{ ($.eventName = \"*\") }}",
-            "log_group": "/aws/cloudtrail",
-            "metric_namespace": "Security/Monitoring",
-            "metric_name": rule["name"].replace(" ", ""),
-            "threshold": 5,
-            "evaluation_periods": 1,
-            "statistic": "Sum",
-            "period": 300
-        }),
+        "detection": real_detection,
         "actions": rule.get("actions", [
             {"type": "SNS", "description": "Send alert to security team SNS topic"},
             {"type": "Lambda", "description": "Trigger automated remediation Lambda function"}
         ]),
         "tags": rule.get("tags", [rule.get("category", "general")]),
+        "response_workflow": get_response_workflow(rule),
     }
 
 
 def format_wazuh(rule, seq):
-    """Format rule for Wazuh (XML)."""
+    """Format rule for Wazuh with real match pattern and response workflow."""
+    existing = rule.get("match", rule.get("query", ""))
+    real_match = existing if existing and not is_placeholder_query(existing, "wazuh") else build_detection_query(rule, "wazuh")
     return {
         "rule_id": rule.get("rule_id", f"WZ-{rule.get('category', 'GEN').upper()}-{seq:03d}"),
         "name": rule["name"],
@@ -188,22 +218,28 @@ def format_wazuh(rule, seq):
         "category": rule.get("category", "general"),
         "mitre_attack": rule.get("mitre_attack", rule.get("mitre", [])),
         "compliance": rule.get("compliance", []),
-        "match": rule.get("match", rule.get("query", "")),
+        "match": real_match,
         "tags": rule.get("tags", [rule.get("category", "general")]),
+        "response_workflow": get_response_workflow(rule),
     }
 
 
 def format_suricata(rule, seq):
-    """Format rule for Suricata (IDS/IPS rule format)."""
-    sid = 4000000 + seq  # Suricata SID range for custom rules
+    """Format rule for Suricata with content match from detection query and response workflow."""
+    sid = 4000000 + seq
     severity_map = {"critical": 1, "high": 2, "medium": 3, "low": 4, "informational": 5}
-    msg = rule["name"].replace('"', '\\"')
-    desc = rule["description"].replace('"', '\\"')
-    mitre_tags = ",".join(rule.get("mitre_attack", rule.get("mitre", [])))
     cat_upper = rule.get("category", "GEN").upper()
     rule_name = rule["name"].replace('"', '\\"')
-    suricata_msg = "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"SIEM " + cat_upper + "-" + str(seq).zfill(3) + ": " + rule_name + "\"; flow:established,to_server; sid:" + str(sid) + "; rev:1;)"
-    
+    # Build content match from the zeek pattern (which has the raw match string)
+    zeek_pattern = build_detection_query(rule, "zeek")
+    content_match = ""
+    if zeek_pattern and "(" in zeek_pattern and ")" in zeek_pattern:
+        inner = zeek_pattern.strip("()")
+        content_match = inner.replace("\\", "")
+    if content_match:
+        suricata_msg = f'alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM {cat_upper}-{seq:03d}: {rule_name}"; flow:established,to_server; content:"{content_match[:80]}"; pcre:"/{content_match[:120]}/i"; sid:{sid}; rev:1;)'
+    else:
+        suricata_msg = f'alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SIEM {cat_upper}-{seq:03d}: {rule_name}"; flow:established,to_server; sid:{sid}; rev:1;)'
     return {
         "rule_id": "SUR-" + cat_upper + "-" + str(seq).zfill(3),
         "sid": sid,
@@ -215,12 +251,15 @@ def format_suricata(rule, seq):
         "compliance": rule.get("compliance", []),
         "suricata_rule": suricata_msg,
         "tags": rule.get("tags", [rule.get("category", "general")]),
+        "response_workflow": get_response_workflow(rule),
     }
 
 
 def format_zeek(rule, seq):
-    """Format rule for Zeek (signature format)."""
+    """Format rule for Zeek with real signature pattern and response workflow."""
     uid = f"ZK-{rule.get('category', 'GEN').upper()}-{seq:03d}"
+    pattern = build_detection_query(rule, "zeek")
+    name_escaped = rule["name"].replace('"', '\\"')
     return {
         "rule_id": uid,
         "name": rule["name"],
@@ -229,14 +268,22 @@ def format_zeek(rule, seq):
         "category": rule.get("category", "general"),
         "mitre_attack": rule.get("mitre_attack", rule.get("mitre", [])),
         "compliance": rule.get("compliance", []),
-        "zeek_signature": f'signature {uid} {{\n\tip-proto tcp\n\tdst-port = {{ 80 443 8080 8443 }}\n\thttp-request /.*({rule.get("query", "")}).*/ regex\n\tevent "{rule["name"]}"\n}}',
+        "zeek_signature": f'signature {uid} {{\n\tip-proto tcp\n\tdst-port = {{ 80 443 8080 8443 }}\n\thttp-request /.*({pattern}).*/ regex\n\tevent "{name_escaped}"\n}}',
         "tags": rule.get("tags", [rule.get("category", "general")]),
+        "response_workflow": get_response_workflow(rule),
     }
 
 
 def format_fortisiem(rule, seq):
-    """Format rule for FortiSIEM (XML pattern)."""
+    """Format rule for FortiSIEM with real XML filter and response workflow."""
     severity_map = {"critical": "Critical", "high": "High", "medium": "Medium", "low": "Low", "informational": "Info"}
+    existing = rule.get("query", rule.get("pattern", ""))
+    if existing and not is_placeholder_query(existing, "fortisiem"):
+        real_pattern = existing
+    else:
+        filter_expr = build_detection_query(rule, "fortisiem")
+        sev = severity_map.get(rule.get("severity", "medium"), "Medium")
+        real_pattern = f'<Pattern><PatternType>Generic</PatternType><EventCriteria><EventType>GenericEvent</EventType><Filter>{filter_expr}</Filter></EventCriteria><IncidentCriteria><Severity>{sev}</Severity></IncidentCriteria></Pattern>'
     return {
         "rule_id": f"FSIEM-{rule.get('category', 'GEN').upper()}-{seq:03d}",
         "name": rule["name"],
@@ -245,13 +292,16 @@ def format_fortisiem(rule, seq):
         "category": rule.get("category", "general"),
         "mitre_attack": rule.get("mitre_attack", rule.get("mitre", [])),
         "compliance": rule.get("compliance", []),
-        "pattern": rule.get("query", f"<Pattern>{rule['name']}</Pattern>"),
+        "pattern": real_pattern,
         "tags": rule.get("tags", [rule.get("category", "general")]),
+        "response_workflow": get_response_workflow(rule),
     }
 
 
 def format_qradar(rule, seq):
-    """Format rule for IBM QRadar (AQL)."""
+    """Format rule for IBM QRadar with real AQL query and response workflow."""
+    existing = rule.get("query", rule.get("aql_query", ""))
+    real_aql = existing if existing and not is_placeholder_query(existing, "qradar") else build_detection_query(rule, "qradar")
     return {
         "rule_id": f"QR-{rule.get('category', 'GEN').upper()}-{seq:03d}",
         "name": rule["name"],
@@ -260,8 +310,9 @@ def format_qradar(rule, seq):
         "category": rule.get("category", "general"),
         "mitre_attack": rule.get("mitre_attack", rule.get("mitre", [])),
         "compliance": rule.get("compliance", []),
-        "aql_query": rule.get("query", f"SELECT * FROM events WHERE CATEGORY = '{rule.get('category', 'general')}'"),
+        "aql_query": real_aql,
         "tags": rule.get("tags", [rule.get("category", "general")]),
+        "response_workflow": get_response_workflow(rule),
     }
 
 

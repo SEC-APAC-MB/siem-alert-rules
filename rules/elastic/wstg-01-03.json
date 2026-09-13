@@ -1,8 +1,8 @@
 {
-  "description": "Elastic Security SIEM alert rules mapped from OWASP WSTG-01 (Information Gathering), WSTG-02 (Configuration Management), and WSTG-03 (Identity Management) test catalogs",
-  "version": "1.0.0",
-  "elastic_version": "8.x",
-  "total_rules": 180,
+  "description": "SIEM alert rules \u2014 wstg-01-03 (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-13T22:00:56.703694Z",
+  "total_rules": 60,
   "rules": [
     {
       "rule_id": "ES-WSTG01-001",
@@ -11,13 +11,30 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND dns.query.type:AXFR AND NOT source.ip:(10.0.0.0/8 OR 172.16.0.0/12 OR 192.168.0.0/16)",
-      "index": ["logs-dns-*", "packetbeat-*"],
-      "references": ["WSTG-INFO-01"],
-      "mitre": ["T1590.002"],
-      "compliance": ["PCI-DSS 1.3", "NIST-AC-4"],
-      "tags": ["wstg", "reconnaissance", "dns", "information-gathering"],
-      "risk_score": 45,
-      "interval": "5m"
+      "index": [
+        "logs-dns-*",
+        "packetbeat-*"
+      ],
+      "references": [
+        "WSTG-INFO-01"
+      ],
+      "threat": [],
+      "risk_score": 50,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "dns",
+        "information-gathering"
+      ],
+      "compliance": [
+        "PCI-DSS 1.3",
+        "NIST-AC-4"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-002",
@@ -26,13 +43,31 @@
       "severity": "low",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.headers:* AND (http.response.headers.Server:* OR http.response.headers.\"X-Powered-By\":* OR http.response.headers.\"X-AspNet-Version\":*) AND NOT http.response.headers.Server:\"*cloudflare*\"",
-      "index": ["logs-apache-access*", "logs-nginx-access*", "apm-*"],
-      "references": ["WSTG-INFO-02"],
-      "mitre": ["T1592.002"],
-      "compliance": ["PCI-DSS 6.5", "GDPR-32B-005"],
-      "tags": ["wstg", "reconnaissance", "fingerprinting", "http-headers"],
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-INFO-02"
+      ],
+      "threat": [],
       "risk_score": 25,
-      "interval": "1h"
+      "interval": "1h",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "fingerprinting",
+        "http-headers"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "GDPR-32B-005"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-003",
@@ -41,13 +76,47 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.status_code:200 AND http.response.body.content:(*\"Directory listing\"* OR *\"Index of\"* OR *\"Parent Directory\"*)",
-      "index": ["logs-apache-access*", "logs-nginx-access*", "apm-*"],
-      "references": ["WSTG-INFO-03"],
-      "mitre": ["T1083"],
-      "compliance": ["PCI-DSS 6.5", "NIST-CM-7"],
-      "tags": ["wstg", "reconnaissance", "directory-listing", "configuration"],
-      "risk_score": 40,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-INFO-03"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0007",
+            "name": "Discovery",
+            "reference": "https://attack.mitre.org/tactics/TA0007/"
+          },
+          "technique": [
+            {
+              "id": "T1083",
+              "name": "File and Directory Discovery",
+              "reference": "https://attack.mitre.org/techniques/T1083/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 50,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "directory-listing",
+        "configuration"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "NIST-CM-7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-004",
@@ -56,13 +125,62 @@
       "severity": "high",
       "type": "query",
       "query": "event.category:\"network\" AND url.full:(*\"/.git\"* OR *\"/.env\"* OR *\"/.htpasswd\"* OR *\"/web.config\"* OR *\"/wp-config.php\"* OR *\"/database.yml\"* OR *\"/config.php\"* OR *\"/.DS_Store\"* OR *\"/backup.sql\"* OR *\"/dump.sql\"*)",
-      "index": ["logs-apache-access*", "logs-nginx-access*", "apm-*"],
-      "references": ["WSTG-INFO-04"],
-      "mitre": ["T1083", "T1213"],
-      "compliance": ["PCI-DSS 3.5", "GDPR-32A-001"],
-      "tags": ["wstg", "reconnaissance", "sensitive-files", "information-disclosure"],
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-INFO-04"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0007",
+            "name": "Discovery",
+            "reference": "https://attack.mitre.org/tactics/TA0007/"
+          },
+          "technique": [
+            {
+              "id": "T1083",
+              "name": "File and Directory Discovery",
+              "reference": "https://attack.mitre.org/techniques/T1083/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0009",
+            "name": "Collection",
+            "reference": "https://attack.mitre.org/tactics/TA0009/"
+          },
+          "technique": [
+            {
+              "id": "T1213",
+              "name": "Data from Information Repositories",
+              "reference": "https://attack.mitre.org/techniques/T1213/"
+            }
+          ]
+        }
+      ],
       "risk_score": 75,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "sensitive-files",
+        "information-disclosure"
+      ],
+      "compliance": [
+        "PCI-DSS 3.5",
+        "GDPR-32A-001"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-005",
@@ -71,13 +189,29 @@
       "severity": "low",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.body.content:*\"<!--*\"* AND NOT http.response.body.content:*\"*analytics*\"*",
-      "index": ["logs-apache-access*", "apm-*"],
-      "references": ["WSTG-INFO-05"],
-      "mitre": ["T1592.001"],
-      "compliance": ["GDPR-32B-006"],
-      "tags": ["wstg", "reconnaissance", "metadata-leak", "comments"],
-      "risk_score": 20,
-      "interval": "1h"
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-INFO-05"
+      ],
+      "threat": [],
+      "risk_score": 25,
+      "interval": "1h",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "metadata-leak",
+        "comments"
+      ],
+      "compliance": [
+        "GDPR-32B-006"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-006",
@@ -86,13 +220,31 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.status_code:(400 OR 401 OR 403 OR 404 OR 500 OR 502 OR 503) AND http.response.body.content:(*\"stack trace\"* OR *\"SQLException\"* OR *\"NullPointerException\"* OR *\"Traceback\"* OR *\"/usr/lib\"* OR *\"C:\\\\\"* OR *\"internal server error details\"*)",
-      "index": ["logs-apache-access*", "logs-nginx-access*", "apm-*"],
-      "references": ["WSTG-INFO-06"],
-      "mitre": ["T1592.001"],
-      "compliance": ["PCI-DSS 6.5", "GDPR-32A-007"],
-      "tags": ["wstg", "reconnaissance", "error-disclosure", "information-leak"],
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-INFO-06"
+      ],
+      "threat": [],
       "risk_score": 50,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "error-disclosure",
+        "information-leak"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "GDPR-32A-007"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-007",
@@ -101,13 +253,27 @@
       "severity": "low",
       "type": "query",
       "query": "event.category:\"network\" AND url.path:\"/robots.txt\" AND http.response.status_code:200",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-INFO-07"],
-      "mitre": ["T1592.001"],
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-INFO-07"
+      ],
+      "threat": [],
+      "risk_score": 25,
+      "interval": "1h",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "robots-txt",
+        "metadata"
+      ],
       "compliance": [],
-      "tags": ["wstg", "reconnaissance", "robots-txt", "metadata"],
-      "risk_score": 15,
-      "interval": "1h"
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-008",
@@ -116,13 +282,27 @@
       "severity": "low",
       "type": "query",
       "query": "event.category:\"network\" AND url.path:(\"/sitemap.xml\" OR \"/sitemap_index.xml\" OR \"/.well-known/security.txt\" OR \"/.well-known/assetlinks.json\")",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-INFO-08"],
-      "mitre": ["T1592.001"],
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-INFO-08"
+      ],
+      "threat": [],
+      "risk_score": 25,
+      "interval": "1h",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "sitemap",
+        "discovery"
+      ],
       "compliance": [],
-      "tags": ["wstg", "reconnaissance", "sitemap", "discovery"],
-      "risk_score": 15,
-      "interval": "1h"
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-009",
@@ -131,17 +311,31 @@
       "severity": "high",
       "type": "threshold",
       "query": "event.category:\"network\" AND (user_agent.original:(*\"Nikto\"* OR *\"Nmap\"* OR *\"ZAP\"* OR *\"sqlmap\"* OR *\"dirbuster\"* OR *\"gobuster\"* OR *\"wfuzz\"* OR *\"BurpSuite\"*)) OR (http.response.status_code:(404 OR 403) AND NOT source.ip:(10.0.0.0/8 OR 172.16.0.0/12 OR 192.168.0.0/16))",
-      "index": ["logs-apache-access*", "logs-nginx-access*", "packetbeat-*"],
-      "references": ["WSTG-INFO-09"],
-      "mitre": ["T1595"],
-      "compliance": ["PCI-DSS 11.3", "NIST-RA-5"],
-      "tags": ["wstg", "reconnaissance", "scanning", "vulnerability-scanner"],
-      "risk_score": 70,
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "packetbeat-*"
+      ],
+      "references": [
+        "WSTG-INFO-09"
+      ],
+      "threat": [],
+      "risk_score": 75,
       "interval": "5m",
-      "threshold": {
-        "field": "source.ip",
-        "value": 50
-      }
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "scanning",
+        "vulnerability-scanner"
+      ],
+      "compliance": [
+        "PCI-DSS 11.3",
+        "NIST-RA-5"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-010",
@@ -150,13 +344,29 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.body.content:(*\"github.com/\"* OR *\"gitlab.com/\"* OR *\"bitbucket.org/\"* OR *\\.git/config*) AND NOT http.response.body.content:*\"opensource\"*",
-      "index": ["logs-apache-access*", "apm-*"],
-      "references": ["WSTG-INFO-10"],
-      "mitre": ["T1592.001"],
-      "compliance": ["NIST-CM-7"],
-      "tags": ["wstg", "reconnaissance", "source-code-exposure", "git"],
-      "risk_score": 55,
-      "interval": "15m"
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-INFO-10"
+      ],
+      "threat": [],
+      "risk_score": 50,
+      "interval": "15m",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "source-code-exposure",
+        "git"
+      ],
+      "compliance": [
+        "NIST-CM-7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-011",
@@ -165,13 +375,27 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND user_agent.original:(*\"Googlebot\"* OR *\"Bingbot\"* OR *\"Slurp\"* OR *\"DuckDuckBot\"* OR *\"Baiduspider\"*) AND url.path:(*\"/admin\"* OR *\"/api/internal\"* OR *\"/debug\"* OR *\"/console\"*)",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-INFO-11"],
-      "mitre": ["T1592"],
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-INFO-11"
+      ],
+      "threat": [],
+      "risk_score": 50,
+      "interval": "15m",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "search-engine",
+        "dorking"
+      ],
       "compliance": [],
-      "tags": ["wstg", "reconnaissance", "search-engine", "dorking"],
-      "risk_score": 40,
-      "interval": "15m"
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-012",
@@ -180,13 +404,31 @@
       "severity": "high",
       "type": "query",
       "query": "event.category:\"network\" AND url.path:(\"/server-status\" OR \"/server-info\" OR \"/phpinfo.php\" OR \"/phpinfo\" OR \"/.well-known/nodeinfo\" OR \"/actuator/env\" OR \"/actuator/configprops\") AND http.response.status_code:200",
-      "index": ["logs-apache-access*", "logs-nginx-access*", "apm-*"],
-      "references": ["WSTG-INFO-12"],
-      "mitre": ["T1592.002"],
-      "compliance": ["PCI-DSS 6.5", "NIST-CM-7"],
-      "tags": ["wstg", "reconnaissance", "server-status", "information-disclosure"],
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-INFO-12"
+      ],
+      "threat": [],
       "risk_score": 75,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "server-status",
+        "information-disclosure"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "NIST-CM-7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-013",
@@ -195,13 +437,30 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND url.path:(*\"/swagger\"* OR *\"/api-docs\"* OR *\"/graphql\"* OR *\"/openapi.json\"* OR *\"/swagger-ui\"* OR *\"/redoc\"*)",
-      "index": ["logs-apache-access*", "apm-*", "traces-apm*"],
-      "references": ["WSTG-INFO-13"],
-      "mitre": ["T1592.001"],
-      "compliance": ["API-8-001"],
-      "tags": ["wstg", "reconnaissance", "api-documentation", "swagger"],
-      "risk_score": 45,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "apm-*",
+        "traces-apm*"
+      ],
+      "references": [
+        "WSTG-INFO-13"
+      ],
+      "threat": [],
+      "risk_score": 50,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "api-documentation",
+        "swagger"
+      ],
+      "compliance": [
+        "API-8-001"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-014",
@@ -210,13 +469,60 @@
       "severity": "high",
       "type": "query",
       "query": "event.category:\"network\" AND url.full:(*\"/.bak\"* OR *\"/.old\"* OR *\"/.save\"* OR *\"/.copy\"* OR *\"/.orig\"* OR *\"/.swp\"* OR *\"/.tmp\"* OR *\"/~\"* OR *\"/.tar.gz\"* OR *\"/.zip\"* OR *\"/.sql\"* OR *\"/.dump\"*) AND NOT source.ip:(10.0.0.0/8 OR 172.16.0.0/12 OR 192.168.0.0/16)",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-INFO-14"],
-      "mitre": ["T1083", "T1213"],
-      "compliance": ["PCI-DSS 3.5"],
-      "tags": ["wstg", "reconnaissance", "backup-files", "data-exposure"],
-      "risk_score": 70,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-INFO-14"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0007",
+            "name": "Discovery",
+            "reference": "https://attack.mitre.org/tactics/TA0007/"
+          },
+          "technique": [
+            {
+              "id": "T1083",
+              "name": "File and Directory Discovery",
+              "reference": "https://attack.mitre.org/techniques/T1083/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0009",
+            "name": "Collection",
+            "reference": "https://attack.mitre.org/tactics/TA0009/"
+          },
+          "technique": [
+            {
+              "id": "T1213",
+              "name": "Data from Information Repositories",
+              "reference": "https://attack.mitre.org/techniques/T1213/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 75,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "backup-files",
+        "data-exposure"
+      ],
+      "compliance": [
+        "PCI-DSS 3.5"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-015",
@@ -225,13 +531,62 @@
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND url.full:(*\"169.254.169.254\"* OR *\"/latest/meta-data\"* OR *\"metadata.google.internal\"* OR *\"/computeMetadata/v1\"* OR *\"169.254.169.254/latest\"*)",
-      "index": ["logs-apache-access*", "apm-*", "packetbeat-*"],
-      "references": ["WSTG-INFO-15"],
-      "mitre": ["T1552.005", "T1190"],
-      "compliance": ["NIST-AC-4", "HIPAA-TS-018"],
-      "tags": ["wstg", "reconnaissance", "cloud-metadata", "ssrf"],
-      "risk_score": 90,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "apm-*",
+        "packetbeat-*"
+      ],
+      "references": [
+        "WSTG-INFO-15"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1552.005",
+              "name": "Unsecured Credentials",
+              "reference": "https://attack.mitre.org/techniques/T1552.005/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "cloud-metadata",
+        "ssrf"
+      ],
+      "compliance": [
+        "NIST-AC-4",
+        "HIPAA-TS-018"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-016",
@@ -240,17 +595,29 @@
       "severity": "medium",
       "type": "threshold",
       "query": "event.category:\"network\" AND http.response.status_code:(200 OR 301 OR 302 OR 401 OR 403) AND NOT source.ip:(10.0.0.0/8 OR 172.16.0.0/12 OR 192.168.0.0/16)",
-      "index": ["packetbeat-*", "logs-network-*"],
-      "references": ["WSTG-INFO-16"],
-      "mitre": ["T1595.001"],
-      "compliance": ["PCI-DSS 11.3"],
-      "tags": ["wstg", "reconnaissance", "service-enumeration", "network"],
-      "risk_score": 40,
+      "index": [
+        "packetbeat-*",
+        "logs-network-*"
+      ],
+      "references": [
+        "WSTG-INFO-16"
+      ],
+      "threat": [],
+      "risk_score": 50,
       "interval": "5m",
-      "threshold": {
-        "field": "source.ip",
-        "value": 100
-      }
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "service-enumeration",
+        "network"
+      ],
+      "compliance": [
+        "PCI-DSS 11.3"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-017",
@@ -259,13 +626,27 @@
       "severity": "low",
       "type": "query",
       "query": "event.category:\"network\" AND url.path:(*\"/wp-login\"* OR *\"/wp-admin\"* OR *\"/administrator\"* OR *\"/phpmyadmin\"* OR *\"/adminer\"* OR *\"/solr\"* OR *\"/kibana\"* OR *\"/grafana\"* OR *\"/jenkins\"*) AND NOT source.ip:(10.0.0.0/8 OR 172.16.0.0/12 OR 192.168.0.0/16)",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-INFO-17"],
-      "mitre": ["T1592.002"],
-      "compliance": [],
-      "tags": ["wstg", "reconnaissance", "technology-detection", "fingerprinting"],
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-INFO-17"
+      ],
+      "threat": [],
       "risk_score": 25,
-      "interval": "15m"
+      "interval": "15m",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "technology-detection",
+        "fingerprinting"
+      ],
+      "compliance": [],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-018",
@@ -274,13 +655,30 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND http.request.method:(OPTIONS OR TRACE OR PUT OR DELETE OR PATCH) AND NOT source.ip:(10.0.0.0/8 OR 172.16.0.0/12 OR 192.168.0.0/16)",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-INFO-18"],
-      "mitre": ["T1595.001"],
-      "compliance": ["PCI-DSS 6.5", "NIST-CM-7"],
-      "tags": ["wstg", "reconnaissance", "http-methods", "enumeration"],
-      "risk_score": 35,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-INFO-18"
+      ],
+      "threat": [],
+      "risk_score": 50,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "http-methods",
+        "enumeration"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "NIST-CM-7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-019",
@@ -289,13 +687,31 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND tls.cipher:(*\"RC4\"* OR *\"DES\"* OR *\"3DES\"* OR *\"NULL\"* OR *\"EXPORT\"* OR *\"MD5\"*)",
-      "index": ["packetbeat-*", "logs-network-*"],
-      "references": ["WSTG-INFO-19"],
-      "mitre": ["T1573.001"],
-      "compliance": ["PCI-DSS 4.1", "GDPR-32A-003", "HIPAA-TS-001"],
-      "tags": ["wstg", "reconnaissance", "tls", "weak-cipher"],
-      "risk_score": 55,
-      "interval": "5m"
+      "index": [
+        "packetbeat-*",
+        "logs-network-*"
+      ],
+      "references": [
+        "WSTG-INFO-19"
+      ],
+      "threat": [],
+      "risk_score": 50,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "tls",
+        "weak-cipher"
+      ],
+      "compliance": [
+        "PCI-DSS 4.1",
+        "GDPR-32A-003",
+        "HIPAA-TS-001"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG01-020",
@@ -304,13 +720,30 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND (tls.server.not_after < now OR tls.server.issuer:*\"self-signed\"* OR (tls.server.subject:*\"*\"* AND NOT tls.server.subject:*\"*.example.com\"*))",
-      "index": ["packetbeat-*", "logs-network-*"],
-      "references": ["WSTG-INFO-20"],
-      "mitre": ["T1595.002"],
-      "compliance": ["PCI-DSS 4.1", "HIPAA-TS-001"],
-      "tags": ["wstg", "reconnaissance", "tls", "certificate"],
-      "risk_score": 45,
-      "interval": "1h"
+      "index": [
+        "packetbeat-*",
+        "logs-network-*"
+      ],
+      "references": [
+        "WSTG-INFO-20"
+      ],
+      "threat": [],
+      "risk_score": 50,
+      "interval": "1h",
+      "tags": [
+        "wstg",
+        "reconnaissance",
+        "tls",
+        "certificate"
+      ],
+      "compliance": [
+        "PCI-DSS 4.1",
+        "HIPAA-TS-001"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-001",
@@ -319,13 +752,47 @@
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"authentication\" AND event.action:\"login\" AND (user.name:(\"admin\" OR \"root\" OR \"administrator\" OR \"test\" OR \"guest\" OR \"user\" OR \"demo\" OR \"operator\") AND event.outcome:\"success\") AND NOT source.ip:(10.0.0.0/8 OR 172.16.0.0/12 OR 192.168.0.0/16)",
-      "index": ["logs-auth-*", "logs-system-auth*", "logs-*"],
-      "references": ["WSTG-CONF-01"],
-      "mitre": ["T1078.001"],
-      "compliance": ["PCI-DSS 2.1", "HIPAA-ADM-006"],
-      "tags": ["wstg", "configuration", "default-credentials", "authentication"],
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*",
+        "logs-*"
+      ],
+      "references": [
+        "WSTG-CONF-01"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
+          },
+          "technique": [
+            {
+              "id": "T1078.001",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078.001/"
+            }
+          ]
+        }
+      ],
       "risk_score": 95,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "configuration",
+        "default-credentials",
+        "authentication"
+      ],
+      "compliance": [
+        "PCI-DSS 2.1",
+        "HIPAA-ADM-006"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-002",
@@ -334,13 +801,47 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.status_code:200 AND NOT http.response.headers:\"X-Frame-Options\" AND NOT http.response.headers:\"Content-Security-Policy\" AND NOT http.response.headers:\"Strict-Transport-Security\"",
-      "index": ["logs-apache-access*", "logs-nginx-access*", "apm-*"],
-      "references": ["WSTG-CONF-02"],
-      "mitre": ["T1059.007"],
-      "compliance": ["PCI-DSS 6.5", "GDPR-32B-008"],
-      "tags": ["wstg", "configuration", "security-headers", "x-frame-options"],
-      "risk_score": 40,
-      "interval": "1h"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-CONF-02"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0002",
+            "name": "Execution",
+            "reference": "https://attack.mitre.org/tactics/TA0002/"
+          },
+          "technique": [
+            {
+              "id": "T1059.007",
+              "name": "Command and Scripting Interpreter",
+              "reference": "https://attack.mitre.org/techniques/T1059.007/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 50,
+      "interval": "1h",
+      "tags": [
+        "wstg",
+        "configuration",
+        "security-headers",
+        "x-frame-options"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "GDPR-32B-008"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-003",
@@ -349,13 +850,47 @@
       "severity": "high",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.headers:\"Access-Control-Allow-Origin: *\" AND http.request.headers.Origin:*",
-      "index": ["logs-apache-access*", "logs-nginx-access*", "apm-*"],
-      "references": ["WSTG-CONF-03"],
-      "mitre": ["T1189"],
-      "compliance": ["PCI-DSS 6.5", "NIST-CM-7"],
-      "tags": ["wstg", "configuration", "cors", "cross-origin"],
-      "risk_score": 70,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-CONF-03"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1189",
+              "name": "Drive-By Compromise",
+              "reference": "https://attack.mitre.org/techniques/T1189/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 75,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "configuration",
+        "cors",
+        "cross-origin"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "NIST-CM-7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-004",
@@ -364,13 +899,46 @@
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND url.path:(*\"/admin\"* OR *\"/administrator\"* OR *\"/manager\"* OR *\"/console\"* OR *\"/dashboard\"* OR *\"/control\"* OR *\"/cpanel\"* OR *\"/phpmyadmin\"* OR *\"/wp-admin\"*) AND NOT source.ip:(10.0.0.0/8 OR 172.16.0.0/12 OR 192.168.0.0/16)",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-CONF-04"],
-      "mitre": ["T1190"],
-      "compliance": ["PCI-DSS 1.3", "HIPAA-ADM-005"],
-      "tags": ["wstg", "configuration", "admin-interface", "exposure"],
-      "risk_score": 85,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-CONF-04"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "configuration",
+        "admin-interface",
+        "exposure"
+      ],
+      "compliance": [
+        "PCI-DSS 1.3",
+        "HIPAA-ADM-005"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-005",
@@ -379,13 +947,31 @@
       "severity": "high",
       "type": "query",
       "query": "event.category:\"network\" AND (http.response.body.content:(*\"DEBUG=True\"* OR *\"debug mode\"* OR *\"stack trace\"* OR *\"Django DEBUG\"* OR *\"Flask debug\"* OR *\"Rails development\"*) OR url.query:*\"debug=true\"*)",
-      "index": ["logs-apache-access*", "logs-nginx-access*", "apm-*"],
-      "references": ["WSTG-CONF-05"],
-      "mitre": ["T1592.001"],
-      "compliance": ["PCI-DSS 6.5", "NIST-CM-7"],
-      "tags": ["wstg", "configuration", "debug-mode", "production"],
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-CONF-05"
+      ],
+      "threat": [],
       "risk_score": 75,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "configuration",
+        "debug-mode",
+        "production"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "NIST-CM-7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-006",
@@ -394,13 +980,46 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND http.request.method:(PUT OR DELETE OR TRACE OR CONNECT) AND http.response.status_code:(200 OR 201 OR 204) AND NOT source.ip:(10.0.0.0/8 OR 172.16.0.0/12 OR 192.168.0.0/16)",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-CONF-06"],
-      "mitre": ["T1190"],
-      "compliance": ["PCI-DSS 6.5", "NIST-CM-7"],
-      "tags": ["wstg", "configuration", "http-methods", "verb-tampering"],
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-CONF-06"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
+        }
+      ],
       "risk_score": 50,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "configuration",
+        "http-methods",
+        "verb-tampering"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "NIST-CM-7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-007",
@@ -409,13 +1028,46 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.headers.Server:(*\"Apache/2.2\"* OR *\"Apache/2.0\"* OR *\"nginx/1.0\"* OR *\"PHP/5\"* OR *\"OpenSSL/1.0\"* OR *\"IIS/6\"* OR *\"IIS/7\"*)",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-CONF-07"],
-      "mitre": ["T1190"],
-      "compliance": ["PCI-DSS 6.2", "NIST-SI-2"],
-      "tags": ["wstg", "configuration", "outdated-software", "version-disclosure"],
-      "risk_score": 45,
-      "interval": "1h"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-CONF-07"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 50,
+      "interval": "1h",
+      "tags": [
+        "wstg",
+        "configuration",
+        "outdated-software",
+        "version-disclosure"
+      ],
+      "compliance": [
+        "PCI-DSS 6.2",
+        "NIST-SI-2"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-008",
@@ -424,13 +1076,45 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.status_code:200 AND NOT http.response.headers:\"X-Frame-Options\" AND NOT http.response.headers:\"Content-Security-Policy:*frame-ancestors*\"",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-CONF-08"],
-      "mitre": ["T1189"],
-      "compliance": ["PCI-DSS 6.5"],
-      "tags": ["wstg", "configuration", "clickjacking", "x-frame-options"],
-      "risk_score": 40,
-      "interval": "1h"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-CONF-08"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1189",
+              "name": "Drive-By Compromise",
+              "reference": "https://attack.mitre.org/techniques/T1189/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 50,
+      "interval": "1h",
+      "tags": [
+        "wstg",
+        "configuration",
+        "clickjacking",
+        "x-frame-options"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-009",
@@ -439,13 +1123,29 @@
       "severity": "low",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.status_code:200 AND NOT http.response.headers:\"X-Content-Type-Options\"",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-CONF-09"],
-      "mitre": [],
-      "compliance": ["PCI-DSS 6.5"],
-      "tags": ["wstg", "configuration", "content-type", "mime-sniffing"],
-      "risk_score": 20,
-      "interval": "1h"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-CONF-09"
+      ],
+      "threat": [],
+      "risk_score": 25,
+      "interval": "1h",
+      "tags": [
+        "wstg",
+        "configuration",
+        "content-type",
+        "mime-sniffing"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-010",
@@ -454,13 +1154,45 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.body.content:*\"<script src=\"http\"* AND NOT http.response.body.content:*\"integrity=\"*",
-      "index": ["logs-apache-access*", "apm-*"],
-      "references": ["WSTG-CONF-10"],
-      "mitre": ["T1190"],
-      "compliance": ["NIST-CM-7"],
-      "tags": ["wstg", "configuration", "sri", "supply-chain"],
-      "risk_score": 35,
-      "interval": "1h"
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-CONF-10"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 50,
+      "interval": "1h",
+      "tags": [
+        "wstg",
+        "configuration",
+        "sri",
+        "supply-chain"
+      ],
+      "compliance": [
+        "NIST-CM-7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-011",
@@ -469,13 +1201,30 @@
       "severity": "high",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.headers:\"Set-Cookie\" AND NOT http.response.headers:\"Set-Cookie*Secure*\"",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-CONF-11"],
-      "mitre": ["T1530"],
-      "compliance": ["PCI-DSS 6.5", "GDPR-32A-002"],
-      "tags": ["wstg", "configuration", "cookie", "secure-flag"],
-      "risk_score": 65,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-CONF-11"
+      ],
+      "threat": [],
+      "risk_score": 75,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "configuration",
+        "cookie",
+        "secure-flag"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "GDPR-32A-002"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-012",
@@ -484,13 +1233,46 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.headers:\"Set-Cookie\" AND NOT http.response.headers:\"Set-Cookie*HttpOnly*\"",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-CONF-12"],
-      "mitre": ["T1539"],
-      "compliance": ["PCI-DSS 6.5", "GDPR-32B-008"],
-      "tags": ["wstg", "configuration", "cookie", "httponly"],
-      "risk_score": 45,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-CONF-12"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1539",
+              "name": "Steal Web Session Cookie",
+              "reference": "https://attack.mitre.org/techniques/T1539/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 50,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "configuration",
+        "cookie",
+        "httponly"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "GDPR-32B-008"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-013",
@@ -499,13 +1281,47 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.status_code:200 AND (NOT http.response.headers:\"Content-Security-Policy\" OR http.response.headers:\"Content-Security-Policy: *default-src *'unsafe-eval'*\" OR http.response.headers:\"Content-Security-Policy: *default-src **\")",
-      "index": ["logs-apache-access*", "logs-nginx-access*", "apm-*"],
-      "references": ["WSTG-CONF-13"],
-      "mitre": ["T1059.007"],
-      "compliance": ["PCI-DSS 6.5", "NIST-CM-7"],
-      "tags": ["wstg", "configuration", "csp", "content-security-policy"],
-      "risk_score": 40,
-      "interval": "1h"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-CONF-13"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0002",
+            "name": "Execution",
+            "reference": "https://attack.mitre.org/tactics/TA0002/"
+          },
+          "technique": [
+            {
+              "id": "T1059.007",
+              "name": "Command and Scripting Interpreter",
+              "reference": "https://attack.mitre.org/techniques/T1059.007/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 50,
+      "interval": "1h",
+      "tags": [
+        "wstg",
+        "configuration",
+        "csp",
+        "content-security-policy"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "NIST-CM-7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-014",
@@ -514,13 +1330,30 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND url.scheme:\"https\" AND http.response.status_code:200 AND NOT http.response.headers:\"Strict-Transport-Security\"",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-CONF-14"],
-      "mitre": ["T1557"],
-      "compliance": ["PCI-DSS 4.1", "GDPR-32A-004"],
-      "tags": ["wstg", "configuration", "hsts", "ssl-stripping"],
-      "risk_score": 45,
-      "interval": "1h"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-CONF-14"
+      ],
+      "threat": [],
+      "risk_score": 50,
+      "interval": "1h",
+      "tags": [
+        "wstg",
+        "configuration",
+        "hsts",
+        "ssl-stripping"
+      ],
+      "compliance": [
+        "PCI-DSS 4.1",
+        "GDPR-32A-004"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-015",
@@ -529,13 +1362,29 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND (http.response.headers.\"X-Forwarded-For\":* OR http.response.headers.\"X-Real-IP\":* OR http.response.headers.\"X-Internal-IP\":* OR http.response.headers.\"X-AspNet-Version\":* OR http.response.headers.\"X-Runtime\":*)",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-CONF-15"],
-      "mitre": ["T1592.002"],
-      "compliance": ["PCI-DSS 6.5"],
-      "tags": ["wstg", "configuration", "information-disclosure", "headers"],
-      "risk_score": 35,
-      "interval": "1h"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-CONF-15"
+      ],
+      "threat": [],
+      "risk_score": 50,
+      "interval": "1h",
+      "tags": [
+        "wstg",
+        "configuration",
+        "information-disclosure",
+        "headers"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-016",
@@ -544,13 +1393,47 @@
       "severity": "high",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.body.content:(*\"SQLSTATE\"* OR *\"mysql_fetch\"* OR *\"ORA-0\"* OR *\"PostgreSQL.*ERROR\"* OR *\"sqlite_\"* OR *\"Microsoft OLE DB\"* OR *\"ODBC SQL Server Driver\"* OR *\"SQLSyntaxErrorException\"* OR *\"pg_query\"* OR *\"psycopg2\"* OR *\"Unclosed quotation mark\"*)",
-      "index": ["logs-apache-access*", "apm-*", "logs-system-*"],
-      "references": ["WSTG-CONF-16"],
-      "mitre": ["T1190"],
-      "compliance": ["PCI-DSS 6.5", "GDPR-32A-007"],
-      "tags": ["wstg", "configuration", "database-error", "information-disclosure"],
-      "risk_score": 70,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "apm-*",
+        "logs-system-*"
+      ],
+      "references": [
+        "WSTG-CONF-16"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 75,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "configuration",
+        "database-error",
+        "information-disclosure"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "GDPR-32A-007"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-017",
@@ -559,13 +1442,61 @@
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND url.path:(*\"/.git/config\"* OR *\"/.git/HEAD\"* OR *\"/.gitignore\"* OR *\"/.git/\"*) AND http.response.status_code:200",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-CONF-17"],
-      "mitre": ["T1083", "T1213"],
-      "compliance": ["PCI-DSS 3.5", "NIST-CM-7"],
-      "tags": ["wstg", "configuration", "git-exposure", "source-code"],
-      "risk_score": 90,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-CONF-17"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0007",
+            "name": "Discovery",
+            "reference": "https://attack.mitre.org/tactics/TA0007/"
+          },
+          "technique": [
+            {
+              "id": "T1083",
+              "name": "File and Directory Discovery",
+              "reference": "https://attack.mitre.org/techniques/T1083/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0009",
+            "name": "Collection",
+            "reference": "https://attack.mitre.org/tactics/TA0009/"
+          },
+          "technique": [
+            {
+              "id": "T1213",
+              "name": "Data from Information Repositories",
+              "reference": "https://attack.mitre.org/techniques/T1213/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "configuration",
+        "git-exposure",
+        "source-code"
+      ],
+      "compliance": [
+        "PCI-DSS 3.5",
+        "NIST-CM-7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-018",
@@ -574,13 +1505,46 @@
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND url.path:(\"/.env\" OR \"/.env.local\" OR \"/.env.production\" OR \"/.env.staging\" OR \"/.env.development\") AND http.response.status_code:200",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-CONF-18"],
-      "mitre": ["T1552.001"],
-      "compliance": ["PCI-DSS 3.5", "HIPAA-ADM-006"],
-      "tags": ["wstg", "configuration", "env-file", "credential-exposure"],
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-CONF-18"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1552.001",
+              "name": "Unsecured Credentials",
+              "reference": "https://attack.mitre.org/techniques/T1552.001/"
+            }
+          ]
+        }
+      ],
       "risk_score": 95,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "configuration",
+        "env-file",
+        "credential-exposure"
+      ],
+      "compliance": [
+        "PCI-DSS 3.5",
+        "HIPAA-ADM-006"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-019",
@@ -589,13 +1553,47 @@
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.headers:\"Access-Control-Allow-Credentials: true\" AND http.response.headers:\"Access-Control-Allow-Origin: *\"",
-      "index": ["logs-apache-access*", "logs-nginx-access*", "apm-*"],
-      "references": ["WSTG-CONF-19"],
-      "mitre": ["T1189"],
-      "compliance": ["PCI-DSS 6.5", "GDPR-32B-005"],
-      "tags": ["wstg", "configuration", "cors", "credentials"],
-      "risk_score": 85,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-CONF-19"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1189",
+              "name": "Drive-By Compromise",
+              "reference": "https://attack.mitre.org/techniques/T1189/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "configuration",
+        "cors",
+        "credentials"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "GDPR-32B-005"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG02-020",
@@ -604,13 +1602,45 @@
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"network\" AND http.request.body.content:(*\"<!DOCTYPE\"* AND *\"SYSTEM\"*) OR (http.request.body.content:(*\"<!ENTITY\"* AND *\"SYSTEM\"*) OR http.request.body.content:*\"<!DOCTYPE\"* AND *\"PUBLIC\"*))",
-      "index": ["logs-apache-access*", "apm-*"],
-      "references": ["WSTG-CONF-20"],
-      "mitre": ["T1190"],
-      "compliance": ["PCI-DSS 6.5"],
-      "tags": ["wstg", "configuration", "xxe", "xml-injection"],
-      "risk_score": 85,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-CONF-20"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "configuration",
+        "xxe",
+        "xml-injection"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-001",
@@ -619,13 +1649,47 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"failure\" AND message:(*\"user not found\"* OR *\"username does not exist\"* OR *\"no account with that email\"* OR *\"invalid username\"*)",
-      "index": ["logs-auth-*", "logs-system-auth*", "apm-*"],
-      "references": ["WSTG-IDM-01"],
-      "mitre": ["T1110.001"],
-      "compliance": ["PCI-DSS 8.5", "HIPAA-IAM-004"],
-      "tags": ["wstg", "identity", "user-enumeration", "authentication"],
-      "risk_score": 40,
-      "interval": "5m"
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-IDM-01"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1110.001",
+              "name": "Brute Force",
+              "reference": "https://attack.mitre.org/techniques/T1110.001/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 50,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "user-enumeration",
+        "authentication"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "HIPAA-IAM-004"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-002",
@@ -634,17 +1698,62 @@
       "severity": "high",
       "type": "threshold",
       "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"failure\"",
-      "index": ["logs-auth-*", "logs-system-auth*"],
-      "references": ["WSTG-IDM-02"],
-      "mitre": ["T1110.001", "T1110.003"],
-      "compliance": ["PCI-DSS 8.5", "HIPAA-ADM-004", "NIST-AC-7"],
-      "tags": ["wstg", "identity", "brute-force", "authentication"],
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*"
+      ],
+      "references": [
+        "WSTG-IDM-02"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1110.001",
+              "name": "Brute Force",
+              "reference": "https://attack.mitre.org/techniques/T1110.001/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1110.003",
+              "name": "Brute Force",
+              "reference": "https://attack.mitre.org/techniques/T1110.003/"
+            }
+          ]
+        }
+      ],
       "risk_score": 75,
       "interval": "5m",
-      "threshold": {
-        "field": "source.ip",
-        "value": 10
-      }
+      "tags": [
+        "wstg",
+        "identity",
+        "brute-force",
+        "authentication"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "HIPAA-ADM-004",
+        "NIST-AC-7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-003",
@@ -653,17 +1762,46 @@
       "severity": "high",
       "type": "threshold",
       "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"failure\" AND user.name:*",
-      "index": ["logs-auth-*", "logs-system-auth*"],
-      "references": ["WSTG-IDM-03"],
-      "mitre": ["T1110.003"],
-      "compliance": ["PCI-DSS 8.5", "NIST-AC-7"],
-      "tags": ["wstg", "identity", "account-lockout", "brute-force"],
-      "risk_score": 70,
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*"
+      ],
+      "references": [
+        "WSTG-IDM-03"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1110.003",
+              "name": "Brute Force",
+              "reference": "https://attack.mitre.org/techniques/T1110.003/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 75,
       "interval": "5m",
-      "threshold": {
-        "field": "user.name",
-        "value": 20
-      }
+      "tags": [
+        "wstg",
+        "identity",
+        "account-lockout",
+        "brute-force"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-AC-7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-004",
@@ -672,13 +1810,63 @@
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"authentication\" AND event.action:(\"role-change\" OR \"privilege-change\" OR \"role-assign\" OR \"group-add\") AND event.outcome:\"success\" AND NOT source.ip:(10.0.0.0/8 OR 172.16.0.0/12 OR 192.168.0.0/16)",
-      "index": ["logs-auth-*", "logs-system-*", "apm-*"],
-      "references": ["WSTG-IDM-04"],
-      "mitre": ["T1078", "T1548"],
-      "compliance": ["PCI-DSS 8.5", "HIPAA-IAM-004", "NIST-AC-6"],
-      "tags": ["wstg", "identity", "privilege-escalation", "role-change"],
-      "risk_score": 90,
-      "interval": "5m"
+      "index": [
+        "logs-auth-*",
+        "logs-system-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-IDM-04"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
+          },
+          "technique": [
+            {
+              "id": "T1078",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0004",
+            "name": "PrivilegeEscalation",
+            "reference": "https://attack.mitre.org/tactics/TA0004/"
+          },
+          "technique": [
+            {
+              "id": "T1548",
+              "name": "Abuse Elevation Control Mechanism",
+              "reference": "https://attack.mitre.org/techniques/T1548/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "privilege-escalation",
+        "role-change"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "HIPAA-IAM-004",
+        "NIST-AC-6"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-005",
@@ -687,13 +1875,46 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"failure\" AND event.reason:(*\"disabled\"* OR *\"suspended\"* OR *\"inactive\"* OR *\"locked\"* OR *\"deactivated\"*)",
-      "index": ["logs-auth-*", "logs-system-auth*"],
-      "references": ["WSTG-IDM-05"],
-      "mitre": ["T1078.002"],
-      "compliance": ["PCI-DSS 8.5", "NIST-AC-2"],
-      "tags": ["wstg", "identity", "inactive-account", "authentication"],
-      "risk_score": 35,
-      "interval": "5m"
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*"
+      ],
+      "references": [
+        "WSTG-IDM-05"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
+          },
+          "technique": [
+            {
+              "id": "T1078.002",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078.002/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 50,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "inactive-account",
+        "authentication"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-AC-2"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-006",
@@ -702,13 +1923,46 @@
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"authentication\" AND event.action:\"saml-auth\" AND (NOT event.data.signature:* OR event.data.expired:*true* OR message:*\"SAML assertion replayed\"* OR message:*\"SAML signature invalid\"*)",
-      "index": ["logs-auth-*", "apm-*"],
-      "references": ["WSTG-IDM-06"],
-      "mitre": ["T1606"],
-      "compliance": ["NIST-IA-9"],
-      "tags": ["wstg", "identity", "saml", "sso", "identity-provider"],
-      "risk_score": 85,
-      "interval": "5m"
+      "index": [
+        "logs-auth-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-IDM-06"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
+          },
+          "technique": [
+            {
+              "id": "T1606",
+              "name": "Forge Web Credentials",
+              "reference": "https://attack.mitre.org/techniques/T1606/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "saml",
+        "sso",
+        "identity-provider"
+      ],
+      "compliance": [
+        "NIST-IA-9"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-007",
@@ -717,13 +1971,47 @@
       "severity": "high",
       "type": "query",
       "query": "event.category:\"authentication\" AND event.action:\"oauth-token-validate\" AND (NOT event.data.scope:* OR event.data.scope_granted < event.data.scope_requested)",
-      "index": ["logs-auth-*", "apm-*"],
-      "references": ["WSTG-IDM-07"],
-      "mitre": ["T1528"],
-      "compliance": ["API2-007", "NIST-AC-3"],
-      "tags": ["wstg", "identity", "oauth", "token-abuse", "scope"],
+      "index": [
+        "logs-auth-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-IDM-07"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1528",
+              "name": "Steal Application Access Token",
+              "reference": "https://attack.mitre.org/techniques/T1528/"
+            }
+          ]
+        }
+      ],
       "risk_score": 75,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "oauth",
+        "token-abuse",
+        "scope"
+      ],
+      "compliance": [
+        "API2-007",
+        "NIST-AC-3"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-008",
@@ -732,13 +2020,46 @@
       "severity": "high",
       "type": "query",
       "query": "event.category:\"iam\" AND event.action:\"user-create\" AND NOT event.data.approval_id:*",
-      "index": ["logs-auth-*", "logs-system-*"],
-      "references": ["WSTG-IDM-08"],
-      "mitre": ["T1136.001"],
-      "compliance": ["NIST-AC-2", "HIPAA-IAM-001"],
-      "tags": ["wstg", "identity", "account-creation", "provisioning"],
-      "risk_score": 65,
-      "interval": "5m"
+      "index": [
+        "logs-auth-*",
+        "logs-system-*"
+      ],
+      "references": [
+        "WSTG-IDM-08"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0003",
+            "name": "Persistence",
+            "reference": "https://attack.mitre.org/tactics/TA0003/"
+          },
+          "technique": [
+            {
+              "id": "T1136.001",
+              "name": "Create Account",
+              "reference": "https://attack.mitre.org/techniques/T1136.001/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 75,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "account-creation",
+        "provisioning"
+      ],
+      "compliance": [
+        "NIST-AC-2",
+        "HIPAA-IAM-001"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-009",
@@ -747,13 +2068,47 @@
       "severity": "high",
       "type": "query",
       "query": "event.category:\"network\" AND http.response.body.content:(*\"ssn\":\"*\"* OR *\"social_security\":\"*\"* OR *\"date_of_birth\":\"*\"* OR *\"passport_number\":\"*\"* OR *\"national_id\":\"*\") AND NOT http.response.body.content:*\"***\"*",
-      "index": ["logs-apache-access*", "apm-*"],
-      "references": ["WSTG-IDM-09"],
-      "mitre": ["T1213"],
-      "compliance": ["GDPR-25-012", "HIPAA-TS-007", "PCI-DSS 3.4"],
-      "tags": ["wstg", "identity", "pii-exposure", "data-leak"],
+      "index": [
+        "logs-apache-access*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-IDM-09"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0009",
+            "name": "Collection",
+            "reference": "https://attack.mitre.org/tactics/TA0009/"
+          },
+          "technique": [
+            {
+              "id": "T1213",
+              "name": "Data from Information Repositories",
+              "reference": "https://attack.mitre.org/techniques/T1213/"
+            }
+          ]
+        }
+      ],
       "risk_score": 75,
-      "interval": "5m"
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "pii-exposure",
+        "data-leak"
+      ],
+      "compliance": [
+        "GDPR-25-012",
+        "HIPAA-TS-007",
+        "PCI-DSS 3.4"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-010",
@@ -762,13 +2117,30 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"network\" AND (ldap.query:* OR url.path:*\"/ldap\"*) AND ldap.query:(*\"(objectClass=user)\"* OR *\"(objectClass=group)\"* OR *\"(objectClass=organizationalUnit)\"* OR *\"(objectClass=person)\"*)",
-      "index": ["logs-auth-*", "packetbeat-*"],
-      "references": ["WSTG-IDM-10"],
-      "mitre": ["T1087.002", "T1069.002"],
-      "compliance": ["NIST-AC-1"],
-      "tags": ["wstg", "identity", "ldap", "enumeration", "directory-service"],
-      "risk_score": 45,
-      "interval": "5m"
+      "index": [
+        "logs-auth-*",
+        "packetbeat-*"
+      ],
+      "references": [
+        "WSTG-IDM-10"
+      ],
+      "threat": [],
+      "risk_score": 50,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "ldap",
+        "enumeration",
+        "directory-service"
+      ],
+      "compliance": [
+        "NIST-AC-1"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-011",
@@ -777,17 +2149,46 @@
       "severity": "high",
       "type": "threshold",
       "query": "event.category:\"iam\" AND event.action:\"user-create\" AND event.outcome:\"success\"",
-      "index": ["logs-auth-*", "logs-system-*"],
-      "references": ["WSTG-IDM-11"],
-      "mitre": ["T1136.001"],
-      "compliance": ["NIST-AC-2", "GDPR-25-005"],
-      "tags": ["wstg", "identity", "account-creation", "abuse"],
-      "risk_score": 70,
+      "index": [
+        "logs-auth-*",
+        "logs-system-*"
+      ],
+      "references": [
+        "WSTG-IDM-11"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0003",
+            "name": "Persistence",
+            "reference": "https://attack.mitre.org/tactics/TA0003/"
+          },
+          "technique": [
+            {
+              "id": "T1136.001",
+              "name": "Create Account",
+              "reference": "https://attack.mitre.org/techniques/T1136.001/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 75,
       "interval": "5m",
-      "threshold": {
-        "field": "source.ip",
-        "value": 5
-      }
+      "tags": [
+        "wstg",
+        "identity",
+        "account-creation",
+        "abuse"
+      ],
+      "compliance": [
+        "NIST-AC-2",
+        "GDPR-25-005"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-012",
@@ -796,13 +2197,64 @@
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"authentication\" AND event.action:\"access\" AND event.outcome:\"denied\" AND (url.path:(*\"/admin\"* OR *\"/manage\"* OR *\"/superuser\"* OR *\"/configure\"*) OR event.action:(\"delete\" OR \"admin-action\" OR \"role-assign\"))",
-      "index": ["logs-auth-*", "logs-system-*", "apm-*"],
-      "references": ["WSTG-IDM-12"],
-      "mitre": ["T1078", "T1548"],
-      "compliance": ["PCI-DSS 8.5", "NIST-AC-3", "HIPAA-IAM-004"],
-      "tags": ["wstg", "identity", "rbac", "access-control", "privilege-escalation"],
-      "risk_score": 85,
-      "interval": "5m"
+      "index": [
+        "logs-auth-*",
+        "logs-system-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-IDM-12"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
+          },
+          "technique": [
+            {
+              "id": "T1078",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0004",
+            "name": "PrivilegeEscalation",
+            "reference": "https://attack.mitre.org/tactics/TA0004/"
+          },
+          "technique": [
+            {
+              "id": "T1548",
+              "name": "Abuse Elevation Control Mechanism",
+              "reference": "https://attack.mitre.org/techniques/T1548/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "rbac",
+        "access-control",
+        "privilege-escalation"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-AC-3",
+        "HIPAA-IAM-004"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-013",
@@ -811,13 +2263,31 @@
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"authentication\" AND (event.action:\"mfa-bypass\" OR event.action:\"mfa-skip\" OR (event.action:\"login\" AND event.outcome:\"success\" AND NOT event.data.mfa_verified:*true*) AND user.name:*admin*)",
-      "index": ["logs-auth-*", "logs-system-auth*"],
-      "references": ["WSTG-IDM-13"],
-      "mitre": ["T1111"],
-      "compliance": ["PCI-DSS 8.3", "HIPAA-ADM-005", "NIST-IA-2"],
-      "tags": ["wstg", "identity", "mfa-bypass", "authentication"],
-      "risk_score": 90,
-      "interval": "5m"
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*"
+      ],
+      "references": [
+        "WSTG-IDM-13"
+      ],
+      "threat": [],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "mfa-bypass",
+        "authentication"
+      ],
+      "compliance": [
+        "PCI-DSS 8.3",
+        "HIPAA-ADM-005",
+        "NIST-IA-2"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-014",
@@ -825,14 +2295,62 @@
       "description": "Detects reuse of authentication tokens across multiple sessions or from different IPs, indicating token theft",
       "severity": "critical",
       "type": "eql",
-      "query": "sequence by token.value with maxspan=5m\n  [authentication where event.action:\"login\" and event.outcome:\"success\"]\n  [authentication where event.action:\"login\" and event.outcome:\"success\" and not source.ip == source.ip]",
-      "index": ["logs-auth-*", "logs-system-auth*"],
-      "references": ["WSTG-IDM-14"],
-      "mitre": ["T1528", "T1187"],
-      "compliance": ["NIST-IA-2", "PCI-DSS 8.3"],
-      "tags": ["wstg", "identity", "token-replay", "authentication"],
-      "risk_score": 90,
-      "interval": "5m"
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"process\") AND (message:*\"wstg\"* OR url.path:*\"wstg\"* OR process.command_line:*\"wstg\"*)",
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*"
+      ],
+      "references": [
+        "WSTG-IDM-14"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1528",
+              "name": "Steal Application Access Token",
+              "reference": "https://attack.mitre.org/techniques/T1528/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1187",
+              "name": "Forced Authentication",
+              "reference": "https://attack.mitre.org/techniques/T1187/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "token-replay",
+        "authentication"
+      ],
+      "compliance": [
+        "NIST-IA-2",
+        "PCI-DSS 8.3"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-015",
@@ -841,13 +2359,47 @@
       "severity": "medium",
       "type": "query",
       "query": "event.category:\"iam\" AND event.action:\"password-change\" AND event.outcome:\"success\" AND NOT event.data.password_length:>12 AND NOT event.data.password_complexity:*true*",
-      "index": ["logs-auth-*", "logs-system-*"],
-      "references": ["WSTG-IDM-15"],
-      "mitre": ["T1110"],
-      "compliance": ["PCI-DSS 8.2", "NIST-IA-5", "HIPAA-ADM-003"],
-      "tags": ["wstg", "identity", "password-policy", "weak-password"],
-      "risk_score": 40,
-      "interval": "5m"
+      "index": [
+        "logs-auth-*",
+        "logs-system-*"
+      ],
+      "references": [
+        "WSTG-IDM-15"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1110",
+              "name": "Brute Force",
+              "reference": "https://attack.mitre.org/techniques/T1110/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 50,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "password-policy",
+        "weak-password"
+      ],
+      "compliance": [
+        "PCI-DSS 8.2",
+        "NIST-IA-5",
+        "HIPAA-ADM-003"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-016",
@@ -856,17 +2408,46 @@
       "severity": "critical",
       "type": "threshold",
       "query": "event.category:\"authentication\" AND event.action:\"login\" AND event.outcome:\"failure\"",
-      "index": ["logs-auth-*", "logs-system-auth*"],
-      "references": ["WSTG-IDM-16"],
-      "mitre": ["T1110.004"],
-      "compliance": ["PCI-DSS 8.5", "NIST-AC-7"],
-      "tags": ["wstg", "identity", "credential-stuffing", "brute-force"],
-      "risk_score": 90,
+      "index": [
+        "logs-auth-*",
+        "logs-system-auth*"
+      ],
+      "references": [
+        "WSTG-IDM-16"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1110.004",
+              "name": "Brute Force",
+              "reference": "https://attack.mitre.org/techniques/T1110.004/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
       "interval": "5m",
-      "threshold": {
-        "field": "source.ip",
-        "value": 50
-      }
+      "tags": [
+        "wstg",
+        "identity",
+        "credential-stuffing",
+        "brute-force"
+      ],
+      "compliance": [
+        "PCI-DSS 8.5",
+        "NIST-AC-7"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-017",
@@ -875,13 +2456,47 @@
       "severity": "high",
       "type": "query",
       "query": "event.category:\"authentication\" AND (event.data.ssn:* OR event.data.national_id:* OR event.data.passport:* OR event.data.tax_id:*) AND NOT event.data.ssn:(*\"***\"* OR *\"XXX\"*)",
-      "index": ["logs-auth-*", "apm-*"],
-      "references": ["WSTG-IDM-17"],
-      "mitre": ["T1213"],
-      "compliance": ["GDPR-25-012", "HIPAA-TS-007"],
-      "tags": ["wstg", "identity", "pii", "data-exposure", "identity-provider"],
-      "risk_score": 80,
-      "interval": "5m"
+      "index": [
+        "logs-auth-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-IDM-17"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0009",
+            "name": "Collection",
+            "reference": "https://attack.mitre.org/tactics/TA0009/"
+          },
+          "technique": [
+            {
+              "id": "T1213",
+              "name": "Data from Information Repositories",
+              "reference": "https://attack.mitre.org/techniques/T1213/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 75,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "pii",
+        "data-exposure",
+        "identity-provider"
+      ],
+      "compliance": [
+        "GDPR-25-012",
+        "HIPAA-TS-007"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-018",
@@ -890,13 +2505,48 @@
       "severity": "critical",
       "type": "query",
       "query": "event.category:\"iam\" AND event.action:\"access\" AND event.outcome:\"denied\" AND event.data.tenant_id:* AND NOT event.data.user_tenant_id == event.data.resource_tenant_id",
-      "index": ["logs-auth-*", "logs-system-*", "apm-*"],
-      "references": ["WSTG-IDM-18"],
-      "mitre": ["T1078"],
-      "compliance": ["GDPR-25-003", "HIPAA-IAM-005"],
-      "tags": ["wstg", "identity", "multi-tenant", "cross-tenant", "data-isolation"],
-      "risk_score": 90,
-      "interval": "5m"
+      "index": [
+        "logs-auth-*",
+        "logs-system-*",
+        "apm-*"
+      ],
+      "references": [
+        "WSTG-IDM-18"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
+          },
+          "technique": [
+            {
+              "id": "T1078",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "multi-tenant",
+        "cross-tenant",
+        "data-isolation"
+      ],
+      "compliance": [
+        "GDPR-25-003",
+        "HIPAA-IAM-005"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-019",
@@ -905,17 +2555,30 @@
       "severity": "medium",
       "type": "threshold",
       "query": "event.category:\"iam\" AND event.action:(\"sync\" OR \"provision\" OR \"deprovision\") AND event.outcome:\"success\"",
-      "index": ["logs-auth-*", "logs-system-*"],
-      "references": ["WSTG-IDM-19"],
-      "mitre": ["T1087"],
-      "compliance": ["NIST-AC-2"],
-      "tags": ["wstg", "identity", "id-sync", "provisioning", "anomaly"],
-      "risk_score": 40,
+      "index": [
+        "logs-auth-*",
+        "logs-system-*"
+      ],
+      "references": [
+        "WSTG-IDM-19"
+      ],
+      "threat": [],
+      "risk_score": 50,
       "interval": "15m",
-      "threshold": {
-        "field": "event.action",
-        "value": 100
-      }
+      "tags": [
+        "wstg",
+        "identity",
+        "id-sync",
+        "provisioning",
+        "anomaly"
+      ],
+      "compliance": [
+        "NIST-AC-2"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     },
     {
       "rule_id": "ES-WSTG03-020",
@@ -924,13 +2587,62 @@
       "severity": "high",
       "type": "query",
       "query": "event.category:\"network\" AND http.request.headers.Referer:* AND (http.request.headers.Referer:*\"token=\"* OR http.request.headers.Referer:*\"access_token=\"* OR http.request.headers.Referer:*\"session_id=\"*) AND NOT url.domain:*internal*",
-      "index": ["logs-apache-access*", "logs-nginx-access*"],
-      "references": ["WSTG-IDM-20"],
-      "mitre": ["T1187", "T1539"],
-      "compliance": ["PCI-DSS 6.5", "GDPR-32A-015"],
-      "tags": ["wstg", "identity", "sso", "token-leak", "referer"],
-      "risk_score": 70,
-      "interval": "5m"
+      "index": [
+        "logs-apache-access*",
+        "logs-nginx-access*"
+      ],
+      "references": [
+        "WSTG-IDM-20"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1187",
+              "name": "Forced Authentication",
+              "reference": "https://attack.mitre.org/techniques/T1187/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1539",
+              "name": "Steal Web Session Cookie",
+              "reference": "https://attack.mitre.org/techniques/T1539/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 75,
+      "interval": "5m",
+      "tags": [
+        "wstg",
+        "identity",
+        "sso",
+        "token-leak",
+        "referer"
+      ],
+      "compliance": [
+        "PCI-DSS 6.5",
+        "GDPR-32A-015"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
     }
   ]
 }

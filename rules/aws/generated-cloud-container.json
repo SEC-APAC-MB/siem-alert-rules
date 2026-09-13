@@ -1,140 +1,188 @@
-[
-  {
-    "rule_id": "AWS-CLOUD-CONTAINER-007",
-    "name": "CVE-2026-59310 \u2014 VMware vCenter Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-59310: Broadcom VMware vCenter contains a path traversal vulnerability which could allow a threat actor with network access to vCenter to execute arbitrary code.. Product: VMware vCenter",
-    "severity": "critical",
-    "category": "cloud-container",
-    "mitre_attack": [
-      "T1059",
-      "T1190"
-    ],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "source": [
-      "aws.cloudtrail"
-    ],
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CVE-2026-59310\u2014VMwarevCenterExploitation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
-    },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+{
+  "description": "SIEM alert rules \u2014 generated-cloud-container (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-13T22:00:56.789068Z",
+  "total_rules": 3,
+  "rules": [
+    {
+      "rule_id": "AWS-CLOUD-CONTAINER-007",
+      "name": "CVE-2026-59310 \u2014 VMware vCenter Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-59310: Broadcom VMware vCenter contains a path traversal vulnerability which could allow a threat actor with network access to vCenter to execute arbitrary code.. Product: VMware vCenter",
+      "severity": "critical",
+      "category": "cloud-container",
+      "mitre_attack": [
+        "T1059",
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-59310\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202659310VMwarevCenterExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "cloud-container",
-      "cve",
-      "cve-2026-59310",
-      "exploited"
-    ]
-  },
-  {
-    "rule_id": "AWS-CLOUD-CONTAINER-017",
-    "name": "CVE-2026-59310 \u2014 VMware vCenter Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-59310: Broadcom VMware vCenter contains a path traversal vulnerability which could allow a threat actor with network access to vCenter to execute arbitrary code.. Product: VMware vCenter",
-    "severity": "critical",
-    "category": "cloud-container",
-    "mitre_attack": [
-      "T1059",
-      "T1190"
-    ],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "source": [
-      "aws.cloudtrail"
-    ],
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CVE-2026-59310\u2014VMwarevCenterExploitation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
-    },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-59310 \u2014 VMware vCenter Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "cloud-container",
-      "cve",
-      "cve-2026-59310",
-      "exploited"
-    ]
-  },
-  {
-    "rule_id": "AWS-CLOUD-CONTAINER-019",
-    "name": "CVE-2026-59310 \u2014 VMware vCenter Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-59310: Broadcom VMware vCenter contains a path traversal vulnerability which could allow a threat actor with network access to vCenter to execute arbitrary code.. Product: VMware vCenter",
-    "severity": "critical",
-    "category": "cloud-container",
-    "mitre_attack": [
-      "T1059",
-      "T1190"
-    ],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "source": [
-      "aws.cloudtrail"
-    ],
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CVE-2026-59310\u2014VMwarevCenterExploitation",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "cloud-container",
+        "cve",
+        "cve-2026-59310",
+        "exploited"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-CLOUD-CONTAINER-017",
+      "name": "CVE-2026-59310 \u2014 VMware vCenter Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-59310: Broadcom VMware vCenter contains a path traversal vulnerability which could allow a threat actor with network access to vCenter to execute arbitrary code.. Product: VMware vCenter",
+      "severity": "critical",
+      "category": "cloud-container",
+      "mitre_attack": [
+        "T1059",
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-59310\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202659310VMwarevCenterExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "cloud-container",
-      "cve",
-      "cve-2026-59310",
-      "exploited"
-    ]
-  }
-]
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-59310 \u2014 VMware vCenter Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "cloud-container",
+        "cve",
+        "cve-2026-59310",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-CLOUD-CONTAINER-019",
+      "name": "CVE-2026-59310 \u2014 VMware vCenter Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-59310: Broadcom VMware vCenter contains a path traversal vulnerability which could allow a threat actor with network access to vCenter to execute arbitrary code.. Product: VMware vCenter",
+      "severity": "critical",
+      "category": "cloud-container",
+      "mitre_attack": [
+        "T1059",
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-59310\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202659310VMwarevCenterExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-59310 \u2014 VMware vCenter Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "cloud-container",
+        "cve",
+        "cve-2026-59310",
+        "exploited"
+      ]
+    }
+  ]
+}

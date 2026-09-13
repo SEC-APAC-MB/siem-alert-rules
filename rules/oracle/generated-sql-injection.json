@@ -1,43 +1,50 @@
-[
-  {
-    "rule_id": "OCI-SQL-INJECTION-013",
-    "name": "CVE-2026-72898 \u2014 Metabase Exploitation",
-    "description": "Detects exploitation attempts targeting CVE-2026-72898: Metabase contains a SQL Injection vulnerability that allows an unauthenticated remote attacker to inject arbitrary SQL into the Metabase application database, which can give them administrator access to the instance. From there, the attacker could change the application configuration, steal stored credentials for the connected databases, read any data accessible through those connections, and export data.. Product: Metabase",
-    "severity": "CRITICAL",
-    "category": "sql-injection",
-    "mitre_attack": [
-      "T1190",
-      "T1110",
-      "T1078"
-    ],
-    "compliance": [
-      "PCI-DSS-6.5",
-      "NIST-800-53-SI-4",
-      "GDPR-32A"
-    ],
-    "query": "MQL: CVE-2026-72898 \u2014 Metabase Exploitation -- OCI Monitoring Query Language detection",
-    "rule_type": "query",
-    "interval": "5m",
-    "condition": {
-      "eventType": [
-        "com.oracle.cloud.monitoring"
+{
+  "description": "SIEM alert rules \u2014 generated-sql-injection (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-13T22:00:56.762798Z",
+  "total_rules": 1,
+  "rules": [
+    {
+      "rule_id": "OCI-SQL-INJECTION-013",
+      "name": "CVE-2026-72898 \u2014 Metabase Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-72898: Metabase contains a SQL Injection vulnerability that allows an unauthenticated remote attacker to inject arbitrary SQL into the Metabase application database, which can give them administrator access to the instance. From there, the attacker could change the application configuration, steal stored credentials for the connected databases, read any data accessible through those connections, and export data.. Product: Metabase",
+      "severity": "MEDIUM",
+      "category": "sql-injection",
+      "mitre_attack": [
+        "T1190",
+        "T1110",
+        "T1078"
       ],
-      "compartmentId": "$COMPARTMENT_ID",
-      "metric": "sql_injection",
-      "operator": "GT",
-      "threshold": 5
-    },
-    "actions": [
-      {
-        "actionType": "ONS",
-        "description": "Send alert notification"
-      }
-    ],
-    "tags": [
-      "sql-injection",
-      "cve",
-      "cve-2026-72898",
-      "exploited"
-    ]
-  }
-]
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'sql_injection' AND value > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring",
+          "com.oracle.cloud.audit"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "sql_injection",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "sql-injection",
+        "cve",
+        "cve-2026-72898",
+        "exploited"
+      ]
+    }
+  ]
+}
