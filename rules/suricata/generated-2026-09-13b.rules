@@ -1,0 +1,304 @@
+# ==============================================================================
+# Generated Suricata Detection Rules — 2026-09-13b
+# Based on latest CVEs from GitHub Advisory Database and current threat landscape
+# Total rules: 100 | SID range: 5202401-5202500
+# ==============================================================================
+
+# --- CVE-2026-90558: sngrep SIP stack buffer overflow (CRITICAL, CVSS 9.8) ---
+alert sip any any -> any any (msg:"ET EXPLOIT sngrep SIP Stack Buffer Overflow Oversized Call-ID Header CVE-2026-90558"; flow:established,to_server; content:"Call-ID|3a|"; nocase; pcre:"/Call-ID\s*:\s*[^\r\n]{256,}/i"; reference:cve,2026-90558; reference:url,github.com/irontec/sngrep; classtype:attempted-admin; sid:5202401; rev:1;)
+
+alert sip any any -> any any (msg:"ET EXPLOIT sngrep SIP Stack Buffer Overflow Oversized X-Call-ID Header CVE-2026-90558"; flow:established,to_server; content:"X-Call-ID|3a|"; nocase; pcre:"/X-Call-ID\s*:\s*[^\r\n]{256,}/i"; reference:cve,2026-90558; classtype:attempted-admin; sid:5202402; rev:1;)
+
+# --- CVE-2026-90647: ASE2000 IEC 60870-5-104 TLS cert bypass (CRITICAL, CVSS 7.4/9.1v4) ---
+alert tcp any any -> any 2404 (msg:"ET ICS ASE2000 IEC 60870-5-104 TLS Certificate Validation Bypass CVE-2026-90647"; flow:established,to_server; port:2404; content:"|05|"; depth:1; content:"|01|"; within:1; distance:1; tls.cert_subject; reference:cve,2026-90647; reference:url,github.com/advisories/GHSA-gcc5-22r7-2jf2; classtype:attempted-admin; sid:5202403; rev:1;)
+
+# --- CVE-2026-90648: wasm2c sandbox escape via table flip (HIGH) ---
+alert http any any -> any any (msg:"ET EXPLOIT WebAssembly wasm2c Sandbox Escape Table Flip CVE-2026-90648"; flow:established,to_server; content:"wasm"; nocase; content:".wasm"; nocase; content:"call_indirect"; nocase; pcre:"/wasm.*call_indirect/i"; reference:cve,2026-90648; reference:url,github.com/WebAssembly/wabt; classtype:attempted-user; sid:5202404; rev:1;)
+
+# --- CVE-2026-90651: Socket Firewall TLS cert verification bypass (HIGH, CVSS 8.1) ---
+alert http any any -> any any (msg:"ET EXPLOIT Socket Firewall Registry Mode TLS Certificate Verification Bypass CVE-2026-90651"; flow:established,to_server; content:"socket"; nocase; content:"ssl_verify"; nocase; content:"false"; nocase; reference:cve,2026-90651; reference:url,github.com/SocketDev/socket-registry-firewall; classtype:attempted-admin; sid:5202405; rev:1;)
+
+# --- CVE-2026-90616: Flatpak symlink sandbox escape (HIGH, CVSS 7.4) ---
+alert http any any -> any any (msg:"ET EXPLOIT Flatpak Symlink Sandbox Escape Arbitrary Host File Access CVE-2026-90616"; flow:established,to_server; content:".var/app/"; nocase; content:"/cache/tmp"; nocase; pcre:"/\.var\/app\/[^\/]+\/cache\/tmp/symlink/i"; reference:cve,2026-90616; classtype:attempted-user; sid:5202406; rev:1;)
+
+# --- CVE-2026-90559: snappy-java OOB write (HIGH, CVSS 7.5) ---
+alert http any any -> any any (msg:"ET EXPLOIT snappy-java Out-of-Bounds Write via Uncompress CVE-2026-90559"; flow:established,to_server; content:"Snappy"; nocase; content:"uncompress"; nocase; pcre:"/Snappy\.uncompress|snappy.*decompress/i"; reference:cve,2026-90559; reference:url,github.com/xerial/snappy-java; classtype:attempted-dos; sid:5202407; rev:1;)
+
+# --- CVE-2026-90560: zstd-jni OOB read in ZstdDictDecompress (HIGH, CVSS 8.2) ---
+alert http any any -> any any (msg:"ET EXPLOIT zstd-jni Out-of-Bounds Read via ZstdDictDecompress CVE-2026-90560"; flow:established,to_server; content:"ZstdDictDecompress"; nocase; pcre:"/ZstdDictDecompress|zstd.*dict.*decompress/i"; reference:cve,2026-90560; reference:url,github.com/luben/zstd-jni; classtype:attempted-dos; sid:5202408; rev:1;)
+
+# --- CVE-2026-90556: Freeciv heap buffer overflow in worklist_load (HIGH, CVSS 7.8) ---
+alert http any any -> any any (msg:"ET EXPLOIT Freeciv Heap Buffer Overflow via worklist_load CVE-2026-90556"; flow:established,to_server; content:"worklist"; nocase; content:"entries"; nocase; pcre:"/worklist.*entries.*count/i"; reference:cve,2026-90556; reference:url,github.com/freeciv/freeciv; classtype:attempted-user; sid:5202409; rev:1;)
+
+# --- CVE-2026-90553: vLLM RCE via LlavaOnevision2 processor (HIGH, CVSS 7.8) ---
+alert http any any -> any any (msg:"ET EXPLOIT vLLM Remote Code Execution via LlavaOnevision2 Processor CVE-2026-90553"; flow:established,to_server; content:"vllm"; nocase; content:"processing_llava_onevision2"; nocase; reference:cve,2026-90553; reference:url,github.com/vllm-project/vllm; classtype:attempted-admin; sid:5202410; rev:1;)
+
+# --- CVE-2026-90493: IDM Kernel Driver LPE (HIGH, CVSS 8.8) ---
+alert http any any -> any any (msg:"ET EXPLOIT Internet Download Manager idmwfp.sys Kernel Driver LPE CVE-2026-90493"; flow:established,to_server; content:"idmwfp"; nocase; content:"driver"; nocase; reference:cve,2026-90493; classtype:attempted-admin; sid:5202411; rev:1;)
+
+# --- CVE-2026-90668: UnrealIRCd HTTP header DoS (HIGH, CVSS 7.5) ---
+alert tcp any any -> any any (msg:"ET DOS UnrealIRCd HTTP Header Exhaustion CVE-2026-90668"; flow:established,to_server; content:"GET|20|"; depth:4; content:"HTTP/1."; pcre:"/(?:[^\r\n]+\r\n){100,}/"; reference:cve,2026-90668; reference:url,www.unrealircd.org; classtype:attempted-dos; sid:5202412; rev:1;)
+
+# --- CVE-2026-90492: webgjc web_robot OS command injection ---
+alert http any any -> any any (msg:"ET WEB_WEB Web Robot OS Command Injection via case_name CVE-2026-90492"; flow:established,to_server; content:"controller_listen"; nocase; content:"case_name"; nocase; pcre:"/case_name=[^&]*[;&|`]/i"; reference:cve,2026-90492; classtype:web-application-attack; sid:5202413; rev:1;)
+
+# --- CVE-2026-90490: lenve vhr deserialization in MailReceiver ---
+alert http any any -> any any (msg:"ET WEB_SPECIFIC_APPS lenve vhr Deserialization in MailReceiver CVE-2026-90490"; flow:established,to_server; content:"MailReceiver"; nocase; pcre:"/java\.lang\.(Runtime|ProcessBuilder)|rO0AB/i"; reference:cve,2026-90490; classtype:attempted-admin; sid:5202414; rev:1;)
+
+# --- CVE-2026-90488: xxl-job Groovy code injection ---
+alert http any any -> any any (msg:"ET WEB_SPECIFIC_APPS XXL-Job Groovy Code Injection CVE-2026-90488"; flow:established,to_server; content:"xxl-job"; nocase; content:"GlueFactory"; nocase; content:"parseClass"; nocase; reference:cve,2026-90488; classtype:attempted-admin; sid:5202415; rev:1;)
+
+# --- CVE-2026-90489: xxl-job XSS ---
+alert http any any -> any any (msg:"ET WEB_SPECIFIC_APPS XXL-Job XSS via jobinfo insert CVE-2026-90489"; flow:established,to_server; content:"/jobinfo/insert"; nocase; content:"name="; pcre:"/name=[^&]*<script/i"; reference:cve,2026-90489; classtype:web-application-attack; sid:5202416; rev:1;)
+
+# --- CVE-2026-90487: xxl-job improper privilege management ---
+alert http any any -> any any (msg:"ET WEB_SPECIFIC_APPS XXL-Job Missing Auth in JobGroupController CVE-2026-90487"; flow:established,to_server; content:"JobGroupController"; nocase; content:"loadById"; nocase; reference:cve,2026-90487; classtype:web-application-attack; sid:5202417; rev:1;)
+
+# --- CVE-2026-90485: IOBit Uninstaller null pointer deref ---
+alert http any any -> any any (msg:"ET EXPLOIT IOBit Uninstaller Kernel Driver NULL Pointer Dereference CVE-2026-90485"; flow:established,to_server; content:"IURegistryFilter"; nocase; content:"IOCTL"; nocase; reference:cve,2026-90485; classtype:attempted-dos; sid:5202418; rev:1;)
+
+# --- CVE-2026-90486: OpenStatus SSRF ---
+alert http any any -> any any (msg:"ET WEB_SPECIFIC_APPS OpenStatus SSRF via Custom Domain Rewrite CVE-2026-90486"; flow:established,to_server; content:"resolve-custom-domain-rewrite"; nocase; pcre:"/resolve-custom-domain-rewrite.*(?:http|ftp|gopher):\/\//i"; reference:cve,2026-90486; classtype:web-application-attack; sid:5202419; rev:1;)
+
+# --- CVE-2026-90555: vLLM audio sample rate header DoS ---
+alert http any any -> any any (msg:"ET DOS vLLM Audio Sample Rate Header Validation Bypass CVE-2026-90555"; flow:established,to_server; content:"vllm"; nocase; content:"audio"; nocase; content:"sample_rate"; nocase; reference:cve,2026-90555; reference:url,github.com/vllm-project/vllm; classtype:attempted-dos; sid:5202420; rev:1;)
+
+# --- CVE-2026-90537: AVideo missing auth in sendEmail ---
+alert http any any -> any any (msg:"ET WEB_SPECIFIC_APPS AVideo Scheduler sendEmail Missing Auth CVE-2026-90537"; flow:established,to_server; content:"sendEmail.json.php"; nocase; content:"token="; nocase; reference:cve,2026-90537; classtype:web-application-attack; sid:5202421; rev:1;)
+
+# --- CVE-2026-15451: WordPress MemberPress Corporate privilege escalation ---
+alert http any any -> any any (msg:"ET WEB_SPECIFIC_APPS WordPress MemberPress Corporate Privilege Escalation CVE-2026-15451"; flow:established,to_server; content:"memberpress"; nocase; content:"corporate"; nocase; content:"role"; nocase; reference:cve,2026-15451; classtype:web-application-attack; sid:5202422; rev:1;)
+
+# --- CVE-2026-90474: MCPHub auth bypass ---
+alert http any any -> any any (msg:"ET WEB_SPECIFIC_APPS MCPHub Authentication Bypass CVE-2026-90474"; flow:established,to_server; content:"mcphub"; nocase; content:"auth"; nocase; content:"bypass"; nocase; reference:cve,2026-90474; classtype:web-application-attack; sid:5202423; rev:1;)
+
+# --- CVE-2026-78175: WordPress Tutor LMS privilege escalation ---
+alert http any any -> any any (msg:"ET WEB_SPECIFIC_APPS WordPress Tutor LMS Privilege Escalation CVE-2026-78175"; flow:established,to_server; content:"tutor"; nocase; content:"lms"; nocase; content:"role"; nocase; reference:cve,2026-78175; classtype:web-application-attack; sid:5202424; rev:1;)
+
+# --- CVE-2026-90557: Freeciv OOB read via invalid activity index ---
+alert http any any -> any any (msg:"ET EXPLOIT Freeciv Out-of-Bounds Read via Savegame Activity Index CVE-2026-90557"; flow:established,to_server; content:"sg_load_player_unit"; nocase; content:"activity"; nocase; reference:cve,2026-90557; classtype:attempted-user; sid:5202425; rev:1;)
+
+# --- CVE-2026-79300: SEP sesam MFA bypass via case-sensitive usernames ---
+alert http any any -> any any (msg:"ET AUTH SEP Sesam MFA Bypass via Username Case Sensitivity CVE-2026-79300"; flow:established,to_server; content:"sesam"; nocase; content:"otp"; nocase; content:"auth"; nocase; reference:cve,2026-79300; classtype:web-application-attack; sid:5202426; rev:1;)
+
+# --- CVE-2026-90554: vLLM audio extraction DoS ---
+alert http any any -> any any (msg:"ET DOS vLLM Audio Extraction Uncontrolled Memory Allocation CVE-2026-90554"; flow:established,to_server; content:"vllm"; nocase; content:"audio"; nocase; content:"extract"; nocase; reference:cve,2026-90554; classtype:attempted-dos; sid:5202427; rev:1;)
+
+# --- CVE-2026-90550: AVideo unauthenticated video metadata access ---
+alert http any any -> any any (msg:"ET WEB_SPECIFIC_APPS AVideo Unauthenticated Video Metadata Access CVE-2026-90550"; flow:established,to_server; content:"mediaSession.json.php"; nocase; content:"videos_id"; nocase; reference:cve,2026-90550; classtype:web-application-attack; sid:5202428; rev:1;)
+
+# --- CVE-2026-90491: gsubs Electron code injection ---
+alert http any any -> any any (msg:"ET EXPLOIT gsubs Electron Code Injection via Filename CVE-2026-90491"; flow:established,to_server; content:"gsubs"; nocase; content:"showQuerySuccessPage"; nocase; content:"filename"; nocase; reference:cve,2026-90491; classtype:attempted-user; sid:5202429; rev:1;)
+
+# --- MITRE ATT&CK: T1059.001 - PowerShell remote execution ---
+alert http any any -> any any (msg:"ET TROJAN PowerShell Remote Execution Pattern MITRE T1059.001"; flow:established,to_server; content:"powershell"; nocase; content:"-enc"; nocase; pcre:"/powershell.*-(enc|encodedcommand|e)/i"; classtype:trojan-activity; sid:5202430; rev:1;)
+
+# --- MITRE ATT&CK: T1059.003 - Windows cmd.exe reverse shell ---
+alert tcp any any -> any any (msg:"ET TROJAN Windows cmd.exe Reverse Shell Pattern MITRE T1059.003"; flow:established,to_server; content:"cmd.exe"; nocase; content:"/c"; pcre:"/cmd\.exe.*\/c.*(?:nc|ncat|bash|powershell)/i"; classtype:trojan-activity; sid:5202431; rev:1;)
+
+# --- MITRE ATT&CK: T1071.001 - HTTP C2 beacons ---
+alert http any any -> any any (msg:"ET TROJAN Possible HTTP C2 Beacon MITRE T1071.001"; flow:established,to_server; content:"POST"; http.method; content:"/api/"; http.uri; content:"command"; nocase; http.client_body; pcre:"/command.*(?:download|upload|exec|shell)/i"; classtype:trojan-activity; sid:5202432; rev:1;)
+
+# --- MITRE ATT&CK: T1566.001 - Spearphishing with malicious attachment ---
+alert smtp any any -> any any (msg:"ET PHISHING Spearphishing Malicious Attachment MITRE T1566.001"; content:"Content-Disposition|3a| attachment"; nocase; content:".exe"; nocase; content:"macro"; nocase; pcre:"/\.(exe|scr|bat|ps1|vbs|docm|xlsm)/i"; classtype:trojan-activity; sid:5202433; rev:1;)
+
+# --- MITRE ATT&CK: T1190 - Exploit Public-Facing Application ---
+alert http any any -> any any (msg:"ET EXPLOIT Public-Facing Application Exploit Attempt MITRE T1190"; flow:established,to_server; content:"/wp-admin"; nocase; pcre:"/(?:wp-admin|phpmyadmin|manager\/html|/actuator)/i"; content:"/../../../"; pcre:"/(?:\.\.\/|\.\.\\|%2e%2e)/i"; classtype:web-application-attack; sid:5202434; rev:1;)
+
+# --- MITRE ATT&CK: T1133 - External Remote Services VPN abuse ---
+alert http any any -> any any (msg:"ET TROJAN Suspicious VPN Credential Stuffing MITRE T1133"; flow:established,to_server; content:"vpn"; nocase; content:"login"; nocase; threshold:type both, track by_src, count 10, seconds 60; reference:url,attack.mitre.org/techniques/T1133/; classtype:attempted-admin; sid:5202435; rev:1;)
+
+# --- MITRE ATT&CK: T1053.005 - Scheduled Task persistence ---
+alert http any any -> any any (msg:"ET PERSISTENCE Windows Scheduled Task Creation MITRE T1053.005"; flow:established,to_server; content:"schtasks"; nocase; content:"/create"; nocase; pcre:"/schtasks.*\/create.*(?:powershell|cmd|wscript)/i"; classtype:trojan-activity; sid:5202436; rev:1;)
+
+# --- MITRE ATT&CK: T1547.001 - Boot/Logon Autostart Execution ---
+alert http any any -> any any (msg:"ET PERSISTENCE Registry Autorun Key Modification MITRE T1547.001"; flow:established,to_server; content:"CurrentVersion\\Run"; nocase; content:"reg"; nocase; pcre:"/(?:reg add|regedit).*CurrentVersion\\\\Run/i"; classtype:trojan-activity; sid:5202437; rev:1;)
+
+# --- MITRE ATT&CK: T1003.001 - LSASS memory credential dumping ---
+alert http any any -> any any (msg:"ET CREDENTIAL LSASS Memory Dump Detection MITRE T1003.001"; flow:established,to_server; content:"lsass"; nocase; content:"procdump"; nocase; pcre:"/(?:procdump|comsvcs|ntdsutil).*lsass/i"; classtype:attempted-admin; sid:5202438; rev:1;)
+
+# --- MITRE ATT&CK: T1562.001 - Impair Defenses: Disable Security Tools ---
+alert http any any -> any any (msg:"ET DEFENSE_EVADING Security Tool Disable/Uninstall MITRE T1562.001"; flow:established,to_server; content:"Windows-Defender"; nocase; pcre:"/(?:Set-MpPreference|Uninstall-WindowsFeature|sc config.*disabled|netsh advfirewall.*off)/i"; classtype:attempted-admin; sid:5202439; rev:1;)
+
+# --- MITRE ATT&CK: T1070.001 - Indicator Removal: Clear Logs ---
+alert http any any -> any any (msg:"ET DEFENSE_EVADING Windows Event Log Clearing MITRE T1070.001"; flow:established,to_server; content:"wevtutil"; nocase; content:"cl"; nocase; pcre:"/wevtutil\s+cl/i"; classtype:attempted-admin; sid:5202440; rev:1;)
+
+# --- MITRE ATT&CK: T1071.004 - DNS C2 tunneling ---
+alert dns any any -> any any (msg:"ET TROJAN DNS Tunneling C2 Activity MITRE T1071.004"; dns.query; content:"."; pcre:"/^[a-zA-Z0-9]{40,}\.[a-z]/"; threshold:type both, track by_src, count 5, seconds 30; classtype:trojan-activity; sid:5202441; rev:1;)
+
+# --- MITRE ATT&CK: T1048.003 - Exfiltration Over Unencrypted Protocol ---
+alert http any any -> any any (msg:"ET EXFIL Possible Data Exfiltration Over HTTP MITRE T1048.003"; flow:established,to_server; content:"POST"; http.method; content:"Content-Type|3a| application/octet-stream"; http.header; content:"passwords"; nocase; http.client_body; classtype:policy-violation; sid:5202442; rev:1;)
+
+# --- MITRE ATT&CK: T1041 - Exfiltration Over C2 Channel ---
+alert http any any -> any any (msg:"ET EXFIL Large Data Upload via C2 Channel MITRE T1041"; flow:established,to_server; content:"POST"; http.method; dsize:>1000000; content:"/upload"; http.uri; classtype:policy-violation; sid:5202443; rev:1;)
+
+# --- MITRE ATT&CK: T1567 - Exfiltration Over Web Service ---
+alert http any any -> any any (msg:"ET EXFIL Data Exfiltration via Cloud Storage API MITRE T1567"; flow:established,to_server; content:"PUT"; http.method; pcre:"/(?:storage\.googleapis|blob\.core\.windows|s3\.amazonaws|digitaloceanspaces)/i"; dsize:>500000; classtype:policy-violation; sid:5202444; rev:1;)
+
+# --- MITRE ATT&CK: T1090.001 - Proxy: Direct connection ---
+alert http any any -> any any (msg:"ET TROJAN Suspicious Proxy Chain Activity MITRE T1090.001"; flow:established,to_server; content:"CONNECT"; http.method; content:":443"; http.uri; pcre:"/CONNECT\s+[^ ]+:443/i"; threshold:type both, track by_src, count 5, seconds 60; classtype:trojan-activity; sid:5202445; rev:1;)
+
+# --- MITRE ATT&CK: T1078.002 - Valid Accounts: Domain Accounts ---
+alert http any any -> any any (msg:"ET AUTH Brute Force Domain Account Login Attempts MITRE T1078.002"; flow:established,to_server; content:"login"; nocase; threshold:type both, track by_src, count 20, seconds 300; classtype:attempted-admin; sid:5202446; rev:1;)
+
+# --- MITRE ATT&CK: T1486 - Data Encrypted for Impact (ransomware) ---
+alert http any any -> any any (msg:"ET RANSOMWARE Ransomware Encryption Activity MITRE T1486"; flow:established,to_server; content:".encrypted"; nocase; content:"README"; nocase; content:"decrypt"; nocase; pcre:"/decrypt.*(?:bitcoin|monero|wallet)/i"; classtype:trojan-activity; sid:5202447; rev:1;)
+
+# --- MITRE ATT&CK: T1498 - Network DoS ---
+alert tcp any any -> any any (msg:"ET DOS SYN Flood Attack Pattern MITRE T1498"; flow:to_server; flags:S; threshold:type both, track by_src, count 500, seconds 10; classtype:attempted-dos; sid:5202448; rev:1;)
+
+# --- MITRE ATT&CK: T1136.001 - Create Account: Local Account ---
+alert http any any -> any any (msg:"ET PERSISTENCE Suspicious Local Account Creation MITRE T1136.001"; flow:established,to_server; content:"net user"; nocase; content:"/add"; nocase; pcre:"/net\s+user\s+\S+\s+\S+\s+\/add/i"; classtype:attempted-admin; sid:5202449; rev:1;)
+
+# --- MITRE ATT&CK: T1068 - Exploitation for Privilege Escalation ---
+alert http any any -> any any (msg:"ET EXPLOIT Privilege Escalation Exploit Pattern MITRE T1068"; flow:established,to_server; content:"sudo"; nocase; content:"NOPASSWD"; nocase; pcre:"/sudo.*(?:NOPASSWD|root|wheel)/i"; classtype:attempted-admin; sid:5202450; rev:1;)
+
+# --- MITRE ATT&CK: T1548.001 - Abuse Elevation Control Mechanism ---
+alert http any any -> any any (msg:"ET EXPLOIT SetUID Abuse Pattern MITRE T1548.001"; flow:established,to_server; content:"chmod"; nocase; content:"4755"; pcre:"/chmod\s+[24]755\s+/i"; classtype:attempted-admin; sid:5202451; rev:1;)
+
+# --- MITRE ATT&CK: T1055 - Process Injection ---
+alert http any any -> any any (msg:"ET EXPLOIT Process Injection via DLL MITRE T1055"; flow:established,to_server; content:"rundll32"; nocase; content:"LoadLibrary"; nocase; pcre:"/rundll32.*LoadLibrary|inject.*dll/i"; classtype:attempted-admin; sid:5202452; rev:1;)
+
+# --- MITRE ATT&CK: T1573.001 - Encrypted Channel: Symmetric Cryptography ---
+alert http any any -> any any (msg:"ET TROJAN Suspicious Encrypted Channel with Symmetric Key Exchange MITRE T1573.001"; flow:established,to_server; content:"AES"; nocase; content:"key"; nocase; content:"encrypt"; nocase; pcre:"/aes.*key.*encrypt|encrypt.*aes.*key/i"; classtype:trojan-activity; sid:5202453; rev:1;)
+
+# --- MITRE ATT&CK: T1573.002 - Encrypted Channel: Asymmetric Cryptography ---
+alert http any any -> any any (msg:"ET TROJAN Suspicious Asymmetric Crypto Key Exchange MITRE T1573.002"; flow:established,to_server; content:"RSA"; nocase; content:"public_key"; nocase; pcre:"/rsa.*public.*key|BEGIN\s+RSA\s+PUBLIC/i"; classtype:trojan-activity; sid:5202454; rev:1;)
+
+# --- MITRE ATT&CK: T1210 - Exploitation of Remote Services ---
+alert http any any -> any any (msg:"ET EXPLOIT Remote Service Exploitation Pattern MITRE T1210"; flow:established,to_server; pcre:"/\/(?:api|v[0-9])\/(?:exec|run|cmd|shell|system|eval)\b/i"; classtype:web-application-attack; sid:5202455; rev:1;)
+
+# --- MITRE ATT&CK: T1110.001 - Brute Force: Password Guessing ---
+alert http any any -> any any (msg:"ET AUTH Password Brute Force Attempt MITRE T1110.001"; flow:established,to_server; content:"401"; http.status_code; threshold:type both, track by_src, count 10, seconds 60; classtype:attempted-admin; sid:5202456; rev:1;)
+
+# --- MITRE ATT&CK: T1110.003 - Brute Force: Password Spraying ---
+alert http any any -> any any (msg:"ET AUTH Password Spraying Attack MITRE T1110.003"; flow:established,to_server; content:"login"; http.uri; threshold:type both, track by_src, count 5, seconds 300; classtype:attempted-admin; sid:5202457; rev:1;)
+
+# --- MITRE ATT&CK: T1110.004 - Credential Stuffing ---
+alert http any any -> any any (msg:"ET AUTH Credential Stuffing Detection MITRE T1110.004"; flow:established,to_server; content:"POST"; http.method; content:"login"; http.uri; content:"password"; nocase; http.client_body; threshold:type both, track by_src, count 50, seconds 300; classtype:attempted-admin; sid:5202458; rev:1;)
+
+# --- MITRE ATT&CK: T1558.001 - Steal Tickets: Kerberoasting ---
+alert dns any any -> any any (msg:"ET CREDENTIAL Kerberoasting Ticket Request MITRE T1558.001"; dns.query; content:"kerberos"; nocase; pcre:"/\$krb5(?:old|new)/i"; classtype:attempted-admin; sid:5202459; rev:1;)
+
+# --- MITRE ATT&CK: T1001.001 - Data Obfuscation: Junk Data ---
+alert http any any -> any any (msg:"ET EXFIL Junk Data Injection for Obfuscation MITRE T1001.001"; flow:established,to_server; content:"POST"; http.method; content:"Content-Length|3a| "; http.header; pcre:"/Content-Length\s*:\s*[0-9]{8,}/i"; classtype:policy-violation; sid:5202460; rev:1;)
+
+# --- MITRE ATT&CK: T1569.001 - System Services: Launchctl ---
+alert http any any -> any any (msg:"ET PERSISTENCE Launchctl Persistence Mechanism MITRE T1569.001"; flow:established,to_server; content:"launchctl"; nocase; content:"load"; nocase; pcre:"/launchctl\s+(?:load|bootstrap)/i"; classtype:trojan-activity; sid:5202461; rev:1;)
+
+# --- MITRE ATT&CK: T1569.002 - System Services: Systemd ---
+alert http any any -> any any (msg:"ET PERSISTENCE Systemd Service Creation MITRE T1569.002"; flow:established,to_server; content:"systemctl"; nocase; content:"enable"; nocase; pcre:"/systemctl\s+(?:enable|start|daemon-reload)/i"; classtype:trojan-activity; sid:5202462; rev:1;)
+
+# --- MITRE ATT&CK: T1574.001 - Hijack Execution Flow: DLL Search Order ---
+alert http any any -> any any (msg:"ET EXPLOIT DLL Search Order Hijacking MITRE T1574.001"; flow:established,to_server; content:"LoadLibrary"; nocase; content:"dll"; nocase; pcre:"/LoadLibrary.*(?:system32|system)|DLL.*search.*order/i"; classtype:attempted-admin; sid:5202463; rev:1;)
+
+# --- MITRE ATT&CK: T1574.002 - Hijack Execution Flow: DLL Side-Loading ---
+alert http any any -> any any (msg:"ET EXPLOIT DLL Side-Loading Attack MITRE T1574.002"; flow:established,to_server; content:"dll"; nocase; content:"side-load"; nocase; pcre:"/side.loading.dll|dll.*sideload/i"; classtype:attempted-admin; sid:5202464; rev:1;)
+
+# --- MITRE ATT&CK: T1574.010 - Hijack Execution Flow: Services File Path Weakness ---
+alert http any any -> any any (msg:"ET EXPLOIT Service Path Unquoted Vulnerability MITRE T1574.010"; flow:established,to_server; content:"sc"; nocase; content:"binPath"; nocase; pcre:"/sc\s+(?:create|config).*binPath/i"; classtype:attempted-admin; sid:5202465; rev:1;)
+
+# --- MITRE ATT&CK: T1105 - Ingress Tool Transfer ---
+alert http any any -> any any (msg:"ET TROJAN Suspicious Tool Download Pattern MITRE T1105"; flow:established,to_server; content:"GET"; http.method; pcre:"/(?:certutil|bitsadmin|wget|curl|Invoke-WebRequest)\s.*(?:ps1|bat|exe|dll)/i"; classtype:trojan-activity; sid:5202466; rev:1;)
+
+# --- MITRE ATT&CK: T1027 - Obfuscated Files ---
+alert http any any -> any any (msg:"ET DEFENSE_EVADING Obfuscated File Execution MITRE T1027"; flow:established,to_server; content:"base64"; nocase; content:"decode"; nocase; content:"exec"; nocase; pcre:"/base64.*decode.*(?:exec|iex|Invoke)/i"; classtype:trojan-activity; sid:5202467; rev:1;)
+
+# --- MITRE ATT&CK: T1027.001 - Binary Padding ---
+alert http any any -> any any (msg:"ET DEFENSE_EVADING Binary Padding Anti-Analysis MITRE T1027.001"; flow:established,to_server; content:"padding"; nocase; content:"bypass"; nocase; pcre:"/(?:UPX|packer).*bypass|padding.*detection.*bypass/i"; classtype:trojan-activity; sid:5202468; rev:1;)
+
+# --- MITRE ATT&CK: T1036.005 - Masquerading: Match Legitimate Name ---
+alert http any any -> any any (msg:"ET DEFENSE_EVADING Masquerading as Legitimate Binary MITRE T1036.005"; flow:established,to_server; content:"svchost.exe"; nocase; content:"temp"; nocase; pcre:"/(?:svchost|lsass|csrss|explorer)\.exe.*(?:temp|tmp|appdata|roaming)/i"; classtype:trojan-activity; sid:5202469; rev:1;)
+
+# --- MITRE ATT&CK: T1056.001 - Credential Access: Keylogging ---
+alert http any any -> any any (msg:"ET CREDENTIAL Keylogger Activity Pattern MITRE T1056.001"; flow:established,to_server; content:"keylog"; nocase; content:"capture"; nocase; pcre:"/keylog.*(?:capture|record|hook)|SetWindowsHookEx.*WH_KEYBOARD/i"; classtype:trojan-activity; sid:5202470; rev:1;)
+
+# --- MITRE ATT&CK: T1056.003 - Credential Access: Web Portal Capture ---
+alert http any any -> any any (msg:"ET CREDENTIAL Web Credential Harvesting MITRE T1056.003"; flow:established,to_server; content:"password"; nocase; http.client_body; content:"login"; http.uri; content:"POST"; http.method; threshold:type both, track by_src, count 10, seconds 300; classtype:trojan-activity; sid:5202471; rev:1;)
+
+# --- MITRE ATT&CK: T1119 - Automated Collection ---
+alert http any any -> any any (msg:"ET EXFIL Automated Data Collection Pattern MITRE T1119"; flow:established,to_server; content:"POST"; http.method; content:"archive"; nocase; content:"collect"; nocase; pcre:"/(?:zip|tar|rar|7z).*collect|collect.*(?:zip|tar|rar)/i"; classtype:policy-violation; sid:5202472; rev:1;)
+
+# --- MITRE ATT&CK: T1083 - File and Directory Discovery ---
+alert http any any -> any any (msg:"ET DISCOVERY Directory Traversal Discovery MITRE T1083"; flow:established,to_server; content:"dir"; nocase; content:"/s"; pcre:"/dir\s+\/s|ls\s+-[a]*R|find\s+/i"; classtype:attempted-recon; sid:5202473; rev:1;)
+
+# --- MITRE ATT&CK: T1082 - System Information Discovery ---
+alert http any any -> any any (msg:"ET DISCOVERY System Information Discovery MITRE T1082"; flow:established,to_server; content:"systeminfo"; nocase; pcre:"/systeminfo|uname\s+-a|/proc/version/i"; classtype:attempted-recon; sid:5202474; rev:1;)
+
+# --- MITRE ATT&CK: T1018 - Remote System Discovery ---
+alert http any any -> any any (msg:"ET DISCOVERY Remote System Discovery MITRE T1018"; flow:established,to_server; content:"nmap"; nocase; content:"scan"; nocase; pcre:"/nmap\s+.*scan|arp\s+-a|net\s+view/i"; classtype:attempted-recon; sid:5202475; rev:1;)
+
+# --- MITRE ATT&CK: T1046 - Network Service Discovery ---
+alert tcp any any -> any any (msg:"ET DISCOVERY Network Service Scanning MITRE T1046"; flow:to_server; flags:S; threshold:type both, track by_src, count 20, seconds 10; classtype:attempted-recon; sid:5202476; rev:1;)
+
+# --- MITRE ATT&CK: T1087.001 - Account Discovery: Local ---
+alert http any any -> any any (msg:"ET DISCOVERY Local Account Enumeration MITRE T1087.001"; flow:established,to_server; content:"net user"; nocase; pcre:"/net\s+user|cat\s+\/etc\/passwd|getent\s+passwd/i"; classtype:attempted-recon; sid:5202477; rev:1;)
+
+# --- MITRE ATT&CK: T1087.002 - Account Discovery: Domain ---
+alert http any any -> any any (msg:"ET DISCOVERY Domain Account Enumeration MITRE T1087.002"; flow:established,to_server; content:"net group"; nocase; content:"domain admins"; nocase; pcre:"/net\s+group.*domain|ldapsearch.*domain/i"; classtype:attempted-recon; sid:5202478; rev:1;)
+
+# --- MITRE ATT&CK: T1120 - Peripheral Device Discovery ---
+alert http any any -> any any (msg:"ET DISCOVERY Peripheral Device Discovery MITRE T1120"; flow:established,to_server; content:"wmic"; nocase; content:"diskdrive"; nocase; pcre:"/wmic.*(?:diskdrive|usb|logicaldisk)/i"; classtype:attempted-recon; sid:5202479; rev:1;)
+
+# --- MITRE ATT&CK: T1622 - Debugger Evasion ---
+alert http any any -> any any (msg:"ET DEFENSE_EVADING Debugger Detection and Evasion MITRE T1622"; flow:established,to_server; content:"IsDebuggerPresent"; nocase; content:"NtQueryInformationProcess"; nocase; classtype:trojan-activity; sid:5202480; rev:1;)
+
+# --- MITRE ATT&CK: T1620 - Reflective Code Loading ---
+alert http any any -> any any (msg:"ET EXPLOIT Reflective DLL Injection MITRE T1620"; flow:established,to_server; content:"ReflectiveLoader"; nocase; content:"VirtualAlloc"; nocase; content:"CreateThread"; nocase; classtype:attempted-admin; sid:5202481; rev:1;)
+
+# --- OWASP: A01:2021 - Broken Access Control ---
+alert http any any -> any any (msg:"ET WEB_APPLICATION Broken Access Control - IDOR Pattern OWASP A01"; flow:established,to_server; content:"/api/users/"; http.uri; pcre:"/\/api\/users\/\d+\/(?:profile|settings|password|delete)/i"; classtype:web-application-attack; sid:5202482; rev:1;)
+
+# --- OWASP: A02:2021 - Cryptographic Failures ---
+alert http any any -> any any (msg:"ET WEB_APPLICATION Sensitive Data Over HTTP OWASP A02"; flow:established,to_server; content:"password"; nocase; http.client_body; content:"Content-Type|3a| application/x-www-form-urlencoded"; http.header; pcre:"/^http:\/\/[^\/]*\//"; classtype:policy-violation; sid:5202483; rev:1;)
+
+# --- OWASP: A03:2021 - Injection (SQLi) ---
+alert http any any -> any any (msg:"ET WEB_APPLICATION SQL Injection Attempt OWASP A03"; flow:established,to_server; content:"UNION"; nocase; content:"SELECT"; nocase; pcre:"/(?:UNION\s+SELECT|OR\s+1\s*=\s*1|'\s*OR\s+'|;\s*DROP\s+TABLE)/i"; classtype:web-application-attack; sid:5202484; rev:1;)
+
+# --- OWASP: A03:2021 - Injection (NoSQLi) ---
+alert http any any -> any any (msg:"ET WEB_APPLICATION NoSQL Injection Attempt OWASP A03"; flow:established,to_server; content:"$where"; nocase; pcre:"/\$(?:where|gt|lt|ne|regex|or|and)\s*:/i"; classtype:web-application-attack; sid:5202485; rev:1;)
+
+# --- OWASP: A03:2021 - Injection (LDAPi) ---
+alert http any any -> any any (msg:"ET WEB_APPLICATION LDAP Injection Attempt OWASP A03"; flow:established,to_server; pcre:"/\(|\)|\*|\|/.*(?:uid|cn|dn|ou)=/i"; content:"uid="; nocase; classtype:web-application-attack; sid:5202486; rev:1;)
+
+# --- OWASP: A04:2021 - Insecure Design (Mass Assignment) ---
+alert http any any -> any any (msg:"ET WEB_APPLICATION Mass Assignment Attack OWASP A04"; flow:established,to_server; content:"PUT"; http.method; content:"role"; nocase; http.client_body; content:"admin"; nocase; http.client_body; pcre:"/(?:role|is_admin|isAdmin|privilege).*(?:admin|root|super)/i"; classtype:web-application-attack; sid:5202487; rev:1;)
+
+# --- OWASP: A05:2021 - Security Misconfiguration (default creds) ---
+alert http any any -> any any (msg:"ET WEB_APPLICATION Default Credential Login Attempt OWASP A05"; flow:established,to_server; content:"POST"; http.method; content:"login"; http.uri; content:"admin"; nocase; http.client_body; content:"password"; nocase; http.client_body; pcre:"/(?:admin|root|test).*password.*(?:admin|root|1234|password|default)/i"; classtype:web-application-attack; sid:5202488; rev:1;)
+
+# --- OWASP: A06:2021 - Vulnerable Components (Log4Shell pattern) ---
+alert http any any -> any any (msg:"ET WEB_APPLICATION Log4Shell JNDI Injection Attempt OWASP A06"; flow:established,to_server; content:"${jndi:"; nocase; pcre:"/\$\{jndi:(?:ldap|rmi|dns|iiop|nis|nds|corba):/i"; classtype:web-application-attack; sid:5202489; rev:1;)
+
+# --- OWASP: A07:2021 - Auth Failures (JWT none algorithm) ---
+alert http any any -> any any (msg:"ET WEB_APPLICATION JWT None Algorithm Bypass OWASP A07"; flow:established,to_server; content:"eyJ"; nocase; content:"none"; nocase; pcre:"/eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]*\./"; classtype:web-application-attack; sid:5202490; rev:1;)
+
+# --- OWASP: A08:2021 - Software Data Integrity Fail (deserialization) ---
+alert http any any -> any any (msg:"ET WEB_APPLICATION Java Deserialization Attack OWASP A08"; flow:established,to_server; content:"rO0AB"; http.client_body; pcre:"/rO0AB|rO0A[BCDEFGHIJKLMNOPQRSTUVWXYZ]/"; classtype:web-application-attack; sid:5202491; rev:1;)
+
+# --- OWASP: A09:2021 - Security Logging Failures ---
+alert http any any -> any any (msg:"ET WEB_APPLICATION Excessive Error Disclosure OWASP A09"; flow:established,to_client; content:"500"; http.status_code; content:"stack trace"; nocase; pcre:"/(?:Exception|Error|Traceback|at\s+[a-z]+\.[a-z]+)/i"; classtype:web-application-attack; sid:5202492; rev:1;)
+
+# --- OWASP: A10:2021 - SSRF ---
+alert http any any -> any any (msg:"ET WEB_APPLICATION Server-Side Request Forgery OWASP A10"; flow:established,to_server; content:"url="; nocase; pcre:"/url=(?:https?:\/\/)?(?:127\.0\.0\.1|localhost|10\.\d|172\.(?:1[6-9]|2\d|3[01])|192\.168|169\.254|0\.0\.0\.0)/i"; classtype:web-application-attack; sid:5202493; rev:1;)
+
+# --- Emerging: AI/LLM prompt injection ---
+alert http any any -> any any (msg:"ET WEB_APPLICATION LLM Prompt Injection Attempt"; flow:established,to_server; content:"ignore previous instructions"; nocase; pcre:"/(?:ignore\s+previous|disregard\s+all|forget\s+everything|system\s*:\s*you\s+are)/i"; classtype:web-application-attack; sid:5202494; rev:1;)
+
+# --- Emerging: Supply chain attack detection ---
+alert http any any -> any any (msg:"ET TROJAN Supply Chain Typosquatting Detection"; flow:established,to_server; content:"npm"; nocase; content:"install"; nocase; pcre:"/(?:npm|pip|gem)\s+install\s+[a-z]+-(?:util|helper|core|utils)/i"; classtype:trojan-activity; sid:5202495; rev:1;)
+
+# --- Emerging: Cloud metadata service attack (IMDS) ---
+alert http any any -> any any (msg:"ET CREDENTIAL AWS Instance Metadata Service Access MITRE T1552.005"; flow:established,to_server; content:"169.254.169.254"; http.host; pcre:"/169\.254\.169\.254/"; classtype:attempted-admin; sid:5202496; rev:1;)
+
+# --- Emerging: Container escape attempt ---
+alert http any any -> any any (msg:"ET EXPLOIT Container Escape via Docker Socket MITRE T1611"; flow:established,to_server; content:"/var/run/docker.sock"; nocase; pcre:"/\/var\/run\/docker\.sock|docker\.sock/i"; classtype:attempted-admin; sid:5202497; rev:1;)
+
+# --- Emerging: API key exposure ---
+alert http any any -> any any (msg:"ET CREDENTIAL API Key Leakage in HTTP Response"; flow:established,to_client; pcre:"/(?:api[_-]?key|secret[_-]?key|access[_-]?token|private[_-]?key)\s*[:=]\s*[A-Za-z0-9+/]{20,}/i"; classtype:policy-violation; sid:5202498; rev:1;)
+
+# --- Emerging: WebSocket tunneling abuse ---
+alert http any any -> any any (msg:"ET TROJAN Suspicious WebSocket Tunneling MITRE T1090"; flow:established,to_server; content:"Upgrade|3a| websocket"; http.header; content:"Sec-WebSocket-Key"; http.header; threshold:type both, track by_src, count 100, seconds 60; classtype:trojan-activity; sid:5202499; rev:1;)
+
+# --- Emerging: Kubernetes RBAC privilege escalation ---
+alert http any any -> any any (msg:"ET EXPLOIT Kubernetes RBAC Privilege Escalation MITRE T1078.004"; flow:established,to_server; content:"/apis/rbac.authorization.k8s.io/"; http.uri; content:"clusterrolebindings"; http.uri; content:"POST"; http.method; classtype:attempted-admin; sid:5202500; rev:1;)

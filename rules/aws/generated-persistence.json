@@ -1,342 +1,508 @@
-[
-  {
-    "rule_id": "AWS-PERSISTENCE-147",
-    "name": "Registry Run Key Modification",
-    "description": "Detect modification of HKLM/HKCU Run/RunOnce keys",
-    "severity": "high",
-    "category": "persistence",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "pentest",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "RegistryRunKeyModification",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
-    },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+{
+  "description": "SIEM alert rules \u2014 generated-persistence (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-13T22:00:56.795002Z",
+  "total_rules": 10,
+  "rules": [
+    {
+      "rule_id": "AWS-PERSISTENCE-147",
+      "name": "Registry Run Key Modification",
+      "description": "Detect modification of HKLM/HKCU Run/RunOnce keys",
+      "severity": "high",
+      "category": "persistence",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"persistence\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "RegistryRunKeyModification",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "persistence"
-    ]
-  },
-  {
-    "rule_id": "AWS-PERSISTENCE-148",
-    "name": "Scheduled Task Persistence",
-    "description": "Detect scheduled tasks created for persistence",
-    "severity": "high",
-    "category": "persistence",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "pentest",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "ScheduledTaskPersistence",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
-    },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Registry Run Key Modification"
+            ]
+          }
+        },
+        "state": "ENABLED"
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "persistence"
-    ]
-  },
-  {
-    "rule_id": "AWS-PERSISTENCE-149",
-    "name": "Service Creation for Persistence",
-    "description": "Detect new Windows service creation with unusual binary paths",
-    "severity": "high",
-    "category": "persistence",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "pentest",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "ServiceCreationforPersistence",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "persistence"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-PERSISTENCE-148",
+      "name": "Scheduled Task Persistence",
+      "description": "Detect scheduled tasks created for persistence",
+      "severity": "high",
+      "category": "persistence",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"persistence\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ScheduledTaskPersistence",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "persistence"
-    ]
-  },
-  {
-    "rule_id": "AWS-PERSISTENCE-150",
-    "name": "WMI Event Subscription",
-    "description": "Detect WMI event filter/consumer binding for persistent execution",
-    "severity": "critical",
-    "category": "persistence",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "pentest",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "WMIEventSubscription",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Scheduled Task Persistence"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "persistence"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-PERSISTENCE-149",
+      "name": "Service Creation for Persistence",
+      "description": "Detect new Windows service creation with unusual binary paths",
+      "severity": "high",
+      "category": "persistence",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"persistence\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ServiceCreationforPersistence",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "persistence"
-    ]
-  },
-  {
-    "rule_id": "AWS-PERSISTENCE-151",
-    "name": "DLL Search Order Hijacking",
-    "description": "Detect DLL planting in application directories",
-    "severity": "high",
-    "category": "persistence",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "pentest",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "DLLSearchOrderHijacking",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Service Creation for Persistence"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "persistence"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-PERSISTENCE-150",
+      "name": "WMI Event Subscription",
+      "description": "Detect WMI event filter/consumer binding for persistent execution",
+      "severity": "critical",
+      "category": "persistence",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"persistence\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "WMIEventSubscription",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "persistence"
-    ]
-  },
-  {
-    "rule_id": "AWS-PERSISTENCE-152",
-    "name": "Browser Extension Persistence",
-    "description": "Detect malicious browser extensions maintaining access",
-    "severity": "medium",
-    "category": "persistence",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "pentest",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "BrowserExtensionPersistence",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "WMI Event Subscription"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "persistence"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-PERSISTENCE-151",
+      "name": "DLL Search Order Hijacking",
+      "description": "Detect DLL planting in application directories",
+      "severity": "high",
+      "category": "persistence",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"persistence\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "DLLSearchOrderHijacking",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "persistence"
-    ]
-  },
-  {
-    "rule_id": "AWS-PERSISTENCE-153",
-    "name": "Kubernetes CronJob Persistence",
-    "description": "Detect suspicious CronJob creation in Kubernetes clusters",
-    "severity": "high",
-    "category": "persistence",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "pentest",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "KubernetesCronJobPersistence",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "DLL Search Order Hijacking"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "persistence"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-PERSISTENCE-152",
+      "name": "Browser Extension Persistence",
+      "description": "Detect malicious browser extensions maintaining access",
+      "severity": "medium",
+      "category": "persistence",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"persistence\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "BrowserExtensionPersistence",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "persistence"
-    ]
-  },
-  {
-    "rule_id": "AWS-PERSISTENCE-154",
-    "name": "Cloud IAM Backdoor",
-    "description": "Detect rogue IAM role/policy creation for persistent access",
-    "severity": "critical",
-    "category": "persistence",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "pentest",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CloudIAMBackdoor",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Browser Extension Persistence"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "persistence"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-PERSISTENCE-153",
+      "name": "Kubernetes CronJob Persistence",
+      "description": "Detect suspicious CronJob creation in Kubernetes clusters",
+      "severity": "high",
+      "category": "persistence",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"persistence\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "KubernetesCronJobPersistence",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "persistence"
-    ]
-  },
-  {
-    "rule_id": "AWS-PERSISTENCE-155",
-    "name": "SSH Authorized Key Injection",
-    "description": "Detect unauthorized SSH key additions to authorized_keys",
-    "severity": "high",
-    "category": "persistence",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "pentest",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "SSHAuthorizedKeyInjection",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Kubernetes CronJob Persistence"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "persistence"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-PERSISTENCE-154",
+      "name": "Cloud IAM Backdoor",
+      "description": "Detect rogue IAM role/policy creation for persistent access",
+      "severity": "critical",
+      "category": "persistence",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"persistence\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CloudIAMBackdoor",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "persistence"
-    ]
-  },
-  {
-    "rule_id": "AWS-PERSISTENCE-156",
-    "name": "Cron Job Persistence (Linux)",
-    "description": "Detect suspicious crontab modifications for persistence",
-    "severity": "high",
-    "category": "persistence",
-    "mitre_attack": [],
-    "compliance": [],
-    "source": "pentest",
-    "detection": {
-      "query_type": "cloudwatch_metric_filter",
-      "filter_pattern": "{ ($.eventName = \"*\") }",
-      "log_group": "/aws/cloudtrail",
-      "metric_namespace": "Security/Monitoring",
-      "metric_name": "CronJobPersistence(Linux)",
-      "threshold": 5,
-      "evaluation_periods": 1,
-      "statistic": "Sum",
-      "period": 300
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Cloud IAM Backdoor"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "persistence"
+      ]
     },
-    "actions": [
-      {
-        "type": "SNS",
-        "description": "Send alert to security team SNS topic"
+    {
+      "rule_id": "AWS-PERSISTENCE-155",
+      "name": "SSH Authorized Key Injection",
+      "description": "Detect unauthorized SSH key additions to authorized_keys",
+      "severity": "high",
+      "category": "persistence",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"persistence\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "SSHAuthorizedKeyInjection",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
       },
-      {
-        "type": "Lambda",
-        "description": "Trigger automated remediation Lambda function"
-      }
-    ],
-    "tags": [
-      "persistence"
-    ]
-  }
-]
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "SSH Authorized Key Injection"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "persistence"
+      ]
+    },
+    {
+      "rule_id": "AWS-PERSISTENCE-156",
+      "name": "Cron Job Persistence (Linux)",
+      "description": "Detect suspicious crontab modifications for persistence",
+      "severity": "high",
+      "category": "persistence",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"persistence\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CronJobPersistenceLinux",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Cron Job Persistence (Linux)"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "persistence"
+      ]
+    }
+  ]
+}

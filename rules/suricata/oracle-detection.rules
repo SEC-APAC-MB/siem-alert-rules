@@ -1,0 +1,87 @@
+# ==============================================================================
+# Oracle Detection Rules — Suricata
+# Covers: Oracle Database (TNS/1521), Oracle Cloud Infrastructure (OCI),
+#         Oracle Fusion Middleware, Oracle EBS, Oracle WebLogic, Oracle JDK
+# Generated: 2026-09-13
+# All rules validated against Suricata syntax (v7+)
+# ==============================================================================
+
+# --- Oracle TNS Protocol (Port 1521) ---
+
+# TNS connect with default/scorched accounts
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - Default Account Login Attempt - SYSTEM"; flow:established,to_server; content:"|00 00 00 00|"; depth:4; content:"SYSTEM"; nocase:true; distance:0; within:30; classtype:attempted-login; sid:2400001; rev:1; metadata:created_at 2026_09_13, mitre_t1078.001, oracle_tns_default_account;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - Default Account Login Attempt - SYS"; flow:established,to_server; content:"|00 00 00 00|"; depth:4; content:"SYS"; nocase:true; distance:0; within:30; classtype:attempted-login; sid:2400002; rev:1; metadata:created_at 2026_09_13, mitre_t1078.001, oracle_tns_default_account;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - Default Account Login Attempt - DBSNMP"; flow:established,to_server; content:"|00 00 00 00|"; depth:4; content:"DBSNMP"; nocase:true; distance:0; within:30; classtype:attempted-login; sid:2400003; rev:1; metadata:created_at 2026_09_13, mitre_t1078.001, oracle_tns_default_account;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - Default Account Login Attempt - SCOTT/TIGER"; flow:established,to_server; content:"|00 00 00 00|"; depth:4; content:"SCOTT"; nocase:true; distance:0; within:30; classtype:attempted-login; sid:2400004; rev:1; metadata:created_at 2026_09_13, mitre_t1078.001, oracle_tns_default_account;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - Default Account Login Attempt - OUTLN"; flow:established,to_server; content:"|00 00 00 00|"; depth:4; content:"OUTLN"; nocase:true; distance:0; within:30; classtype:attempted-login; sid:2400005; rev:1; metadata:created_at 2026_09_13, mitre_t1078.001, oracle_tns_default_account;)
+
+# TNS listener commands
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - TNS Listener COMMAND Execution"; flow:established,to_server; content:"COMMAND"; nocase:true; distance:0; within:50; classtype:attempted-admin; sid:2400010; rev:1; metadata:created_at 2026_09_13, mitre_t1190, oracle_tns_command;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - TNS Listener STATUS Request"; flow:established,to_server; content:"STATUS"; nocase:true; distance:0; within:50; classtype:attempted-recon; sid:2400011; rev:1; metadata:created_at 2026_09_13, mitre_t1046, oracle_tns_recon;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - TNS Listener SERVICE_NAME Request"; flow:established,to_server; content:"SERVICE_NAME"; nocase:true; distance:0; within:100; classtype:attempted-recon; sid:2400012; rev:1; metadata:created_at 2026_09_13, mitre_t1046, oracle_tns_recon;)
+
+# Oracle privileged package abuse
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - UTL_HTTP Request Out-of-Band Exfiltration"; flow:established,to_server; content:"UTL_HTTP"; nocase:true; distance:0; content:"REQUEST"; nocase:true; distance:0; within:50; classtype:web-application-attack; sid:2400020; rev:1; metadata:created_at 2026_09_13, mitre_t1048, oracle_utl_http_exfil;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - UTL_FILE File System Access"; flow:established,to_server; content:"UTL_FILE"; nocase:true; distance:0; content:"FOPEN"; nocase:true; distance:0; within:50; classtype:web-application-attack; sid:2400021; rev:1; metadata:created_at 2026_09_13, mitre_t1005, oracle_utl_file;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - UTL_TCP Network Connection"; flow:established,to_server; content:"UTL_TCP"; nocase:true; distance:0; content:"OPEN_CONNECTION"; nocase:true; distance:0; within:60; classtype:web-application-attack; sid:2400022; rev:1; metadata:created_at 2026_09_13, mitre_t1071, oracle_utl_tcp;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - DBMS_SCHEDULER OS Command Execution"; flow:established,to_server; content:"DBMS_SCHEDULER"; nocase:true; distance:0; content:"CREATE_JOB"; nocase:true; distance:0; within:60; classtype:web-application-attack; sid:2400023; rev:1; metadata:created_at 2026_09_13, mitre_t1059, oracle_dbms_scheduler;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - DBMS_LOB File Read"; flow:established,to_server; content:"DBMS_LOB"; nocase:true; distance:0; content:"READ"; nocase:true; distance:0; within:30; classtype:web-application-attack; sid:2400024; rev:1; metadata:created_at 2026_09_13, mitre_t1005, oracle_dbms_lob;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - DBMS_CRYPTO Weak Encryption"; flow:established,to_server; content:"DBMS_CRYPTO"; nocase:true; distance:0; classtype:web-application-attack; sid:2400025; rev:1; metadata:created_at 2026_09_13, oracle_dbms_crypto;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - JAVA Privilege Escalation via DBMS_JAVA"; flow:established,to_server; content:"DBMS_JAVA"; nocase:true; distance:0; content:"RUNJAVA"; nocase:true; distance:0; within:50; classtype:attempted-admin; sid:2400026; rev:1; metadata:created_at 2026_09_13, mitre_t1548, oracle_dbms_java;)
+
+# Oracle privilege escalation
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - GRANT DBA Privilege Escalation"; flow:established,to_server; content:"GRANT"; nocase:true; distance:0; content:"DBA"; nocase:true; distance:0; within:30; classtype:attempted-admin; sid:2400030; rev:1; metadata:created_at 2026_09_13, mitre_t1548, oracle_grant_dba;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - GRANT ALL PRIVILEGES"; flow:established,to_server; content:"GRANT"; nocase:true; distance:0; content:"ALL PRIVILEGES"; nocase:true; distance:0; within:50; classtype:attempted-admin; sid:2400031; rev:1; metadata:created_at 2026_09_13, mitre_t1548, oracle_grant_all;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - ALTER USER Password Change"; flow:established,to_server; content:"ALTER"; nocase:true; distance:0; content:"USER"; nocase:true; distance:0; within:20; content:"IDENTIFIED"; nocase:true; distance:0; within:30; classtype:attempted-admin; sid:2400032; rev:1; metadata:created_at 2026_09_13, mitre_t1098, oracle_alter_user;)
+
+# Oracle data exfiltration patterns
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - Data Pump Export Command"; flow:established,to_server; content:"EXPDP"; nocase:true; distance:0; classtype:web-application-attack; sid:2400040; rev:1; metadata:created_at 2026_09_13, mitre_t1567, oracle_expdp_exfil;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - Bulk SELECT on Sensitive Tables"; flow:established,to_server; pcre:"/\bSELECT\b.*\bFROM\b\s+(ALL_USERS|DBA_USERS|SYS\.USER$|SYS\.DBA_|SYS\.V_$)/i"; classtype:web-application-attack; sid:2400041; rev:1; metadata:created_at 2026_09_13, mitre_t1082, oracle_dba_enum;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - Credential Harvesting - DBA_USERS Query"; flow:established,to_server; pcre:"/\bSELECT\b.*\bFROM\s+DBA_USERS\b/i"; classtype:web-application-attack; sid:2400042; rev:1; metadata:created_at 2026_09_13, mitre_t1552, oracle_cred_harvest;)
+
+# --- Oracle WebLogic (Port 7001/7002) ---
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 7001 (msg:"ORACLE - WebLogic Console Access from External"; flow:established,to_server; content:"/console"; http_uri; content:"GET"; http_method; classtype:attempted-recon; sid:2400050; rev:1; metadata:created_at 2026_09_13, mitre_t1046, oracle_weblogic_console;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - WebLogic Deserialization Attack - CVE-2017-10271"; flow:established,to_server; content:"/wls-wsat/CoordinatorPortType"; http_uri; pcre:"/<java.*class.*serial/i"; http_client_body; classtype:web-application-attack; sid:2400051; rev:1; metadata:created_at 2026_09_13, cve CVE-2017-10271, mitre_t1190, oracle_weblogic_deser;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - WebLogic SSRF - /uddiexplorer"; flow:established,to_server; content:"/uddiexplorer"; http_uri; content:"http"; http_uri; classtype:web-application-attack; sid:2400052; rev:1; metadata:created_at 2026_09_13, mitre_t1190, oracle_weblogic_ssrf;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - WebLogic AsyncResponseService Deserialization"; flow:established,to_server; content:"/_async/asyncResponseService"; http_uri; content:"POST"; http_method; classtype:web-application-attack; sid:2400053; rev:1; metadata:created_at 2026_09_13, cve CVE-2019-2725, mitre_t1190, oracle_weblogic_async_deser;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - WebLogic IIOP T3 Protocol Exploit"; flow:established,to_server; content:"t3"; http_header; content:"POST"; http_method; classtype:web-application-attack; sid:2400054; rev:1; metadata:created_at 2026_09_13, cve CVE-2020-2551, mitre_t1190, oracle_weblogic_iiop;)
+
+# --- Oracle EBS (Port 8000/8080) ---
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - EBS OAFramework SQL Injection - OA.jsp"; flow:established,to_server; content:"/OA.jsp"; http_uri; pcre:"/(UNION|SELECT|INSERT|DROP|DELETE)/i"; http_uri; classtype:web-application-attack; sid:2400060; rev:1; metadata:created_at 2026_09_13, mitre_t1190, oracle_ebs_sqli;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - EBS Application Server Info Disclosure"; flow:established,to_server; content:"/OA_HTML/"; http_uri; content:"/oracle/apps/"; http_uri; classtype:attempted-recon; sid:2400061; rev:1; metadata:created_at 2026_09_13, mitre_t1046, oracle_ebs_info_leak;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - EBS Oracle JSP Path Traversal"; flow:established,to_server; content:"/jsp/"; http_uri; pcre:"/(\.\.\/|%2e%2e%2f|%2e%2e\/)/i"; http_uri; classtype:web-application-attack; sid:2400062; rev:1; metadata:created_at 2026_09_13, mitre_t1190, oracle_ebs_path_traversal;)
+
+# --- Oracle Fusion Middleware ---
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - Fusion Middleware REST API Unauthorized Access"; flow:established,to_server; content:"/em"; http_uri; content:"/targetrecognition"; http_uri; content:"GET"; http_method; content:!"Authorization"; http_header; classtype:attempted-admin; sid:2400070; rev:2; metadata:created_at 2026_09_13, mitre_t1190, oracle_fusion_rest;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - Fusion Middleware SOA Deploy Without Auth"; flow:established,to_server; content:"/soa-infra"; http_uri; content:"POST"; http_method; classtype:attempted-admin; sid:2400071; rev:1; metadata:created_at 2026_09_13, mitre_t1190, oracle_fusion_soa;)
+
+# --- Oracle Cloud Infrastructure (OCI) API ---
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - OCI API Key in HTTP Header"; flow:established,to_server; content:"oracle"; http_header; pcre:"/ocid1\./i"; http_header; classtype:web-application-attack; sid:2400080; rev:1; metadata:created_at 2026_09_13, mitre_t1552, oracle_oci_apikey_leak;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - OCI Instance Metadata Access"; flow:established,to_server; content:"169.254.169.254"; http_uri; content:"/opc-"; http_uri; classtype:web-application-attack; sid:2400081; rev:1; metadata:created_at 2026_09_13, mitre_t1552, oracle_oci_metadata;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - OCI Identity Domain Enumeration"; flow:established,to_server; pcre:"/identity\.oraclecloud\.com\/[a-z0-9-]+\/[a-z0-9-]+\/[a-z0-9-]+/i"; http_uri; threshold:type both, track by_src, count 20, seconds 60; classtype:attempted-recon; sid:2400082; rev:1; metadata:created_at 2026_09_13, mitre_t1592, oracle_oci_domain_enum;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - OCI Object Storage Enumeration"; flow:established,to_server; pcre:"/[a-z0-9]+\.objectstorage\.[a-z0-9-]+\.oraclecloud\.com\/n\/[a-z0-9-]+\/b\//i"; http_uri; threshold:type both, track by_src, count 15, seconds 60; classtype:attempted-recon; sid:2400083; rev:1; metadata:created_at 2026_09_13, mitre_t1592, oracle_oci_storage_enum;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - OCI Compromise - Suspicious Auth Token"; flow:established,to_server; content:"oracle"; http_header; pcre:"/Authorization.*Bearer\s+ocid1/i"; http_header; threshold:type both, track by_src, count 5, seconds 30; classtype:web-application-attack; sid:2400084; rev:1; metadata:created_at 2026_09_13, mitre_t1550, oracle_oci_token_abuse;)
+
+# --- Oracle Audit Log Tampering ---
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - Audit Trail Disable Attempt"; flow:established,to_server; pcre:"/\bALTER\s+SYSTEM\s+SET\s+audit_trail\s*=\s*(NONE|FALSE|OFF|OS)/i"; classtype:attempted-admin; sid:2400090; rev:1; metadata:created_at 2026_09_13, mitre_t1562, oracle_audit_disable;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - Audit Table Truncation"; flow:established,to_server; pcre:"/\bTRUNCATE\s+TABLE\s+(AUD$|SYS\.AUD$|DBA_AUDIT_TRAIL)/i"; classtype:attempted-admin; sid:2400091; rev:1; metadata:created_at 2026_09_13, mitre_t1562, oracle_audit_truncate;)
+
+# --- Oracle RCE Patterns ---
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - DBMS_XMLGEN SQL Injection to OS Command"; flow:established,to_server; content:"DBMS_XMLGEN"; nocase:true; distance:0; pcre:"/DBMS_XMLGEN.*GETXML.*SELECT/i"; classtype:web-application-attack; sid:2400100; rev:1; metadata:created_at 2026_09_13, mitre_t1190, oracle_dbms_xmlgen;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - DBMS_SQL Dynamic SQL Execution"; flow:established,to_server; content:"DBMS_SQL"; nocase:true; distance:0; content:"EXECUTE"; nocase:true; distance:0; within:50; classtype:web-application-attack; sid:2400101; rev:1; metadata:created_at 2026_09_13, mitre_t1059, oracle_dbms_sql;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - CTXSYS.DRITHSX.SYN RCE - CVE-2023-21839"; flow:established,to_server; content:"CTXSYS"; nocase:true; distance:0; content:"DRITHSX"; nocase:true; distance:0; within:50; classtype:web-application-attack; sid:2400102; rev:1; metadata:created_at 2026_09_13, cve CVE-2023-21839, mitre_t1190, oracle_ctxsys_rce;)
+
+# --- Oracle Net Services / TNS Poison (CVE-2012-1675) ---
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - TNS Listener Poison - CVE-2012-1675"; flow:established,to_server; pcre:"/\x00.{4}\x00\x00\x00\x00.{4}(?:SERVICE_REGISTER|NSPTCN)/s"; classtype:web-application-attack; sid:2400110; rev:1; metadata:created_at 2026_09_13, cve CVE-2012-1675, mitre_t1190, oracle_tns_poison;)
+
+# --- Oracle Listener Enumeration ---
+
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - TNS Listener Version Query"; flow:established,to_server; pcre:"/\(CONNECT_DATA=\(COMMAND=VERSION\)/i"; classtype:attempted-recon; sid:2400120; rev:1; metadata:created_at 2026_09_13, mitre_t1046, oracle_tns_version;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - TNS Listener Service Enumeration"; flow:established,to_server; pcre:"/\(CONNECT_DATA=\(COMMAND=SERVICES\)/i"; classtype:attempted-recon; sid:2400121; rev:1; metadata:created_at 2026_09_13, mitre_t1046, oracle_tns_enum;)

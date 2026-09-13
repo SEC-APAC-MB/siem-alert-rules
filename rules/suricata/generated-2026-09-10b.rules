@@ -1,0 +1,301 @@
+# Generated Suricata Detection Rules - 2026-09-10
+# Based on latest CVEs from GitHub Advisory Database (2026-08-27 to 2026-09-10)
+# MITRE ATT&CK techniques, current threat landscape
+# SID range: 5100001 - 5100100
+
+# --- CVE-2026-78082: Joomla SP Property Unauthenticated SQL Injection (CRITICAL) ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Joomla SP Property SQL Injection Attempt - zipcode parameter"; flow:established,to_server; http.uri; content:"/index.php"; content:"option=com_spproperty"; distance:0; content:"zipcode="; distance:0; pcre:"/zipcode=[^&]*['\)\(]/i"; classtype:web-application-attack; sid:5100001; rev:1;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Joomla SP Property SQL Injection Attempt - price_range_dropdown"; flow:established,to_server; http.uri; content:"/index.php"; content:"option=com_spproperty"; distance:0; content:"price_range_dropdown="; distance:0; pcre:"/price_range_dropdown=[^&]*['\)\(]/i"; classtype:web-application-attack; sid:5100002; rev:1;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Joomla SP Property SQL Injection Attempt - psize_range_dropdown"; flow:established,to_server; http.uri; content:"/index.php"; content:"option=com_spproperty"; distance:0; content:"psize_range_dropdown="; distance:0; pcre:"/psize_range_dropdown=[^&]*['\)\(]/i"; classtype:web-application-attack; sid:5100003; rev:1;)
+
+# --- CVE-2026-88285: GeoVision PTZ Unauthenticated Access (CRITICAL) ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80,443,8080 (msg:"ET IOT GeoVision PTZ Control Unauthenticated Access"; flow:established,to_server; content:"GET"; http.method; content:"/cgi-bin/ptz"; nocase; distance:0; content:"command="; distance:0; classtype:attempted-admin; sid:5100004; rev:1;)
+
+# --- CVE-2026-88278: GeoVision ONVIF WS-Security Replay Attack (CRITICAL) ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80,8080 (msg:"ET IOT GeoVision ONVIF WS-Security UsernameToken Replay"; flow:established,to_server; content:"POST"; http.method; content:"/onvif/device_service"; nocase; distance:0; content:"UsernameToken"; distance:0; content:"PasswordDigest"; distance:0; content:"Nonce"; distance:0; classtype:attempted-admin; sid:5100005; rev:1;)
+
+# --- CVE-2026-8323: Armiya Access Control Open Redirect (CRITICAL) ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Armiya Access Control Open Redirect Attempt"; flow:established,to_server; http.uri; content:"redirect="; nocase; pcre:"/redirect=https?\:\/\//i"; classtype:web-application-attack; sid:5100006; rev:1;)
+
+# --- CVE-2026-87962: t-digest DoS ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET JAVA t-digest MergingDigest DoS Crafted Serialization"; flow:established,to_server; content:"MergingDigest"; nocase; content:"fromBytes"; nocase; distance:0; classtype:attempted-dos; sid:5100007; rev:1;)
+
+# --- CVE-2026-87803: Countly DBViewer Authorization Bypass ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Countly DBViewer Authorization Bypass via MongoDB Aggregation Injection"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/o/db"; nocase; distance:0; content:"$lookup"; distance:0; content:"$facet"; distance:0; classtype:web-application-attack; sid:5100008; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Countly DBViewer $facet Pipeline Injection"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/o/db"; nocase; distance:0; content:"$_internalInhibitOptimization"; distance:0; classtype:web-application-attack; sid:5100009; rev:1;)
+
+# --- CVE-2026-87961: ESP32-audioI2S Heap OOB Read ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT ESP32 audioI2S Crafted MP3 ID3 OOB Read"; flow:established,to_server; content:"ID3"; depth:3; content:"SYLT"; distance:0; classtype:attempted-user; sid:5100010; rev:1;)
+
+# --- CVE-2026-88859: Evolution Mail XSS via vCard ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET CLIENT Evolution Mail vCard JavaScript Injection XSS"; flow:established,to_server; content:"BEGIN:VCARD"; nocase; content:"javascript:"; nocase; distance:0; classtype:web-application-attack; sid:5100011; rev:1;)
+
+# --- CVE-2026-78085: Joomla SP Property Path Traversal ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Joomla SP Property Path Traversal in Gallery Management"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"option=com_spproperty"; nocase; distance:0; content:"task=gallery"; nocase; distance:0; content:"../"; distance:0; classtype:web-application-attack; sid:5100012; rev:1;)
+
+# --- CVE-2026-5399: WordPress Redux Framework Stored XSS ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Redux Framework Stored XSS via Slider Field"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"wp-admin/profile.php"; nocase; distance:0; content:"onfocus="; nocase; distance:0; content:"autofocus"; nocase; distance:0; classtype:web-application-attack; sid:5100013; rev:1;)
+
+# --- CVE-2026-78303: Joomla SP Property Email Manipulation ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Joomla SP Property Email Manipulation via Booking Form"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"option=com_spproperty"; nocase; distance:0; content:"task=booking"; nocase; distance:0; content:"email="; distance:0; pcre:"/email=.*@.*\.(com|net|org)/i"; classtype:web-application-attack; sid:5100014; rev:1;)
+
+# --- CVE-2026-78083: Joomla SP Property CSRF ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Joomla SP Property CSRF - Missing Token in Booking Endpoint"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"option=com_spproperty"; nocase; distance:0; content:"task=booking"; nocase; distance:0; content:"!content:JSESSIONID"; distance:0; classtype:web-application-attack; sid:5100015; rev:1;)
+
+# --- CVE-2026-78302: Joomla SP Property Stored XSS ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Joomla SP Property Stored XSS via Unescaped View Output"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"option=com_spproperty"; nocase; distance:0; content:"<script"; nocase; distance:0; classtype:web-application-attack; sid:5100016; rev:1;)
+
+# --- CVE-2026-78084: Joomla SP Property Missing Access Control ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Joomla SP Property Missing Access Control in Gallery Upload"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"option=com_spproperty"; nocase; distance:0; content:"task=gallery.upload"; nocase; distance:0; classtype:web-application-attack; sid:5100017; rev:1;)
+
+# --- CVE-2026-78374: Joomla T4 Page Builder Open Mail Relay ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Joomla T4 Page Builder Open Mail Relay via Contact AJAX"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/index.php"; nocase; content:"option=com_t4"; nocase; distance:0; content:"task=contact"; nocase; distance:0; classtype:web-application-attack; sid:5100018; rev:1;)
+
+# --- CVE-2026-15889: WordPress Aruba HiSpeed Cache Stored XSS ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Aruba HiSpeed Cache Stored XSS via Post Content"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"wp-admin/post.php"; nocase; distance:0; content:"<script"; nocase; distance:0; classtype:web-application-attack; sid:5100019; rev:1;)
+
+# --- CVE-2026-88287: GeoVision ONVIF WS-Discovery Buffer Overflow ---
+alert udp $EXTERNAL_NET any -> $HOME_NET 3702 (msg:"ET IOT GeoVision ONVIF WS-Discovery Probe Stack Overflow"; content:"soap:Envelope"; nocase; content:"Scopes"; distance:0; pcre:"/(?:<.+>){50,}/"; classtype:attempted-admin; sid:5100020; rev:1;)
+
+# --- CVE-2026-88289: GeoVision VLSVR Buffer Overflow ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision VLSVR Unauthenticated Variable-Length Buffer Overflow"; flow:established,to_server; content:"VLSVR"; nocase; content:"Content-Length"; nocase; distance:0; classtype:attempted-admin; sid:5100021; rev:1;)
+
+# --- CVE-2026-88290: GeoVision VLSVR Resource Exhaustion ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision VLSVR Unbounded Frame Length Resource Exhaustion"; flow:established,to_server; content:"VLSVR"; nocase; content:"Content-Length"; nocase; distance:0; byte_test:4,>,0x00100000,0,relative,string; classtype:attempted-dos; sid:5100022; rev:1;)
+
+# --- CVE-2026-88288: GeoVision Arbitrary File Read ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision BKDownloadLink.cgi Arbitrary File Read"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/BKDownloadLink.cgi"; nocase; distance:0; content:"filename="; nocase; distance:0; pcre:"/filename=.*\.\.\//"; classtype:web-application-attack; sid:5100023; rev:1;)
+
+# --- CVE-2026-88286: GeoVision PTZ Connection DoS ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision PTZ Connection Exhaustion DoS"; flow:established,to_server; content:"PTZ"; nocase; threshold:type both, track by_src, count 20, seconds 10; classtype:attempted-dos; sid:5100024; rev:1;)
+
+# --- CVE-2026-88282: GeoVision FTP Username Command Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision FTP Username OS Command Injection"; flow:established,to_server; content:"ftp_username"; nocase; pcre:"/ftp_username=[^&]*[;&|`$]/"; classtype:web-application-attack; sid:5100025; rev:1;)
+
+# --- CVE-2026-88274: GeoVision Wireless SSID Command Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision Wireless SSID Command Injection"; flow:established,to_server; content:"ssid"; nocase; pcre:"/ssid=[^&]*[;&|`$]/"; classtype:web-application-attack; sid:5100026; rev:1;)
+
+# --- CVE-2026-88275: GeoVision WPA-PSK Command Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision WPA-PSK Command Injection"; flow:established,to_server; content:"wpa_psk"; nocase; pcre:"/wpa_psk=[^&]*[;&|`$]/"; classtype:web-application-attack; sid:5100027; rev:1;)
+
+# --- CVE-2026-88276: GeoVision WEP Key Command Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision WEP Key Command Injection"; flow:established,to_server; content:"wep_key"; nocase; pcre:"/wep_key=[^&]*[;&|`$]/"; classtype:web-application-attack; sid:5100028; rev:1;)
+
+# --- CVE-2026-88277: ONVIF Shell Command Injection ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision ONVIF Shell Command Injection"; flow:established,to_server; content:"soap:Envelope"; nocase; content:"SetUser"; distance:0; pcre:"/[;&|`$]/"; classtype:web-application-attack; sid:5100029; rev:1;)
+
+# --- CVE-2026-88271: GeoVision Guest Config Overwrite ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision Guest User Config Overwrite Attempt"; flow:established,to_server; http.method; content:"PUT"; http.uri; content:"/cgi-bin/config"; nocase; distance:0; classtype:attempted-admin; sid:5100030; rev:1;)
+
+# --- CVE-2026-84828: PCS Pacemaker Token File Read ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET LINUX PCS Host Auth Token Arbitrary File Read"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/pcs/host/auth"; nocase; distance:0; content:"--token"; distance:0; pcre:"/token=.*\.\.\//"; classtype:web-application-attack; sid:5100031; rev:1;)
+
+# --- MITRE ATT&CK: T1059.001 - Command Scripting: PowerShell ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1059.001 Suspicious PowerShell Download Cradle"; flow:established,to_server; http.uri; content:"/download/"; nocase; content:"powershell"; nocase; distance:0; classtype:trojan-activity; sid:5100032; rev:1;)
+
+# --- MITRE ATT&CK: T1059.003 - Windows Command Shell ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1059.003 Suspicious cmd.exe Execution via HTTP"; flow:established,to_server; content:"cmd.exe"; nocase; content:"/c"; distance:0; classtype:trojan-activity; sid:5100033; rev:1;)
+
+# --- MITRE ATT&CK: T1071.001 - Web Protocols: HTTP ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1071.001 Suspicious HTTP Beacon Pattern - Frequent Small Requests"; flow:established,to_server; http.uri; content:"/api/"; depth:5; threshold:type both, track by_src, count 50, seconds 60; classtype:trojan-activity; sid:5100034; rev:1;)
+
+# --- MITRE ATT&CK: T1566.001 - Phishing: Spearphishing Attachment ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATT&CK T1566.001 Phishing Attachment - Macro-Enabled Document"; flow:established,to_server; content:"Content-Type: application/vnd.ms-excel.sheet.macroEnabled"; nocase; classtype:trojan-activity; sid:5100035; rev:1;)
+
+# --- MITRE ATT&CK: T1190 - Exploit Public-Facing Application ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATT&CK T1190 Exploit Attempt Against Public Web App - SQL Error Disclosure"; flow:established,to_client; http.stat_code; content:"500"; content:"SQL syntax"; nocase; distance:0; content:"mysql"; nocase; distance:0; classtype:web-application-attack; sid:5100036; rev:1;)
+
+# --- MITRE ATT&CK: T1133 - External Remote Services ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"ET ATT&CK T1133 External RDP Connection Attempt"; flow:established,to_server; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:5100037; rev:1;)
+
+# --- MITRE ATT&CK: T1078 - Valid Accounts (Brute Force) ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"ET ATT&CK T1078 SSH Brute Force Multiple Auth Failures"; flow:established,to_server; content:"Failed password"; threshold:type threshold, track by_src, count 5, seconds 30; classtype:attempted-admin; sid:5100038; rev:1;)
+
+# --- MITRE ATT&CK: T1078.002 - Domain Accounts ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET 389 (msg:"ET ATT&CK T1078.002 Suspicious LDAP Query from Non-Domain-Controller"; flow:established,to_server; content:"LDAP"; classtype:attempted-recon; sid:5100039; rev:1;)
+
+# --- MITRE ATT&CK: T1486 - Data Encrypted for Impact ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1486 Mass File Encryption Activity - Sudden High Entropy Outbound"; flow:established,to_server; threshold:type both, track by_src, count 100, seconds 30; classtype:trojan-activity; sid:5100040; rev:1;)
+
+# --- MITRE ATT&CK: T1048 - Exfiltration Over Alternative Protocol ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"ET ATT&CK T1048 DNS Tunneling - Excessive TXT Record Queries"; flow:established,to_server; content:"TXT"; threshold:type both, track by_src, count 20, seconds 60; classtype:trojan-activity; sid:5100041; rev:1;)
+
+# --- MITRE ATT&CK: T1041 - Exfiltration Over C2 Channel ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1041 Data Exfiltration via HTTPS Beacon - Large Upload After Recon"; flow:established,to_server; content:"POST"; http.method; dsize:>50000; classtype:trojan-activity; sid:5100042; rev:1;)
+
+# --- MITRE ATT&CK: T1053.005 - Scheduled Task/Job: Scheduled Task ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1053.005 Suspicious Scheduled Task Creation via HTTP"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/tasks/register"; nocase; distance:0; classtype:trojan-activity; sid:5100043; rev:1;)
+
+# --- MITRE ATT&CK: T1547.001 - Boot or Logon Autostart: Registry Run Keys ---
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"ET ATT&CK T1547.001 Registry Run Key Modification via SMB"; flow:established,to_server; content:"\\REGISTRY\\"; nocase; content:"Software\\Microsoft\\Windows\\CurrentVersion\\Run"; nocase; distance:0; classtype:trojan-activity; sid:5100044; rev:1;)
+
+# --- MITRE ATT&CK: T1021.002 - Remote Services: SMB ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"ET ATT&CK T1021.002 Suspicious SMB Named Pipe Access"; flow:established,to_server; content:"\\pipe\\svcctl"; nocase; threshold:type both, track by_src, count 10, seconds 30; classtype:attempted-admin; sid:5100045; rev:1;)
+
+# --- MITRE ATT&CK: T1562.001 - Impair Defenses: Disable or Modify Tools ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1562.001 Security Tool Disable Attempt"; flow:established,to_server; http.uri; content:"/api/v1/disable"; nocase; content:"defender"; nocase; distance:0; classtype:trojan-activity; sid:5100046; rev:1;)
+
+# --- MITRE ATT&CK: T1055 - Process Injection ---
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"ET ATT&CK T1055 Process Injection - CreateRemoteThread Pattern"; flow:established,to_server; content:"CreateRemoteThread"; nocase; classtype:trojan-activity; sid:5100047; rev:1;)
+
+# --- MITRE ATT&CK: T1110.001 - Brute Force: Password Guessing ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATT&CK T1110.001 Web Login Brute Force - Rapid 401 Responses"; flow:established,to_client; http.stat_code; content:"401"; threshold:type both, track by_src, count 10, seconds 60; classtype:attempted-admin; sid:5100048; rev:1;)
+
+# --- MITRE ATT&CK: T1070.004 - Indicator Removal: File Deletion ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1070.004 Mass File Deletion via Web Shell"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"rm"; nocase; content:"-rf"; nocase; distance:0; classtype:trojan-activity; sid:5100049; rev:1;)
+
+# --- CVE-2026-59679: libXfont2 Heap Buffer Overflow (CRITICAL) ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6000 (msg:"ET EXPLOIT libXfont2 fs_read_glyphs Heap Buffer Overflow"; flow:established,to_server; content:"FSIG"; depth:4; content:"GLYPH"; distance:0; byte_test:4,>,0x00010000,0,relative; classtype:attempted-admin; sid:5100050; rev:1;)
+
+# --- CVE-2026-44950: libXfont2 Heap Buffer Overflow (CRITICAL) ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6000 (msg:"ET EXPLOIT libXfont2 fs_read_glyphs Bitmap Copy Heap Overflow"; flow:established,to_server; content:"FSIG"; depth:4; content:"BITMAP"; distance:0; byte_test:2,>,0x1000,0,relative; classtype:attempted-admin; sid:5100051; rev:1;)
+
+# --- CVE-2026-13745: Gemini CLI Code Injection (CRITICAL) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Gemini CLI Code Injection via Crafted Prompt"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/gemini"; nocase; distance:0; content:"execute"; nocase; distance:0; content:"script"; nocase; distance:0; classtype:web-application-attack; sid:5100052; rev:1;)
+
+# --- CVE-2026-80351: Apache Camel K Eval Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Camel K Eval Injection via Maven Config"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/camel/k"; nocase; distance:0; content:"eval"; nocase; distance:0; content:"maven"; nocase; distance:0; classtype:web-application-attack; sid:5100053; rev:1;)
+
+# --- CVE-2026-88770: Keycloak Brute Force Bypass ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Keycloak Brute Force Bypass via Device Authorization Grant"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/auth/realms/"; nocase; content:"/device"; nocase; distance:0; content:"grant_type=urn:ietf:params:oauth:grant-type:device_code"; nocase; distance:0; classtype:web-application-attack; sid:5100054; rev:1;)
+
+# --- MITRE ATT&CK: T1548.001 - Abuse Elevation Control: Setuid ---
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"ET ATT&CK T1548.001 Suspicious setuid Binary Execution"; flow:established,to_server; content:"setuid"; nocase; content:"chmod"; nocase; distance:0; content:"4755"; distance:0; classtype:attempted-privilege-escalation; sid:5100055; rev:1;)
+
+# --- MITRE ATT&CK: T1087.002 - Account Discovery: Domain Account ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET 389 (msg:"ET ATT&CK T1087.002 Suspicious LDAP Domain Account Enumeration"; flow:established,to_server; content:"(&(objectCategory=person)(objectClass=user))"; nocase; classtype:attempted-recon; sid:5100056; rev:1;)
+
+# --- MITRE ATT&CK: T1082 - System Information Discovery ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1082 System Info Discovery via HTTP"; flow:established,to_server; http.uri; content:"/api/v1/system/info"; nocase; classtype:attempted-recon; sid:5100057; rev:1;)
+
+# --- MITRE ATT&CK: T1083 - File and Directory Discovery ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1083 Suspicious File Enumeration via Web Shell"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"cmd=dir"; nocase; classtype:attempted-recon; sid:5100058; rev:1;)
+
+# --- MITRE ATT&CK: T1018 - Remote System Discovery ---
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"ET ATT&CK T1018 Network Scanning via ARP Table Dump"; flow:established,to_server; content:"arp"; nocase; content:"-a"; distance:0; classtype:attempted-recon; sid:5100059; rev:1;)
+
+# --- MITRE ATT&CK: T1033 - System Owner/User Discovery ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1033 Suspicious User Enumeration via HTTP"; flow:established,to_server; http.uri; content:"/whoami"; nocase; classtype:attempted-recon; sid:5100060; rev:1;)
+
+# --- CVE-2026-88272: GeoVision Admin Username Command Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision Admin Username Command Injection"; flow:established,to_server; content:"username="; nocase; pcre:"/username=[^&]*[;&|`$]/"; classtype:web-application-attack; sid:5100061; rev:1;)
+
+# --- CVE-2026-88273: GeoVision PPPoE Username Command Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision PPPoE Username Command Injection"; flow:established,to_server; content:"pppoe_username"; nocase; pcre:"/pppoe_username=[^&]*[;&|`$]/"; classtype:web-application-attack; sid:5100062; rev:1;)
+
+# --- MITRE ATT&CK: T1119 - Automated Collection ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1119 Automated Data Staging via Bulk Download"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/export"; nocase; content:"format=zip"; nocase; distance:0; dsize:>1000000; classtype:trojan-activity; sid:5100063; rev:1;)
+
+# --- MITRE ATT&CK: T1567 - Exfiltration Over Web Service ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1567 Data Exfiltration to Cloud Storage"; flow:established,to_server; http.host; content:"drive.google.com"; nocase; http.method; content:"POST"; dsize:>5000000; classtype:trojan-activity; sid:5100064; rev:1;)
+
+# --- MITRE ATT&CK: T1071.004 - Application Layer Protocol: DNS ---
+alert dns $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1071.004 DNS Tunneling - Excessive CNAME Responses"; dns.query; content:"cname"; nocase; threshold:type both, track by_src, count 30, seconds 60; classtype:trojan-activity; sid:5100065; rev:1;)
+
+# --- MITRE ATT&CK: T1105 - Ingress Tool Transfer ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATT&CK T1105 Suspicious Tool Download - PowerShell or Cobalt Strike Beacon"; flow:established,to_client; http.stat_code; content:"200"; fileext; content:"/beacon.exe"; nocase; distance:0; classtype:trojan-activity; sid:5100066; rev:1;)
+
+# --- MITRE ATT&CK: T1027 - Obfuscated Files or Information ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1027 Encrypted Archive Exfiltration"; flow:established,to_server; http.method; content:"POST"; http.content_type; content:"application/octet-stream"; nocase; distance:0; content:"encrypted"; nocase; distance:0; classtype:trojan-activity; sid:5100067; rev:1;)
+
+# --- MITRE ATT&CK: T1568 - Dynamic Resolution ---
+alert dns $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1568 Dynamic DNS Resolution - Fast Flux Domain"; dns.query; content:".tk"; nocase; threshold:type both, track by_src, count 10, seconds 120; classtype:trojan-activity; sid:5100068; rev:1;)
+
+# --- MITRE ATT&CK: T1573 - Encrypted Channel ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1573 Encrypted Channel to Suspicious Destination - TLS to Rare Port"; flow:established,to_server; content:"|16 03 01|"; depth:3; threshold:type both, track by_src, count 5, seconds 60; classtype:trojan-activity; sid:5100069; rev:1;)
+
+# --- MITRE ATT&CK: T1090 - Proxy ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET 1080,3128,8080 (msg:"ET ATT&CK T1090 Proxy Communication to External SOCKS/HTTP Proxy"; flow:established,to_server; content:"CONNECT"; depth:7; classtype:trojan-activity; sid:5100070; rev:1;)
+
+# --- MITRE ATT&CK: T1571 - Non-Application Layer Protocol ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1571 Non-Standard Protocol Communication - ICMP Tunneling Pattern"; flow:established,to_server; dsize:>1000; classtype:trojan-activity; sid:5100071; rev:1;)
+
+# --- MITRE ATT&CK: T1098 - Account Manipulation ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATT&CK T1098 Account Manipulation - Privilege Escalation via API"; flow:established,to_server; http.method; content:"PUT"; http.uri; content:"/api/users/"; nocase; distance:0; content:"role=admin"; nocase; distance:0; classtype:attempted-privilege-escalation; sid:5100072; rev:1;)
+
+# --- MITRE ATT&CK: T1070.006 - Indicator Removal: Timestomp ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1070.006 Timestomp Activity - File Timestamp Modification"; flow:established,to_server; http.uri; content:"/api/files/touch"; nocase; classtype:trojan-activity; sid:5100073; rev:1;)
+
+# --- MITRE ATT&CK: T1068 - Exploitation for Privilege Escalation ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATT&CK T1068 Privilege Escalation via Kernel Exploit Indicator"; flow:established,to_client; http.stat_code; content:"200"; http.response_body; content:"root:"; nocase; distance:0; content:"/etc/shadow"; nocase; distance:0; classtype:attempted-privilege-escalation; sid:5100074; rev:1;)
+
+# --- MITRE ATT&CK: T1484 - Domain Policy Modification ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATT&CK T1484 Domain Policy Modification - GPO Change via LDAP"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/GroupPolicy"; nocase; distance:0; classtype:attempted-admin; sid:5100075; rev:1;)
+
+# --- MITRE ATT&CK: T1070.001 - Indicator Removal: Clear Windows Event Logs ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATT&CK T1070.001 Windows Event Log Clearing via API"; flow:established,to_server; http.method; content:"DELETE"; http.uri; content:"/api/events"; nocase; content:"clear"; nocase; distance:0; classtype:attempted-defense-evasion; sid:5100076; rev:1;)
+
+# --- MITRE ATT&CK: T1562.002 - Impair Defenses: Disable Cloud Logs ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1562.002 Cloud Logging Disable Attempt"; flow:established,to_server; http.method; content:"PUT"; http.uri; content:"/logging-config"; nocase; distance:0; content:"enabled=false"; nocase; distance:0; classtype:attempted-defense-evasion; sid:5100077; rev:1;)
+
+# --- MITRE ATT&CK: T1530 - Data from Cloud Storage ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1530 Suspicious Cloud Storage Bulk Download"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/download"; nocase; content:"bucket"; nocase; distance:0; dsize:>10000000; classtype:attempted-recon; sid:5100078; rev:1;)
+
+# --- MITRE ATT&CK: T1210 - Exploitation of Remote Services ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATT&CK T1210 Remote Service Exploitation - Suspicious Bind Shell Response"; flow:established,to_client; content:"SSH-2.0"; depth:7; content:"OpenSSH"; distance:0; threshold:type both, track by_src, count 3, seconds 60; classtype:attempted-admin; sid:5100079; rev:1;)
+
+# --- CVE-2026-88270: GeoVision Guest SSVR Firmware Upgrade ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision Guest SSVR Firmware Upgrade Disruption"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/cgi-bin/ssvr_upgrade"; nocase; distance:0; classtype:attempted-admin; sid:5100080; rev:1;)
+
+# --- CVE-2026-88269: GeoVision Guest Config Retrieval ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT GeoVision Guest User Persistent Config Retrieval"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/cgi-bin/config"; nocase; distance:0; content:"user=guest"; nocase; distance:0; classtype:attempted-recon; sid:5100081; rev:1;)
+
+# --- CVE-2026-84042: crun libkrun Container Escape ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT crun libkrun Rootful Container Escape"; flow:established,to_server; content:"crun"; nocase; content:"libkrun"; nocase; distance:0; content:"rootful"; nocase; distance:0; classtype:attempted-privilege-escalation; sid:5100082; rev:1;)
+
+# --- CVE-2026-88265: crun pivot_root Symlink Exploit ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT crun pivot_root /dev/null Symlink Exploit"; flow:established,to_server; content:"pivot_root"; nocase; content:"/dev/null"; distance:0; classtype:attempted-privilege-escalation; sid:5100083; rev:1;)
+
+# --- CVE-2026-42806: Bosch BME690 OOB Read ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT Bosch BME690 SensorAPI OOB Read via PC Bridge"; flow:established,to_server; content:"COINES"; nocase; byte_test:2,>,0x0400,0,relative; classtype:attempted-user; sid:5100084; rev:1;)
+
+# --- CVE-2026-42807: Bosch COINES Heap Overflow ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT Bosch COINES SDK PC Bridge Heap Buffer Overflow"; flow:established,to_server; content:"COINES"; nocase; content:"streaming"; nocase; distance:0; byte_test:4,>,0x00100000,0,relative; classtype:attempted-admin; sid:5100085; rev:1;)
+
+# --- CVE-2026-42808: Bosch COINES SDK Vulnerability ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET IOT Bosch COINES SDK Host Vulnerability Exploit Attempt"; flow:established,to_server; content:"COINES_SDK"; nocase; content:"command"; distance:0; classtype:attempted-user; sid:5100086; rev:1;)
+
+# --- CVE-2026-80352: Apache Camel K Code Injection ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Camel K Code Injection via Maven Dependency"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/camel/k"; nocase; distance:0; content:"dependency"; nocase; distance:0; content:"class="; nocase; distance:0; classtype:web-application-attack; sid:5100087; rev:1;)
+
+# --- MITRE ATT&CK: T1199 - Trusted Relationships ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"ET ATT&CK T1199 Trusted Third-Party Compromise - Suspicious OAuth Token Usage"; flow:established,to_server; content:"Authorization: Bearer"; nocase; content:"refresh_token"; distance:0; classtype:trojan-activity; sid:5100088; rev:1;)
+
+# --- MITRE ATT&CK: T1136 - Create Account ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATT&CK T1136 Suspicious Account Creation via Web API"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/users"; nocase; distance:0; content:"role=admin"; nocase; distance:0; classtype:attempted-admin; sid:5100089; rev:1;)
+
+# --- MITRE ATT&CK: T1136.001 - Local Account ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATT&CK T1136.001 Suspicious Local Account Creation"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/v1/accounts"; nocase; distance:0; content:"local"; nocase; distance:0; classtype:attempted-admin; sid:5100090; rev:1;)
+
+# --- MITRE ATT&CK: T1195 - Supply Chain Compromise ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATT&CK T1195 Supply Chain Compromise - Malicious Package Update"; flow:established,to_client; http.stat_code; content:"200"; http.response_body; content:"npm"; nocase; content:"install"; distance:0; content:"postinstall"; distance:0; classtype:trojan-activity; sid:5100091; rev:1;)
+
+# --- MITRE ATT&CK: T1558 - Steal or Forge Kerberos Tickets ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 88 (msg:"ET ATT&CK T1558 Kerberos Ticket Request from External Source"; flow:established,to_server; content:"krb5"; nocase; classtype:attempted-recon; sid:5100092; rev:1;)
+
+# --- MITRE ATT&CK: T1550 - Use Alternate Authentication Material ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET 88 (msg:"ET ATT&CK T1550 Pass-the-Ticket Kerberos Ticket Reuse"; flow:established,to_server; content:"AS-REQ"; nocase; threshold:type both, track by_src, count 10, seconds 300; classtype:trojan-activity; sid:5100093; rev:1;)
+
+# --- MITRE ATT&CK: T1003.001 - OS Credential Dumping: LSASS Memory ---
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"ET ATT&CK T1003.001 LSASS Memory Access via Procdump"; flow:established,to_server; content:"procdump"; nocase; content:"lsass"; nocase; distance:0; classtype:attempted-privilege-escalation; sid:5100094; rev:1;)
+
+# --- MITRE ATT&CK: T1056.001 - Input Capture: Keylogging ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1056.001 Keylogger Data Exfiltration via HTTP"; flow:established,to_server; http.method; content:"POST"; http.content_type; content:"application/octet-stream"; nocase; distance:0; content:"keylog"; nocase; distance:0; classtype:trojan-activity; sid:5100095; rev:1;)
+
+# --- MITRE ATT&CK: T1123 - Audio Capture ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1123 Audio Capture Data Exfiltration"; flow:established,to_server; http.method; content:"POST"; http.content_type; content:"audio/"; nocase; distance:0; dsize:>1000000; classtype:trojan-activity; sid:5100096; rev:1;)
+
+# --- MITRE ATT&CK: T1115 - Clipboard Data ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1115 Clipboard Data Exfiltration"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/clipboard"; nocase; distance:0; classtype:trojan-activity; sid:5100097; rev:1;)
+
+# --- MITRE ATT&CK: T1036.005 - Masquerading: Match Legitimate Name ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1036.005 Masquerading - System Process Name in Non-Standard Path"; flow:established,to_server; http.uri; content:"/svchost"; nocase; content:".exe"; distance:0; pcre:"/svchost[0-9]{2,}\.exe/i"; classtype:trojan-activity; sid:5100098; rev:1;)
+
+# --- MITRE ATT&CK: T1203 - Exploitation for Client Execution ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATT&CK T1203 Client-Side Exploit - Malicious Document Download"; flow:established,to_client; http.stat_code; content:"200"; http.content_type; content:"application/vnd.openxmlformats"; nocase; distance:0; content:"macro"; nocase; distance:0; classtype:trojan-activity; sid:5100099; rev:1;)
+
+# --- MITRE ATT&CK: T1218.011 - System Binary Proxy Execution: Rundll32 ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATT&CK T1218.011 Suspicious Rundll32 Execution via HTTP"; flow:established,to_server; http.uri; content:"rundll32"; nocase; content:"dll"; distance:0; classtype:trojan-activity; sid:5100100; rev:1;)

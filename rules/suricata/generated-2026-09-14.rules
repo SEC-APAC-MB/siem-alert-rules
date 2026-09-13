@@ -1,0 +1,312 @@
+# ==============================================================================
+# Generated Suricata Detection Rules — 2026-09-14
+# Based on: GitHub Advisory Database CVEs published >2026-08-27
+# Latest CVEs: CVE-2026-81648 (CRITICAL), CVE-2026-74933 (HIGH), CVE-2026-88793 (HIGH),
+#   CVE-2026-85129 (HIGH), CVE-2026-37008 (HIGH), CVE-2026-29811 (HIGH), CVE-2026-88802 (HIGH),
+#   CVE-2026-90593, CVE-2026-90579, CVE-2026-36989, CVE-2026-90580, CVE-2026-90581, CVE-2026-90584,
+#   CVE-2026-90583, CVE-2026-89050, CVE-2026-90582, CVE-2026-29812, CVE-2026-29810,
+#   CVE-2026-49030, CVE-2026-36453, CVE-2020-15875, CVE-2026-90577, CVE-2026-90576
+# MITRE ATT&CK: T1190, T1078, T1548, T1068, T1059, T1021, T1048, T1071, T1053, T1003,
+#   T1566, T1110, T1134, T1189, T1040, T1552, T1485, T1567
+# Total: 100 rules | SID range: 5202801-5202900
+# ==============================================================================
+
+# --- CVE-2026-81648: CryptoPayment Gateway WordPress - CRITICAL CVSS 10.0 ---
+# Unauthenticated arbitrary file deletion, config overwrite, wallet credential theft
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress CryptoPayment Gateway Unauthenticated Arbitrary File Deletion"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=cryptopay_delete_file"; nocase; http_client_body; reference:cve,CVE-2026-81648; classtype:web-application-attack; sid:5202801; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress CryptoPayment Gateway Wallet Credential Leak"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=cryptopay_get_wallet"; nocase; http_client_body; reference:cve,CVE-2026-81648; classtype:web-application-attack; sid:5202802; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress CryptoPayment Gateway Config Overwrite Unauthenticated"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=cryptopay_save_settings"; nocase; http_client_body; reference:cve,CVE-2026-81648; classtype:web-application-attack; sid:5202803; rev:1;)
+
+# --- CVE-2026-74933: GenieWords WordPress Plugin - HIGH CVSS 8.8 ---
+# Unauthenticated config overwrite and stored XSS
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress GenieWords Unauthenticated Config Overwrite XSS"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=geniewords_save"; nocase; http_client_body; reference:cve,CVE-2026-74933; classtype:web-application-attack; sid:5202804; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress GenieWords Stored XSS Execution"; flow:established,to_client; content:"<script"; nocase; http_server_body; pcre:"/geniewords.*<script/smi"; reference:cve,CVE-2026-74933; classtype:web-application-attack; sid:5202805; rev:1;)
+
+# --- CVE-2026-88793: YouTube Embed WordPress Plugin - HIGH CVSS 8.8 ---
+# Unauthenticated stored XSS via AJAX with leaked nonce
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress YouTube Embed Plugin Unauthenticated AJAX XSS"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=youtube_embed_save"; nocase; http_client_body; reference:cve,CVE-2026-88793; classtype:web-application-attack; sid:5202806; rev:1;)
+
+# --- CVE-2026-85129: Hoo Companion WordPress Plugin - HIGH CVSS 8.8 ---
+# Unauthenticated theme settings import XSS
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress Hoo Companion Unauthenticated Theme Import XSS"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=hoo_companion_import"; nocase; http_client_body; reference:cve,CVE-2026-85129; classtype:web-application-attack; sid:5202807; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress Hoo Companion Settings Destruction Attempt"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=hoo_companion_import"; content:"theme_settings"; nocase; http_client_body; reference:cve,CVE-2026-85129; classtype:web-application-attack; sid:5202808; rev:1;)
+
+# --- CVE-2026-37008: CrewAI Sandbox Escape - HIGH CVSS 8.1 ---
+# Python sandbox escape via ctypes bypassing import-level blocklist
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT CrewAI Python Sandbox Escape ctypes CDLL Bypass"; flow:established,to_server; content:"POST"; http_method; content:"/api/"; http_uri; content:"ctypes"; nocase; http_client_body; content:"CDLL"; nocase; http_client_body; reference:cve,CVE-2026-37008; classtype:attempted-admin; sid:5202809; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT CrewAI Sandbox Escape Import Bypass Attempt"; flow:established,to_server; content:"POST"; http_method; content:"/api/"; http_uri; content:"import"; nocase; http_client_body; content:"os"; nocase; http_client_body; content:"subprocess"; nocase; http_client_body; reference:cve,CVE-2026-37008; classtype:attempted-admin; sid:5202810; rev:1;)
+
+# --- CVE-2026-29811: CyberPanel Domain Alias Authz Bypass - HIGH CVSS 7.7 ---
+# ORM filter bypass using wrong comparison factors
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT CyberPanel Domain Alias Authz Bypass CVE-2026-29811"; flow:established,to_server; content:"GET"; http_method; content:"/websites/"; http_uri; content:"alias"; nocase; http_uri; reference:cve,CVE-2026-29811; classtype:web-application-attack; sid:5202811; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT CyberPanel Child Domain Manipulation Attempt"; flow:established,to_server; content:"POST"; http_method; content:"/websites/"; http_uri; content:"domainType"; nocase; http_client_body; reference:cve,CVE-2026-29811; classtype:web-application-attack; sid:5202812; rev:1;)
+
+# --- CVE-2026-88802: MDJM Event Management WordPress Plugin - HIGH CVSS 7.5 ---
+# Unauthenticated arbitrary post deletion bypassing trash
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress MDJM Unauthenticated Arbitrary Post Deletion"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=mdjm_remove_playlist_entry"; nocase; http_client_body; reference:cve,CVE-2026-88802; classtype:web-application-attack; sid:5202813; rev:1;)
+
+# --- CVE-2026-36453: Rhymix CMS IDOR - HIGH CVSS 7.4 ---
+# Insecure Direct Object Reference for arbitrary file access via extra variables
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Rhymix IDOR Arbitrary File Access via Extra Variables"; flow:established,to_server; content:"GET"; http_method; content:"/index.php"; http_uri; content:"act="; nocase; http_uri; content:"extra_vars"; nocase; http_uri; reference:cve,CVE-2026-36453; classtype:web-application-attack; sid:5202814; rev:1;)
+
+# --- CVE-2026-90593: embedded-graphics Integer Overflow - MEDIUM CVSS 7.3 ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT embedded-graphics ImageRaw Integer Overflow Attempt"; flow:established,to_server; content:"width"; nocase; http_client_body; content:"draw_sub_image"; nocase; http_client_body; reference:cve,CVE-2026-90593; classtype:web-application-attack; sid:5202815; rev:1;)
+
+# --- CVE-2026-90579: Cheshire Cat AI Missing Auth - MEDIUM CVSS 7.3 ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Cheshire Cat AI Missing Authentication Bypass"; flow:established,to_server; content:"GET"; http_method; content:"/api/"; http_uri; content:"user_id"; nocase; http_uri; reference:cve,CVE-2026-90579; classtype:web-application-attack; sid:5202816; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Cheshire Cat AI Auth Key Manipulation"; flow:established,to_server; content:"POST"; http_method; content:"/api/"; http_uri; content:"_authorize_http_key"; nocase; http_client_body; reference:cve,CVE-2026-90579; classtype:web-application-attack; sid:5202817; rev:1;)
+
+# --- CVE-2026-36989: LuxCal SQL Injection - MEDIUM CVSS 5.8 ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB LuxCal SQL Injection via rssfeed.php"; flow:established,to_server; content:"GET"; http_method; content:"/rssfeed.php"; http_uri; content:"'"; nocase; http_uri; pcre:"/UNION\s+SELECT/Ui"; reference:cve,CVE-2026-36989; classtype:web-application-attack; sid:5202818; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB LuxCal SQL Injection via retrieve.php"; flow:established,to_server; content:"GET"; http_method; content:"/common/retrieve.php"; http_uri; pcre:"/(\bUNION\b|\bSELECT\b).*\bFROM\b/Ui"; reference:cve,CVE-2026-36989; classtype:web-application-attack; sid:5202819; rev:1;)
+
+# --- CVE-2026-90584: Java-WebSocket Resource Consumption - MEDIUM ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET DOS Java-WebSocket Fragmented Frame Resource Consumption"; flow:established,to_server; content:"|81 00|"; depth:2; content:"|80|"; within:64; reference:cve,CVE-2026-90584; classtype:denial-of-service; sid:5202820; rev:1;)
+
+# --- CVE-2026-90580: FlowiseAI SSRF - LOW CVSS 6.3 ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT FlowiseAI SSRF via X-Forwarded-Proto Header"; flow:established,to_server; content:"POST"; http_method; content:"/api/v1/evaluation"; http_uri; content:"X-Forwarded-Proto"; nocase; http_header; reference:cve,CVE-2026-90580; classtype:web-application-attack; sid:5202821; rev:1;)
+
+# --- CVE-2026-90581: nginxWebUI Code Injection - LOW CVSS 6.3 ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT nginxWebUI AutoUpdate Code Injection via URL Parameter"; flow:established,to_server; content:"POST"; http_method; content:"/adminPage/main/autoUpdate"; http_uri; content:"url="; nocase; http_client_body; content:"|3b|"; http_client_body; reference:cve,CVE-2026-90581; classtype:web-application-attack; sid:5202822; rev:1;)
+
+# --- CVE-2026-90583: kagisearch smallweb XSS - MEDIUM ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB smallweb Reflected XSS via Raw Query String Double Quote"; flow:established,to_server; content:"GET"; http_method; content:'"'; http_uri; pcre:"/%22.*<script/smi"; reference:cve,CVE-2026-90583; classtype:web-application-attack; sid:5202823; rev:1;)
+
+# --- CVE-2026-49030: pathe Path Traversal - UNKNOWN ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB pathe Path Traversal via Backslash Normalization"; flow:established,to_server; content:"GET"; http_method; content:"..%5c"; nocase; http_uri; reference:cve,CVE-2026-49030; classtype:web-application-attack; sid:5202824; rev:1;)
+
+# --- CVE-2026-36453 (additional): Rhymix extra_vars file read ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Rhymix Extra Variables Sensitive File Read Response"; flow:established,to_client; content:"200"; http_stat_code; content:"extra_vars"; nocase; http_server_body; content:"/etc/"; nocase; http_server_body; reference:cve,CVE-2026-36453; classtype:web-application-attack; sid:5202825; rev:1;)
+
+# --- MITRE ATT&CK: T1190 - Exploit Public-Facing Application ---
+# WordPress AJAX attack patterns from multiple CVEs
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress Unauthenticated AJAX Action Exploitation Cluster"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action="; nocase; http_client_body; pcre:"/action=(cryptopay_|geniewords_|youtube_embed_|hoo_companion_|mdjm_)/Ui"; classtype:web-application-attack; sid:5202826; rev:1;)
+
+# --- T1078 - Valid Accounts / Auth Bypass ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT CyberPanel Authentication Bypass via ORM Filter Manipulation"; flow:established,to_server; content:"POST"; http_method; content:"/api/"; http_uri; content:"token"; nocase; http_client_body; content:"admin"; nocase; http_client_body; reference:cve,CVE-2026-29811; classtype:web-application-attack; sid:5202827; rev:1;)
+
+# --- T1548 - Privilege Escalation ---
+# CrewAI sandbox escape privilege escalation
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT AI Agent Privilege Escalation via ctypes System Call"; flow:established,to_server; content:"POST"; http_method; content:"/api/v1/"; http_uri; content:"ctypes.CDLL"; nocase; http_client_body; reference:cve,CVE-2026-37008; classtype:attempted-admin; sid:5202828; rev:1;)
+
+# --- T1059 - Command and Scripting Interpreter ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT nginxWebUI Command Injection via AutoUpdate URL"; flow:established,to_server; content:"POST"; http_method; content:"/adminPage/main/autoUpdate"; http_uri; content:"url="; nocase; http_client_body; pcre:"/url=.*[;|`$]/Ui"; reference:cve,CVE-2026-90581; classtype:web-application-attack; sid:5202829; rev:1;)
+
+# --- T1110 - Brute Force ---
+# Detect repeated WordPress AJAX attempts (auth bypass pattern)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress AJAX Auth Bypass Rapid Fire Attempt"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; threshold:type both, track by_src, count 10, seconds 30; reference:cve,CVE-2026-81648; classtype:web-application-attack; sid:5202830; rev:1;)
+
+# --- T1048 - Exfiltration Over Alternative Protocol ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB CryptoPayment Gateway Wallet Credential Exfiltration"; flow:established,to_client; content:"200"; http_stat_code; content:"wallet"; nocase; http_server_body; content:"private_key"; nocase; http_server_body; reference:cve,CVE-2026-81648; classtype:web-application-attack; sid:5202831; rev:1;)
+
+# --- T1552 - Unsecured Credentials ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB CryptoPayment Gateway Cleartext Credential Exposure"; flow:established,to_server; content:"GET"; http_method; content:"/wp-json/cryptopay/v1/"; http_uri; reference:cve,CVE-2026-81648; classtype:web-application-attack; sid:5202832; rev:1;)
+
+# --- T1485 - Data Destruction ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress MDJM Mass Post Deletion Attempt"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=mdjm_remove_playlist_entry"; nocase; http_client_body; content:"post_id"; nocase; http_client_body; reference:cve,CVE-2026-88802; classtype:web-application-attack; sid:5202833; rev:1;)
+
+# --- T1189 - Drive-by Compromise ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Stored XSS Drive-by Compromise Injection"; flow:established,to_client; content:"200"; http_stat_code; content:"<script"; nocase; http_server_body; pcre:"/(geniewords|youtube_embed_|hoo_companion)/si"; classtype:web-application-attack; sid:5202834; rev:1;)
+
+# --- T1040 - Network Sniffing ---
+# Detect SSRF probe patterns from FlowiseAI
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT FlowiseAI SSRF Internal Network Probe"; flow:established,to_server; content:"POST"; http_method; content:"/api/v1/evaluation"; http_uri; content:"X-Forwarded-Proto"; nocase; http_header; content:"169.254."; nocase; http_client_body; reference:cve,CVE-2026-90580; classtype:web-application-attack; sid:5202835; rev:1;)
+
+# --- Additional CVE-specific rules ---
+
+# CVE-2026-89050: Quads Ads Manager payment bypass
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress Quads Ads Manager Payment Bypass Attempt"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=quads_save"; nocase; http_client_body; content:"payment"; nocase; http_client_body; reference:cve,CVE-2026-89050; classtype:web-application-attack; sid:5202836; rev:1;)
+
+# CVE-2026-90582: serverless-todo resource consumption
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET DOS serverless-todo Large Body Resource Consumption"; flow:established,to_server; content:"POST"; http_method; content:"/todos"; http_uri; dsize:>1000000; reference:cve,CVE-2026-90582; classtype:denial-of-service; sid:5202837; rev:1;)
+
+# CVE-2026-29812: CyberPanel missing logging for domain manipulation
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB CyberPanel Domain Manipulation Without Logging"; flow:established,to_server; content:"POST"; http_method; content:"/websites/"; http_uri; content:"childDomain"; nocase; http_client_body; reference:cve,CVE-2026-29812; classtype:web-application-attack; sid:5202838; rev:1;)
+
+# CVE-2026-29810: CyberPanel missing return flow bypass
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB CyberPanel Business Logic Bypass Missing Return"; flow:established,to_server; content:"POST"; http_method; content:"/api/"; http_uri; content:"domainName"; nocase; http_client_body; content:"admin"; nocase; http_client_body; reference:cve,CVE-2026-29810; classtype:web-application-attack; sid:5202839; rev:1;)
+
+# CVE-2020-15875: LibreNMS SQL injection
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB LibreNMS Authenticated SQL Injection via searchPhrase"; flow:established,to_server; content:"GET"; http_method; content:"/ajax_table.php"; http_uri; content:"searchPhrase="; nocase; http_uri; pcre:"/searchPhrase=.*['][\s]*OR\s/smi"; reference:cve,CVE-2020-15875; classtype:web-application-attack; sid:5202840; rev:1;)
+
+# CVE-2026-90577: GPAC MP4Box heap buffer overflow
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT GPAC MP4Box Heap Buffer Overflow in gf_node_get_field"; flow:established,to_server; content:"POST"; http_method; content:".mp4"; nocase; http_uri; content:"upload"; nocase; http_uri; reference:cve,CVE-2026-90577; classtype:web-application-attack; sid:5202841; rev:1;)
+
+# CVE-2026-90576: GPAC MP4Box null pointer dereference
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT GPAC MP4Box Null Pointer Dereference in gf_node_list_add_child"; flow:established,to_server; content:"POST"; http_method; content:".mp4"; http_uri; reference:cve,CVE-2026-90576; classtype:web-application-attack; sid:5202842; rev:1;)
+
+# CVE-2026-38332: TinyEXIF heap buffer over-read
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT TinyEXIF Heap Over-Read via Crafted SubjectArea"; flow:established,to_server; content:"GET"; http_method; content:"SubjectArea"; nocase; http_uri; reference:cve,CVE-2026-38332; classtype:web-application-attack; sid:5202843; rev:1;)
+
+# CVE-2026-90594: Spring-Cloud-Platform missing authz
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Spring-Cloud-Platform Missing Authorization checkUserPermission"; flow:established,to_server; content:"POST"; http_method; content:"/rpc/service/PermissionService"; http_uri; content:"checkUserPermission"; nocase; http_client_body; reference:cve,CVE-2026-90594; classtype:web-application-attack; sid:5202844; rev:1;)
+
+# CVE-2026-90595: Spring-Cloud-Platform online info authz bypass
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Spring-Cloud-Platform getOnlineInfo Authz Bypass"; flow:established,to_server; content:"GET"; http_method; content:"/auth/controller/OnlineController"; http_uri; content:"getOnlineInfo"; nocase; http_uri; reference:cve,CVE-2026-90595; classtype:web-application-attack; sid:5202845; rev:1;)
+
+# CVE-2025-70819: Zettlab NAS compose path traversal
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Zettlab NAS Docker Compose Path Traversal via Volume Mount"; flow:established,to_server; content:"POST"; http_method; content:"compose"; nocase; http_uri; content:"../../"; nocase; http_client_body; reference:cve,CVE-2025-70819; classtype:web-application-attack; sid:5202846; rev:1;)
+
+# CVE-2025-70820: Zettlab NAS absolute path traversal
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Zettlab NAS Absolute Path Traversal"; flow:established,to_server; content:"GET"; http_method; content:"/api/"; http_uri; content:"/etc/passwd"; nocase; http_uri; reference:cve,CVE-2025-70820; classtype:web-application-attack; sid:5202847; rev:1;)
+
+# --- Threat landscape: WordPress plugin exploitation cluster ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress Plugin AJAX Mass Exploitation Scanner"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; threshold:type both, track by_src, count 20, seconds 60; classtype:web-application-attack; sid:5202848; rev:1;)
+
+# --- T1566 - Phishing (stored XSS delivery) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Plugin Stored XSS Payload Delivery"; flow:established,to_client; content:"200"; http_stat_code; content:"<script"; nocase; http_server_body; pcre:"/(onerror|onload|onmouseover)\s*=/si"; classtype:web-application-attack; sid:5202849; rev:1;)
+
+# --- T1071 - Application Layer Protocol: Web ---
+# Detect WordPress AJAX actions with no Referer (unauthenticated access)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress AJAX Unauthenticated Access No Referer"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:!"Referer"; http_header; classtype:web-application-attack; sid:5202850; rev:1;)
+
+# --- Additional generic threat landscape rules ---
+
+# SSRF via X-Forwarded headers cluster
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT SSRF via X-Forwarded-* Header Manipulation"; flow:established,to_server; content:"X-Forwarded-"; nocase; http_header; content:"169.254"; nocase; http_header; classtype:web-application-attack; sid:5202851; rev:1;)
+
+# AI/LLM sandbox escape patterns
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT AI Agent Sandbox Escape via Subprocess Module"; flow:established,to_server; content:"POST"; http_method; content:"/api/"; http_uri; content:"subprocess"; nocase; http_client_body; content:"Popen"; nocase; http_client_body; classtype:attempted-admin; sid:5202852; rev:1;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT AI Agent Sandbox Escape via OS Module"; flow:established,to_server; content:"POST"; http_method; content:"/api/"; http_uri; content:"__import__"; nocase; http_client_body; content:"os"; nocase; http_client_body; classtype:attempted-admin; sid:5202853; rev:1;)
+
+# Python eval/exec injection patterns in AI systems
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT AI Agent eval/exec Injection Attempt"; flow:established,to_server; content:"POST"; http_method; content:"/api/"; http_uri; content:"eval("; nocase; http_client_body; content:"__builtins__"; nocase; http_client_body; classtype:attempted-admin; sid:5202854; rev:1;)
+
+# WordPress AJAX arbitrary file deletion cluster
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress AJAX Arbitrary File Deletion Pattern"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action="; nocase; http_client_body; content:"delete"; nocase; http_client_body; content:"file"; nocase; http_client_body; pcre:"/action=.*delete.*file/smi"; classtype:web-application-attack; sid:5202855; rev:1;)
+
+# WordPress config/settings overwrite patterns
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress Unauthenticated Plugin Settings Overwrite"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action="; nocase; http_client_body; content:"save"; nocase; http_client_body; content:"settings"; nocase; http_client_body; classtype:web-application-attack; sid:5202856; rev:1;)
+
+# Docker/compose path traversal pattern
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Docker Compose Path Traversal via Volume Mount"; flow:established,to_server; content:"volumes"; nocase; http_client_body; content:":-"; http_client_body; content:"/etc/passwd"; nocase; http_client_body; reference:cve,CVE-2025-70819; classtype:web-application-attack; sid:5202857; rev:1;)
+
+# Spring Cloud missing authz patterns
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Spring Cloud Missing Authorization Pattern"; flow:established,to_server; content:"GET"; http_method; content:"/rpc/service/"; http_uri; content:"Permission"; nocase; http_uri; classtype:web-application-attack; sid:5202858; rev:1;)
+
+# SQL injection in calendar/NMS applications
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Calendar Application SQL Injection via searchPhrase"; flow:established,to_server; content:"GET"; http_method; content:"searchPhrase="; nocase; http_uri; pcre:"/searchPhrase=.*(\bUNION\b|\bSELECT\b|\bOR\s+1\s*=\s*1)/Ui"; reference:cve,CVE-2020-15875; classtype:web-application-attack; sid:5202859; rev:1;)
+
+# CMS stored XSS via import functionality
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB CMS Unauthenticated Theme/Plugin Import XSS Injection"; flow:established,to_server; content:"POST"; http_method; content:"import"; nocase; http_uri; content:"<script"; nocase; http_client_body; classtype:web-application-attack; sid:5202860; rev:1;)
+
+# Nonce-based auth bypass patterns
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress Nonce Leakage in Frontend Page Source"; flow:established,to_client; content:"200"; http_stat_code; content:"wp_nonce"; nocase; http_server_body; content:"wp_localize_script"; nocase; http_server_body; classtype:web-application-attack; sid:5202861; rev:1;)
+
+# Payment gateway bypass patterns
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Payment Gateway Bypass Without Payment Verification"; flow:established,to_server; content:"POST"; http_method; content:"payment"; nocase; http_uri; content:"status=completed"; nocase; http_client_body; content:!"transaction_id"; http_client_body; classtype:web-application-attack; sid:5202862; rev:1;)
+
+# Credential exposure in API responses
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB API Credential Exposure in JSON Response"; flow:established,to_client; content:"200"; http_stat_code; content:"private_key"; nocase; http_server_body; content:"wallet"; nocase; http_server_body; classtype:web-application-attack; sid:5202863; rev:1;)
+
+# Large body upload DoS pattern
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET DOS HTTP Large Body Upload Resource Exhaustion"; flow:established,to_server; content:"POST"; http_method; dsize:>2000000; threshold:type both, track by_src, count 5, seconds 60; classtype:denial-of-service; sid:5202864; rev:1;)
+
+# WebSocket fragmented frame DoS
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET DOS WebSocket Excessive Fragmented Frames"; flow:established,to_server; content:"|81|"; depth:1; threshold:type both, track by_src, count 100, seconds 30; reference:cve,CVE-2026-90584; classtype:denial-of-service; sid:5202865; rev:1;)
+
+# Path traversal with backslash normalization
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Path Traversal via Backslash Normalization"; flow:established,to_server; content:"GET"; http_method; content:"..%5c"; nocase; http_uri; reference:cve,CVE-2026-49030; classtype:web-application-attack; sid:5202866; rev:1;)
+
+# IDOR file access via extra variables
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB IDOR Arbitrary File Access via Extra Variables Parameter"; flow:established,to_server; content:"GET"; http_method; content:"extra_vars"; nocase; http_uri; content:"file://"; nocase; http_uri; reference:cve,CVE-2026-36453; classtype:web-application-attack; sid:5202867; rev:1;)
+
+# Hosting panel domain manipulation cluster
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Hosting Panel Domain Alias Manipulation"; flow:established,to_server; content:"POST"; http_method; content:"/websites/"; http_uri; content:"domainType=alias"; nocase; http_client_body; classtype:web-application-attack; sid:5202868; rev:1;)
+
+# Missing logging detection - unusual admin actions without log entries
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Hosting Panel Child Domain Manipulation Without Logging"; flow:established,to_server; content:"POST"; http_method; content:"/websites/"; http_uri; content:"childDomain"; nocase; http_client_body; content:"deleteChildDomain"; nocase; http_client_body; reference:cve,CVE-2026-29812; classtype:web-application-attack; sid:5202869; rev:1;)
+
+# Integer overflow in image processing
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Image Processing Integer Overflow in Width Parameter"; flow:established,to_server; content:"POST"; http_method; content:"width="; nocase; http_client_body; content:"4294967295"; http_client_body; reference:cve,CVE-2026-90593; classtype:web-application-attack; sid:5202870; rev:1;)
+
+# Command injection in auto-update functionality
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Web UI Auto-Update Command Injection via URL Parameter"; flow:established,to_server; content:"POST"; http_method; content:"autoUpdate"; nocase; http_uri; content:"url="; nocase; http_client_body; pcre:"/url=.*[;|`$(){}]/Ui"; reference:cve,CVE-2026-90581; classtype:web-application-attack; sid:5202871; rev:1;)
+
+# SQL injection in PHP calendar applications
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB PHP Calendar Application SQL Injection via rssfeed"; flow:established,to_server; content:"GET"; http_method; content:"rssfeed.php"; http_uri; content:"'"; http_uri; pcre:"/[\']\s*(OR|AND|UNION|SELECT)/i"; reference:cve,CVE-2026-36989; classtype:web-application-attack; sid:5202872; rev:1;)
+
+# XSS via query string with unencoded characters
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Reflected XSS via Raw Query String Characters"; flow:established,to_server; content:"GET"; http_method; http_uri; content:'%22'; http_uri; content:'%3c'; http_uri; reference:cve,CVE-2026-90583; classtype:web-application-attack; sid:5202873; rev:1;)
+
+# AI agent prompt injection for code execution
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT AI Agent Prompt Injection for Code Execution"; flow:established,to_server; content:"POST"; http_method; content:"/api/v1/chat"; http_uri; content:"ignore previous"; nocase; http_client_body; content:"execute"; nocase; http_client_body; classtype:attempted-admin; sid:5202874; rev:1;)
+
+# API key leakage in WordPress plugins
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress Plugin API Key Leakage in Response"; flow:established,to_client; content:"200"; http_stat_code; content:"api_key"; nocase; http_server_body; content:"secret"; nocase; http_server_body; classtype:web-application-attack; sid:5202875; rev:1;)
+
+# Crypto wallet credential exposure
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Crypto Payment Wallet Configuration Access Attempt"; flow:established,to_server; content:"GET"; http_method; content:"/wp-json/"; http_uri; content:"wallet"; nocase; http_uri; content:"config"; nocase; http_uri; reference:cve,CVE-2026-81648; classtype:web-application-attack; sid:5202876; rev:1;)
+
+# File deletion without authentication
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Unauthenticated File Deletion via WordPress AJAX"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action="; nocase; http_client_body; content:"delete"; nocase; http_client_body; content:!"wordpress_logged_in"; http_cookie; classtype:web-application-attack; sid:5202877; rev:1;)
+
+# Theme settings destruction
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress Theme Settings Overwrite via Import"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action="; nocase; http_client_body; content:"import"; nocase; http_client_body; content:"theme"; nocase; http_client_body; classtype:web-application-attack; sid:5202878; rev:1;)
+
+# CMS extra variables exploitation
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB CMS Extra Variables Arbitrary File Read Attempt"; flow:established,to_server; content:"GET"; http_method; content:"extra_vars"; nocase; http_uri; pcre:"/extra_vars.*\.\./si"; reference:cve,CVE-2026-36453; classtype:web-application-attack; sid:5202879; rev:1;)
+
+# SSRF cloud metadata access pattern
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT SSRF Cloud Metadata Access via AI Evaluation Endpoint"; flow:established,to_server; content:"POST"; http_method; content:"/api/"; http_uri; content:"169.254.169.254"; nocase; http_client_body; reference:cve,CVE-2026-90580; classtype:web-application-attack; sid:5202880; rev:1;)
+
+# SDN controller link spoofing
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT SDN Controller Link Spoofing Floodlight CVE-2025-45480"; flow:established,to_server; content:"GET"; http_method; content:"/wm/"; http_uri; content:"device"; nocase; http_uri; reference:cve,CVE-2025-45480; classtype:web-application-attack; sid:5202881; rev:1;)
+
+# Path traversal /etc/shadow read via compose
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Docker Compose Volume Mount /etc/shadow Read"; flow:established,to_server; content:"volumes"; nocase; http_client_body; content:":-"; http_client_body; content:"/etc/shadow"; nocase; http_client_body; reference:cve,CVE-2025-70819; classtype:web-application-attack; sid:5202882; rev:1;)
+
+# WordPress nonce-based auth bypass cluster
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress AJAX Action With Leaked Nonce Pattern"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"_wp_nonce"; nocase; http_client_body; content:"action="; nocase; http_client_body; classtype:web-application-attack; sid:5202883; rev:1;)
+
+# ORM filter bypass pattern
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT ORM Filter Bypass via Domain Alias Manipulation"; flow:established,to_server; content:"POST"; http_method; content:"domainType"; nocase; http_client_body; content:"=alias"; nocase; http_client_body; reference:cve,CVE-2026-29811; classtype:web-application-attack; sid:5202884; rev:1;)
+
+# AI system authentication bypass
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT AI System Authentication Bypass via Custom Auth Handler"; flow:established,to_server; content:"GET"; http_method; content:"/api/"; http_uri; content:"user_id="; nocase; http_uri; content:!"Authorization"; http_header; reference:cve,CVE-2026-90579; classtype:web-application-attack; sid:5202885; rev:1;)
+
+# Serverless function resource exhaustion
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET DOS Serverless Function Resource Exhaustion via Oversized Body"; flow:established,to_server; content:"POST"; http_method; content:"/todos"; http_uri; content:"Content-Length"; nocase; http_header; pcre:"/Content-Length:\s*[0-9]{7,}/i"; reference:cve,CVE-2026-90582; classtype:denial-of-service; sid:5202886; rev:1;)
+
+# GPAC media file exploitation
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT GPAC MP4Box Malformed MP4 Upload Attempt"; flow:established,to_server; content:"POST"; http_method; content:"multipart/form-data"; nocase; http_header; content:".mp4"; nocase; http_uri; content:"filename="; nocase; http_client_body; reference:cve,CVE-2026-90577; classtype:web-application-attack; sid:5202887; rev:1;)
+
+# Embedded graphics integer overflow
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Image Processing Integer Overflow in Sub-Image Rendering"; flow:established,to_server; content:"POST"; http_method; content:"width="; nocase; http_client_body; pcre:"/width=[0-9]{8,}/si"; reference:cve,CVE-2026-90593; classtype:web-application-attack; sid:5202888; rev:1;)
+
+# WordPress mass plugin exploitation attempt
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress Mass Plugin Exploitation Scanner"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; threshold:type both, track by_src, count 15, seconds 30; classtype:web-application-attack; sid:5202889; rev:1;)
+
+# XSS payload patterns in WordPress context
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress Plugin XSS Payload via onerror Handler"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"onerror"; nocase; http_client_body; classtype:web-application-attack; sid:5202890; rev:1;)
+
+# Credential theft via payment plugin
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Crypto Payment Plugin Cleartext Wallet Private Key Access"; flow:established,to_server; content:"GET"; http_method; content:"/wp-json/cryptopay/v1/settings"; http_uri; reference:cve,CVE-2026-81648; classtype:web-application-attack; sid:5202891; rev:1;)
+
+# Arbitrary post/page deletion without auth
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress Unauthenticated Post Deletion via Playlist Removal"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action=mdjm_remove_playlist"; nocase; http_client_body; content:"post_id="; nocase; http_client_body; reference:cve,CVE-2026-88802; classtype:web-application-attack; sid:5202892; rev:1;)
+
+# AI agent jailbreak via system prompt override
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT AI Agent System Prompt Override Attempt"; flow:established,to_server; content:"POST"; http_method; content:"/api/"; http_uri; content:"system"; nocase; http_client_body; content:"ignore"; nocase; http_client_body; content:"instructions"; nocase; http_client_body; classtype:attempted-admin; sid:5202893; rev:1;)
+
+# WordPress plugin stored XSS via import functionality
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress Plugin Import XSS with Script Tag Injection"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action="; nocase; http_client_body; content:"import"; nocase; http_client_body; content:"<script"; nocase; http_client_body; classtype:web-application-attack; sid:5202894; rev:1;)
+
+# SSRF internal network scanning
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT SSRF Internal Network Scanning via AI Evaluation"; flow:established,to_server; content:"POST"; http_method; content:"/api/v1/evaluation"; http_uri; content:"X-Forwarded-Host"; nocase; http_header; content:"10."; nocase; http_header; reference:cve,CVE-2026-90580; classtype:web-application-attack; sid:5202895; rev:1;)
+
+# Payment gateway bypass without transaction verification
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Payment Gateway Order Marked Paid Without Verification"; flow:established,to_server; content:"POST"; http_method; content:"order"; nocase; http_uri; content:"status=paid"; nocase; http_client_body; content:!"transaction"; http_client_body; classtype:web-application-attack; sid:5202896; rev:1;)
+
+# CMS authentication bypass via user_id manipulation
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT CMS Authentication Bypass via User ID Manipulation"; flow:established,to_server; content:"GET"; http_method; content:"user_id="; nocase; http_uri; content:"admin"; nocase; http_uri; reference:cve,CVE-2026-90579; classtype:web-application-attack; sid:5202897; rev:1;)
+
+# Web UI auto-update RCE
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Web UI Auto-Update RCE via URL Parameter Injection"; flow:established,to_server; content:"POST"; http_method; content:"autoUpdate"; nocase; http_uri; content:"url=http"; nocase; http_client_body; pcre:"/url=http.*[;&|`]/Ui"; reference:cve,CVE-2026-90581; classtype:web-application-attack; sid:5202898; rev:1;)
+
+# WordPress plugin nonce bypass combined attack
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB WordPress Plugin Nonce Bypass with XSS Injection Cluster"; flow:established,to_server; content:"POST"; http_method; content:"/wp-admin/admin-ajax.php"; http_uri; content:"_ajax_nonce"; nocase; http_client_body; content:"<script"; nocase; http_client_body; classtype:web-application-attack; sid:5202899; rev:1;)
+
+# General SSRF via forwarded headers targeting cloud metadata
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT SSRF via X-Forwarded Headers Targeting Cloud Metadata"; flow:established,to_server; content:"POST"; http_method; content:"X-Forwarded-"; nocase; http_header; content:"169.254.169.254"; http_client_body; classtype:web-application-attack; sid:5202900; rev:1;)
