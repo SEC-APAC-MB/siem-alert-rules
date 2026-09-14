@@ -1,3 +1,4 @@
+# DEPRECATED-CVE: Contains references to stale CVEs (CVE-2019-1068). Review before deployment.
 # Zeek SIEM Alert Rules — generated-database
 # Auto-generated: 2026-09-14T04:05:03.478981Z
 # Load in local.zeek: @load ./generated-database
