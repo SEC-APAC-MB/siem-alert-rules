@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-general
-# Auto-generated: 2026-09-13T22:00:56.750051Z
+# Auto-generated: 2026-09-14T04:05:03.479441Z
 # Load in local.zeek: @load ./generated-general
 
 signature ZK-GENERAL-002 {

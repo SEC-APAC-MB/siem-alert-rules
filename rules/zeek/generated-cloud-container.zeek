@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-cloud-container
-# Auto-generated: 2026-09-13T22:00:56.749576Z
+# Auto-generated: 2026-09-14T04:05:03.478487Z
 # Load in local.zeek: @load ./generated-cloud-container
 
 signature ZK-CLOUD-CONTAINER-007 {

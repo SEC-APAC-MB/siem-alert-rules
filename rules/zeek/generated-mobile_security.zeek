@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-mobile_security
-# Auto-generated: 2026-09-13T22:00:56.750413Z
+# Auto-generated: 2026-09-14T04:05:03.479977Z
 # Load in local.zeek: @load ./generated-mobile_security
 
 signature ZK-MOBILE_SECURITY-097 {

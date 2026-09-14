@@ -1,7 +1,7 @@
 {
   "description": "SIEM alert rules \u2014 wstg-01-03 (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-13T22:00:56.727634Z",
+  "converted": "2026-09-14T04:05:03.373381Z",
   "total_rules": 98,
   "rules": [
     {
@@ -9,7 +9,7 @@
       "name": "Search Engine Discovery - Sensitive Content Indexed",
       "description": "Detects sensitive content indexed by search engines including admin pages, error messages, directory listings, and exposed documents accessible via search operators",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT URL, username, sourceip, devicetime FROM events WHERE (URL ILIKE '%/admin%' OR URL ILIKE '%/wp-admin%' OR URL ILIKE '%/manager%' OR URL ILIKE '%/console%') AND eventdirection = 'L2R' GROUP BY URL, username, sourceip, devicetime LAST 24 HOURS",
       "mitre_attack": {
@@ -31,7 +31,7 @@
       "name": "Web Server Version Information Disclosure",
       "description": "Detects HTTP Server response headers leaking server software version information (Apache, nginx, IIS) that enables targeted attacks",
       "severity": 5,
-      "severity_label": 4,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, header_value FROM events WHERE (header_name = 'Server' AND (header_value ILIKE '%apache%' OR header_value ILIKE '%nginx%' OR header_value ILIKE '%microsoft-iis%')) AND NOT header_value = 'Server: obfuscated' GROUP BY sourceip, destinationip, URL, header_value LAST 1 HOURS",
       "mitre_attack": {
@@ -71,7 +71,7 @@
       "name": "Application Error Disclosure - Stack Trace in Response",
       "description": "Detects application error responses containing stack traces, file paths, database error messages, or internal system information",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%stack trace%' OR payload ILIKE '%NullReferenceException%' OR payload ILIKE '%SQLException%' OR payload ILIKE '%at com.%' OR payload ILIKE '%at org.%' OR payload ILIKE '%/var/www/%' OR payload ILIKE '%C:\\inetpub%') AND eventdirection = 'L2R' LAST 1 HOURS",
       "mitre_attack": {
@@ -91,7 +91,7 @@
       "name": "Cloud Metadata Endpoint Access Attempt (SSRF)",
       "description": "Detects attempts to access cloud instance metadata endpoints (AWS, GCP, Azure) which could lead to credential theft via SSRF",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, devicetime FROM events WHERE (URL ILIKE '%169.254.169.254%' OR URL ILIKE '%/latest/meta-data/%' OR URL ILIKE '%/computeMetadata/%' OR URL ILIKE '%/metadata/instance%') LAST 15 MINUTES",
       "mitre_attack": {
@@ -113,7 +113,7 @@
       "name": "Source Code Repository Credential Exposure",
       "description": "Detects exposure of hardcoded credentials, API keys, and database connection strings in source code repositories accessible via HTTP",
       "severity": 5,
-      "severity_label": 8,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, payload FROM events WHERE (URL ILIKE '%/.git/config%' OR URL ILIKE '%/.env%' OR URL ILIKE '%/wp-config.php%' OR URL ILIKE '%/config.yml%' OR URL ILIKE '%/database.yml%') AND NOT username IS NULL LAST 1 HOURS",
       "mitre_attack": {
@@ -134,7 +134,7 @@
       "name": "Exposed Elasticsearch or Kibana Instance",
       "description": "Detects access to publicly exposed Elasticsearch or Kibana instances that may leak sensitive data",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, devicetime FROM events WHERE (URL ILIKE '%/_cat/indices%' OR URL ILIKE '%/_search%' OR URL ILIKE '%/kibana%' OR URL ILIKE '%:9200/%' OR URL ILIKE '%/app/kibana%') AND NOT sourceip = 'internal_monitor' LAST 30 MINUTES",
       "mitre_attack": {
@@ -155,7 +155,7 @@
       "name": "MongoDB or Redis Unauthenticated Access",
       "description": "Detects connections to MongoDB or Redis instances without authentication on public networks",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, destinationport, devicetime FROM events WHERE (destinationport IN (27017, 27018, 6379) AND NOT sourceip = 'internal_app_server') AND eventdirection = 'L2R' LAST 15 MINUTES",
       "mitre_attack": {
@@ -176,7 +176,7 @@
       "name": "GraphQL Introspection Query - Schema Exposure",
       "description": "Detects GraphQL introspection queries that expose schema, data types, and available mutations to unauthorized users",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE URL ILIKE '%/graphql%' AND (payload ILIKE '%__schema%' OR payload ILIKE '%__type%' OR payload ILIKE '%introspection%') AND NOT sourceip IN (SELECT sourceip FROM ASSET WHERE type = 'internal_developer') LAST 1 HOURS",
       "mitre_attack": {
@@ -196,7 +196,7 @@
       "name": "Swagger/OpenAPI Documentation Exposure in Production",
       "description": "Detects access to Swagger/OpenAPI documentation endpoints in production environments exposing API schemas",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, devicetime FROM events WHERE (URL ILIKE '%/swagger%' OR URL ILIKE '%/api-docs%' OR URL ILIKE '%/v2/api-docs%' OR URL ILIKE '%/v3/api-docs%' OR URL ILIKE '%/openapi.json%') AND NOT sourceip = 'internal_developer_subnet' LAST 6 HOURS",
       "mitre_attack": {
@@ -215,7 +215,7 @@
       "name": "S3 Bucket Public Access Enumeration",
       "description": "Detects attempts to enumerate or access public AWS S3 buckets for data leakage",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, devicetime FROM events WHERE URL ILIKE '%.s3.amazonaws.com%' AND (URL ILIKE '%?list-type=2%' OR URL ILIKE '%?prefix=%' OR URL ILIKE '%?max-keys=%') AND NOT sourceip = 'authorized_aws_service' LAST 1 HOURS",
       "mitre_attack": {
@@ -236,7 +236,7 @@
       "name": "Terraform State File Exposure",
       "description": "Detects access to exposed Terraform state files containing cloud infrastructure secrets and resource configurations",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, devicetime FROM events WHERE (URL ILIKE '%/terraform.tfstate%' OR URL ILIKE '%/terraform.tfstate.backup%') AND NOT sourceip = 'internal_ci_cd' LAST 1 HOURS",
       "mitre_attack": {
@@ -257,7 +257,7 @@
       "name": "CORS Origin Reflection - Cross-Origin Data Exfiltration",
       "description": "Detects CORS misconfiguration allowing arbitrary origins to access sensitive data across domains",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, header_value FROM events WHERE header_name = 'Access-Control-Allow-Origin' AND (header_value ILIKE '%*%' OR header_value ILIKE '%evil%' OR header_value NOT ILIKE '%trusted-domain.com%') AND NOT sourceip = 'internal_proxy' LAST 1 HOURS",
       "mitre_attack": {
@@ -277,7 +277,7 @@
       "name": "Kubernetes API Server Public Exposure",
       "description": "Detects access to publicly exposed Kubernetes API servers enabling cluster enumeration and secret theft",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, destinationport, URL, devicetime FROM events WHERE (URL ILIKE '%/api/v1/%' OR URL ILIKE '%/api/v1/namespaces%' OR URL ILIKE '%/api/v1/secrets%') AND destinationport = 6443 AND NOT sourceip IN (SELECT sourceip FROM ASSET WHERE type = 'internal_k8s_node') LAST 15 MINUTES",
       "mitre_attack": {
@@ -298,7 +298,7 @@
       "name": "Environment Configuration File Access (.env)",
       "description": "Detects access to environment configuration files containing database credentials, API keys, and secret tokens",
       "severity": 5,
-      "severity_label": 8,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, devicetime FROM events WHERE (URL ILIKE '%/.env%' OR URL ILIKE '%/.env.local%' OR URL ILIKE '%/.env.production%' OR URL ILIKE '%/.env.bak%') AND NOT sourceip = 'internal_deployment_server' LAST 1 HOURS",
       "mitre_attack": {
@@ -337,7 +337,7 @@
       "name": "JavaScript Bundle Hardcoded API Key Detection",
       "description": "Detects JavaScript file responses containing hardcoded API keys, secrets, or internal URLs that reveal application structure",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL FROM events WHERE URL ILIKE '%.js' AND (payload ILIKE '%api_key%' OR payload ILIKE '%apikey%' OR payload ILIKE '%secret_key%' OR payload ILIKE '%AWS_ACCESS_KEY_ID%' OR payload ILIKE '%authorization: Bearer%') LAST 6 HOURS",
       "mitre_attack": {
@@ -357,7 +357,7 @@
       "name": "DNS Zone Transfer Attempt",
       "description": "Detects DNS zone transfer attempts that could reveal internal network topology and hostnames",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, devicetime FROM events WHERE devicetime > '2024-01-01 00:00:00' AND QIDNAME(QID) ILIKE '%AXFR%' AND eventdirection = 'L2R' GROUP BY sourceip, destinationip, devicetime LAST 24 HOURS",
       "mitre_attack": {
@@ -377,7 +377,7 @@
       "name": "Backup File Access Attempt",
       "description": "Detects access to backup configuration files (.bak, .old, .orig, .swp) that may contain credentials or internal configurations",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, devicetime FROM events WHERE (URL ILIKE '%.bak' OR URL ILIKE '%.old' OR URL ILIKE '%.orig' OR URL ILIKE '%.swp' OR URL ILIKE '%~%' OR URL ILIKE '%.save%' OR URL ILIKE '%.backup%') AND NOT sourceip = 'internal_backup_system' LAST 1 HOURS",
       "mitre_attack": {
@@ -396,7 +396,7 @@
       "name": "HTTP Response Header Information Disclosure",
       "description": "Detects HTTP responses leaking framework version, backend server, or internal infrastructure details via response headers",
       "severity": 5,
-      "severity_label": 4,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, header_name, header_value FROM events WHERE (header_name IN ('X-Powered-By', 'X-AspNet-Version', 'X-AspNetMvc-Version', 'Server') AND header_value NOT ILIKE '%obfuscated%') AND NOT header_value IS NULL LAST 1 HOURS",
       "mitre_attack": {
@@ -416,7 +416,7 @@
       "name": "Missing Content Security Policy Header",
       "description": "Detects HTTP responses missing Content-Security-Policy header which enables XSS and data exfiltration attacks",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT URL, sourceip, destinationip FROM events WHERE eventdirection = 'L2R' AND NOT EXISTS (SELECT 1 FROM events e2 WHERE e2.correlationid = events.correlationid AND e2.header_name = 'Content-Security-Policy') GROUP BY URL, sourceip, destinationip LAST 1 HOURS HAVING COUNT(*) > 5",
       "mitre_attack": {
@@ -436,7 +436,7 @@
       "name": "Missing HSTS Header - HTTP Strict Transport Security",
       "description": "Detects HTTPS responses missing HSTS header allowing protocol downgrade and man-in-the-middle attacks",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT URL, destinationip FROM events WHERE eventdirection = 'L2R' AND URL ILIKE 'https://%/' AND NOT EXISTS (SELECT 1 FROM events e2 WHERE e2.correlationid = events.correlationid AND e2.header_name = 'Strict-Transport-Security') LAST 1 HOURS",
       "mitre_attack": {
@@ -457,7 +457,7 @@
       "name": "Spring Boot Actuator Endpoint Exposure",
       "description": "Detects access to Spring Boot Actuator endpoints (/actuator/env, /actuator/health, /actuator/metrics) that may leak environment variables and secrets",
       "severity": 5,
-      "severity_label": 8,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, devicetime FROM events WHERE (URL ILIKE '%/actuator/env%' OR URL ILIKE '%/actuator/configprops%' OR URL ILIKE '%/actuator/metrics%' OR URL ILIKE '%/actuator/trace%' OR URL ILIKE '%/actuator/beans%') AND NOT sourceip = 'internal_monitoring' LAST 30 MINUTES",
       "mitre_attack": {
@@ -496,7 +496,7 @@
       "name": "Cookie Missing Secure Flag",
       "description": "Detects session cookies set without the Secure flag allowing transmission over unencrypted connections",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, header_value FROM events WHERE header_name = 'Set-Cookie' AND header_value NOT ILIKE '%Secure%' AND (header_value ILIKE '%session%' OR header_value ILIKE '%token%' OR header_value ILIKE '%auth%') LAST 1 HOURS",
       "mitre_attack": {
@@ -516,7 +516,7 @@
       "name": "Cookie Missing HttpOnly Flag",
       "description": "Detects session cookies set without the HttpOnly flag allowing JavaScript access to session tokens",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, header_value FROM events WHERE header_name = 'Set-Cookie' AND header_value NOT ILIKE '%HttpOnly%' AND (header_value ILIKE '%session%' OR header_value ILIKE '%token%') LAST 1 HOURS",
       "mitre_attack": {
@@ -536,7 +536,7 @@
       "name": "Cookie Missing SameSite Attribute",
       "description": "Detects session cookies without SameSite attribute making them vulnerable to CSRF attacks",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, header_value FROM events WHERE header_name = 'Set-Cookie' AND header_value NOT ILIKE '%SameSite%' AND (header_value ILIKE '%session%' OR header_value ILIKE '%token%') LAST 1 HOURS",
       "mitre_attack": {
@@ -556,7 +556,7 @@
       "name": "Debug Mode Enabled in Production",
       "description": "Detects application debug mode enabled in production leaking stack traces, variables, and internal state",
       "severity": 5,
-      "severity_label": 8,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, payload FROM events WHERE (payload ILIKE '%debug=true%' OR payload ILIKE '%APP_DEBUG=true%' OR payload ILIKE '%DEBUG_MODE=1%' OR payload ILIKE '%Django Debug=True%' OR URL ILIKE '%?debug=true%') AND NOT sourceip = 'internal_developer_subnet' LAST 1 HOURS",
       "mitre_attack": {
@@ -576,7 +576,7 @@
       "name": "TLS Weak Cipher Suite Negotiation",
       "description": "Detects TLS connections using weak cipher suites (3DES, RC4, export ciphers) that compromise data encryption",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, devicetime FROM events WHERE QIDNAME(QID) ILIKE '%weak cipher%' OR QIDNAME(QID) ILIKE '%TLS 1.0%' OR QIDNAME(QID) ILIKE '%SSL 3.0%' LAST 1 HOURS",
       "mitre_attack": {
@@ -597,7 +597,7 @@
       "name": "CORS Wildcard Origin Configuration",
       "description": "Detects Access-Control-Allow-Origin headers set to wildcard (*) allowing any origin to access resources",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, header_value FROM events WHERE header_name = 'Access-Control-Allow-Origin' AND header_value = '*' LAST 1 HOURS",
       "mitre_attack": {
@@ -636,7 +636,7 @@
       "name": "Jenkins CI/CD Pipeline Public Exposure",
       "description": "Detects access to publicly exposed Jenkins instances that could leak build secrets, credentials, and pipeline configurations",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, devicetime FROM events WHERE (URL ILIKE '%/jenkins%' OR URL ILIKE '%:8080/job/%' OR URL ILIKE '%/job/%/build%' OR URL ILIKE '%/credentials/store/%') AND NOT sourceip = 'internal_ci_network' LAST 30 MINUTES",
       "mitre_attack": {
@@ -656,7 +656,7 @@
       "name": "Admin Interface Public Exposure",
       "description": "Detects access to admin interfaces on production systems that should not be publicly accessible",
       "severity": 5,
-      "severity_label": 8,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, devicetime FROM events WHERE (URL ILIKE '%/admin%' OR URL ILIKE '%/administrator%' OR URL ILIKE '%/phpmyadmin%' OR URL ILIKE '%/manager/html%' OR URL ILIKE '%/wp-admin%' OR URL ILIKE '%/console%') AND NOT sourceip IN (SELECT sourceip FROM ASSET WHERE type = 'internal_admin_subnet') LAST 1 HOURS",
       "mitre_attack": {
@@ -696,7 +696,7 @@
       "name": "Path Traversal Attempt",
       "description": "Detects path traversal attacks using ../ or encoded variants attempting to access files outside web root",
       "severity": 5,
-      "severity_label": 8,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, devicetime FROM events WHERE (URL ILIKE '%../%' OR URL ILIKE '%..\\%' OR URL ILIKE '%..%2f%' OR URL ILIKE '%..%5c%' OR URL ILIKE '%....//%' OR URL ILIKE '%..%252f%') AND NOT sourceip = 'internal_scanner' LAST 15 MINUTES",
       "mitre_attack": {
@@ -716,7 +716,7 @@
       "name": "JWT Token Without Expiration or Weak Algorithm",
       "description": "Detects JWT tokens with 'none' algorithm, missing expiration, or HS256 with weak secrets in authentication flows",
       "severity": 5,
-      "severity_label": 8,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, header_value FROM events WHERE (header_value ILIKE '%eyJ%' AND (header_value ILIKE '%\"alg\":\"none\"%' OR header_value ILIKE '%\"alg\":\"None\"%')) OR (URL ILIKE '%/auth/token%' AND payload ILIKE '%eyJhbGciOiJub25l%') LAST 1 HOURS",
       "mitre_attack": {
@@ -736,7 +736,7 @@
       "name": "Subdomain Takeover - CNAME Dangling",
       "description": "Detects DNS CNAME records pointing to decommissioned external services that could be taken over",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT domainname, qname, qtype, rdata FROM events WHERE qtype = 'CNAME' AND (rdata ILIKE '%.s3.amazonaws.com%' OR rdata ILIKE '%.azurewebsites.net%' OR rdata ILIKE '%.herokuapp.com%' OR rdata ILIKE '%.github.io%' OR rdata ILIKE '%.cloudfront.net%') AND NOT domainname ILIKE '%active-service%' LAST 24 HOURS",
       "mitre_attack": {
@@ -755,7 +755,7 @@
       "name": "Missing X-Content-Type-Options Header",
       "description": "Detects responses missing X-Content-Type-Options: nosniff header allowing MIME-type sniffing attacks",
       "severity": 5,
-      "severity_label": 4,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT URL, sourceip, destinationip FROM events WHERE eventdirection = 'L2R' AND NOT EXISTS (SELECT 1 FROM events e2 WHERE e2.correlationid = events.correlationid AND e2.header_name = 'X-Content-Type-Options') LAST 6 HOURS HAVING COUNT(*) > 10",
       "mitre_attack": {
@@ -774,7 +774,7 @@
       "name": "Database Connection String in HTTP Response",
       "description": "Detects database connection strings (JDBC, MongoDB, PostgreSQL, MySQL) leaked in HTTP responses",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%jdbc:%' OR payload ILIKE '%mongodb://%' OR payload ILIKE '%postgresql://%' OR payload ILIKE '%mysql://%' OR payload ILIKE '%Server=%;Database=%;User ID=%;Password=%') AND eventdirection = 'L2R' LAST 30 MINUTES",
       "mitre_attack": {
@@ -795,7 +795,7 @@
       "name": "Environment Variable Exposure via Actuator or Debug Endpoints",
       "description": "Detects environment variable leakage through Spring Boot actuator, /env, or debug endpoints containing secrets",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, payload FROM events WHERE (URL ILIKE '%/actuator/env%' OR URL ILIKE '%/env%' OR URL ILIKE '%/debug%' OR URL ILIKE '%/configprops%') AND (payload ILIKE '%password%' OR payload ILIKE '%secret%' OR payload ILIKE '%api_key%' OR payload ILIKE '%AWS_SECRET%') AND NOT sourceip = 'internal_monitoring' LAST 15 MINUTES",
       "mitre_attack": {
@@ -856,7 +856,7 @@
       "name": "PII Leakage in API User Profile Responses",
       "description": "Detects API responses containing PII fields (SSN, email, phone) returned without proper authorization or masking",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (URL ILIKE '%/api/v%/users/%' OR URL ILIKE '%/api/v%/profile/%') AND (payload ILIKE '%ssn%' OR payload ILIKE '%social_security%' OR payload ILIKE '%date_of_birth%' OR payload ILIKE '%passport_number%') AND NOT sourceip = 'internal_authorized_service' LAST 1 HOURS",
       "mitre_attack": {
@@ -877,7 +877,7 @@
       "name": "Cross-Tenant Identity Data Access",
       "description": "Detects cross-tenant data access attempts in multi-tenant applications through IDOR or privilege escalation",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, username, URL, devicetime FROM events WHERE (URL ILIKE '%/api/v%/tenants/%' OR URL ILIKE '%/api/v%/orgs/%') AND username IS NOT NULL AND NOT sourceip = 'internal_service_account' GROUP BY sourceip, username, URL LAST 1 HOURS HAVING COUNT(DISTINCT URL) > 5",
       "mitre_attack": {
@@ -898,7 +898,7 @@
       "name": "OAuth Scope Over-Privilege Detection",
       "description": "Detects OAuth token usage with scopes exceeding the authorized scope for the user's role",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, username, header_value FROM events WHERE header_name = 'Authorization' AND header_value ILIKE 'Bearer %' AND (header_value ILIKE '%scope=admin%' OR header_value ILIKE '%scope=superuser%' OR header_value ILIKE '%scope=delete_all%') AND NOT username IN (SELECT username FROM REFERENCE_SET WHERE type = 'admin_users') LAST 1 HOURS",
       "mitre_attack": {
@@ -918,7 +918,7 @@
       "name": "SCIM Provisioning Endpoint Unauthorized Access",
       "description": "Detects unauthorized access to SCIM user provisioning endpoints that could create or modify identity data",
       "severity": 5,
-      "severity_label": 8,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, payload FROM events WHERE (URL ILIKE '%/scim/v2/Users%' OR URL ILIKE '%/scim/v2/Groups%') AND NOT sourceip IN (SELECT sourceip FROM ASSET WHERE type = 'identity_provider') LAST 30 MINUTES",
       "mitre_attack": {
@@ -938,7 +938,7 @@
       "name": "Password Hash Exposure in API Response",
       "description": "Detects API responses containing password hashes, salts, or authentication secrets in cleartext or weak hash format",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL, payload FROM events WHERE (payload ILIKE '%$2a$%' OR payload ILIKE '%$2b$%' OR payload ILIKE '%$2y$%' OR payload ILIKE '%$6$%' OR payload ILIKE '%sha256:%' OR payload ILIKE '%md5:%' OR payload ILIKE '%\"password_hash\":%') AND eventdirection = 'L2R' LAST 15 MINUTES",
       "mitre_attack": {
@@ -959,7 +959,7 @@
       "name": "GraphQL User Data Depth Attack",
       "description": "Detects GraphQL queries with excessive depth targeting user/identity data for mass extraction",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, payload FROM events WHERE URL ILIKE '%/graphql%' AND (payload ILIKE '%user%' OR payload ILIKE '%account%') AND LENGTH(payload) > 2000 GROUP BY sourceip LAST 1 HOURS HAVING COUNT(*) > 10",
       "mitre_attack": {
@@ -979,7 +979,7 @@
       "name": "Bulk User Export or Download Anomaly",
       "description": "Detects bulk export or download of user data exceeding normal thresholds, indicating data exfiltration",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, username, URL FROM events WHERE (URL ILIKE '%/api/v%/users/export%' OR URL ILIKE '%/api/v%/users/download%' OR URL ILIKE '%/api/v%/users.csv%' OR URL ILIKE '%/admin/users?format=%') GROUP BY sourceip, username LAST 24 HOURS HAVING COUNT(*) > 3",
       "mitre_attack": {
@@ -1000,7 +1000,7 @@
       "name": "Account Deletion Without Data Anonymization Verification",
       "description": "Detects account deletion requests without corresponding data anonymization events, indicating potential PII retention violations",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT username, URL FROM events WHERE (URL ILIKE '%/api/v%/users/delete%' OR URL ILIKE '%/api/v%/account/delete%') AND NOT EXISTS (SELECT 1 FROM events e2 WHERE e2.username = events.username AND e2.URL ILIKE '%/anonymize%') LAST 24 HOURS",
       "mitre_attack": {
@@ -1020,7 +1020,7 @@
       "name": "Exposed Docker Registry or Container Image",
       "description": "Detects access to exposed Docker registry v2 API allowing image enumeration and potential secret extraction from container layers",
       "severity": 5,
-      "severity_label": 8,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, devicetime FROM events WHERE (URL ILIKE '%/v2/_catalog%' OR URL ILIKE '%/v2/%/tags/list%' OR URL ILIKE '%:5000/v2/%') AND NOT sourceip = 'internal_ci_cd' LAST 30 MINUTES",
       "mitre_attack": {
@@ -1040,7 +1040,7 @@
       "name": "Firebase Database Public Read Access",
       "description": "Detects unauthorized read access to Firebase Realtime Database or Firestore instances without authentication",
       "severity": 5,
-      "severity_label": 8,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, devicetime FROM events WHERE (URL ILIKE '%.firebaseio.com/%' OR URL ILIKE '%firestore.googleapis.com/%') AND NOT sourceip IN (SELECT sourceip FROM ASSET WHERE type = 'authorized_firebase_client') LAST 1 HOURS",
       "mitre_attack": {
@@ -1079,7 +1079,7 @@
       "name": "Grafana or Kibana Dashboard Public Exposure",
       "description": "Detects access to publicly exposed Grafana or Kibana dashboards leaking infrastructure metrics and business data",
       "severity": 5,
-      "severity_label": 8,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL FROM events WHERE (URL ILIKE '%/grafana/%' OR URL ILIKE '%/kibana/%' OR URL ILIKE '%:3000/%' OR URL ILIKE '%:5601/%') AND NOT sourceip IN (SELECT sourceip FROM ASSET WHERE type = 'internal_monitoring') LAST 1 HOURS",
       "mitre_attack": {
@@ -1099,7 +1099,7 @@
       "name": "Postman Collection Public Exposure",
       "description": "Detects access to publicly shared Postman collections containing API endpoints and authentication tokens",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL FROM events WHERE (URL ILIKE '%postman.com/collections/%' OR URL ILIKE '%/postman/%' OR URL ILIKE '%.postman_collection.json%') LAST 24 HOURS",
       "mitre_attack": {
@@ -1118,7 +1118,7 @@
       "name": "Content-Disposition Header Missing on Download",
       "description": "Detects file download responses missing Content-Disposition: attachment header allowing inline rendering of malicious files",
       "severity": 5,
-      "severity_label": 4,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT URL, sourceip FROM events WHERE eventdirection = 'L2R' AND (URL ILIKE '%.pdf%' OR URL ILIKE '%.doc%' OR URL ILIKE '%.xls%') AND NOT EXISTS (SELECT 1 FROM events e2 WHERE e2.correlationid = events.correlationid AND e2.header_name = 'Content-Disposition' AND e2.header_value ILIKE '%attachment%') LAST 1 HOURS",
       "mitre_attack": {
@@ -1137,7 +1137,7 @@
       "name": "Azure Blob Container Public Access",
       "description": "Detects access to Azure Blob Storage containers with public read access enabled",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, devicetime FROM events WHERE (URL ILIKE '%.blob.core.windows.net/%' OR URL ILIKE '%.blob.core.windows.net/%container%') AND NOT sourceip = 'authorized_azure_service' LAST 6 HOURS",
       "mitre_attack": {
@@ -1157,7 +1157,7 @@
       "name": "Docker Compose File Exposure",
       "description": "Detects access to docker-compose.yml files exposing internal service topology, credentials, and network configuration",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL FROM events WHERE (URL ILIKE '%/docker-compose.yml%' OR URL ILIKE '%/docker-compose.yaml%' OR URL ILIKE '%/compose/compose-file%') AND NOT sourceip = 'internal_developer_subnet' LAST 1 HOURS",
       "mitre_attack": {
@@ -1176,7 +1176,7 @@
       "name": "JWT Token Exposed in URL Query Parameter",
       "description": "Detects JWT or session tokens passed in URL query parameters vulnerable to logging and referrer leakage",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL FROM events WHERE (URL ILIKE '%?token=eyJ%' OR URL ILIKE '%?access_token=%' OR URL ILIKE '%?session_id=%' OR URL ILIKE '%?auth=%') LAST 1 HOURS",
       "mitre_attack": {
@@ -1215,7 +1215,7 @@
       "name": "SAML Assertion PII Exposure",
       "description": "Detects SAML assertions containing excessive PII fields beyond what is required for the service provider",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, payload FROM events WHERE (payload ILIKE '%samlp:Response%' OR payload ILIKE '%saml:Assertion%') AND (payload ILIKE '%ssn%' OR payload ILIKE '%passport%' OR payload ILIKE '%date_of_birth%' OR payload ILIKE '%address%') LAST 1 HOURS",
       "mitre_attack": {
@@ -1235,7 +1235,7 @@
       "name": "User Search and Filter Endpoint Mass Data Query",
       "description": "Detects mass user data queries through search/filter API endpoints exceeding normal thresholds",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, username, URL FROM events WHERE (URL ILIKE '%/api/v%/users?%' OR URL ILIKE '%/api/v%/users/search%') AND NOT sourceip = 'internal_admin_service' GROUP BY sourceip, username LAST 1 HOURS HAVING COUNT(*) > 50",
       "mitre_attack": {
@@ -1255,7 +1255,7 @@
       "name": "LDAP Query Anomaly - Excessive Attribute Retrieval",
       "description": "Detects LDAP queries requesting excessive attributes including PII fields, indicating potential data harvesting",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, payload FROM events WHERE payload ILIKE '%LDAP%' AND (payload ILIKE '%(&(objectClass=%' OR payload ILIKE '%mail=%' OR payload ILIKE '%telephoneNumber=%' OR payload ILIKE '%socialSecurityNumber=%') GROUP BY sourceip LAST 1 HOURS HAVING COUNT(*) > 20",
       "mitre_attack": {
@@ -1275,7 +1275,7 @@
       "name": "MFA Configuration Data Exposure",
       "description": "Detects API responses exposing MFA configuration details (TOTP seeds, backup codes) in cleartext",
       "severity": 5,
-      "severity_label": 8,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, payload FROM events WHERE (URL ILIKE '%/mfa/setup%' OR URL ILIKE '%/2fa/configure%') AND (payload ILIKE '%secret=%' OR payload ILIKE '%backup_codes%' OR payload ILIKE '%qr_code%') AND eventdirection = 'L2R' LAST 30 MINUTES",
       "mitre_attack": {
@@ -1295,7 +1295,7 @@
       "name": "Identity Data Access Logging Gap",
       "description": "Detects identity data access events that lack corresponding audit log entries, indicating logging gaps for PII access",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT username, URL FROM events WHERE (URL ILIKE '%/api/v%/users/%' OR URL ILIKE '%/api/v%/profile/%') AND NOT EXISTS (SELECT 1 FROM events e2 WHERE e2.username = events.username AND e2.URL ILIKE '%/audit/log%') LAST 1 HOURS",
       "mitre_attack": {
@@ -1316,7 +1316,7 @@
       "name": "Google Dorking for Exposed Database Dump Files",
       "description": "Detects HTTP requests matching Google dork patterns that target exposed database dump files (SQL dumps, CSV exports, backup archives)",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL FROM events WHERE (URL ILIKE '%.sql%' OR URL ILIKE '%.dump%' OR URL ILIKE '%backup.tar%' OR URL ILIKE '%database.csv%' OR URL ILIKE '%.bak%') AND NOT sourceip IN (SELECT sourceip FROM ASSET WHERE type = 'internal_backup') LAST 1 HOURS",
       "mitre_attack": {
@@ -1336,7 +1336,7 @@
       "name": "AWS Lambda Environment Variable Credential Exposure",
       "description": "Detects Lambda function invocations or configurations that may expose environment variables containing credentials",
       "severity": 5,
-      "severity_label": 8,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, payload FROM events WHERE (URL ILIKE '%lambda.amazonaws.com%' OR URL ILIKE '%/2015-03-31/functions/%') AND (payload ILIKE '%environment%' OR payload ILIKE '%AWS_SECRET_ACCESS_KEY%' OR payload ILIKE '%DATABASE_URL%') LAST 1 HOURS",
       "mitre_attack": {
@@ -1356,7 +1356,7 @@
       "name": "APK/IPA Secret Hardcoded Extraction",
       "description": "Detects mobile application binary download requests from non-standard sources that may contain hardcoded API keys and secrets",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL FROM events WHERE (URL ILIKE '%.apk%' OR URL ILIKE '%.ipa%') AND NOT sourceip IN (SELECT sourceip FROM ASSET WHERE type = 'app_store_cdn') LAST 24 HOURS",
       "mitre_attack": {
@@ -1375,7 +1375,7 @@
       "name": "HTTP Referrer Header Leakage of Sensitive Parameters",
       "description": "Detects Referrer headers containing sensitive URL parameters (tokens, session IDs, PII) being sent to external domains",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, header_value FROM events WHERE header_name = 'Referer' AND (header_value ILIKE '%token=%' OR header_value ILIKE '%session_id=%' OR header_value ILIKE '%ssn=%' OR header_value ILIKE '%api_key=%') AND NOT destinationip ILIKE '%internal-domain.com%' LAST 1 HOURS",
       "mitre_attack": {
@@ -1395,7 +1395,7 @@
       "name": "WebSocket Sensitive Data Transmission Without Encryption",
       "description": "Detects WebSocket connections transmitting potentially sensitive data without proper encryption verification",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL FROM events WHERE URL ILIKE 'ws://%' AND NOT URL ILIKE 'wss://%' AND (destinationport = 80 OR destinationport = 8080) LAST 1 HOURS",
       "mitre_attack": {
@@ -1415,7 +1415,7 @@
       "name": "Feature Policy Missing - Browser Data Access Control",
       "description": "Detects responses missing Permissions-Policy header allowing unrestricted browser feature access (camera, microphone, geolocation)",
       "severity": 5,
-      "severity_label": 4,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT URL FROM events WHERE eventdirection = 'L2R' AND NOT EXISTS (SELECT 1 FROM events e2 WHERE e2.correlationid = events.correlationid AND e2.header_name = 'Permissions-Policy') LAST 6 HOURS HAVING COUNT(*) > 20",
       "mitre_attack": {
@@ -1454,7 +1454,7 @@
       "name": "Referrer Policy Missing or Permissive",
       "description": "Detects responses with missing or permissive Referrer-Policy headers allowing URL leakage to third-party sites",
       "severity": 5,
-      "severity_label": 4,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT URL FROM events WHERE eventdirection = 'L2R' AND NOT EXISTS (SELECT 1 FROM events e2 WHERE e2.correlationid = events.correlationid AND e2.header_name = 'Referrer-Policy' AND e2.header_value NOT ILIKE '%no-referrer%') LAST 6 HOURS HAVING COUNT(*) > 20",
       "mitre_attack": {
@@ -1473,7 +1473,7 @@
       "name": "Data Masking Failure in Error Responses",
       "description": "Detects error responses containing unmasked PII or sensitive data that should have been sanitized",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, payload FROM events WHERE (payload ILIKE '%SQLException%' OR payload ILIKE '%Stacktrace%' OR payload ILIKE '%Internal Server Error%') AND (payload ILIKE '%@%.com%' OR payload ILIKE '%SSN%' OR payload ILIKE '%credit card%' OR payload ILIKE '%password=%') LAST 15 MINUTES",
       "mitre_attack": {
@@ -1494,7 +1494,7 @@
       "name": "Redis Unauthenticated Access on Public Network",
       "description": "Detects connections to Redis instances without authentication from external sources on public networks",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, destinationport FROM events WHERE destinationport = 6379 AND NOT sourceip IN (SELECT sourceip FROM ASSET WHERE type = 'internal_app_server') AND eventdirection = 'L2R' LAST 15 MINUTES",
       "mitre_attack": {
@@ -1514,7 +1514,7 @@
       "name": "Identity Data Export Volume Anomaly",
       "description": "Detects anomalous volume of identity data exports indicating potential data exfiltration or compliance violation",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, username, LONG(SUM(events.bytes)) as total_bytes FROM events WHERE (URL ILIKE '%/api/v%/users/export%' OR URL ILIKE '%/api/v%/identity/download%') GROUP BY sourceip, username LAST 24 HOURS HAVING total_bytes > 10485760",
       "mitre_attack": {
@@ -1593,7 +1593,7 @@
       "name": "Multi-Tenant Identity Data Isolation Failure",
       "description": "Detects cross-tenant identity data access patterns indicating multi-tenant isolation failures",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, username, URL FROM events WHERE (URL ILIKE '%/tenants/%/users%' OR URL ILIKE '%/organizations/%/members%') AND NOT sourceip IN (SELECT sourceip FROM ASSET WHERE type = 'internal_service') GROUP BY sourceip, username LAST 1 HOURS HAVING COUNT(DISTINCT URL) > 3",
       "mitre_attack": {
@@ -1614,7 +1614,7 @@
       "name": "CloudFront Distribution Origin Server Exposure",
       "description": "Detects requests directly to origin servers bypassing CloudFront, indicating potential origin server disclosure",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL FROM events WHERE (URL ILIKE '%X-Cache: MISS%' OR header_name = 'X-Amz-Cf-Id') AND NOT EXISTS (SELECT 1 FROM events e2 WHERE e2.correlationid = events.correlationid AND e2.header_name = 'X-Cache') AND NOT sourceip = 'cloudfront_edge' LAST 1 HOURS",
       "mitre_attack": {
@@ -1652,7 +1652,7 @@
       "name": "DigitalOcean Spaces or Linode Object Storage Exposure",
       "description": "Detects access to publicly exposed DigitalOcean Spaces or Linode object storage containing sensitive data",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL FROM events WHERE (URL ILIKE '%.digitaloceanspaces.com/%' OR URL ILIKE '%.linodeobjects.com/%' OR URL ILIKE '%.l.objects.linode.com/%') AND NOT sourceip = 'authorized_service' LAST 6 HOURS",
       "mitre_attack": {
@@ -1672,7 +1672,7 @@
       "name": "Data Residency Header Violation",
       "description": "Detects data transfers that violate data residency requirements indicated by missing or incorrect geo-routing headers",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL FROM events WHERE (URL ILIKE '%/api/v%/users%' OR URL ILIKE '%/api/v%/data%') AND NOT EXISTS (SELECT 1 FROM events e2 WHERE e2.correlationid = events.correlationid AND e2.header_name ILIKE '%x-data-residency%') AND destinationip NOT ILIKE '%eu-west%' LAST 1 HOURS",
       "mitre_attack": {
@@ -1711,7 +1711,7 @@
       "name": "CORS Allow-Headers Sensitive Header Exposure",
       "description": "Detects CORS configurations exposing sensitive response headers (Authorization, X-CSRF-Token) to unauthorized origins",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, header_value FROM events WHERE header_name = 'Access-Control-Expose-Headers' AND (header_value ILIKE '%authorization%' OR header_value ILIKE '%x-csrf%' OR header_value ILIKE '%x-api-key%' OR header_value ILIKE '%cookie%') LAST 1 HOURS",
       "mitre_attack": {
@@ -1731,7 +1731,7 @@
       "name": "Subresource Integrity Missing for Third-Party Scripts",
       "description": "Detects third-party JavaScript includes without SRI (Subresource Integrity) hashes enabling supply chain attacks",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, payload FROM events WHERE payload ILIKE '%<script src=%' AND (payload ILIKE '%cdn.%' OR payload ILIKE '%googleapis.com%' OR payload ILIKE '%cloudflare.com%') AND NOT payload ILIKE '%integrity=%' LAST 6 HOURS",
       "mitre_attack": {
@@ -1751,7 +1751,7 @@
       "name": "Clear-Site-Data Header Missing on Logout",
       "description": "Detects logout responses missing Clear-Site-Data header that should purge cached sensitive data",
       "severity": 5,
-      "severity_label": 4,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT URL, sourceip FROM events WHERE (URL ILIKE '%/logout%' OR URL ILIKE '%/signout%') AND NOT EXISTS (SELECT 1 FROM events e2 WHERE e2.correlationid = events.correlationid AND e2.header_name = 'Clear-Site-Data') LAST 1 HOURS",
       "mitre_attack": {
@@ -1771,7 +1771,7 @@
       "name": "Service Worker Registration for Sensitive Pages",
       "description": "Detects service worker registration on authentication or payment pages that could intercept sensitive data",
       "severity": 5,
-      "severity_label": 7,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, payload FROM events WHERE payload ILIKE '%navigator.serviceWorker.register%' AND (URL ILIKE '%/login%' OR URL ILIKE '%/payment%' OR URL ILIKE '%/checkout%' OR URL ILIKE '%/account%') LAST 1 HOURS",
       "mitre_attack": {
@@ -1790,7 +1790,7 @@
       "name": "WebRTC Local IP Leakage",
       "description": "Detects WebRTC-related requests that may expose local IP addresses through STUN/TURN servers",
       "severity": 5,
-      "severity_label": 4,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, URL FROM events WHERE (URL ILIKE '%stun:%' OR URL ILIKE '%turn:%' OR URL ILIKE '%stun.%' OR URL ILIKE '%:3478%') AND NOT sourceip = 'internal_webrtc_service' LAST 1 HOURS",
       "mitre_attack": {
@@ -1809,7 +1809,7 @@
       "name": "Upload Directory Script Execution",
       "description": "Detects file upload to directories that allow script execution (PHP, JSP, ASPX) enabling remote code execution",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL, payload FROM events WHERE (URL ILIKE '%/uploads/%.php%' OR URL ILIKE '%/uploads/%.jsp%' OR URL ILIKE '%/upload/%.aspx%' OR URL ILIKE '%/files/%.php%') AND NOT sourceip = 'internal_file_processor' LAST 15 MINUTES",
       "mitre_attack": {
@@ -1829,7 +1829,7 @@
       "name": "Log File Encryption Missing - Audit Data Exposure",
       "description": "Detects log transmission without encryption, exposing audit data in transit",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, destinationip, destinationport FROM events WHERE (destinationport = 514 OR destinationport = 5514 OR destinationport = 9200) AND NOT sourceip IN (SELECT sourceip FROM ASSET WHERE type = 'log_shipper_encrypted') LAST 1 HOURS",
       "mitre_attack": {
@@ -1849,7 +1849,7 @@
       "name": "Spring Boot Actuator Heap Dump Exposure",
       "description": "Detects access to Spring Boot Actuator heap dump endpoint that exposes memory contents including credentials",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, URL FROM events WHERE (URL ILIKE '%/actuator/heapdump%' OR URL ILIKE '%/actuator/threaddump%') AND NOT sourceip = 'internal_monitoring' LAST 15 MINUTES",
       "mitre_attack": {
@@ -1869,7 +1869,7 @@
       "name": "Identity Token JWT Claim Overexposure",
       "description": "Detects JWT tokens in authentication flows containing excessive claims beyond the minimum required (PII, roles, permissions)",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, header_value FROM events WHERE header_name = 'Authorization' AND header_value ILIKE 'Bearer eyJ%' AND (header_value ILIKE '%address%' OR header_value ILIKE '%phone_number%' OR header_value ILIKE '%ssn%' OR header_value ILIKE '%passport%') LAST 1 HOURS",
       "mitre_attack": {
@@ -1948,7 +1948,7 @@
       "name": "Identity Data Retention Policy Violation",
       "description": "Detects access to identity records past their retention period indicating data retention policy violations",
       "severity": 5,
-      "severity_label": 6,
+      "severity_label": 5,
       "category": "general",
       "aql_query": "SELECT sourceip, username, URL FROM events WHERE (URL ILIKE '%/api/v%/users/%' OR URL ILIKE '%/api/v%/accounts/%') AND NOT EXISTS (SELECT 1 FROM REFERENCE_SET WHERE type = 'retention_policy') GROUP BY sourceip, username LAST 24 HOURS HAVING COUNT(*) > 100",
       "mitre_attack": {
