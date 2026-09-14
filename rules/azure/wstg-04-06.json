@@ -1,7 +1,7 @@
 {
-  "description": "SIEM alert rules \u2014 wstg-04-06 (converted)",
+  "description": "SIEM alert rules — wstg-04-06 (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-13T22:00:56.780403Z",
+  "converted": "2026-09-14T04:05:03.560646Z",
   "total_rules": 20,
   "rules": [
     {
@@ -11,14 +11,16 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-4.1",
         "GDPR-32A-002",
         "HIPAA-TS-001"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authentication' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"credentials\" or Message contains \"transmitted\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -37,13 +39,15 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-2.1",
         "HIPAA-ADM-006"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authentication' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"default\" or Message contains \"credentials\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -62,13 +66,15 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5",
         "NIST-AC-7"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authentication' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"account\" or Message contains \"lockout\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-003",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -87,13 +93,15 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5",
         "NIST-AC-3"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authentication' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"authentication\" or Message contains \"schema\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-004",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -112,12 +120,14 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authentication' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"weak\" or Message contains \"remember\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-005",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -131,17 +141,19 @@
     },
     {
       "rule_id": "AZ-WSTG04-006",
-      "name": "Browser Cache Sensitivity \u2014 Missing No-Cache Headers",
+      "name": "Browser Cache Sensitivity — Missing No-Cache Headers",
       "description": "Detects responses from sensitive endpoints missing Cache-Control: no-store headers",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authentication' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"browser\" or Message contains \"cache\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-006",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -155,18 +167,20 @@
     },
     {
       "rule_id": "AZ-WSTG04-007",
-      "name": "Weak Authentication \u2014 Basic Auth Over HTTP",
+      "name": "Weak Authentication — Basic Auth Over HTTP",
       "description": "Detects HTTP Basic Authentication over unencrypted connections exposing credentials in cleartext",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-4.1",
         "GDPR-32A-002"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authentication' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"weak\" or Message contains \"authentication\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-007",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -185,14 +199,16 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.3",
         "HIPAA-ADM-005",
         "NIST-IA-2"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authentication' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"mfa\" or Message contains \"bypass\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-008",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -211,13 +227,15 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5",
         "NIST-AC-7"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authentication' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"credential\" or Message contains \"stuffing\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-009",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -236,13 +254,15 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "API2-008",
         "NIST-IA-9"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authentication' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"jwt\" or Message contains \"algorithm\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-010",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -261,12 +281,14 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authorization' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"directory\" or Message contains \"traversal\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-011",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -285,13 +307,15 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5",
         "NIST-AC-6"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authorization' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"authorization\" or Message contains \"schema\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-012",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -310,13 +334,15 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5",
         "NIST-AC-3"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authorization' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"insecure\" or Message contains \"direct\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-013",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -335,13 +361,15 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "API2-007",
         "NIST-AC-3"
       ],
-      "query": "AzureDiagnostics | where Category contains 'authorization' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"oauth\" or Message contains \"token\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-014",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -360,13 +388,15 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5",
         "NIST-CM-7"
       ],
-      "query": "AzureDiagnostics | where Category contains 'session' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"cross\" or Message contains \"site\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-015",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -385,13 +415,15 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5",
         "NIST-IA-5"
       ],
-      "query": "AzureDiagnostics | where Category contains 'session' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"session\" or Message contains \"fixation\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-016",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -410,13 +442,15 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5",
         "GDPR-32A-014"
       ],
-      "query": "AzureDiagnostics | where Category contains 'session' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"session\" or Message contains \"token\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-017",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -435,12 +469,14 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5"
       ],
-      "query": "AzureDiagnostics | where Category contains 'session' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"concurrent\" or Message contains \"session\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-018",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -459,13 +495,15 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "API2-007",
         "NIST-IA-9"
       ],
-      "query": "AzureDiagnostics | where Category contains 'session' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"jwt\" or Message contains \"token\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-019",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -484,13 +522,15 @@
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5",
         "GDPR-32A-002"
       ],
-      "query": "AzureDiagnostics | where Category contains 'session' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"insecure\" or Message contains \"session\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-020",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",

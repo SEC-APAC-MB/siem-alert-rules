@@ -1,22 +1,24 @@
 {
-  "description": "SIEM alert rules \u2014 database-security (converted)",
+  "description": "SIEM alert rules — database-security (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-13T22:00:56.772306Z",
+  "converted": "2026-09-14T04:05:03.539422Z",
   "total_rules": 30,
   "rules": [
     {
       "rule_id": "AZ-DB-PG-001",
-      "name": "PostgreSQL \u2014 Privilege Escalation via SET ROLE",
+      "name": "PostgreSQL — Privilege Escalation via SET ROLE",
       "description": "Detects PostgreSQL SET ROLE attempts for privilege escalation",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5"
       ],
-      "query": "AzureDiagnostics | where Category contains 'postgresql' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"postgresql\" or action_name_s contains \"privilege\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 5 // AZ-DB-PG-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -30,17 +32,19 @@
     },
     {
       "rule_id": "AZ-DB-PG-002",
-      "name": "PostgreSQL \u2014 pg_dump Data Exfiltration",
+      "name": "PostgreSQL — pg_dump Data Exfiltration",
       "description": "Detects PostgreSQL pg_dump commands indicating potential data exfiltration",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "GDPR-25-008"
       ],
-      "query": "AzureDiagnostics | where Category contains 'postgresql' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"postgresql\" or action_name_s contains \"dump\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 5 // AZ-DB-PG-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -54,18 +58,20 @@
     },
     {
       "rule_id": "AZ-DB-PG-003",
-      "name": "PostgreSQL \u2014 Row-Level Security Bypass",
+      "name": "PostgreSQL — Row-Level Security Bypass",
       "description": "Detects PostgreSQL queries bypassing row-level security policies",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5",
         "GDPR-25-003"
       ],
-      "query": "AzureDiagnostics | where Category contains 'postgresql' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"postgresql\" or action_name_s contains \"row\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 5 // AZ-DB-PG-003",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -79,17 +85,19 @@
     },
     {
       "rule_id": "AZ-DB-MY-001",
-      "name": "MySQL \u2014 UNION-Based SQL Injection",
+      "name": "MySQL — UNION-Based SQL Injection",
       "description": "Detects UNION-based SQL injection attacks against MySQL databases",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5"
       ],
-      "query": "AzureDiagnostics | where Category contains 'mysql' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"mysql\" or action_name_s contains \"union\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 5 // AZ-DB-MY-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -103,17 +111,19 @@
     },
     {
       "rule_id": "AZ-DB-MY-002",
-      "name": "MySQL \u2014 Root Account Remote Login",
+      "name": "MySQL — Root Account Remote Login",
       "description": "Detects remote login attempts to MySQL root account from non-localhost",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-2.1"
       ],
-      "query": "AzureDiagnostics | where Category contains 'mysql' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"mysql\" or action_name_s contains \"root\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 5 // AZ-DB-MY-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -127,17 +137,19 @@
     },
     {
       "rule_id": "AZ-DB-MSS-001",
-      "name": "SQL Server \u2014 xp_cmdshell Execution",
+      "name": "SQL Server — xp_cmdshell Execution",
       "description": "Detects execution of xp_cmdshell stored procedure enabling OS command execution",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5"
       ],
-      "query": "AzureDiagnostics | where Category contains 'sqlserver' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"sql\" or action_name_s contains \"server\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 5 // AZ-DB-MSS-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -151,17 +163,19 @@
     },
     {
       "rule_id": "AZ-DB-MSS-002",
-      "name": "SQL Server \u2014 SUSPENDED Login State Anomaly",
+      "name": "SQL Server — SUSPENDED Login State Anomaly",
       "description": "Detects SQL Server logins in SUSPENDED state indicating potential credential abuse",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5"
       ],
-      "query": "AzureDiagnostics | where Category contains 'sqlserver' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"sql\" or action_name_s contains \"server\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 5 // AZ-DB-MSS-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -175,12 +189,14 @@
     },
     {
       "rule_id": "AZ-DB-ORA-001",
-      "name": "Oracle \u2014 DBA Privilege Escalation",
+      "name": "Oracle — DBA Privilege Escalation",
       "description": "Detects Oracle DBA privilege escalation attempts via GRANT DBA or ALTER USER",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5"
@@ -199,12 +215,14 @@
     },
     {
       "rule_id": "AZ-DB-SQLITE-001",
-      "name": "SQLite \u2014 Direct File Access from Web",
+      "name": "SQLite — Direct File Access from Web",
       "description": "Detects direct SQLite database file access from web applications",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5"
@@ -223,17 +241,19 @@
     },
     {
       "rule_id": "AZ-DB-MONGO-001",
-      "name": "MongoDB \u2014 NoSQL Injection via $where",
+      "name": "MongoDB — NoSQL Injection via $where",
       "description": "Detects MongoDB $where operator injection for JavaScript execution",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5"
       ],
-      "query": "AzureDiagnostics | where Category contains 'mongodb' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"mongodb\" or action_name_s contains \"nosql\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 5 // AZ-DB-MONGO-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -247,17 +267,19 @@
     },
     {
       "rule_id": "AZ-DB-MONGO-002",
-      "name": "MongoDB \u2014 admin Database Unauthorized Access",
+      "name": "MongoDB — admin Database Unauthorized Access",
       "description": "Detects unauthorized access to MongoDB admin database",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-2.1"
       ],
-      "query": "AzureDiagnostics | where Category contains 'mongodb' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"mongodb\" or action_name_s contains \"admin\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 5 // AZ-DB-MONGO-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -271,12 +293,14 @@
     },
     {
       "rule_id": "AZ-DB-DYNAMO-001",
-      "name": "DynamoDB \u2014 Excessive Scan Operations",
+      "name": "DynamoDB — Excessive Scan Operations",
       "description": "Detects excessive DynamoDB Scan operations indicating potential data exfiltration",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "GDPR-25-008"
@@ -295,12 +319,14 @@
     },
     {
       "rule_id": "AZ-DB-CASS-001",
-      "name": "Cassandra \u2014 Unauthorized CQL Command Execution",
+      "name": "Cassandra — Unauthorized CQL Command Execution",
       "description": "Detects unauthorized CQL commands including ALTER, DROP, and GRANT operations",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5"
@@ -319,12 +345,14 @@
     },
     {
       "rule_id": "AZ-DB-COUCH-001",
-      "name": "CouchDB \u2014 Admin Party Mode",
+      "name": "CouchDB — Admin Party Mode",
       "description": "Detects CouchDB admin party mode or unauthorized admin access",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-2.1"
@@ -343,12 +371,14 @@
     },
     {
       "rule_id": "AZ-DB-FIRE-001",
-      "name": "Firestore \u2014 Overly Permissive Security Rules",
+      "name": "Firestore — Overly Permissive Security Rules",
       "description": "Detects Firestore security rules allowing unauthenticated read/write access",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5"
@@ -367,12 +397,14 @@
     },
     {
       "rule_id": "AZ-DB-NEO4J-001",
-      "name": "Neo4j \u2014 Cypher Injection Attack",
+      "name": "Neo4j — Cypher Injection Attack",
       "description": "Detects Cypher injection attacks in Neo4j graph database queries",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5"
@@ -391,12 +423,14 @@
     },
     {
       "rule_id": "AZ-DB-ARANGO-001",
-      "name": "ArangoDB \u2014 AQL Injection Detection",
+      "name": "ArangoDB — AQL Injection Detection",
       "description": "Detects AQL injection attacks in ArangoDB queries",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5"
@@ -415,12 +449,14 @@
     },
     {
       "rule_id": "AZ-DB-NEPTUNE-001",
-      "name": "Neptune \u2014 Gremlin/SPARQL Injection",
+      "name": "Neptune — Gremlin/SPARQL Injection",
       "description": "Detects Gremlin or SPARQL injection attacks against Amazon Neptune",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5"
@@ -439,12 +475,14 @@
     },
     {
       "rule_id": "AZ-DB-INFLUX-001",
-      "name": "InfluxDB \u2014 Unauthorized Data Deletion",
+      "name": "InfluxDB — Unauthorized Data Deletion",
       "description": "Detects DROP DATABASE or DELETE SERIES commands in InfluxDB",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-3.4"
@@ -463,12 +501,14 @@
     },
     {
       "rule_id": "AZ-DB-TSCALE-001",
-      "name": "TimescaleDB \u2014 Hypertable Data Exfiltration",
+      "name": "TimescaleDB — Hypertable Data Exfiltration",
       "description": "Detects bulk data extraction from TimescaleDB hypertables",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "GDPR-25-008"
@@ -487,12 +527,14 @@
     },
     {
       "rule_id": "AZ-DB-PROM-001",
-      "name": "Prometheus \u2014 Unauthorized Metric Scraping",
+      "name": "Prometheus — Unauthorized Metric Scraping",
       "description": "Detects unauthorized metric scraping from Prometheus endpoints revealing infrastructure details",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "NIST-CM-7"
@@ -511,12 +553,14 @@
     },
     {
       "rule_id": "AZ-DB-PINE-001",
-      "name": "Pinecone \u2014 Namespace Isolation Bypass",
+      "name": "Pinecone — Namespace Isolation Bypass",
       "description": "Detects cross-namespace data access in Pinecone vector database",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "GDPR-25-003"
@@ -535,12 +579,14 @@
     },
     {
       "rule_id": "AZ-DB-WEAV-001",
-      "name": "Weaviate \u2014 Tenant Data Isolation Failure",
+      "name": "Weaviate — Tenant Data Isolation Failure",
       "description": "Detects cross-tenant data access in Weaviate vector database",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "GDPR-25-003"
@@ -559,12 +605,14 @@
     },
     {
       "rule_id": "AZ-DB-MILV-001",
-      "name": "Milvus \u2014 Collection-Level Access Bypass",
+      "name": "Milvus — Collection-Level Access Bypass",
       "description": "Detects unauthorized collection access in Milvus vector database",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5"
@@ -583,12 +631,14 @@
     },
     {
       "rule_id": "AZ-DB-CHROMA-001",
-      "name": "ChromaDB \u2014 Embedding Poisoning Detection",
+      "name": "ChromaDB — Embedding Poisoning Detection",
       "description": "Detects adversarial embedding vectors inserted into ChromaDB collections",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-ACT-15"
@@ -607,12 +657,14 @@
     },
     {
       "rule_id": "AZ-DB-QDRANT-001",
-      "name": "Qdrant \u2014 Payload Filter Injection",
+      "name": "Qdrant — Payload Filter Injection",
       "description": "Detects filter injection attacks in Qdrant vector search payloads",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5"
@@ -631,17 +683,19 @@
     },
     {
       "rule_id": "AZ-DB-REDIS-001",
-      "name": "Redis \u2014 CONFIG GET Credential Exposure",
+      "name": "Redis — CONFIG GET Credential Exposure",
       "description": "Detects Redis CONFIG commands targeting credentials or authentication configuration",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-3.4"
       ],
-      "query": "AzureDiagnostics | where Category contains 'redis' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"redis\" or action_name_s contains \"config\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 5 // AZ-DB-REDIS-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -655,17 +709,19 @@
     },
     {
       "rule_id": "AZ-DB-REDIS-002",
-      "name": "Redis \u2014 FLUSHALL/FLUSHDB Data Destruction",
+      "name": "Redis — FLUSHALL/FLUSHDB Data Destruction",
       "description": "Detects Redis FLUSHALL or FLUSHDB commands indicating potential data destruction",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-3.4"
       ],
-      "query": "AzureDiagnostics | where Category contains 'redis' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"redis\" or action_name_s contains \"flushall\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 5 // AZ-DB-REDIS-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -679,12 +735,14 @@
     },
     {
       "rule_id": "AZ-DB-MEMC-001",
-      "name": "Memcached \u2014 Amplification Attack",
+      "name": "Memcached — Amplification Attack",
       "description": "Detects Memcached amplification attacks via stats or get requests from external IPs",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "NIST-SC-5"
@@ -703,12 +761,14 @@
     },
     {
       "rule_id": "AZ-DB-HBASE-001",
-      "name": "HBase \u2014 Unauthorized ACL Modification",
+      "name": "HBase — Unauthorized ACL Modification",
       "description": "Detects unauthorized ACL modifications in HBase including grant and revoke operations",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5"
