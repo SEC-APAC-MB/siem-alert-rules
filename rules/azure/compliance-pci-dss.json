@@ -1,24 +1,26 @@
 {
-  "description": "SIEM alert rules \u2014 compliance-pci-dss (converted)",
+  "description": "SIEM alert rules — compliance-pci-dss (converted)",
   "version": "2.0.0",
   "converted": "2026-09-14T04:05:03.538530Z",
   "total_rules": 25,
   "rules": [
     {
       "rule_id": "AZ-PCI-001",
-      "name": "PCI-DSS \u2014 Unencrypted Cardholder Data Transmission",
+      "name": "PCI-DSS — Unencrypted Cardholder Data Transmission",
       "description": "Detects transmission of cardholder data over unencrypted channels violating PCI-DSS Requirement 4",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-4.1",
         "PCI-DSS-4.2",
         "NIST-800-53-SI-4"
       ],
-      "query": "network_traffic_events\n| where protocol in (\"HTTP\", \"FTP\", \"Telnet\", \"SMTP\") and data_classification == \"cardholder_data\"\n| summarize count() by SourceIP, DestinationIP, Protocol, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-PCI-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -32,19 +34,21 @@
     },
     {
       "rule_id": "AZ-PCI-002",
-      "name": "PCI-DSS \u2014 Default Credentials in Cardholder Environment",
+      "name": "PCI-DSS — Default Credentials in Cardholder Environment",
       "description": "Detects use of default vendor credentials in cardholder data environment violating PCI-DSS Requirement 8",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.1",
         "PCI-DSS-8.2",
         "NIST-800-53-SI-4"
       ],
-      "query": "auth_events\n| where username in (\"admin\", \"root\", \"default\", \"password\", \"vendor\") and environment == \"cardholder_data\"\n| summarize count() by Username, SystemName, bin(TimeGenerated, 5m)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-PCI-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -57,19 +61,21 @@
     },
     {
       "rule_id": "AZ-PCI-003",
-      "name": "PCI-DSS \u2014 Unauthorized Access to Cardholder Data",
+      "name": "PCI-DSS — Unauthorized Access to Cardholder Data",
       "description": "Detects unauthorized access attempts to cardholder data stores violating PCI-DSS Requirement 7",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-7.1",
         "PCI-DSS-7.2",
         "NIST-800-53-SI-4"
       ],
-      "query": "data_access_events\n| where data_classification == \"cardholder_data\" and access_result == \"unauthorized\"\n| summarize count() by SourceIP, UserID, DataStore, bin(TimeGenerated, 5m)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-PCI-003",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -82,19 +88,21 @@
     },
     {
       "rule_id": "AZ-PCI-004",
-      "name": "PCI-DSS \u2014 Missing MFA for CDE Access",
+      "name": "PCI-DSS — Missing MFA for CDE Access",
       "description": "Detects access to cardholder data environment without required multi-factor authentication violating PCI-DSS Requirement 8",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.3",
         "PCI-DSS-8.4",
         "NIST-800-53-SI-4"
       ],
-      "query": "auth_events\n| where environment == \"cardholder_data\" and mfa_used == false and mfa_required == true\n| summarize count() by UserID, SystemName, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-PCI-004",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -107,19 +115,21 @@
     },
     {
       "rule_id": "AZ-PCI-005",
-      "name": "PCI-DSS \u2014 PAN Displayed in Cleartext",
+      "name": "PCI-DSS — PAN Displayed in Cleartext",
       "description": "Detects primary account numbers displayed in cleartext violating PCI-DSS Requirement 3",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-3.3",
         "PCI-DSS-3.4",
         "NIST-800-53-SI-4"
       ],
-      "query": "data_access_events\n| where pan_visible == true and masking_applied == false and environment == \"cardholder_data\"\n| summarize count() by UserID, ApplicationName, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-PCI-005",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -133,18 +143,20 @@
     },
     {
       "rule_id": "AZ-PCI-006",
-      "name": "PCI-DSS \u2014 Weak Cryptography in CDE",
+      "name": "PCI-DSS — Weak Cryptography in CDE",
       "description": "Detects use of weak or deprecated cryptographic algorithms in cardholder data environment",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-4.1",
         "PCI-DSS-4.2"
       ],
-      "query": "encryption_events\n| where algorithm in (\"DES\", \"RC4\", \"MD5\", \"SHA1\", \"SSLv3\", \"TLS1.0\", \"TLS1.1\") and environment == \"cardholder_data\"\n| summarize count() by Algorithm, SystemName, bin(TimeGenerated, 10m)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-PCI-006",
       "queryFrequency": "PT10M",
       "queryPeriod": "PT10M",
       "triggerOperator": "GreaterThan",
@@ -157,18 +169,20 @@
     },
     {
       "rule_id": "AZ-PCI-007",
-      "name": "PCI-DSS \u2014 Wireless Access Point in CDE",
+      "name": "PCI-DSS — Wireless Access Point in CDE",
       "description": "Detects unauthorized wireless access points in or near cardholder data environment",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-1.3",
         "PCI-DSS-12.1"
       ],
-      "query": "network_events\n| where device_type == \"wireless_access_point\" and cde_zone == true and authorized == false\n| summarize count() by DeviceMAC, ZoneName, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-PCI-007",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -182,19 +196,21 @@
     },
     {
       "rule_id": "AZ-PCI-008",
-      "name": "PCI-DSS \u2014 Excessive Privileges in CDE",
+      "name": "PCI-DSS — Excessive Privileges in CDE",
       "description": "Detects users with excessive privileges in cardholder data environment violating least privilege",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-7.1",
         "PCI-DSS-7.2",
         "NIST-800-53-SI-4"
       ],
-      "query": "privilege_events\n| where environment == \"cardholder_data\" and privilege_level in (\"admin\", \"superuser\", \"root\") and least_privilege_violation == true\n| summarize count() by UserID, PrivilegeLevel, bin(TimeGenerated, 1h)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-PCI-008",
       "queryFrequency": "PT1H",
       "queryPeriod": "PT1H",
       "triggerOperator": "GreaterThan",
@@ -208,19 +224,21 @@
     },
     {
       "rule_id": "AZ-PCI-009",
-      "name": "PCI-DSS \u2014 Audit Log Tampering in CDE",
+      "name": "PCI-DSS — Audit Log Tampering in CDE",
       "description": "Detects tampering or disabling of audit logs in cardholder data environment",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-10.1",
         "PCI-DSS-10.2",
         "NIST-800-53-SI-4"
       ],
-      "query": "audit_log_events\n| where environment == \"cardholder_data\" and operation_type in (\"disable\", \"delete\", \"modify\", \"clear\") and authorized == false\n| summarize count() by UserID, OperationType, SystemName, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-PCI-009",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -234,18 +252,20 @@
     },
     {
       "rule_id": "AZ-PCI-010",
-      "name": "PCI-DSS \u2014 SQL Injection Against Payment System",
+      "name": "PCI-DSS — SQL Injection Against Payment System",
       "description": "Detects SQL injection attacks targeting payment processing systems",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5",
         "PCI-DSS-6.6"
       ],
-      "query": "let sqli_patterns = dynamic([\"' OR 1=1\", \"' UNION SELECT\", \"'; DROP TABLE\", \"'--\", \"1=1\", \"exec(\", \"xp_cmdshell\"]);\napplication_logs\n| where environment == \"cardholder_data\" and (request_query has_any (sqli_patterns) or request_body has_any (sqli_patterns))\n| summarize count() by SourceIP, ApplicationName, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 2 // AZ-PCI-010",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -258,18 +278,20 @@
     },
     {
       "rule_id": "AZ-PCI-011",
-      "name": "PCI-DSS \u2014 Payment Skimming Detection",
+      "name": "PCI-DSS — Payment Skimming Detection",
       "description": "Detects web skimming or JavaScript injection targeting payment pages",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5",
         "PCI-DSS-6.6"
       ],
-      "query": "web_application_events\n| where page_type == \"payment\" and script_injection == true or dom_mutation_score > 0.8\n| summarize count() by SourceIP, PageURL, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-PCI-011",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -283,19 +305,21 @@
     },
     {
       "rule_id": "AZ-PCI-012",
-      "name": "PCI-DSS \u2014 Network Segmentation Violation in CDE",
+      "name": "PCI-DSS — Network Segmentation Violation in CDE",
       "description": "Detects traffic crossing network segmentation boundaries in cardholder data environment",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-1.3",
         "PCI-DSS-1.4",
         "NIST-800-53-SI-4"
       ],
-      "query": "network_traffic_events\n| where source_zone == \"cde\" and destination_zone != \"cde\" and traffic_type == \"unauthorized\"\n| summarize count() by SourceIP, DestinationZone, Protocol, bin(TimeGenerated, 5m)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-PCI-012",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -308,18 +332,20 @@
     },
     {
       "rule_id": "AZ-PCI-013",
-      "name": "PCI-DSS \u2014 Physical Access to CDE Without Badge",
+      "name": "PCI-DSS — Physical Access to CDE Without Badge",
       "description": "Detects physical access to cardholder data environment without proper badge or authorization",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-9.1",
         "PCI-DSS-9.2"
       ],
-      "query": "physical_access_events\n| where zone == \"cardholder_data\" and badge_present == false or authorization == false\n| summarize count() by BadgeID, ZoneName, EntryType, bin(TimeGenerated, 10m)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-PCI-013",
       "queryFrequency": "PT10M",
       "queryPeriod": "PT10M",
       "triggerOperator": "GreaterThan",
@@ -333,18 +359,20 @@
     },
     {
       "rule_id": "AZ-PCI-014",
-      "name": "PCI-DSS \u2014 Vulnerability Scanner Disabled in CDE",
+      "name": "PCI-DSS — Vulnerability Scanner Disabled in CDE",
       "description": "Detects disabling or misconfiguration of vulnerability scanning in cardholder data environment",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-11.2",
         "PCI-DSS-11.3"
       ],
-      "query": "vulnerability_scanner_events\n| where environment == \"cardholder_data\" and scanner_status in (\"disabled\", \"misconfigured\", \"offline\")\n| summarize count() by ScannerName, ZoneName, bin(TimeGenerated, 1h)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-PCI-014",
       "queryFrequency": "PT1H",
       "queryPeriod": "PT1H",
       "triggerOperator": "GreaterThan",
@@ -357,18 +385,20 @@
     },
     {
       "rule_id": "AZ-PCI-015",
-      "name": "PCI-DSS \u2014 Expired SSL/TLS Certificate in CDE",
+      "name": "PCI-DSS — Expired SSL/TLS Certificate in CDE",
       "description": "Detects expired or expiring SSL/TLS certificates in cardholder data environment",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-4.1",
         "PCI-DSS-4.2"
       ],
-      "query": "certificate_events\n| where environment == \"cardholder_data\" and (certificate_status == \"expired\" or days_until_expiry < 30)\n| summarize count() by CertificateCN, ExpiryDate, bin(TimeGenerated, 1d)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-PCI-015",
       "queryFrequency": "P1D",
       "queryPeriod": "P1D",
       "triggerOperator": "GreaterThan",
@@ -382,19 +412,21 @@
     },
     {
       "rule_id": "AZ-PCI-016",
-      "name": "PCI-DSS \u2014 Insecure Data Storage of PAN",
+      "name": "PCI-DSS — Insecure Data Storage of PAN",
       "description": "Detects storage of unencrypted primary account numbers violating PCI-DSS Requirement 3",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-3.4",
         "PCI-DSS-3.5",
         "NIST-800-53-SI-4"
       ],
-      "query": "data_storage_events\n| where data_type == \"PAN\" and encryption_status == \"unencrypted\" and storage_location != \"tokenized\"\n| summarize count() by StorageLocation, DatabaseName, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-PCI-016",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -408,18 +440,20 @@
     },
     {
       "rule_id": "AZ-PCI-017",
-      "name": "PCI-DSS \u2014 Malware Protection Disabled in CDE",
+      "name": "PCI-DSS — Malware Protection Disabled in CDE",
       "description": "Detects disabled or misconfigured malware protection in cardholder data environment",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-5.1",
         "PCI-DSS-5.2"
       ],
-      "query": "malware_protection_events\n| where environment == \"cardholder_data\" and protection_status in (\"disabled\", \"outdated\", \"misconfigured\")\n| summarize count() by SystemName, ProtectionType, bin(TimeGenerated, 1h)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-PCI-017",
       "queryFrequency": "PT1H",
       "queryPeriod": "PT1H",
       "triggerOperator": "GreaterThan",
@@ -432,18 +466,20 @@
     },
     {
       "rule_id": "AZ-PCI-018",
-      "name": "PCI-DSS \u2014 Failed Penetration Test Remediation",
+      "name": "PCI-DSS — Failed Penetration Test Remediation",
       "description": "Detects failure to remediate vulnerabilities identified in penetration tests within required timeframes",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-11.3",
         "PCI-DSS-6.1"
       ],
-      "query": "vulnerability_events\n| where environment == \"cardholder_data\" and remediation_status == \"overdue\" and days_since_discovery > 30\n| summarize count() by VulnerabilityID, Severity, bin(TimeGenerated, 1d)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-PCI-018",
       "queryFrequency": "P1D",
       "queryPeriod": "P1D",
       "triggerOperator": "GreaterThan",
@@ -456,18 +492,20 @@
     },
     {
       "rule_id": "AZ-PCI-019",
-      "name": "PCI-DSS \u2014 Third-Party Remote Access to CDE",
+      "name": "PCI-DSS — Third-Party Remote Access to CDE",
       "description": "Detects unauthorized third-party remote access to cardholder data environment",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.1",
         "PCI-DSS-12.8"
       ],
-      "query": "remote_access_events\n| where environment == \"cardholder_data\" and access_type == \"third_party\" and authorized == false\n| summarize count() by VendorName, UserID, AccessType, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-PCI-019",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -481,18 +519,20 @@
     },
     {
       "rule_id": "AZ-PCI-020",
-      "name": "PCI-DSS \u2014 Change Control Violation in CDE",
+      "name": "PCI-DSS — Change Control Violation in CDE",
       "description": "Detects unauthorized changes to cardholder data environment without proper change control",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.4",
         "PCI-DSS-6.5"
       ],
-      "query": "change_events\n| where environment == \"cardholder_data\" and change_approved == false and change_documented == false\n| summarize count() by ChangeType, SystemName, UserID, bin(TimeGenerated, 10m)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-PCI-020",
       "queryFrequency": "PT10M",
       "queryPeriod": "PT10M",
       "triggerOperator": "GreaterThan",
@@ -505,18 +545,20 @@
     },
     {
       "rule_id": "AZ-PCI-021",
-      "name": "PCI-DSS \u2014 Insider Threat Card Data Access Anomaly",
+      "name": "PCI-DSS — Insider Threat Card Data Access Anomaly",
       "description": "Detects anomalous access patterns to cardholder data by insiders indicating potential data theft",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-7.1",
         "PCI-DSS-10.2"
       ],
-      "query": "data_access_events\n| where data_classification == \"cardholder_data\" and access_anomaly_score > 0.8 and user_type == \"internal\"\n| summarize count() by UserID, AccessPattern, bin(TimeGenerated, 15m)\n| where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-PCI-021",
       "queryFrequency": "PT15M",
       "queryPeriod": "PT15M",
       "triggerOperator": "GreaterThan",
@@ -530,18 +572,20 @@
     },
     {
       "rule_id": "AZ-PCI-022",
-      "name": "PCI-DSS \u2014 Clock Synchronization Failure in CDE",
+      "name": "PCI-DSS — Clock Synchronization Failure in CDE",
       "description": "Detects time synchronization failures in cardholder data environment affecting audit log integrity",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-10.4",
         "PCI-DSS-10.5"
       ],
-      "query": "time_sync_events\n| where environment == \"cardholder_data\" and sync_status == \"failed\" or time_drift_seconds > 5\n| summarize count() by SystemName, bin(TimeGenerated, 1h)\n| where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-PCI-022",
       "queryFrequency": "PT1H",
       "queryPeriod": "PT1H",
       "triggerOperator": "GreaterThan",
@@ -555,18 +599,20 @@
     },
     {
       "rule_id": "AZ-PCI-023",
-      "name": "PCI-DSS \u2014 Insecure Password Policy in CDE",
+      "name": "PCI-DSS — Insecure Password Policy in CDE",
       "description": "Detects accounts in cardholder data environment with password policies not meeting PCI-DSS requirements",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.2",
         "PCI-DSS-8.3"
       ],
-      "query": "password_policy_events\n| where environment == \"cardholder_data\" and (min_password_length < 7 or complexity_required == false or history_count < 4)\n| summarize count() by PolicyName, SystemName, bin(TimeGenerated, 1d)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-PCI-023",
       "queryFrequency": "P1D",
       "queryPeriod": "P1D",
       "triggerOperator": "GreaterThan",
@@ -579,18 +625,20 @@
     },
     {
       "rule_id": "AZ-PCI-024",
-      "name": "PCI-DSS \u2014 Data Retention Violation in CDE",
+      "name": "PCI-DSS — Data Retention Violation in CDE",
       "description": "Detects cardholder data retained beyond required periods or not destroyed properly",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-3.1",
         "PCI-DSS-3.2"
       ],
-      "query": "data_retention_events\n| where environment == \"cardholder_data\" and (data_age_days > retention_days and data_deleted == false) or destruction_method == \"insecure\"\n| summarize count() by DataCategory, RetentionPolicyDays, bin(TimeGenerated, 1d)\n| where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-PCI-024",
       "queryFrequency": "P1D",
       "queryPeriod": "P1D",
       "triggerOperator": "GreaterThan",
@@ -604,18 +652,20 @@
     },
     {
       "rule_id": "AZ-PCI-025",
-      "name": "PCI-DSS \u2014 Incident Response Plan Gaps in CDE",
+      "name": "PCI-DSS — Incident Response Plan Gaps in CDE",
       "description": "Detects security incidents in cardholder data environment without corresponding incident response plan activation",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-12.10",
         "PCI-DSS-12.10.1"
       ],
-      "query": "incident_events\n| where environment == \"cardholder_data\" and severity in (\"high\", \"critical\") and ir_plan_activated == false\n| summarize count() by IncidentType, Severity, bin(TimeGenerated, 15m)\n| where count_ > 1",
+      "query": "AuditLogs | where OperationName contains \"pci\" | summarize count() by bin(TimeGenerated, 5m), InitiatedBy | where count_ > 1 // AZ-PCI-025",
       "queryFrequency": "PT15M",
       "queryPeriod": "PT15M",
       "triggerOperator": "GreaterThan",

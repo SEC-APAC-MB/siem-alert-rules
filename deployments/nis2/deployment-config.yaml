@@ -1,0 +1,42 @@
+# NIS2 Deployment Configuration Template
+# Copy this file to your environment, fill in values, and pass it via:
+#   ./deploy.sh --config deployment-config.yaml
+# Or export the equivalent environment variables.
+
+regulation: "NIS2"
+environment: "production"
+region: "eu-frankfurt-1"
+
+# ─── Oracle Cloud Infrastructure (OCI) ─────────────────────────
+# For `oci monitoring alarm create` and `oci events rule create`.
+oci:
+  # Compartment OCID where alarms / event rules are created.
+  compartment_id: ""                             # e.g. ocid1.compartment.oc1..xxxxxxxx
+  # Compartment whose metrics are evaluated (defaults to compartment_id).
+  metric_compartment_id: ""
+  # Set true to include child compartments for metric evaluation.
+  metric_compartment_id_in_subtree: false
+  # Pre-created ONS notification topic used as the alarm destination.
+  ons_topic_id: ""                               # e.g. ocid1.onstopic.oc1..xxxxxxxx
+  ons_topic_name: "siem-nis2-alerts"
+  # OCI region used for the CLI (optional; defaults to CLI profile region).
+  region: ""
+
+# ─── Microsoft Azure (Sentinel) ───────────────────────────────
+# For `az sentinel alert-rule create`.
+azure:
+  subscription_id: ""                            # subscription GUID
+  resource_group: ""                             # resource group holding the workspace
+  workspace_name: ""                             # Log Analytics workspace with Sentinel
+  # Optional: only deploy in these timeframes / severity gates
+  min_severity: "Informational"
+  enabled: true
+
+# ─── Deployment behaviour ─────────────────────────────────────
+deployment:
+  dry_run: false                          # validate rules without creating resources
+  compliance: "NIS2"                      # NIS2 | DORA | ALL
+  concurrency: 1                          # sequential deploys (1) or parallel (N)
+  create_events_rules: true               # OCI: also create Events rules for audit rules
+  create_alarms: true                     # OCI: create Monitoring Alarms
+  # ONS topic must exist before deploying alarms with notifications.

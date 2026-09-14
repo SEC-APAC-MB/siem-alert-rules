@@ -1,12 +1,12 @@
 {
-  "description": "SIEM alert rules \u2014 compliance-pci-dss (converted)",
+  "description": "SIEM alert rules — compliance-pci-dss (converted)",
   "version": "2.0.0",
   "converted": "2026-09-14T04:05:03.489961Z",
   "total_rules": 25,
   "rules": [
     {
       "rule_id": "OCI-PCI-001",
-      "name": "PCI-DSS \u2014 Unencrypted Cardholder Data Transmission",
+      "name": "PCI-DSS — Unencrypted Cardholder Data Transmission",
       "description": "Detects transmission of cardholder data over unencrypted channels violating PCI-DSS Requirement 4",
       "severity": "MEDIUM",
       "category": "general",
@@ -15,16 +15,15 @@
         "T1567"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_001\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_001",
         "operator": "GT",
         "threshold": 3
       },
@@ -43,7 +42,7 @@
     },
     {
       "rule_id": "OCI-PCI-002",
-      "name": "PCI-DSS \u2014 Default Credentials in Cardholder Environment",
+      "name": "PCI-DSS — Default Credentials in Cardholder Environment",
       "description": "Detects use of default vendor credentials in cardholder data environment violating PCI-DSS Requirement 8",
       "severity": "MEDIUM",
       "category": "general",
@@ -52,16 +51,15 @@
         "T1552.001"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_002\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pci%' OR \"data__json.message\" LIKE '%dss%') AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_002",
         "operator": "GT",
         "threshold": 3
       },
@@ -79,7 +77,7 @@
     },
     {
       "rule_id": "OCI-PCI-003",
-      "name": "PCI-DSS \u2014 Unauthorized Access to Cardholder Data",
+      "name": "PCI-DSS — Unauthorized Access to Cardholder Data",
       "description": "Detects unauthorized access attempts to cardholder data stores violating PCI-DSS Requirement 7",
       "severity": "MEDIUM",
       "category": "general",
@@ -88,16 +86,16 @@
         "T1530"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_003\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.audit",
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_003",
         "operator": "GT",
         "threshold": 3
       },
@@ -115,7 +113,7 @@
     },
     {
       "rule_id": "OCI-PCI-004",
-      "name": "PCI-DSS \u2014 Missing MFA for CDE Access",
+      "name": "PCI-DSS — Missing MFA for CDE Access",
       "description": "Detects access to cardholder data environment without required multi-factor authentication violating PCI-DSS Requirement 8",
       "severity": "MEDIUM",
       "category": "general",
@@ -123,16 +121,15 @@
         "T1110"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_004\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pci%' OR \"data__json.message\" LIKE '%dss%') AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_004",
         "operator": "GT",
         "threshold": 3
       },
@@ -150,7 +147,7 @@
     },
     {
       "rule_id": "OCI-PCI-005",
-      "name": "PCI-DSS \u2014 PAN Displayed in Cleartext",
+      "name": "PCI-DSS — PAN Displayed in Cleartext",
       "description": "Detects primary account numbers displayed in cleartext violating PCI-DSS Requirement 3",
       "severity": "MEDIUM",
       "category": "general",
@@ -159,16 +156,15 @@
         "T1567"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_005\", \"metricName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'oci_objectstorage' AND \"metricName\" = 'StorageSizeBytes' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_005",
         "operator": "GT",
         "threshold": 3
       },
@@ -187,7 +183,7 @@
     },
     {
       "rule_id": "OCI-PCI-006",
-      "name": "PCI-DSS \u2014 Weak Cryptography in CDE",
+      "name": "PCI-DSS — Weak Cryptography in CDE",
       "description": "Detects use of weak or deprecated cryptographic algorithms in cardholder data environment",
       "severity": "MEDIUM",
       "category": "general",
@@ -196,16 +192,16 @@
         "T1110"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_006\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.audit",
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_006",
         "operator": "GT",
         "threshold": 3
       },
@@ -223,7 +219,7 @@
     },
     {
       "rule_id": "OCI-PCI-007",
-      "name": "PCI-DSS \u2014 Wireless Access Point in CDE",
+      "name": "PCI-DSS — Wireless Access Point in CDE",
       "description": "Detects unauthorized wireless access points in or near cardholder data environment",
       "severity": "MEDIUM",
       "category": "general",
@@ -232,16 +228,15 @@
         "T1133"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_007\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pci%' OR \"data__json.message\" LIKE '%dss%') AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_007",
         "operator": "GT",
         "threshold": 3
       },
@@ -260,7 +255,7 @@
     },
     {
       "rule_id": "OCI-PCI-008",
-      "name": "PCI-DSS \u2014 Excessive Privileges in CDE",
+      "name": "PCI-DSS — Excessive Privileges in CDE",
       "description": "Detects users with excessive privileges in cardholder data environment violating least privilege",
       "severity": "MEDIUM",
       "category": "general",
@@ -269,16 +264,16 @@
         "T1078.002"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_008\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.audit",
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_008",
         "operator": "GT",
         "threshold": 3
       },
@@ -297,7 +292,7 @@
     },
     {
       "rule_id": "OCI-PCI-009",
-      "name": "PCI-DSS \u2014 Audit Log Tampering in CDE",
+      "name": "PCI-DSS — Audit Log Tampering in CDE",
       "description": "Detects tampering or disabling of audit logs in cardholder data environment",
       "severity": "MEDIUM",
       "category": "general",
@@ -306,16 +301,16 @@
         "T1562"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_009\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.audit",
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_009",
         "operator": "GT",
         "threshold": 3
       },
@@ -334,7 +329,7 @@
     },
     {
       "rule_id": "OCI-PCI-010",
-      "name": "PCI-DSS \u2014 SQL Injection Against Payment System",
+      "name": "PCI-DSS — SQL Injection Against Payment System",
       "description": "Detects SQL injection attacks targeting payment processing systems",
       "severity": "MEDIUM",
       "category": "general",
@@ -343,16 +338,15 @@
         "T1059"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_010\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pci%' OR \"data__json.message\" LIKE '%dss%') AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_010",
         "operator": "GT",
         "threshold": 3
       },
@@ -370,7 +364,7 @@
     },
     {
       "rule_id": "OCI-PCI-011",
-      "name": "PCI-DSS \u2014 Payment Skimming Detection",
+      "name": "PCI-DSS — Payment Skimming Detection",
       "description": "Detects web skimming or JavaScript injection targeting payment pages",
       "severity": "MEDIUM",
       "category": "general",
@@ -379,16 +373,15 @@
         "T1059.007"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_011\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pci%' OR \"data__json.message\" LIKE '%dss%') AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_011",
         "operator": "GT",
         "threshold": 3
       },
@@ -407,7 +400,7 @@
     },
     {
       "rule_id": "OCI-PCI-012",
-      "name": "PCI-DSS \u2014 Network Segmentation Violation in CDE",
+      "name": "PCI-DSS — Network Segmentation Violation in CDE",
       "description": "Detects traffic crossing network segmentation boundaries in cardholder data environment",
       "severity": "MEDIUM",
       "category": "general",
@@ -416,16 +409,15 @@
         "T1021"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_012\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_012",
         "operator": "GT",
         "threshold": 3
       },
@@ -443,7 +435,7 @@
     },
     {
       "rule_id": "OCI-PCI-013",
-      "name": "PCI-DSS \u2014 Physical Access to CDE Without Badge",
+      "name": "PCI-DSS — Physical Access to CDE Without Badge",
       "description": "Detects physical access to cardholder data environment without proper badge or authorization",
       "severity": "MEDIUM",
       "category": "general",
@@ -451,16 +443,15 @@
         "T1566.002"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_013\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pci%' OR \"data__json.message\" LIKE '%dss%') AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_013",
         "operator": "GT",
         "threshold": 3
       },
@@ -479,7 +470,7 @@
     },
     {
       "rule_id": "OCI-PCI-014",
-      "name": "PCI-DSS \u2014 Vulnerability Scanner Disabled in CDE",
+      "name": "PCI-DSS — Vulnerability Scanner Disabled in CDE",
       "description": "Detects disabling or misconfiguration of vulnerability scanning in cardholder data environment",
       "severity": "MEDIUM",
       "category": "general",
@@ -487,16 +478,16 @@
         "T1562.001"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_014\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.audit",
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_014",
         "operator": "GT",
         "threshold": 3
       },
@@ -514,7 +505,7 @@
     },
     {
       "rule_id": "OCI-PCI-015",
-      "name": "PCI-DSS \u2014 Expired SSL/TLS Certificate in CDE",
+      "name": "PCI-DSS — Expired SSL/TLS Certificate in CDE",
       "description": "Detects expired or expiring SSL/TLS certificates in cardholder data environment",
       "severity": "MEDIUM",
       "category": "general",
@@ -522,16 +513,16 @@
         "T1552.004"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_015\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.audit",
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_015",
         "operator": "GT",
         "threshold": 3
       },
@@ -550,7 +541,7 @@
     },
     {
       "rule_id": "OCI-PCI-016",
-      "name": "PCI-DSS \u2014 Insecure Data Storage of PAN",
+      "name": "PCI-DSS — Insecure Data Storage of PAN",
       "description": "Detects storage of unencrypted primary account numbers violating PCI-DSS Requirement 3",
       "severity": "MEDIUM",
       "category": "general",
@@ -559,16 +550,15 @@
         "T1567"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_016\", \"metricName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'oci_objectstorage' AND \"metricName\" = 'StorageSizeBytes' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_016",
         "operator": "GT",
         "threshold": 3
       },
@@ -587,7 +577,7 @@
     },
     {
       "rule_id": "OCI-PCI-017",
-      "name": "PCI-DSS \u2014 Malware Protection Disabled in CDE",
+      "name": "PCI-DSS — Malware Protection Disabled in CDE",
       "description": "Detects disabled or misconfigured malware protection in cardholder data environment",
       "severity": "MEDIUM",
       "category": "general",
@@ -595,16 +585,16 @@
         "T1562.001"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_017\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.audit",
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_017",
         "operator": "GT",
         "threshold": 3
       },
@@ -622,22 +612,21 @@
     },
     {
       "rule_id": "OCI-PCI-018",
-      "name": "PCI-DSS \u2014 Failed Penetration Test Remediation",
+      "name": "PCI-DSS — Failed Penetration Test Remediation",
       "description": "Detects failure to remediate vulnerabilities identified in penetration tests within required timeframes",
       "severity": "MEDIUM",
       "category": "general",
       "mitre_attack": [],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_018\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pci%' OR \"data__json.message\" LIKE '%dss%') AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_018",
         "operator": "GT",
         "threshold": 3
       },
@@ -655,7 +644,7 @@
     },
     {
       "rule_id": "OCI-PCI-019",
-      "name": "PCI-DSS \u2014 Third-Party Remote Access to CDE",
+      "name": "PCI-DSS — Third-Party Remote Access to CDE",
       "description": "Detects unauthorized third-party remote access to cardholder data environment",
       "severity": "MEDIUM",
       "category": "general",
@@ -664,16 +653,15 @@
         "T1133"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_019\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pci%' OR \"data__json.message\" LIKE '%dss%') AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_019",
         "operator": "GT",
         "threshold": 3
       },
@@ -692,7 +680,7 @@
     },
     {
       "rule_id": "OCI-PCI-020",
-      "name": "PCI-DSS \u2014 Change Control Violation in CDE",
+      "name": "PCI-DSS — Change Control Violation in CDE",
       "description": "Detects unauthorized changes to cardholder data environment without proper change control",
       "severity": "MEDIUM",
       "category": "general",
@@ -701,16 +689,16 @@
         "T1562"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_020\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.audit",
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_020",
         "operator": "GT",
         "threshold": 3
       },
@@ -728,7 +716,7 @@
     },
     {
       "rule_id": "OCI-PCI-021",
-      "name": "PCI-DSS \u2014 Insider Threat Card Data Access Anomaly",
+      "name": "PCI-DSS — Insider Threat Card Data Access Anomaly",
       "description": "Detects anomalous access patterns to cardholder data by insiders indicating potential data theft",
       "severity": "MEDIUM",
       "category": "general",
@@ -737,16 +725,15 @@
         "T1567"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_021\", \"metricName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'oci_objectstorage' AND \"metricName\" = 'StorageSizeBytes' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_021",
         "operator": "GT",
         "threshold": 3
       },
@@ -765,7 +752,7 @@
     },
     {
       "rule_id": "OCI-PCI-022",
-      "name": "PCI-DSS \u2014 Clock Synchronization Failure in CDE",
+      "name": "PCI-DSS — Clock Synchronization Failure in CDE",
       "description": "Detects time synchronization failures in cardholder data environment affecting audit log integrity",
       "severity": "MEDIUM",
       "category": "general",
@@ -773,16 +760,16 @@
         "T1070"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_022\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.audit",
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_022",
         "operator": "GT",
         "threshold": 3
       },
@@ -801,7 +788,7 @@
     },
     {
       "rule_id": "OCI-PCI-023",
-      "name": "PCI-DSS \u2014 Insecure Password Policy in CDE",
+      "name": "PCI-DSS — Insecure Password Policy in CDE",
       "description": "Detects accounts in cardholder data environment with password policies not meeting PCI-DSS requirements",
       "severity": "MEDIUM",
       "category": "general",
@@ -809,16 +796,15 @@
         "T1110"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_023\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pci%' OR \"data__json.message\" LIKE '%dss%') AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_023",
         "operator": "GT",
         "threshold": 3
       },
@@ -836,7 +822,7 @@
     },
     {
       "rule_id": "OCI-PCI-024",
-      "name": "PCI-DSS \u2014 Data Retention Violation in CDE",
+      "name": "PCI-DSS — Data Retention Violation in CDE",
       "description": "Detects cardholder data retained beyond required periods or not destroyed properly",
       "severity": "MEDIUM",
       "category": "general",
@@ -844,16 +830,15 @@
         "T1530"
       ],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_024\", \"metricName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'oci_objectstorage' AND \"metricName\" = 'StorageSizeBytes' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_024",
         "operator": "GT",
         "threshold": 3
       },
@@ -872,22 +857,22 @@
     },
     {
       "rule_id": "OCI-PCI-025",
-      "name": "PCI-DSS \u2014 Incident Response Plan Gaps in CDE",
+      "name": "PCI-DSS — Incident Response Plan Gaps in CDE",
       "description": "Detects security incidents in cardholder data environment without corresponding incident response plan activation",
       "severity": "MEDIUM",
       "category": "general",
       "mitre_attack": [],
       "compliance": [],
-      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'general' AND value > 0",
+      "query": "SELECT \"siem_general_pci_025\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0",
       "rule_type": "query",
       "interval": "5m",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.monitoring",
-          "com.oracle.cloud.audit"
+          "com.oracle.cloud.audit",
+          "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "general",
+        "metric": "siem_general_pci_025",
         "operator": "GT",
         "threshold": 3
       },

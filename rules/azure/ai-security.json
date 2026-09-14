@@ -1,23 +1,25 @@
 {
-  "description": "SIEM alert rules \u2014 ai-security (converted)",
+  "description": "SIEM alert rules — ai-security (converted)",
   "version": "2.0.0",
   "converted": "2026-09-14T04:05:03.536971Z",
   "total_rules": 27,
   "rules": [
     {
       "rule_id": "AZ-AI-PI-001",
-      "name": "AI \u2014 Direct Prompt Injection",
+      "name": "AI — Direct Prompt Injection",
       "description": "Detects direct prompt injection attempts overriding system instructions via user input",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-PI-001",
         "AI-ACT-15"
       ],
-      "query": "AzureDiagnostics | where Category contains 'prompt_injection' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"direct\" or Message contains \"prompt\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-PI-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -31,18 +33,20 @@
     },
     {
       "rule_id": "AZ-AI-PI-002",
-      "name": "AI \u2014 Indirect Prompt Injection via External Data",
+      "name": "AI — Indirect Prompt Injection via External Data",
       "description": "Detects prompt injection payloads embedded in uploaded files, web pages, or external data sources",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-PI-002",
         "AI-ACT-15"
       ],
-      "query": "AzureDiagnostics | where Category contains 'prompt_injection' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"indirect\" or Message contains \"prompt\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-PI-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -56,12 +60,14 @@
     },
     {
       "rule_id": "AZ-AI-PI-003",
-      "name": "AI \u2014 System Prompt Extraction Attempt",
+      "name": "AI — System Prompt Extraction Attempt",
       "description": "Detects attempts to extract system prompts through direct questioning, translation, or format manipulation",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-SPL-001",
@@ -81,12 +87,14 @@
     },
     {
       "rule_id": "AZ-AI-PI-004",
-      "name": "AI \u2014 Jailbreak via Role-Play Persona",
+      "name": "AI — Jailbreak via Role-Play Persona",
       "description": "Detects jailbreak attempts using role-play personas like DAN, developer mode, or unrestricted AI",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-PI-004",
@@ -106,17 +114,19 @@
     },
     {
       "rule_id": "AZ-AI-PI-005",
-      "name": "AI \u2014 Prompt Injection via Few-Shot Manipulation",
+      "name": "AI — Prompt Injection via Few-Shot Manipulation",
       "description": "Detects few-shot learning manipulation attacks that inject malicious examples into LLM context",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-PI-005"
       ],
-      "query": "AzureDiagnostics | where Category contains 'prompt_injection' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"prompt\" or Message contains \"injection\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-PI-005",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -130,12 +140,14 @@
     },
     {
       "rule_id": "AZ-AI-DEX-001",
-      "name": "AI \u2014 Data Exfiltration via Model Output",
+      "name": "AI — Data Exfiltration via Model Output",
       "description": "Detects LLM outputs containing PII, training data, or confidential information indicating data leakage",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DEX-001",
@@ -155,12 +167,14 @@
     },
     {
       "rule_id": "AZ-AI-DEX-002",
-      "name": "AI \u2014 Training Data Extraction Attack",
+      "name": "AI — Training Data Extraction Attack",
       "description": "Detects attempts to extract training data from LLM through targeted queries and completions",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DEX-002",
@@ -180,12 +194,14 @@
     },
     {
       "rule_id": "AZ-AI-DEX-003",
-      "name": "AI \u2014 PII Leakage via LLM Response",
+      "name": "AI — PII Leakage via LLM Response",
       "description": "Detects PII (SSN, email, phone, address) leaking through LLM responses",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DEX-003",
@@ -206,12 +222,14 @@
     },
     {
       "rule_id": "AZ-AI-MDL-001",
-      "name": "AI \u2014 Model Poisoning via Training Data Manipulation",
+      "name": "AI — Model Poisoning via Training Data Manipulation",
       "description": "Detects indicators of model poisoning through anomalous training data or unexpected model behavior",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-MDL-001",
@@ -231,12 +249,14 @@
     },
     {
       "rule_id": "AZ-AI-MDL-002",
-      "name": "AI \u2014 Backdoor Trigger Detection in LLM Output",
+      "name": "AI — Backdoor Trigger Detection in LLM Output",
       "description": "Detects potential backdoor triggers in LLM output patterns that indicate compromised models",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-MDL-002"
@@ -255,18 +275,20 @@
     },
     {
       "rule_id": "AZ-AI-RAG-001",
-      "name": "AI \u2014 RAG Pipeline Data Poisoning",
+      "name": "AI — RAG Pipeline Data Poisoning",
       "description": "Detects injection of malicious content into RAG knowledge bases that corrupts retrieval output",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-001",
         "AI-ACT-15"
       ],
-      "query": "AzureDiagnostics | where Category contains 'rag' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"rag\" or Message contains \"pipeline\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-RAG-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -280,17 +302,19 @@
     },
     {
       "rule_id": "AZ-AI-RAG-002",
-      "name": "AI \u2014 RAG Retrieval Manipulation via Adversarial Documents",
+      "name": "AI — RAG Retrieval Manipulation via Adversarial Documents",
       "description": "Detects adversarial documents in RAG stores designed to manipulate retrieval results",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-002"
       ],
-      "query": "AzureDiagnostics | where Category contains 'rag' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"rag\" or Message contains \"retrieval\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-RAG-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -304,18 +328,20 @@
     },
     {
       "rule_id": "AZ-AI-HAL-001",
-      "name": "AI \u2014 Hallucination Detection \u2014 Fabricated Entity References",
+      "name": "AI — Hallucination Detection — Fabricated Entity References",
       "description": "Detects LLM responses containing fabricated URLs, citations, or entity references indicating hallucination",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-HAL-001",
         "AI-ACT-13"
       ],
-      "query": "AzureDiagnostics | where Category contains 'hallucination' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"hallucination\" or Message contains \"fabricated\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-HAL-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -329,17 +355,19 @@
     },
     {
       "rule_id": "AZ-AI-HAL-002",
-      "name": "AI \u2014 Hallucination \u2014 Inconsistent Factual Claims",
+      "name": "AI — Hallucination — Inconsistent Factual Claims",
       "description": "Detects LLM outputs making contradictory factual claims across conversation turns",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-HAL-002"
       ],
-      "query": "AzureDiagnostics | where Category contains 'hallucination' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"hallucination\" or Message contains \"inconsistent\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-HAL-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -353,12 +381,14 @@
     },
     {
       "rule_id": "AZ-AI-BIA-001",
-      "name": "AI \u2014 Bias Detection \u2014 Demographic Disparities",
+      "name": "AI — Bias Detection — Demographic Disparities",
       "description": "Detects demographic bias patterns in LLM outputs including gender, racial, or ethnic disparities",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-BIA-001",
@@ -379,18 +409,20 @@
     },
     {
       "rule_id": "AZ-AI-GOV-001",
-      "name": "AI \u2014 Governance \u2014 Missing Risk Assessment",
+      "name": "AI — Governance — Missing Risk Assessment",
       "description": "Detects AI system operations without documented risk assessment per EU AI Act Article 9",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Persistence"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-01-009",
         "AI-ACT-9"
       ],
-      "query": "AzureDiagnostics | where Category contains 'governance' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AuditLogs | where OperationName contains \"governance\" | summarize count() by bin(TimeGenerated, 5m), InitiatedBy | where count_ > 5 // AZ-AI-GOV-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -404,18 +436,20 @@
     },
     {
       "rule_id": "AZ-AI-GOV-002",
-      "name": "AI \u2014 Governance \u2014 High-Risk System Without Human Oversight",
+      "name": "AI — Governance — High-Risk System Without Human Oversight",
       "description": "Detects high-risk AI system operations without required human oversight mechanisms per EU AI Act Article 14",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Persistence"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-06-001",
         "AI-ACT-14"
       ],
-      "query": "AzureDiagnostics | where Category contains 'governance' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AuditLogs | where OperationName contains \"governance\" | summarize count() by bin(TimeGenerated, 5m), InitiatedBy | where count_ > 5 // AZ-AI-GOV-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -429,17 +463,19 @@
     },
     {
       "rule_id": "AZ-AI-GOV-003",
-      "name": "AI \u2014 Governance \u2014 Missing Transparency Requirements",
+      "name": "AI — Governance — Missing Transparency Requirements",
       "description": "Detects AI system operations lacking required transparency disclosures per EU AI Act Article 13",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Persistence"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-ACT-13"
       ],
-      "query": "AzureDiagnostics | where Category contains 'governance' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "AuditLogs | where OperationName contains \"governance\" | summarize count() by bin(TimeGenerated, 5m), InitiatedBy | where count_ > 5 // AZ-AI-GOV-003",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -453,17 +489,19 @@
     },
     {
       "rule_id": "AZ-AI-RED-001",
-      "name": "AI \u2014 Red Team \u2014 Adversarial Suffix Attack",
+      "name": "AI — Red Team — Adversarial Suffix Attack",
       "description": "Detects adversarial suffix attacks that append optimized suffixes to bypass LLM safety filters",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-PI-010"
       ],
-      "query": "AzureDiagnostics | where Category contains 'red_team' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"red\" or Message contains \"team\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-RED-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -477,17 +515,19 @@
     },
     {
       "rule_id": "AZ-AI-RED-002",
-      "name": "AI \u2014 Red Team \u2014 Token Smuggling Attack",
+      "name": "AI — Red Team — Token Smuggling Attack",
       "description": "Detects token smuggling attacks that use encoding or fragmentation to bypass LLM content filters",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-PI-011"
       ],
-      "query": "AzureDiagnostics | where Category contains 'red_team' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"red\" or Message contains \"team\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-RED-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -501,17 +541,19 @@
     },
     {
       "rule_id": "AZ-AI-RED-003",
-      "name": "AI \u2014 Red Team \u2014 Multi-Turn Jailbreak",
+      "name": "AI — Red Team — Multi-Turn Jailbreak",
       "description": "Detects multi-turn conversations designed to progressively jailbreak an LLM through contextual manipulation",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-PI-012"
       ],
-      "query": "AzureDiagnostics | where Category contains 'red_team' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"red\" or Message contains \"team\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-RED-003",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -525,17 +567,19 @@
     },
     {
       "rule_id": "AZ-AI-SAF-001",
-      "name": "AI \u2014 Safety \u2014 Harmful Content Generation",
+      "name": "AI — Safety — Harmful Content Generation",
       "description": "Detects LLM attempts to generate harmful content including weapons, drugs, or dangerous instructions",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-ACT-15"
       ],
-      "query": "AzureDiagnostics | where Category contains 'safety' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"safety\" or Message contains \"harmful\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-SAF-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -549,17 +593,19 @@
     },
     {
       "rule_id": "AZ-AI-SAF-002",
-      "name": "AI \u2014 Safety \u2014 Self-Harm Content Facilitation",
+      "name": "AI — Safety — Self-Harm Content Facilitation",
       "description": "Detects LLM responses that may facilitate or encourage self-harm behavior",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-ACT-15"
       ],
-      "query": "AzureDiagnostics | where Category contains 'safety' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"safety\" or Message contains \"self\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-SAF-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -573,17 +619,19 @@
     },
     {
       "rule_id": "AZ-AI-VEC-001",
-      "name": "AI \u2014 Vector DB \u2014 Pinecone Namespace Isolation Bypass",
+      "name": "AI — Vector DB — Pinecone Namespace Isolation Bypass",
       "description": "Detects cross-namespace data access in Pinecone vector database",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "GDPR-25-003"
       ],
-      "query": "AzureDiagnostics | where Category contains 'vector_db' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"vector\" or Message contains \"pinecone\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-VEC-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -597,17 +645,19 @@
     },
     {
       "rule_id": "AZ-AI-VEC-002",
-      "name": "AI \u2014 Vector DB \u2014 Weaviate Tenant Data Isolation Failure",
+      "name": "AI — Vector DB — Weaviate Tenant Data Isolation Failure",
       "description": "Detects cross-tenant data access in Weaviate vector database",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "GDPR-25-003"
       ],
-      "query": "AzureDiagnostics | where Category contains 'vector_db' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"vector\" or Message contains \"weaviate\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-VEC-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -621,17 +671,19 @@
     },
     {
       "rule_id": "AZ-AI-VEC-003",
-      "name": "AI \u2014 Vector DB \u2014 ChromaDB Embedding Poisoning",
+      "name": "AI — Vector DB — ChromaDB Embedding Poisoning",
       "description": "Detects adversarial embedding vectors inserted into ChromaDB collections",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-ACT-15"
       ],
-      "query": "AzureDiagnostics | where Category contains 'vector_db' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"vector\" or Message contains \"chromadb\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-VEC-003",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -645,17 +697,19 @@
     },
     {
       "rule_id": "AZ-AI-VEC-004",
-      "name": "AI \u2014 Vector DB \u2014 Qdrant Payload Filter Injection",
+      "name": "AI — Vector DB — Qdrant Payload Filter Injection",
       "description": "Detects filter injection attacks in Qdrant vector search payloads",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Discovery"
+      ],
       "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5"
       ],
-      "query": "AzureDiagnostics | where Category contains 'vector_db' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"vector\" or Message contains \"qdrant\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-VEC-004",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",

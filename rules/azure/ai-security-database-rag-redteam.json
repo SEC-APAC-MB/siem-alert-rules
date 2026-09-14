@@ -1,24 +1,26 @@
 {
-  "description": "SIEM alert rules \u2014 ai-security-database-rag-redteam (converted)",
+  "description": "SIEM alert rules — ai-security-database-rag-redteam (converted)",
   "version": "2.0.0",
   "converted": "2026-09-14T04:05:03.533664Z",
   "total_rules": 35,
   "rules": [
     {
       "rule_id": "AZ-AI-DB-001",
-      "name": "AI \u2014 RAG Data Poisoning via Document Injection",
+      "name": "AI — RAG Data Poisoning via Document Injection",
       "description": "Detects injection of malicious content into RAG document stores that poisons retrieval results",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-001",
         "AI-ACT-15",
         "GDPR-32A"
       ],
-      "query": "rag_document_events\n| where document_source has_any (\"malicious\", \"poisoned\", \"tampered\") or content_analysis has_any (\"ignore previous\", \"override\", \"system prompt\")\n| summarize count() by DocumentSource, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"rag\" or Message contains \"data\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 2 // AZ-AI-DB-001",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -32,18 +34,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-002",
-      "name": "AI \u2014 Vector Database Unauthorized Access",
+      "name": "AI — Vector Database Unauthorized Access",
       "description": "Detects unauthorized access attempts to vector databases storing embeddings",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-002",
         "NIST-800-53-SI-4"
       ],
-      "query": "vector_db_access_events\n| where access_type == \"unauthorized\" or access_result == \"denied\"\n| summarize count() by SourceIP, DatabaseName, bin(TimeGenerated, 5m)\n| where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"vector\" or Message contains \"database\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-DB-002",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -57,18 +61,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-003",
-      "name": "AI \u2014 RAG Retrieval Manipulation via Query Injection",
+      "name": "AI — RAG Retrieval Manipulation via Query Injection",
       "description": "Detects query injection attacks that manipulate RAG retrieval to return malicious content",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-003",
         "AI-ACT-15"
       ],
-      "query": "rag_retrieval_events\n| where query_text has_any (\"UNION\", \"DROP\", \"OR 1=1\", \"ignore\", \"override\", \"--\") or retrieval_anomaly_score > 0.8\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"rag\" or Message contains \"retrieval\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-AI-DB-003",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -82,18 +88,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-004",
-      "name": "AI \u2014 Embedding Model Evasion Attack",
+      "name": "AI — Embedding Model Evasion Attack",
       "description": "Detects adversarial inputs designed to evade embedding-based similarity search and retrieve wrong documents",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-004",
         "AI-ACT-15"
       ],
-      "query": "embedding_search_events\n| where similarity_score < 0.3 and retrieved_documents has_any (\"malicious\", \"poisoned\", \"override\")\n| summarize count() by SourceIP, bin(TimeGenerated, 10m)\n| where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"embedding\" or Message contains \"model\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-DB-004",
       "queryFrequency": "PT10M",
       "queryPeriod": "PT10M",
       "triggerOperator": "GreaterThan",
@@ -107,18 +115,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-005",
-      "name": "AI \u2014 RAG Context Window Injection",
+      "name": "AI — RAG Context Window Injection",
       "description": "Detects injection of malicious context into RAG retrieved documents that overrides model behavior",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-005",
         "AI-ACT-15"
       ],
-      "query": "rag_context_events\n| where retrieved_content has_any (\"ignore previous instructions\", \"disregard\", \"new instruction\", \"system:\") or context_injection_score > 0.85\n| summarize count() by SourceIP, DocumentSource, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"rag\" or Message contains \"context\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 2 // AZ-AI-DB-005",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -132,19 +142,21 @@
     },
     {
       "rule_id": "AZ-AI-DB-006",
-      "name": "AI \u2014 Database Prompt Injection via SQL",
+      "name": "AI — Database Prompt Injection via SQL",
       "description": "Detects prompt injection attacks targeting AI-connected databases through SQL queries",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-001",
         "PCI-DSS-6.5",
         "AI-ACT-15"
       ],
-      "query": "database_query_events\n| where query_text has_any (\"ignore previous\", \"override system\", \"disregard\", \"new instruction\") or query_anomaly_score > 0.9\n| summarize count() by SourceIP, DatabaseName, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"database\" or action_name_s contains \"prompt\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 2 // AZ-AI-DB-006",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -158,18 +170,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-007",
-      "name": "AI \u2014 Training Data Extraction from RAG Store",
+      "name": "AI — Training Data Extraction from RAG Store",
       "description": "Detects attempts to extract training data or sensitive information from RAG knowledge stores",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-002",
         "GDPR-32A"
       ],
-      "query": "rag_access_events\n| where query_pattern has_any (\"all documents\", \"dump\", \"extract\", \"download\", \"export\") and query_volume > 1000\n| summarize count() by SourceIP, bin(TimeGenerated, 10m)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"training\" or Message contains \"data\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-AI-DB-007",
       "queryFrequency": "PT10M",
       "queryPeriod": "PT10M",
       "triggerOperator": "GreaterThan",
@@ -183,19 +197,21 @@
     },
     {
       "rule_id": "AZ-AI-DB-008",
-      "name": "AI \u2014 Knowledge Base Tampering Detection",
+      "name": "AI — Knowledge Base Tampering Detection",
       "description": "Detects unauthorized modifications to AI knowledge base documents or vector stores",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-003",
         "NIST-800-53-SI-4",
         "GDPR-32A"
       ],
-      "query": "knowledge_base_events\n| where operation_type in (\"update\", \"delete\", \"insert\", \"modify\") and authorized == false\n| summarize count() by SourceIP, OperationType, DocumentID, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"knowledge\" or Message contains \"base\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-AI-DB-008",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -209,18 +225,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-009",
-      "name": "AI \u2014 RAG Feedback Loop Manipulation",
+      "name": "AI — RAG Feedback Loop Manipulation",
       "description": "Detects manipulation of RAG feedback loops to promote malicious content in retrieval rankings",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-006",
         "AI-ACT-15"
       ],
-      "query": "rag_feedback_events\n| where feedback_type has_any (\"upvote\", \"positive\") and feedback_source has_any (\"automated\", \"bot\", \"script\") and feedback_volume > 50\n| summarize count() by SourceIP, DocumentID, bin(TimeGenerated, 15m)\n| where count_ > 10",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"rag\" or Message contains \"feedback\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 10 // AZ-AI-DB-009",
       "queryFrequency": "PT15M",
       "queryPeriod": "PT15M",
       "triggerOperator": "GreaterThan",
@@ -234,18 +252,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-010",
-      "name": "AI \u2014 Semantic Search Manipulation",
+      "name": "AI — Semantic Search Manipulation",
       "description": "Detects manipulation of semantic search results to elevate malicious content in AI responses",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-007",
         "AI-ACT-15"
       ],
-      "query": "semantic_search_events\n| where result_ranking_anomaly > 0.85 or click_manipulation_score > 0.7\n| summarize count() by SourceIP, bin(TimeGenerated, 10m)\n| where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"semantic\" or Message contains \"search\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-DB-010",
       "queryFrequency": "PT10M",
       "queryPeriod": "PT10M",
       "triggerOperator": "GreaterThan",
@@ -259,18 +279,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-011",
-      "name": "AI \u2014 Vector Index Corruption Attack",
+      "name": "AI — Vector Index Corruption Attack",
       "description": "Detects corruption or manipulation of vector indexes used in AI similarity search",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-004",
         "NIST-800-53-SI-4"
       ],
-      "query": "vector_db_events\n| where operation_type in (\"rebuild\", \"update\", \"delete\") and index_integrity_check == false\n| summarize count() by SourceIP, IndexName, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"vector\" or Message contains \"index\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-AI-DB-011",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -284,19 +306,21 @@
     },
     {
       "rule_id": "AZ-AI-DB-012",
-      "name": "AI \u2014 RAG Pipeline Data Exfiltration",
+      "name": "AI — RAG Pipeline Data Exfiltration",
       "description": "Detects data exfiltration through RAG pipeline that exposes sensitive documents in model outputs",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-005",
         "GDPR-32A",
         "PCI-DSS-3.3"
       ],
-      "query": "rag_output_events\n| where output_content has_any (\"confidential\", \"internal\", \"restricted\", \"secret\") or sensitivity_classification == \"high\"\n| summarize count() by SourceIP, DocumentSource, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"rag\" or Message contains \"pipeline\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-AI-DB-012",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -310,17 +334,19 @@
     },
     {
       "rule_id": "AZ-AI-DB-013",
-      "name": "AI \u2014 Model Parameter Extraction via Database",
+      "name": "AI — Model Parameter Extraction via Database",
       "description": "Detects attempts to extract model parameters through database queries used in AI pipeline",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-006"
       ],
-      "query": "database_query_events\n| where query_text has_any (\"model weights\", \"parameters\", \"configuration\", \"hyperparameters\") and query_type == \"metadata\"\n| summarize count() by SourceIP, DatabaseName, bin(TimeGenerated, 15m)\n| where count_ > 3",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"model\" or action_name_s contains \"parameter\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 3 // AZ-AI-DB-013",
       "queryFrequency": "PT15M",
       "queryPeriod": "PT15M",
       "triggerOperator": "GreaterThan",
@@ -334,18 +360,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-014",
-      "name": "AI \u2014 Retrieval-Augmented Backdoor Attack",
+      "name": "AI — Retrieval-Augmented Backdoor Attack",
       "description": "Detects backdoor attacks embedded in RAG retrieval pipeline that trigger on specific keywords",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-008",
         "AI-ACT-15"
       ],
-      "query": "rag_retrieval_events\n| where retrieved_content has_any (\"trigger\", \"backdoor\", \"activate\", \"payload\") and trigger_pattern_detected == true\n| summarize count() by SourceIP, DocumentSource, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"retrieval\" or Message contains \"augmented\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-AI-DB-014",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -359,19 +387,21 @@
     },
     {
       "rule_id": "AZ-AI-DB-015",
-      "name": "AI \u2014 Cross-Tenant RAG Data Leakage",
+      "name": "AI — Cross-Tenant RAG Data Leakage",
       "description": "Detects cross-tenant data leakage in multi-tenant RAG systems where documents from one tenant appear in another's results",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-009",
         "GDPR-32A",
         "PCI-DSS-3.3"
       ],
-      "query": "rag_retrieval_events\n| where tenant_id != document_tenant_id and document_classification == \"restricted\"\n| summarize count() by TenantID, DocumentTenantID, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"cross\" or Message contains \"tenant\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-AI-DB-015",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -385,18 +415,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-016",
-      "name": "AI \u2014 Database-Powered Prompt Injection Chain",
+      "name": "AI — Database-Powered Prompt Injection Chain",
       "description": "Detects prompt injection chains where database content is weaponized through multi-step retrieval",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-010",
         "AI-ACT-15"
       ],
-      "query": "rag_retrieval_events\n| where retrieval_chain_length > 3 and final_output has_any (\"ignore\", \"override\", \"system\", \"exec\")\n| summarize count() by SourceIP, bin(TimeGenerated, 10m)\n| where count_ > 2",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"database\" or Message contains \"powered\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 2 // AZ-AI-DB-016",
       "queryFrequency": "PT10M",
       "queryPeriod": "PT10M",
       "triggerOperator": "GreaterThan",
@@ -410,18 +442,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-017",
-      "name": "AI \u2014 Embedding Space Poisoning",
+      "name": "AI — Embedding Space Poisoning",
       "description": "Detects poisoning of embedding space through adversarial document insertion designed to redirect semantic search",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-011",
         "AI-ACT-15"
       ],
-      "query": "embedding_events\n| where embedding_anomaly_score > 0.85 and document_source == \"external_upload\"\n| summarize count() by SourceIP, DocumentSource, bin(TimeGenerated, 15m)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"embedding\" or Message contains \"space\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-AI-DB-017",
       "queryFrequency": "PT15M",
       "queryPeriod": "PT15M",
       "triggerOperator": "GreaterThan",
@@ -435,18 +469,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-018",
-      "name": "AI \u2014 Unauthorized Fine-Tuning Data Access",
+      "name": "AI — Unauthorized Fine-Tuning Data Access",
       "description": "Detects unauthorized access to fine-tuning datasets used for AI model training",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-007",
         "NIST-800-53-SI-4"
       ],
-      "query": "fine_tuning_access_events\n| where access_type == \"unauthorized\" or user_role not in (\"ml-engineer\", \"admin\")\n| summarize count() by SourceIP, DatasetName, bin(TimeGenerated, 5m)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"unauthorized\" or Message contains \"fine\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-AI-DB-018",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -460,18 +496,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-019",
-      "name": "AI \u2014 RAG Denial of Service via Document Flooding",
+      "name": "AI — RAG Denial of Service via Document Flooding",
       "description": "Detects denial-of-service attacks through flooding RAG document stores with junk data",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-012",
         "NIS2-Art.15"
       ],
-      "query": "document_ingestion_events\n| where ingestion_rate > 1000 or document_quality_score < 0.2\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > 10",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"rag\" or Message contains \"denial\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 10 // AZ-AI-DB-019",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -485,19 +523,21 @@
     },
     {
       "rule_id": "AZ-AI-DB-020",
-      "name": "AI \u2014 Sensitive Data Exposure via RAG Output",
+      "name": "AI — Sensitive Data Exposure via RAG Output",
       "description": "Detects exposure of sensitive data through RAG output that should have been filtered by access controls",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-013",
         "GDPR-32A",
         "PCI-DSS-3.3"
       ],
-      "query": "rag_output_events\n| where sensitivity_level == \"high\" and access_control_bypass == true\n| summarize count() by SourceIP, DocumentSource, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"sensitive\" or Message contains \"data\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-AI-DB-020",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -511,19 +551,21 @@
     },
     {
       "rule_id": "AZ-AI-DB-021",
-      "name": "AI \u2014 Training Pipeline Supply Chain Attack",
+      "name": "AI — Training Pipeline Supply Chain Attack",
       "description": "Detects supply chain attacks targeting AI training data pipelines including compromised datasets and libraries",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-008",
         "AI-ACT-15",
         "NIS2-Art.15"
       ],
-      "query": "training_pipeline_events\n| where data_source has_any (\"external\", \"third-party\", \"public\") and integrity_check == false or integrity_hash_mismatch == true\n| summarize count() by DataSource, bin(TimeGenerated, 1h)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"training\" or Message contains \"pipeline\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-AI-DB-021",
       "queryFrequency": "PT1H",
       "queryPeriod": "PT1H",
       "triggerOperator": "GreaterThan",
@@ -537,18 +579,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-022",
-      "name": "AI \u2014 Model Serving Infrastructure Compromise",
+      "name": "AI — Model Serving Infrastructure Compromise",
       "description": "Detects compromise of model serving infrastructure through unauthorized container or API access",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-009",
         "NIST-800-53-SI-4"
       ],
-      "query": "model_serving_events\n| where access_type == \"unauthorized\" or container_anomaly_detected == true\n| summarize count() by SourceIP, ContainerName, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "query": "KubeEvents | where Reason == \"Killing\" or Reason == \"Failed\" | where Message contains \"model\" | summarize count() by bin(TimeGenerated, 5m), Namespace, PodName | where count_ > 2 // AZ-AI-DB-022",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -562,18 +606,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-023",
-      "name": "AI \u2014 Embedding Similarity Attack",
+      "name": "AI — Embedding Similarity Attack",
       "description": "Detects attacks that manipulate embedding similarity scores to retrieve unintended documents",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-010",
         "AI-ACT-15"
       ],
-      "query": "embedding_search_events\n| where similarity_manipulation_score > 0.8 and retrieved_documents_count > 20\n| summarize count() by SourceIP, bin(TimeGenerated, 10m)\n| where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"embedding\" or Message contains \"similarity\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-DB-023",
       "queryFrequency": "PT10M",
       "queryPeriod": "PT10M",
       "triggerOperator": "GreaterThan",
@@ -587,19 +633,21 @@
     },
     {
       "rule_id": "AZ-AI-DB-024",
-      "name": "AI \u2014 RAG Access Control Bypass",
+      "name": "AI — RAG Access Control Bypass",
       "description": "Detects bypass of document-level access controls in RAG systems exposing unauthorized content",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-014",
         "GDPR-32A",
         "PCI-DSS-3.3"
       ],
-      "query": "rag_access_events\n| where access_control_decision == \"denied\" and response_contains_restricted == true\n| summarize count() by SourceIP, DocumentID, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"rag\" or Message contains \"access\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-AI-DB-024",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -613,18 +661,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-025",
-      "name": "AI \u2014 Prompt Injection via Database Query Result",
+      "name": "AI — Prompt Injection via Database Query Result",
       "description": "Detects prompt injection payloads delivered through database query results that contaminate AI context",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-011",
         "AI-ACT-15"
       ],
-      "query": "database_query_events\n| where result_content has_any (\"ignore previous\", \"new instruction\", \"system:\", \"override\") and query_purpose == \"ai_context\"\n| summarize count() by SourceIP, DatabaseName, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"prompt\" or action_name_s contains \"injection\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 2 // AZ-AI-DB-025",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -638,18 +688,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-026",
-      "name": "AI \u2014 Data Lake Unauthorized AI Query",
+      "name": "AI — Data Lake Unauthorized AI Query",
       "description": "Detects unauthorized AI-related queries against data lakes that could extract training or inference data",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-012",
         "NIST-800-53-SI-4"
       ],
-      "query": "data_lake_query_events\n| where query_type == \"ai_inference\" and authorized == false\n| summarize count() by SourceIP, QueryType, bin(TimeGenerated, 10m)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"data\" or Message contains \"lake\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-AI-DB-026",
       "queryFrequency": "PT10M",
       "queryPeriod": "PT10M",
       "triggerOperator": "GreaterThan",
@@ -663,18 +715,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-027",
-      "name": "AI \u2014 Feature Store Poisoning Detection",
+      "name": "AI — Feature Store Poisoning Detection",
       "description": "Detects poisoning of ML feature stores that serve AI models with manipulated input features",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-013",
         "AI-ACT-15"
       ],
-      "query": "feature_store_events\n| where feature_anomaly_score > 0.8 or data_quality_check_failed == true\n| summarize count() by FeatureName, DataSource, bin(TimeGenerated, 15m)\n| where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"feature\" or Message contains \"store\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-DB-027",
       "queryFrequency": "PT15M",
       "queryPeriod": "PT15M",
       "triggerOperator": "GreaterThan",
@@ -688,17 +742,19 @@
     },
     {
       "rule_id": "AZ-AI-DB-028",
-      "name": "AI \u2014 Model Inference API Abuse",
+      "name": "AI — Model Inference API Abuse",
       "description": "Detects abuse of model inference APIs for unauthorized data extraction or model probing",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-014"
       ],
-      "query": "model_api_events\n| where request_pattern == \"systematic_probing\" and unique_query_count > 1000\n| summarize count() by SourceIP, bin(TimeGenerated, 1h)\n| where count_ > 10",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"model\" or Message contains \"inference\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 10 // AZ-AI-DB-028",
       "queryFrequency": "PT1H",
       "queryPeriod": "PT1H",
       "triggerOperator": "GreaterThan",
@@ -712,18 +768,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-029",
-      "name": "AI \u2014 Vector Database Credential Theft",
+      "name": "AI — Vector Database Credential Theft",
       "description": "Detects credential theft targeting vector database authentication mechanisms",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-015",
         "NIST-800-53-SI-4"
       ],
-      "query": "vector_db_auth_events\n| where auth_result == \"failed\" and auth_method has_any (\"api_key\", \"token\", \"password\")\n| summarize count() by SourceIP, DatabaseName, bin(TimeGenerated, 5m)\n| where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"vector\" or Message contains \"database\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-AI-DB-029",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -737,18 +795,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-030",
-      "name": "AI \u2014 RAG Document Integrity Violation",
+      "name": "AI — RAG Document Integrity Violation",
       "description": "Detects violations of document integrity in RAG systems through unauthorized modifications",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-016",
         "NIST-800-53-SI-4"
       ],
-      "query": "rag_document_events\n| where integrity_hash_mismatch == true or document_tampering_detected == true\n| summarize count() by DocumentID, SourceIP, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"rag\" or Message contains \"document\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-AI-DB-030",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -762,18 +822,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-031",
-      "name": "AI \u2014 Knowledge Graph Manipulation Attack",
+      "name": "AI — Knowledge Graph Manipulation Attack",
       "description": "Detects manipulation of knowledge graphs used by AI systems for reasoning and entity resolution",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-017",
         "AI-ACT-15"
       ],
-      "query": "knowledge_graph_events\n| where operation_type in (\"insert\", \"update\", \"delete\") and (entity_anomaly_score > 0.8 or relation_anomaly_score > 0.8)\n| summarize count() by SourceIP, EntityType, bin(TimeGenerated, 10m)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"knowledge\" or Message contains \"graph\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-AI-DB-031",
       "queryFrequency": "PT10M",
       "queryPeriod": "PT10M",
       "triggerOperator": "GreaterThan",
@@ -787,18 +849,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-032",
-      "name": "AI \u2014 RAG Cache Poisoning",
+      "name": "AI — RAG Cache Poisoning",
       "description": "Detects poisoning of RAG response caches that serve malicious content to multiple users",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-RAG-015",
         "AI-ACT-15"
       ],
-      "query": "rag_cache_events\n| where cache_content has_any (\"ignore\", \"override\", \"system:\") or cache_integrity_check == false\n| summarize count() by CacheKey, SourceIP, bin(TimeGenerated, 5m)\n| where count_ > 1",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"rag\" or Message contains \"cache\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-AI-DB-032",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -812,18 +876,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-033",
-      "name": "AI \u2014 Data Pipeline Injection Attack",
+      "name": "AI — Data Pipeline Injection Attack",
       "description": "Detects injection attacks targeting AI data pipelines that feed training or inference data",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-018",
         "AI-ACT-15"
       ],
-      "query": "data_pipeline_events\n| where pipeline_stage has_any (\"ingest\", \"preprocess\", \"transform\") and data_anomaly_score > 0.9\n| summarize count() by PipelineName, Stage, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"data\" or Message contains \"pipeline\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 2 // AZ-AI-DB-033",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
@@ -837,17 +903,19 @@
     },
     {
       "rule_id": "AZ-AI-DB-034",
-      "name": "AI \u2014 Model Gradient Leakage Detection",
+      "name": "AI — Model Gradient Leakage Detection",
       "description": "Detects gradient leakage attacks that extract model information through gradient-based queries",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-019"
       ],
-      "query": "model_api_events\n| where query_type == \"gradient_query\" and gradient_leakage_score > 0.7\n| summarize count() by SourceIP, bin(TimeGenerated, 15m)\n| where count_ > 3",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"model\" or Message contains \"gradient\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 3 // AZ-AI-DB-034",
       "queryFrequency": "PT15M",
       "queryPeriod": "PT15M",
       "triggerOperator": "GreaterThan",
@@ -861,18 +929,20 @@
     },
     {
       "rule_id": "AZ-AI-DB-035",
-      "name": "AI \u2014 LLM Agent Tool Use Abuse",
+      "name": "AI — LLM Agent Tool Use Abuse",
       "description": "Detects abuse of LLM agent tool/function calling capabilities for unauthorized actions",
       "severity": 2,
       "severity_label": "Medium",
       "category": "general",
-      "tactics": [],
+      "tactics": [
+        "Collection"
+      ],
       "mitre_attack": [],
       "compliance": [
         "AI-DB-020",
         "AI-ACT-15"
       ],
-      "query": "agent_tool_events\n| where tool_call_result has_any (\"unauthorized\", \"blocked\", \"denied\") or tool_risk_score > 0.8\n| summarize count() by SourceIP, ToolName, bin(TimeGenerated, 5m)\n| where count_ > 2",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"llm\" or Message contains \"agent\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 2 // AZ-AI-DB-035",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
