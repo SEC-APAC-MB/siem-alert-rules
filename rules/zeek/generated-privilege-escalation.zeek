@@ -1,3 +1,4 @@
+# DEPRECATED-CVE: Contains references to stale CVEs (CVE-2015-3246, CVE-2015-5287). Review before deployment.
 # Zeek SIEM Alert Rules — generated-privilege-escalation
 # Auto-generated: 2026-09-14T04:05:03.480435Z
 # Load in local.zeek: @load ./generated-privilege-escalation
