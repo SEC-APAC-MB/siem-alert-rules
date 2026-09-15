@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-MITRE-0612: Indicator Removal: File Deletion",
-  "description": "Detects Indicator Removal: File Deletion (T1070.004)\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects Indicator Removal: File Deletion (T1070.004)",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-MITRE-0612",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1070.004"
     ],
@@ -20,12 +19,24 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-MITRE-0612_rewritten",
+      "groupName": "OCI-MITRE-0612_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "indicator removal",
+          "operator": "EQ",
+          "value": "DeleteFile",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteBucket",
           "dataType": "STRING"
         }
       ],
@@ -35,13 +46,20 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_mitre_attack_mitre_0612\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%indicator%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_mitre_attack_mitre_0612\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%indicator%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('DeleteFile','DeleteObject','DeleteBucket')",
+    "events": [
+      "DeleteFile",
+      "DeleteObject",
+      "DeleteBucket"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-MITRE-0612",
     "category": "mitre-attack",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "mitre-attack.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 3 real audit event(s)"
 }

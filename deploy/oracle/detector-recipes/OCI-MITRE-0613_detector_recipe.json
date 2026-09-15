@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-MITRE-0613: Impair Defenses: Disable Tools",
-  "description": "Detects Impair Defenses: Disable Tools (T1562.001)\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects Impair Defenses: Disable Tools (T1562.001)",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-MITRE-0613",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1562.001"
     ],
@@ -20,12 +19,36 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-MITRE-0613_rewritten",
+      "groupName": "OCI-MITRE-0613_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "impair defenses",
+          "operator": "EQ",
+          "value": "DeleteDetectorRecipe",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateDetectorRecipe",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteLog",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateLog",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteLogGroup",
           "dataType": "STRING"
         }
       ],
@@ -35,13 +58,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_mitre_attack_mitre_0613\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%impair%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_mitre_attack_mitre_0613\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%impair%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('DeleteDetectorRecipe','UpdateDetectorRecipe','DeleteLog','UpdateLog','DeleteLogGroup')",
+    "events": [
+      "DeleteDetectorRecipe",
+      "UpdateDetectorRecipe",
+      "DeleteLog",
+      "UpdateLog",
+      "DeleteLogGroup"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-MITRE-0613",
     "category": "mitre-attack",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "mitre-attack.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

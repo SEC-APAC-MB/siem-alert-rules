@@ -1,23 +1,55 @@
 {
   "displayName": "OCI-MOBILE_SECURITY-105: Insecure WebView Implementation",
-  "description": "Android and iOS specific attack detection: app repackaging, certificate pinning bypass, API tampering\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Android and iOS specific attack detection: app repackaging, certificate pinning bypass, API tampering",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-MOBILE_SECURITY-105",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
-  "mappings": {
-    "mitreAttackTactics": [],
-    "mitreAttackTechniques": [],
-    "compliance": []
-  },
+  "mappings": {},
   "conditionGroups": [
     {
-      "groupName": "OCI-MOBILE_SECURITY-105_rewritten",
+      "groupName": "OCI-MOBILE_SECURITY-105_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "insecure webview implementation",
+          "operator": "EQ",
+          "value": "CreateUser",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateOrResetUIPassword",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateAuthToken",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePolicy",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-MOBILE_SECURITY-105_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdatePolicy",
           "dataType": "STRING"
         }
       ],
@@ -27,13 +59,23 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_mobile_security_mobile_security_105\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%insecure%' OR \"data__json.message\" LIKE '%webview%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_mobile_security_mobile_security_105\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%insecure%' OR \"data__json.message\" LIKE '%webview%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateUser','CreateOrResetUIPassword','CreateAuthToken','CreateApiKey','CreatePolicy','UpdatePolicy')",
+    "events": [
+      "CreateUser",
+      "CreateOrResetUIPassword",
+      "CreateAuthToken",
+      "CreateApiKey",
+      "CreatePolicy",
+      "UpdatePolicy"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-MOBILE_SECURITY-105",
     "category": "mobile_security",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "generated-mobile_security.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 6 real audit event(s)"
 }

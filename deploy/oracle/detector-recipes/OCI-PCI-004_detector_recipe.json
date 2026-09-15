@@ -1,25 +1,41 @@
 {
   "displayName": "OCI-PCI-004: PCI-DSS \u2014 Missing MFA for CDE Access",
-  "description": "Detects access to cardholder data environment without required multi-factor authentication violating PCI-DSS Requirement 8\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects access to cardholder data environment without required multi-factor authentication violating PCI-DSS Requirement 8",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-PCI-004",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1110"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-PCI-004_rewritten",
+      "groupName": "OCI-PCI-004_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "pci-dss \u2014 missing mfa for cde access",
+          "operator": "EQ",
+          "value": "UpdateNetworkSecurityGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateSecurityList",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateSecurityRule",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateSecurityRule",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +45,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_pci_004\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pci%' OR \"data__json.message\" LIKE '%dss%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_pci_004\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pci%' OR \"data__json.message\" LIKE '%dss%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('UpdateNetworkSecurityGroup','UpdateSecurityList','CreateSecurityRule','UpdateSecurityRule')",
+    "events": [
+      "UpdateNetworkSecurityGroup",
+      "UpdateSecurityList",
+      "CreateSecurityRule",
+      "UpdateSecurityRule"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-PCI-004",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "compliance-pci-dss.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

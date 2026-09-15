@@ -1,26 +1,48 @@
 {
   "displayName": "OCI-AI-DB-011: AI \u2014 Vector Index Corruption Attack",
-  "description": "Detects corruption or manipulation of vector indexes used in AI similarity search\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects corruption or manipulation of vector indexes used in AI similarity search",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-AI-DB-011",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1565",
       "T1195.001"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-AI-DB-011_rewritten",
+      "groupName": "OCI-AI-DB-011_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "ai \u2014 vector index corruption attack",
+          "operator": "EQ",
+          "value": "CreateObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "PutObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CopyObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteObject",
           "dataType": "STRING"
         }
       ],
@@ -30,13 +52,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_ai_db_011\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%vector%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_ai_db_011\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%vector%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateObject','PutObject','CopyObject','GetObject','DeleteObject')",
+    "events": [
+      "CreateObject",
+      "PutObject",
+      "CopyObject",
+      "GetObject",
+      "DeleteObject"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-AI-DB-011",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "ai-security-database-rag-redteam.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

@@ -1,26 +1,48 @@
 {
   "displayName": "GHADV-2667: Spring Framework Path Traversal via Versioned Static Resources in Spring MVC and WebFlux",
-  "description": "Spring Framework Path Traversal via Versioned Static Resources in Spring MVC and WebFlux\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Spring Framework Path Traversal via Versioned Static Resources in Spring MVC and WebFlux",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-2667",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1005",
       "T1083"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-2667_rewritten",
+      "groupName": "GHADV-2667_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "spring framework path traversal via versioned stat",
+          "operator": "EQ",
+          "value": "GetObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListObjects",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "HeadObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "PutObject",
           "dataType": "STRING"
         }
       ],
@@ -30,13 +52,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_path_traversal_ghadv_2667\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%spring%' OR \"data__json.message\" LIKE '%framework%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_path_traversal_ghadv_2667\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%spring%' OR \"data__json.message\" LIKE '%framework%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('GetObject','ListObjects','HeadObject','CreateObject','PutObject')",
+    "events": [
+      "GetObject",
+      "ListObjects",
+      "HeadObject",
+      "CreateObject",
+      "PutObject"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-2667",
     "category": "path-traversal",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

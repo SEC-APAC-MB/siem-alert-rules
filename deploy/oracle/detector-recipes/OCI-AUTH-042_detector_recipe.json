@@ -1,26 +1,48 @@
 {
   "displayName": "OCI-AUTH-042: Authentication \u2014 RDP Brute Force",
-  "description": "Detects brute force attacks targeting Remote Desktop Protocol authentication\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects brute force attacks targeting Remote Desktop Protocol authentication",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-AUTH-042",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1110",
       "T1021.001"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-AUTH-042_rewritten",
+      "groupName": "OCI-AUTH-042_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "authentication \u2014 rdp brute force",
+          "operator": "EQ",
+          "value": "CreateAuthToken",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateSwiftPassword",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateDbCredential",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateOrResetUIPassword",
           "dataType": "STRING"
         }
       ],
@@ -30,13 +52,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_auth_042\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%authentication%' OR \"data__json.message\" LIKE '%rdp%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_auth_042\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%authentication%' OR \"data__json.message\" LIKE '%rdp%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateAuthToken','CreateApiKey','CreateSwiftPassword','CreateDbCredential','CreateOrResetUIPassword')",
+    "events": [
+      "CreateAuthToken",
+      "CreateApiKey",
+      "CreateSwiftPassword",
+      "CreateDbCredential",
+      "CreateOrResetUIPassword"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-AUTH-042",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "wstg-04-09-auth-errors.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

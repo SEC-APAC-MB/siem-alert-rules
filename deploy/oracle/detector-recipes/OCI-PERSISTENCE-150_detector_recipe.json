@@ -1,23 +1,67 @@
 {
   "displayName": "OCI-PERSISTENCE-150: WMI Event Subscription",
-  "description": "Detect WMI event filter/consumer binding for persistent execution\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detect WMI event filter/consumer binding for persistent execution",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-PERSISTENCE-150",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
-  "mappings": {
-    "mitreAttackTactics": [],
-    "mitreAttackTechniques": [],
-    "compliance": []
-  },
+  "mappings": {},
   "conditionGroups": [
     {
-      "groupName": "OCI-PERSISTENCE-150_rewritten",
+      "groupName": "OCI-PERSISTENCE-150_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "wmi event subscription",
+          "operator": "EQ",
+          "value": "CreateScheduledJob",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateScheduledJob",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateUser",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateAuthToken",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-PERSISTENCE-150_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AddUserToGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdatePolicy",
           "dataType": "STRING"
         }
       ],
@@ -27,13 +71,25 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_persistence_persistence_150\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%wmi%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_persistence_persistence_150\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%wmi%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateScheduledJob','UpdateScheduledJob','CreateUser','CreateApiKey','CreateAuthToken','CreatePolicy','AddUserToGroup','UpdatePolicy')",
+    "events": [
+      "CreateScheduledJob",
+      "UpdateScheduledJob",
+      "CreateUser",
+      "CreateApiKey",
+      "CreateAuthToken",
+      "CreatePolicy",
+      "AddUserToGroup",
+      "UpdatePolicy"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-PERSISTENCE-150",
     "category": "persistence",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "generated-persistence.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 8 real audit event(s)"
 }

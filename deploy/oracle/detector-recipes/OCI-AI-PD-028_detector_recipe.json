@@ -1,25 +1,47 @@
 {
   "displayName": "OCI-AI-PD-028: AI \u2014 Model Downgrade Attack",
-  "description": "Detects attempts to force model usage of weaker or less safe model versions\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects attempts to force model usage of weaker or less safe model versions",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-AI-PD-028",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1140"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-AI-PD-028_rewritten",
+      "groupName": "OCI-AI-PD-028_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "ai \u2014 model downgrade attack",
+          "operator": "EQ",
+          "value": "CreateSecret",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateSecret",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateVault",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DecryptData",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "EncodeData",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +51,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_ai_pd_028\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%model%' OR \"data__json.message\" LIKE '%downgrade%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_ai_pd_028\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%model%' OR \"data__json.message\" LIKE '%downgrade%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateSecret','UpdateSecret','CreateVault','DecryptData','EncodeData')",
+    "events": [
+      "CreateSecret",
+      "UpdateSecret",
+      "CreateVault",
+      "DecryptData",
+      "EncodeData"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-AI-PD-028",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "ai-security-prompt-data-model.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

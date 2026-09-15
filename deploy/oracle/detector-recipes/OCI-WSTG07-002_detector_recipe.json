@@ -1,25 +1,47 @@
 {
   "displayName": "OCI-WSTG07-002: Cross-Site Scripting (XSS) Reflected",
-  "description": "Detects reflected XSS patterns in HTTP request parameters including script tags and event handlers\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects reflected XSS patterns in HTTP request parameters including script tags and event handlers",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-WSTG07-002",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1059.007"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-WSTG07-002_rewritten",
+      "groupName": "OCI-WSTG07-002_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "cross-site scripting (xss) reflected",
+          "operator": "EQ",
+          "value": "CreateApiDeployment",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateApiDeployment",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "InvokeFunction",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +51,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_wstg07_002\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cross%' OR \"data__json.message\" LIKE '%site%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_wstg07_002\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cross%' OR \"data__json.message\" LIKE '%site%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateApiDeployment','UpdateApiDeployment','CreateInstance','UpdateInstance','InvokeFunction')",
+    "events": [
+      "CreateApiDeployment",
+      "UpdateApiDeployment",
+      "CreateInstance",
+      "UpdateInstance",
+      "InvokeFunction"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-WSTG07-002",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "wstg-07-09.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

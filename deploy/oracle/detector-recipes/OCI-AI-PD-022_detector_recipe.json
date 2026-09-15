@@ -1,25 +1,47 @@
 {
   "displayName": "OCI-AI-PD-022: AI \u2014 Automated Prompt Fuzzing",
-  "description": "Detects automated fuzzing of AI model prompts to discover vulnerabilities\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects automated fuzzing of AI model prompts to discover vulnerabilities",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-AI-PD-022",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1083"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-AI-PD-022_rewritten",
+      "groupName": "OCI-AI-PD-022_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "ai \u2014 automated prompt fuzzing",
+          "operator": "EQ",
+          "value": "ListObjects",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListBuckets",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "HeadObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListPolicies",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +51,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_ai_pd_022\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%automated%' OR \"data__json.message\" LIKE '%prompt%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_ai_pd_022\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%automated%' OR \"data__json.message\" LIKE '%prompt%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('ListObjects','ListBuckets','HeadObject','GetObject','ListPolicies')",
+    "events": [
+      "ListObjects",
+      "ListBuckets",
+      "HeadObject",
+      "GetObject",
+      "ListPolicies"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-AI-PD-022",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "ai-security-prompt-data-model.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

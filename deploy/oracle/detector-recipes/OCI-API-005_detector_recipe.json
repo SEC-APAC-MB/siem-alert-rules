@@ -1,25 +1,41 @@
 {
   "displayName": "OCI-API-005: API5: Broken Function Level Authorization",
-  "description": "Detects access to administrative API endpoints by non-administrative users\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects access to administrative API endpoints by non-administrative users",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-API-005",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1548"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-API-005_rewritten",
+      "groupName": "OCI-API-005_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "api5",
+          "operator": "EQ",
+          "value": "CreateApiDeployment",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateApiDeployment",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiGateway",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateApiGateway",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +45,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_api_005\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" IN ('UpdateApiKey', 'UploadApiKey', 'CreateApiKey', 'DeleteApiKey') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_api_005\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" IN ('UpdateApiKey', 'UploadApiKey', 'CreateApiKey', 'DeleteApiKey') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateApiDeployment','UpdateApiDeployment','CreateApiGateway','UpdateApiGateway')",
+    "events": [
+      "CreateApiDeployment",
+      "UpdateApiDeployment",
+      "CreateApiGateway",
+      "UpdateApiGateway"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-API-005",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "api-security.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

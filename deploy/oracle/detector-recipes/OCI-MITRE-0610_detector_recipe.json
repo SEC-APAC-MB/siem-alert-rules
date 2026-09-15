@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-MITRE-0610: Abuse Elevation: Setuid/Setgid",
-  "description": "Detects Abuse Elevation: Setuid/Setgid (T1548.001)\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects Abuse Elevation: Setuid/Setgid (T1548.001)",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-MITRE-0610",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1548.001"
     ],
@@ -20,12 +19,24 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-MITRE-0610_rewritten",
+      "groupName": "OCI-MITRE-0610_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "abuse elevation",
+          "operator": "EQ",
+          "value": "SetUserCapabilities",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateUserCapabilities",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateUserState",
           "dataType": "STRING"
         }
       ],
@@ -35,13 +46,20 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_mitre_attack_mitre_0610\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%abuse%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_mitre_attack_mitre_0610\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%abuse%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('SetUserCapabilities','UpdateUserCapabilities','UpdateUserState')",
+    "events": [
+      "SetUserCapabilities",
+      "UpdateUserCapabilities",
+      "UpdateUserState"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-MITRE-0610",
     "category": "mitre-attack",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "mitre-attack.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 3 real audit event(s)"
 }

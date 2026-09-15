@@ -1,25 +1,23 @@
 {
   "displayName": "GHADV-2881: Apache ActiveMQ has an Incorrect Default Permissions vulnerability",
-  "description": "Apache ActiveMQ has an Incorrect Default Permissions vulnerability\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Apache ActiveMQ has an Incorrect Default Permissions vulnerability",
   "detector": "OCI_CONFIGURATION",
   "detectorRecipeId": "GHADV-2881",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1574"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-2881_rewritten",
+      "groupName": "GHADV-2881_config_check",
       "conditions": [
         {
-          "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "apache activemq has an incorrect default permissio",
+          "fieldName": "data.eventType",
+          "operator": "IN",
+          "value": "UpdateVcn,UpdateSubnet,UpdateSecurityList,UpdateNetworkSecurityGroup,UpdateBucket",
           "dataType": "STRING"
         }
       ],
@@ -27,15 +25,26 @@
     }
   ],
   "dataSourceDetails": {
-    "dataSource": "OCI_MONITORING",
-    "namespace": "oci_security",
-    "query": "SELECT \"siem_misconfiguration_ghadv_2881\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%apache%' OR \"data__json.message\" LIKE '%activemq%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_misconfiguration_ghadv_2881\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%apache%' OR \"data__json.message\" LIKE '%activemq%') AND \"value\" > 0"
+    "dataSource": "OCI_CONFIGURATION",
+    "namespace": "Compliance",
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('UpdateVcn','UpdateSubnet','UpdateSecurityList','UpdateNetworkSecurityGroup','UpdateBucket','UpdatePolicy','UpdateAutonomousDatabase')",
+    "events": [
+      "UpdateVcn",
+      "UpdateSubnet",
+      "UpdateSecurityList",
+      "UpdateNetworkSecurityGroup",
+      "UpdateBucket",
+      "UpdatePolicy",
+      "UpdateAutonomousDatabase"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-2881",
     "category": "misconfiguration",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 7 real audit event(s)"
 }

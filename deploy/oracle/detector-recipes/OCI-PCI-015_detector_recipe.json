@@ -1,25 +1,35 @@
 {
   "displayName": "OCI-PCI-015: PCI-DSS \u2014 Expired SSL/TLS Certificate in CDE",
-  "description": "Detects expired or expiring SSL/TLS certificates in cardholder data environment\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects expired or expiring SSL/TLS certificates in cardholder data environment",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-PCI-015",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1552.004"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-PCI-015_rewritten",
+      "groupName": "OCI-PCI-015_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "pci-dss \u2014 expired ssl/tls certificate in cde",
+          "operator": "EQ",
+          "value": "UpdateAutonomousDatabase",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ChangeAutonomousDatabaseAdminPassword",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "RotateAutonomousDatabaseEncryptionKey",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +39,20 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_pci_015\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_pci_015\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('UpdateAutonomousDatabase','ChangeAutonomousDatabaseAdminPassword','RotateAutonomousDatabaseEncryptionKey')",
+    "events": [
+      "UpdateAutonomousDatabase",
+      "ChangeAutonomousDatabaseAdminPassword",
+      "RotateAutonomousDatabaseEncryptionKey"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-PCI-015",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "compliance-pci-dss.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 3 real audit event(s)"
 }

@@ -1,23 +1,55 @@
 {
   "displayName": "OCI-SUPPLY_CHAIN-061: Container Image Tampering",
-  "description": "Detection rules for software supply chain attacks: dependency confusion, typosquatting, compromised packages\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detection rules for software supply chain attacks: dependency confusion, typosquatting, compromised packages",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-SUPPLY_CHAIN-061",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
-  "mappings": {
-    "mitreAttackTactics": [],
-    "mitreAttackTechniques": [],
-    "compliance": []
-  },
+  "mappings": {},
   "conditionGroups": [
     {
-      "groupName": "OCI-SUPPLY_CHAIN-061_rewritten",
+      "groupName": "OCI-SUPPLY_CHAIN-061_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "container image tampering",
+          "operator": "EQ",
+          "value": "UpdateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateImage",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateImage",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateBootVolume",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateVolume",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-SUPPLY_CHAIN-061_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateVolume",
           "dataType": "STRING"
         }
       ],
@@ -27,13 +59,23 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_supply_chain_supply_chain_061\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%container%' OR \"data__json.message\" LIKE '%image%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_supply_chain_supply_chain_061\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%container%' OR \"data__json.message\" LIKE '%image%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('UpdateInstance','CreateImage','UpdateImage','CreateBootVolume','CreateVolume','UpdateVolume')",
+    "events": [
+      "UpdateInstance",
+      "CreateImage",
+      "UpdateImage",
+      "CreateBootVolume",
+      "CreateVolume",
+      "UpdateVolume"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-SUPPLY_CHAIN-061",
     "category": "supply_chain",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "generated-supply_chain.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 6 real audit event(s)"
 }

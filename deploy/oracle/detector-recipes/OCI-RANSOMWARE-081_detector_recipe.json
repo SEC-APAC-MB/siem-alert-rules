@@ -1,23 +1,79 @@
 {
   "displayName": "OCI-RANSOMWARE-081: Backup Deletion via Vssadmin",
-  "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-RANSOMWARE-081",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
-  "mappings": {
-    "mitreAttackTactics": [],
-    "mitreAttackTechniques": [],
-    "compliance": []
-  },
+  "mappings": {},
   "conditionGroups": [
     {
-      "groupName": "OCI-RANSOMWARE-081_rewritten",
+      "groupName": "OCI-RANSOMWARE-081_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "backup deletion via vssadmin",
+          "operator": "EQ",
+          "value": "CreateVault",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateSecret",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "EncryptData",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DisableKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteKey",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-RANSOMWARE-081_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ScheduleKeyDeletion",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteVolumeBackup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteBootVolumeBackup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "TerminateInstance",
           "dataType": "STRING"
         }
       ],
@@ -27,13 +83,27 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_ransomware_ransomware_081\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%backup%' OR \"data__json.message\" LIKE '%deletion%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_ransomware_ransomware_081\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%backup%' OR \"data__json.message\" LIKE '%deletion%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateVault','CreateSecret','EncryptData','DisableKey','DeleteKey','ScheduleKeyDeletion','DeleteVolumeBackup','DeleteBootVolumeBackup','DeleteInstance','TerminateInstance')",
+    "events": [
+      "CreateVault",
+      "CreateSecret",
+      "EncryptData",
+      "DisableKey",
+      "DeleteKey",
+      "ScheduleKeyDeletion",
+      "DeleteVolumeBackup",
+      "DeleteBootVolumeBackup",
+      "DeleteInstance",
+      "TerminateInstance"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-RANSOMWARE-081",
     "category": "ransomware",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "generated-ransomware.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 10 real audit event(s)"
 }

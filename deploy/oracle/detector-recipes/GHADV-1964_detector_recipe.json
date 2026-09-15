@@ -1,26 +1,48 @@
 {
   "displayName": "GHADV-1964: Allure Report: Path Traversal in HTTP Server Allows Arbitrary File Read",
-  "description": "Allure Report: Path Traversal in HTTP Server Allows Arbitrary File Read\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Allure Report: Path Traversal in HTTP Server Allows Arbitrary File Read",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-1964",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1005",
       "T1083"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-1964_rewritten",
+      "groupName": "GHADV-1964_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "allure report",
+          "operator": "EQ",
+          "value": "GetObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListObjects",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "HeadObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "PutObject",
           "dataType": "STRING"
         }
       ],
@@ -30,13 +52,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_path_traversal_ghadv_1964\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%allure%' OR \"data__json.message\" LIKE '%report%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_path_traversal_ghadv_1964\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%allure%' OR \"data__json.message\" LIKE '%report%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('GetObject','ListObjects','HeadObject','CreateObject','PutObject')",
+    "events": [
+      "GetObject",
+      "ListObjects",
+      "HeadObject",
+      "CreateObject",
+      "PutObject"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-1964",
     "category": "path-traversal",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

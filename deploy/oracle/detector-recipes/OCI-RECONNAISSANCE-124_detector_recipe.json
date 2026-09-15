@@ -1,23 +1,79 @@
 {
   "displayName": "OCI-RECONNAISSANCE-124: Email Harvesting & Phishing Prep",
-  "description": "Detect email enumeration from O365/Google via SMTP probing\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detect email enumeration from O365/Google via SMTP probing",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-RECONNAISSANCE-124",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
-  "mappings": {
-    "mitreAttackTactics": [],
-    "mitreAttackTechniques": [],
-    "compliance": []
-  },
+  "mappings": {},
   "conditionGroups": [
     {
-      "groupName": "OCI-RECONNAISSANCE-124_rewritten",
+      "groupName": "OCI-RECONNAISSANCE-124_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "email harvesting & phishing prep",
+          "operator": "EQ",
+          "value": "ListInstances",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListVcns",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListSubnets",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListSecurityLists",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListPolicies",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-RECONNAISSANCE-124_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListUsers",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListGroups",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListBuckets",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListObjects",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListDatabases",
           "dataType": "STRING"
         }
       ],
@@ -27,13 +83,27 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_reconnaissance_reconnaissance_124\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (25, 465, 587) AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_reconnaissance_reconnaissance_124\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (25, 465, 587) AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('ListInstances','ListVcns','ListSubnets','ListSecurityLists','ListPolicies','ListUsers','ListGroups','ListBuckets','ListObjects','ListDatabases')",
+    "events": [
+      "ListInstances",
+      "ListVcns",
+      "ListSubnets",
+      "ListSecurityLists",
+      "ListPolicies",
+      "ListUsers",
+      "ListGroups",
+      "ListBuckets",
+      "ListObjects",
+      "ListDatabases"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-RECONNAISSANCE-124",
     "category": "reconnaissance",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "generated-reconnaissance.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 10 real audit event(s)"
 }

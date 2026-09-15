@@ -1,25 +1,23 @@
 {
   "displayName": "OCI-PCI-024: PCI-DSS \u2014 Data Retention Violation in CDE",
-  "description": "Detects cardholder data retained beyond required periods or not destroyed properly\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
-  "detector": "OCI_ACTIVITY",
+  "description": "Detects cardholder data retained beyond required periods or not destroyed properly",
+  "detector": "OCI_CONFIGURATION",
   "detectorRecipeId": "OCI-PCI-024",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1530"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-PCI-024_rewritten",
+      "groupName": "OCI-PCI-024_config_check",
       "conditions": [
         {
-          "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "pci-dss \u2014 data retention violation in cde",
+          "fieldName": "data.eventType",
+          "operator": "IN",
+          "value": "UpdateAutonomousDatabase,RotateAutonomousDatabaseEncryptionKey,ChangeAutonomousDatabaseAdminPassword",
           "dataType": "STRING"
         }
       ],
@@ -27,15 +25,22 @@
     }
   ],
   "dataSourceDetails": {
-    "dataSource": "OCI_AUDIT",
-    "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_pci_024\", \"metricName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'oci_objectstorage' AND \"metricName\" = 'StorageSizeBytes' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_pci_024\", \"metricName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'oci_objectstorage' AND \"metricName\" = 'StorageSizeBytes' AND \"value\" > 0"
+    "dataSource": "OCI_CONFIGURATION",
+    "namespace": "Compliance",
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('UpdateAutonomousDatabase','RotateAutonomousDatabaseEncryptionKey','ChangeAutonomousDatabaseAdminPassword')",
+    "events": [
+      "UpdateAutonomousDatabase",
+      "RotateAutonomousDatabaseEncryptionKey",
+      "ChangeAutonomousDatabaseAdminPassword"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-PCI-024",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "compliance-pci-dss.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 3 real audit event(s)"
 }

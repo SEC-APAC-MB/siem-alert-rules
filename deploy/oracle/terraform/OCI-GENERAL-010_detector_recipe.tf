@@ -1,0 +1,80 @@
+resource "oci_cloud_guard_detector_recipe" "oci-general-010" {
+  compartment_id  = var.compartment_id
+  display_name    = "OCI-GENERAL-010: CVE-2026-60004 \u2014 Gitea Exploitation"
+  description     = "Detects exploitation attempts targeting CVE-2026-60004: Gitea contains a code injection vulnerability that allows an attacker with repository write access to send a malicious patch to the diffpatch API endpoint to plant an executable Git hook and run shell commands as the Gitea service account.. Product: Gitea"
+  detector        = "OCI_ACTIVITY"
+
+  detector_rules {
+    severity           = "MEDIUM"
+    is_enabled         = true
+
+    condition_groups {
+      group_name = "OCI-GENERAL-010_conditions"
+      operator   = "OR"
+
+      conditions {
+  {
+    field_name = "data.eventName"
+    operator   = "EQ"
+    value      = "CreateSession"
+    data_type  = "STRING"
+  }
+  {
+    field_name = "data.eventName"
+    operator   = "EQ"
+    value      = "CreateAuthToken"
+    data_type  = "STRING"
+  }
+  {
+    field_name = "data.eventName"
+    operator   = "EQ"
+    value      = "CreateApiKey"
+    data_type  = "STRING"
+  }
+  {
+    field_name = "data.eventName"
+    operator   = "EQ"
+    value      = "UpdatePolicy"
+    data_type  = "STRING"
+  }
+  {
+    field_name = "data.eventName"
+    operator   = "EQ"
+    value      = "CreatePolicy"
+    data_type  = "STRING"
+  }
+  {
+    field_name = "data.eventName"
+    operator   = "EQ"
+    value      = "UpdateUser"
+    data_type  = "STRING"
+  }
+  {
+    field_name = "data.eventName"
+    operator   = "EQ"
+    value      = "AddUserToGroup"
+    data_type  = "STRING"
+  }
+  {
+    field_name = "data.eventName"
+    operator   = "EQ"
+    value      = "InstanceAction"
+    data_type  = "STRING"
+  }
+      }
+    }
+
+    labels = {
+      rule_id       = "OCI-GENERAL-010"
+      category      = "general"
+      mitre_attack  = []
+      compliance    = ["PCI-DSS-6.5", "NIST-800-53-SI-4", "GDPR-32A"]
+    }
+
+    data_source_details {
+      data_source = "OCI_AUDIT"
+      namespace   = "AuditEvents"
+      events      = ["CreateSession", "CreateAuthToken", "CreateApiKey", "UpdatePolicy", "CreatePolicy", "UpdateUser", "AddUserToGroup", "InstanceAction"]
+    }
+  }
+}
