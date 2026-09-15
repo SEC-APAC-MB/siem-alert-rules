@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-LAT-CHN-007",
+      "properties": {
+        "displayName": "Lateral movement chain \u2014 Pass-the-Hash \u2192 SMB \u2192 Domain Admin",
+        "description": "Detects pass-the-hash attack followed by SMB lateral movement to gain domain admin privileges",
+        "severity": "Medium",
+        "query": "let pth_events = SecurityEvent | where EventID == 4624 and AuthenticationPackageName == \"NTLM\" and LogonType == 3 | summarize pth_time=min(TimeGenerated) by TargetUserName, Computer;\nlet smb_events = SecurityEvent | where EventID == 5140 | summarize smb_time=min(TimeGenerated) by TargetUserName, Computer;\nlet da_events = SecurityEvent | where EventID == 4624 and TargetUserName endswith \"-admin\" or TargetUserName in (\"Domain Admins\", \"Enterprise Admins\") | summarize da_time=min(TimeGenerated) by TargetUserName;\npth_events | join kind=inner smb_events on TargetUserName | where smb_time - pth_time between (0min .. 60min)",
+        "queryFrequency": "PT1H",
+        "queryPeriod": "PT1H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 1,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-LAT-CHN-007"
+    }
+  }
+}

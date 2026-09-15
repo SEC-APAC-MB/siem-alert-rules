@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-AI-PD-024",
+      "properties": {
+        "displayName": "AI \u2014 Prompt API Abuse Rate Limiting",
+        "description": "Detects excessive API usage that may indicate prompt abuse or scraping of model responses",
+        "severity": "Medium",
+        "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"prompt\" or Message contains \"api\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5000 // AZ-AI-PD-024",
+        "queryFrequency": "PT5M",
+        "queryPeriod": "PT5M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5000,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "AI-DOS-003,NIS2-Art.15"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-AI-PD-024"
+    }
+  }
+}

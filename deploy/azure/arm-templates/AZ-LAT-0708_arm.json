@@ -1,0 +1,55 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-LAT-0708",
+      "properties": {
+        "displayName": "Lateral Movement: DCSync Attack Chain",
+        "description": "Correlation rule detecting dcsync attack chain",
+        "severity": "Medium",
+        "query": "AuditLogs | where OperationName contains \"lateral\" | summarize count() by bin(TimeGenerated, 5m), InitiatedBy | where count_ > 3 // AZ-LAT-0708",
+        "queryFrequency": "PT5M",
+        "queryPeriod": "PT15M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 3,
+        "tactics": [
+          "CredentialAccess"
+        ],
+        "techniques": [
+          "T1003.006",
+          "T1558"
+        ],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4,PCI-DSS-10.2,NIS2-Art.15,DORA-Art.8"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-LAT-0708"
+    }
+  }
+}

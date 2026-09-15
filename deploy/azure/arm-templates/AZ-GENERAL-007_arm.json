@@ -1,0 +1,61 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-GENERAL-007",
+      "properties": {
+        "displayName": "CVE-2026-19490 \u2014 NetScaler Exploitation",
+        "description": "Detects exploitation attempts targeting CVE-2026-19490: Citrix NetScaler ADC and NetScaler Gateway contain an authentication-bypass vulnerability involving an alternate path or channel. When the NetScaler appliance is configured as an AAA virtual server or as a Gateway (SSL VPN, ICA Proxy, CVPN, or RDP Proxy), an unauthenticated remote threat actor may be able to bypass authentication.. Product: NetScaler",
+        "severity": "Medium",
+        "query": "union CommonSecurityLog, SecurityEvent | where Message has \"CVE-2026-19490\" or RuleName has \"CVE-2026-19490\" or ProcessName has \"CVE-2026-19490\" | summarize count() by bin(TimeGenerated, 5m), Computer, EventID | where count_ > 5 // AZ-GENERAL-007",
+        "queryFrequency": "5m",
+        "queryPeriod": "10m",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "InitialAccess",
+          "PrivilegeEscalation",
+          "CredentialAccess",
+          "DefenseEvasion"
+        ],
+        "techniques": [
+          "T1110",
+          "T1190",
+          "T1133",
+          "T1078",
+          "T1548"
+        ],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "PCI-DSS-6.5,NIST-800-53-SI-4,GDPR-32A"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-GENERAL-007"
+    }
+  }
+}

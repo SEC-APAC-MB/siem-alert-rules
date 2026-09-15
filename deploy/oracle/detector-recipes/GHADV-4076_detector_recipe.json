@@ -1,0 +1,41 @@
+{
+  "displayName": "GHADV-4076: OpenSearch Security plugin: DLS not applied on documents linked by has_child or has_parent relation",
+  "description": "OpenSearch Security plugin: DLS not applied on documents linked by has_child or has_parent relation\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "GHADV-4076",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1548"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "GHADV-4076_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "opensearch security plugin",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_auth_bypass_ghadv_4076\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" IN ('CreateSecurityList', 'UpdateSecurityList', 'CreateNetworkSecurityGroup', 'UpdateNetworkSecurityGroup') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_auth_bypass_ghadv_4076\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" IN ('CreateSecurityList', 'UpdateSecurityList', 'CreateNetworkSecurityGroup', 'UpdateNetworkSecurityGroup') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "GHADV-4076",
+    "category": "auth-bypass",
+    "severity_label": "MEDIUM"
+  }
+}

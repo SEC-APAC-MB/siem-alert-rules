@@ -1,0 +1,44 @@
+{
+  "displayName": "OCI-MITRE-ATTACK-040: MITRE T1578.004: Revert Cloud Instance",
+  "description": "Detects ATT&CK technique T1578.004 (Revert Cloud Instance). An adversary may revert changes made to a cloud instance after they have performed malicious activities in attempt to evade detection and remove evidence of their presence. In highly virtualized envir\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "OCI-MITRE-ATTACK-040",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1578.004"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2"
+    ]
+  },
+  "conditionGroups": [
+    {
+      "groupName": "OCI-MITRE-ATTACK-040_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "mitre t1578.004",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_mitre_attack_mitre_attack_040\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%mitre%' OR \"data__json.message\" LIKE '%t1578%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_mitre_attack_mitre_attack_040\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%mitre%' OR \"data__json.message\" LIKE '%t1578%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "OCI-MITRE-ATTACK-040",
+    "category": "mitre-attack",
+    "severity_label": "MEDIUM"
+  }
+}

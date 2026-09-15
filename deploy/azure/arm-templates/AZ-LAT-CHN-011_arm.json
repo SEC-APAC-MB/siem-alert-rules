@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-LAT-CHN-011",
+      "properties": {
+        "displayName": "Lateral movement chain \u2014 Exploit \u2192 Shell \u2192 Network Propagation",
+        "description": "Detects exploitation followed by shell access and network propagation across multiple hosts",
+        "severity": "Medium",
+        "query": "let exploit_events = SecurityEvent | where EventID == 4688 and NewProcessName has_any (\"mshta.exe\", \"wmic.exe\", \"certutil.exe\") | summarize exploit_time=min(TimeGenerated) by Computer;\nlet shell_events = SecurityEvent | where EventID == 4624 and LogonType == 10 | summarize shell_time=min(TimeGenerated) by Computer;\nlet propagation_events = NetworkEvents | where RemotePort in (445, 3389, 22, 135) | summarize prop_time=min(TimeGenerated), dest_count=dcount(DestinationIP) by SourceIP | where dest_count > 5;\nexploit_events | join kind=inner shell_events on Computer | where shell_time - exploit_time between (0min .. 30min)",
+        "queryFrequency": "PT30M",
+        "queryPeriod": "PT30M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 1,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-LAT-CHN-011"
+    }
+  }
+}

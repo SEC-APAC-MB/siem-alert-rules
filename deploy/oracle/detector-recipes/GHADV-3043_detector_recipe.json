@@ -1,0 +1,41 @@
+{
+  "displayName": "GHADV-3043: Keycloak has a Time-of-check Time-of-use (TOCTOU) Race Condition",
+  "description": "Keycloak has a Time-of-check Time-of-use (TOCTOU) Race Condition\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "GHADV-3043",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1054"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "GHADV-3043_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "keycloak has a time-of-check time-of-use (toctou) ",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_race_condition_ghadv_3043\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%keycloak%' OR \"data__json.message\" LIKE '%time%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_race_condition_ghadv_3043\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%keycloak%' OR \"data__json.message\" LIKE '%time%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "GHADV-3043",
+    "category": "race-condition",
+    "severity_label": "MEDIUM"
+  }
+}

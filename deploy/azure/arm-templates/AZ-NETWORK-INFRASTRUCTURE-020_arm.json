@@ -1,0 +1,59 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-NETWORK-INFRASTRUCTURE-020",
+      "properties": {
+        "displayName": "CVE-2026-20316 \u2014 Secure Firewall Management Center (FMC) Exploitation",
+        "description": "Detects exploitation attempts targeting CVE-2026-20316: Cisco Secure Firewall Management Center (FMC) formerly known as Firepower Management Center contains a use of hard-coded password vulnerability that could allow an unauthenticated, remote attacker to log in to an affected device using a low-privileged account to access sensitive data within the impacted systems.. Product: Secure Firewall Management Center (FMC)",
+        "severity": "Medium",
+        "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"CVE-2026-20316\" or Message contains \"SECURE FIREWALL MANAGEMENT CENTER (FMC)\" | summarize count() by bin(TimeGenerated, 5m), clientIp_s | where count_ > 3",
+        "queryFrequency": "5m",
+        "queryPeriod": "10m",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "Collection",
+          "CredentialAccess",
+          "DefenseEvasion"
+        ],
+        "techniques": [
+          "T1213",
+          "T1592",
+          "T1110",
+          "T1078"
+        ],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "PCI-DSS-6.5,NIST-800-53-SI-4,GDPR-32A"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-NETWORK-INFRASTRUCTURE-020"
+    }
+  }
+}

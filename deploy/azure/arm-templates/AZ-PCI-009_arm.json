@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-PCI-009",
+      "properties": {
+        "displayName": "PCI-DSS \u2014 Audit Log Tampering in CDE",
+        "description": "Detects tampering or disabling of audit logs in cardholder data environment",
+        "severity": "Medium",
+        "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"pci\" or Message contains \"dss\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 1 // AZ-PCI-009",
+        "queryFrequency": "PT5M",
+        "queryPeriod": "PT5M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 1,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "PCI-DSS-10.1,PCI-DSS-10.2,NIST-800-53-SI-4"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-PCI-009"
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-AI-GOV-020",
+      "properties": {
+        "displayName": "AI \u2014 Monitoring and Logging Gap",
+        "description": "Detects gaps in AI system monitoring and logging required by governance frameworks",
+        "severity": "Medium",
+        "query": "AuditLogs | where OperationName contains \"monitoring\" | summarize count() by bin(TimeGenerated, 5m), InitiatedBy | where count_ > 5 // AZ-AI-GOV-020",
+        "queryFrequency": "PT1H",
+        "queryPeriod": "PT1H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "Persistence"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "AI-GOV-017,AI-ACT-12,PCI-DSS-10.2"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-AI-GOV-020"
+    }
+  }
+}

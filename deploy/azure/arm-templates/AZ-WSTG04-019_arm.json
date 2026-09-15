@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-WSTG04-019",
+      "properties": {
+        "displayName": "JWT Token Tampering or Forgery",
+        "description": "Detects JWT tokens with invalid signatures, expired timestamps, or algorithm manipulation",
+        "severity": "Medium",
+        "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"jwt\" or Message contains \"token\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG04-019",
+        "queryFrequency": "PT5M",
+        "queryPeriod": "PT5M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "API2-007,NIST-IA-9"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-WSTG04-019"
+    }
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "displayName": "OCI-MITRE-0614: Obfuscated Files or Information",
+  "description": "Detects Obfuscated Files or Information (T1027)\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "OCI-MITRE-0614",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1027"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8",
+      "GDPR-32A"
+    ]
+  },
+  "conditionGroups": [
+    {
+      "groupName": "OCI-MITRE-0614_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "obfuscated files or information",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_mitre_attack_mitre_0614\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%obfuscated%' OR \"data__json.message\" LIKE '%files%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_mitre_attack_mitre_0614\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%obfuscated%' OR \"data__json.message\" LIKE '%files%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "OCI-MITRE-0614",
+    "category": "mitre-attack",
+    "severity_label": "MEDIUM"
+  }
+}

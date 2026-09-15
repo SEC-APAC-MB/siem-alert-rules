@@ -1,0 +1,41 @@
+{
+  "displayName": "GHADV-4073: Netty vulnerable to HTTP Request Smuggling due to incorrect chunk size parsing",
+  "description": "Netty vulnerable to HTTP Request Smuggling due to incorrect chunk size parsing\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "GHADV-4073",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1190"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "GHADV-4073_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "netty vulnerable to http request smuggling due to ",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_memory_corruption_ghadv_4073\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%netty%' OR \"data__json.message\" LIKE '%vulnerable%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_memory_corruption_ghadv_4073\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%netty%' OR \"data__json.message\" LIKE '%vulnerable%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "GHADV-4073",
+    "category": "memory-corruption",
+    "severity_label": "MEDIUM"
+  }
+}

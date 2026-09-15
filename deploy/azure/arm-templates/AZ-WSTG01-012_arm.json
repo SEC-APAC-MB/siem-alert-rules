@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-WSTG01-012",
+      "properties": {
+        "displayName": "Subdomain Takeover via CNAME",
+        "description": "Detects dangling CNAME records pointing to unclaimed external services enabling subdomain takeover",
+        "severity": "Medium",
+        "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"subdomain\" or Message contains \"takeover\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-WSTG01-012",
+        "queryFrequency": "PT5M",
+        "queryPeriod": "PT5M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "PCI-DSS-1.3,NIST-CM-7"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-WSTG01-012"
+    }
+  }
+}

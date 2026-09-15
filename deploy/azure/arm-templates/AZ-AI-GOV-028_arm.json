@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-AI-GOV-028",
+      "properties": {
+        "displayName": "AI \u2014 Data Subject Rights Request Violation",
+        "description": "Detects failures to respond to data subject rights requests within required timeframes",
+        "severity": "Medium",
+        "query": "AuditLogs | where OperationName contains \"data\" | summarize count() by bin(TimeGenerated, 5m), InitiatedBy | where count_ > 3 // AZ-AI-GOV-028",
+        "queryFrequency": "P1D",
+        "queryPeriod": "P1D",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 3,
+        "tactics": [
+          "Persistence"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "AI-GOV-025,GDPR-15,GDPR-17,GDPR-20"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-AI-GOV-028"
+    }
+  }
+}

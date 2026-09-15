@@ -1,0 +1,47 @@
+{
+  "displayName": "OCI-LAT-0708: Lateral Movement: DCSync Attack Chain",
+  "description": "Correlation rule detecting dcsync attack chain\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "OCI-LAT-0708",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1003.006",
+      "T1558"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2",
+      "NIS2-Art.15",
+      "DORA-Art.8"
+    ]
+  },
+  "conditionGroups": [
+    {
+      "groupName": "OCI-LAT-0708_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "lateral movement",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_lateral_movement_lat_0708\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%lateral%' AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_lateral_movement_lat_0708\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%lateral%' AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "OCI-LAT-0708",
+    "category": "lateral-movement",
+    "severity_label": "MEDIUM"
+  }
+}

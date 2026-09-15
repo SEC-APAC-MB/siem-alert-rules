@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-DB-MSS-002",
+      "properties": {
+        "displayName": "SQL Server \u2014 SUSPENDED Login State Anomaly",
+        "description": "Detects SQL Server logins in SUSPENDED state indicating potential credential abuse",
+        "severity": "Medium",
+        "query": "AzureDiagnostics | where Category == \"SQLSecurityAuditEvents\" | where statement_s contains \"sql\" or action_name_s contains \"server\" | summarize count() by bin(TimeGenerated, 5m), database_name_s, session_server_principal_name_s | where count_ > 5 // AZ-DB-MSS-002",
+        "queryFrequency": "PT5M",
+        "queryPeriod": "PT5M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "Collection"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "PCI-DSS-8.5"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-DB-MSS-002"
+    }
+  }
+}

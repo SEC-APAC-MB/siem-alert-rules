@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "GHADV-3197",
+      "properties": {
+        "displayName": "ImageMagick: Heap Buffer Over-Write in json and yaml encoder of a single byte due to incorrect fix",
+        "description": "ImageMagick: Heap Buffer Over-Write in json and yaml encoder of a single byte due to incorrect fix",
+        "severity": "Medium",
+        "query": "union CommonSecurityLog, AzureDiagnostics | where Message contains \"imagemagick\" or Msg contains \"heap\" or message_s contains \"imagemagick\" | summarize count() by bin(TimeGenerated, 5m), SourceIP | where count_ > 3 // GHADV-3197",
+        "queryFrequency": "PT5M",
+        "queryPeriod": "PT15M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 3,
+        "tactics": [
+          "InitialAccess"
+        ],
+        "techniques": [
+          "T1190"
+        ],
+        "enabled": true,
+        "kind": "Scheduled"
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "GHADV-3197"
+    }
+  }
+}

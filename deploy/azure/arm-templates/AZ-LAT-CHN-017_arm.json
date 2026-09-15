@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-LAT-CHN-017",
+      "properties": {
+        "displayName": "Lateral movement chain \u2014 Email \u2192 Macro \u2192 PowerShell \u2192 Exfiltration",
+        "description": "Detects email-delivered macro followed by PowerShell execution and data exfiltration",
+        "severity": "Medium",
+        "query": "let email_events = EmailEvents | where ThreatTypes has \"Macro\" or AttachmentExtension in (\"xlsm\", \"docm\", \"xlsb\") | summarize email_time=min(TimeGenerated) by RecipientEmailAddress;\nlet ps_events = SecurityEvent | where EventID == 4103 and ScriptBlockText has_any (\"Invoke-WebRequest\", \"Invoke-Expression\", \"DownloadString\") | summarize ps_time=min(TimeGenerated) by TargetUserName;\nlet exfil_events = NetworkEvents | where BytesSent > 5000000 | summarize exfil_time=min(TimeGenerated) by SourceIP;\nemail_events | join kind=inner ps_events on $left.RecipientEmailAddress == $right.TargetUserName | where ps_time - email_time between (0min .. 120min)",
+        "queryFrequency": "PT2H",
+        "queryPeriod": "PT2H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 1,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4,PCI-DSS-10.2"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-LAT-CHN-017"
+    }
+  }
+}

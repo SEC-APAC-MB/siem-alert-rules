@@ -1,0 +1,41 @@
+{
+  "displayName": "OCI-AI-GOV-025: AI \u2014 Unauthorized Data Processing Purpose",
+  "description": "Detects AI data processing for purposes beyond what was consented to or documented\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "OCI-AI-GOV-025",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1530"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "OCI-AI-GOV-025_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "ai \u2014 unauthorized data processing purpose",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_general_ai_gov_025\", \"metricName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'oci_objectstorage' AND \"metricName\" = 'StorageSizeBytes' AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_general_ai_gov_025\", \"metricName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'oci_objectstorage' AND \"metricName\" = 'StorageSizeBytes' AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "OCI-AI-GOV-025",
+    "category": "general",
+    "severity_label": "MEDIUM"
+  }
+}

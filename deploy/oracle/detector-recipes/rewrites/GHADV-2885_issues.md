@@ -1,0 +1,15 @@
+# GHADV-2885 — Apache ActiveMQ Broker, Apache ActiveMQ All, Apache ActiveMQ have a Code Injection issue
+
+**Status:** NEEDS-REWRITE
+
+**Detector Type:** OCI_ACTIVITY
+
+**Issues:**
+- Query is generic SQL, needs conversion to Cloud Guard detector condition
+
+**Original Query:**
+```
+SELECT "siem_input_validation_ghadv_2885", "data__json.message" FROM "oci_monitoring_metricexplorer_metrics" WHERE "compartmentId" = '$COMPARTMENT_ID' AND "namespace" = 'OciLoggingService' AND ("data__json.message" LIKE '%apache%' OR "data__json.message" LIKE '%activemq%') AND "value" > 0
+```
+
+**Recipe file (with rewrite):** /Users/claw/.openclaw/workspace/siem-alert-rules/deploy/oracle/detector-recipes/GHADV-2885_detector_recipe.json

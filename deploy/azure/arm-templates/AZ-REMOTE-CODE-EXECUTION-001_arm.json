@@ -1,0 +1,56 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-REMOTE-CODE-EXECUTION-001",
+      "properties": {
+        "displayName": "CVE-2026-85046 \u2014 Chromium V8 Exploitation",
+        "description": "Detects exploitation attempts targeting CVE-2026-85046: Google Chromium V8 contains a type confusion vulnerability that allows a remote attacker to execute arbitrary code inside the sandbox via a crafted HTML page. This vulnerability could affect multiple web browsers that utilize Chromium, including, but not limited to, Google Chrome, Microsoft Edge, and Opera.. Product: Chromium V8",
+        "severity": "Medium",
+        "query": "union CommonSecurityLog, SecurityEvent | where Message has \"CVE-2026-85046\" or RuleName has \"CVE-2026-85046\" or ProcessName has \"CVE-2026-85046\" | summarize count() by bin(TimeGenerated, 5m), Computer, EventID | where count_ > 5 // AZ-REMOTE-CODE-EXECUTION-001",
+        "queryFrequency": "5m",
+        "queryPeriod": "10m",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "Execution",
+          "InitialAccess"
+        ],
+        "techniques": [
+          "T1190",
+          "T1059"
+        ],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "PCI-DSS-6.5,NIST-800-53-SI-4,GDPR-32A"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-REMOTE-CODE-EXECUTION-001"
+    }
+  }
+}

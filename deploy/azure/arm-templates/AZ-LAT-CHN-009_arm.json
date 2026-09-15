@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-LAT-CHN-009",
+      "properties": {
+        "displayName": "Lateral movement chain \u2014 Phishing \u2192 Credential Harvest \u2192 Cloud Takeover",
+        "description": "Detects phishing attack followed by credential harvesting and cloud service takeover",
+        "severity": "Medium",
+        "query": "let phish_events = EmailEvents | where ThreatTypes has \"Phish\" | summarize phish_time=min(TimeGenerated) by RecipientEmailAddress;\nlet cred_events = SigninLogs | where ResultType == 0 and TimeGenerated > ago(24h) and ClientAppUsed has_any (\"Exchange ActiveSync\", \"IMAP\") | summarize cred_time=min(TimeGenerated) by UserPrincipalName;\nphish_events | join kind=inner cred_events on $left.RecipientEmailAddress == $right.UserPrincipalName | where cred_time - phish_time between (0min .. 1440min)",
+        "queryFrequency": "PT1H",
+        "queryPeriod": "PT24H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 1,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4,PCI-DSS-10.2"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-LAT-CHN-009"
+    }
+  }
+}

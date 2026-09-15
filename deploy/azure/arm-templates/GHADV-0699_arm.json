@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "GHADV-0699",
+      "properties": {
+        "displayName": "Microsoft Kiota Workspace-config poisoning: out-of-repo file write + generation-time SSRF",
+        "description": "Microsoft Kiota Workspace-config poisoning: out-of-repo file write + generation-time SSRF",
+        "severity": "Medium",
+        "query": "SecurityEvent | where EventID == 4688 | where NewProcessName contains \"microsoft\" or CommandLine contains \"kiota\" | summarize count() by bin(TimeGenerated, 5m), Computer, Account, NewProcessName | where count_ > 3 // GHADV-0699",
+        "queryFrequency": "PT5M",
+        "queryPeriod": "PT15M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 3,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [
+          "T1005",
+          "T1083"
+        ],
+        "enabled": true,
+        "kind": "Scheduled"
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "GHADV-0699"
+    }
+  }
+}

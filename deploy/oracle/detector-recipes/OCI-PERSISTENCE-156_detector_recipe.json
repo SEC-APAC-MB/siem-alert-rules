@@ -1,0 +1,39 @@
+{
+  "displayName": "OCI-PERSISTENCE-156: Cron Job Persistence (Linux)",
+  "description": "Detect suspicious crontab modifications for persistence\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "OCI-PERSISTENCE-156",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "OCI-PERSISTENCE-156_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "cron job persistence (linux)",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_persistence_persistence_156\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%cron%' AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_persistence_persistence_156\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%cron%' AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "OCI-PERSISTENCE-156",
+    "category": "persistence",
+    "severity_label": "MEDIUM"
+  }
+}

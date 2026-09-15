@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-RECONNAISSANCE-118",
+      "properties": {
+        "displayName": "Network Service Discovery (Nmap/Masscan)",
+        "description": "Detect port scanning patterns from Nmap, Masscan, Shodan",
+        "severity": "Medium",
+        "query": "CommonSecurityLog| where DestinationIP !startswith \"10.\" and SourceIP !startswith \"10.\"| summarize count() by bin(TimeGenerated, 5m), SourceIP, DestinationIP | where count_ > 5 // AZ-RECONNAISSANCE-118",
+        "queryFrequency": "5m",
+        "queryPeriod": "10m",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "Reconnaissance"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled"
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-RECONNAISSANCE-118"
+    }
+  }
+}

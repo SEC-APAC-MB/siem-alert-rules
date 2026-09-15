@@ -1,0 +1,39 @@
+{
+  "displayName": "OCI-RECONNAISSANCE-119: DNS Zone Transfer Attempt",
+  "description": "Detect AXFR zone transfer attempts revealing internal DNS records\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "OCI-RECONNAISSANCE-119",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "OCI-RECONNAISSANCE-119_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "dns zone transfer attempt",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_reconnaissance_reconnaissance_119\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (53, 5353) AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_reconnaissance_reconnaissance_119\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (53, 5353) AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "OCI-RECONNAISSANCE-119",
+    "category": "reconnaissance",
+    "severity_label": "MEDIUM"
+  }
+}

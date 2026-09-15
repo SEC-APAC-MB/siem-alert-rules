@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-LAT-CHN-020",
+      "properties": {
+        "displayName": "Lateral movement chain \u2014 IoT Device \u2192 Network Pivot \u2192 Data Access",
+        "description": "Detects IoT device compromise followed by network pivot to data stores",
+        "severity": "Medium",
+        "query": "let iot_events = SecurityEvent | where Computer startswith \"iot-\" or ProcessName has_any (\"firmware\", \"sensor\", \"gateway\") and EventID == 4624 | summarize iot_time=min(TimeGenerated) by Computer;\nlet pivot_events = SecurityEvent | where EventID == 4624 and LogonType == 3 | summarize pivot_time=min(TimeGenerated) by TargetUserName, Computer;\niot_events | join kind=inner pivot_events on Computer | where pivot_time - iot_time between (0min .. 120min)",
+        "queryFrequency": "PT2H",
+        "queryPeriod": "PT2H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 1,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4,NIS2-Art.15"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-LAT-CHN-020"
+    }
+  }
+}
