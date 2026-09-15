@@ -2,7 +2,7 @@
   "description": "SIEM alert rules \u2014 generated-privilege-escalation (converted)",
   "version": "2.0.0",
   "converted": "2026-09-14T04:05:03.501320Z",
-  "total_rules": 14,
+  "total_rules": 7,
   "rules": [
     {
       "rule_id": "OCI-PRIVILEGE-ESCALATION-002",
@@ -198,6 +198,146 @@
         "cve-2026-86060",
         "exploited"
       ]
+    },
+    {
+      "rule_id": "OCI-PRIVILEGE-ESCALATION-003",
+      "name": "CVE-2026-42016 \u2014 Artifactory Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-42016: JFrog Artifactory contains an incorrect authorization vulnerability that allows leads to privilege escalation attack due to a validation check of the token signature/issuer and not the token\u2019s scope.. Product: Artifactory",
+      "severity": "CRITICAL",
+      "category": "privilege-escalation",
+      "mitre_attack": [
+        "T1548",
+        "T1110",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'privilege_escalation' AND value > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "privilege_escalation",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-42016",
+        "exploited"
+      ],
+      "response_workflow": {
+        "description": "Active exploitation of known CVE \u2014 immediate response required",
+        "triage": [
+          "Identify the affected system and verify the CVE applies (check version, patch level)",
+          "Check if the exploit attempt succeeded (review logs for follow-on activity)",
+          "Identify the source IP and check for other activity from that IP"
+        ],
+        "containment": [
+          "Isolate the affected system from the network if exploitation confirmed",
+          "Block the source IP at the firewall/WAF",
+          "Apply the vendor patch or mitigation if available",
+          "If no patch available, apply virtual patch at WAF/IPS"
+        ],
+        "eradication": [
+          "Scan the affected system for persistence mechanisms (scheduled tasks, services, webshells)",
+          "Review all changes made since the exploitation attempt",
+          "Remove any implanted backdoors or malware"
+        ],
+        "recovery": [
+          "Restore the system from a known-good backup if compromised",
+          "Verify system integrity (file hashes, service configurations)",
+          "Reconnect to network only after verification"
+        ],
+        "lessons_learned": [
+          "Document the timeline: detection \u2192 response \u2192 resolution",
+          "Assess if detection latency meets SLA",
+          "Update IOC feeds with source IP, user-agent, and payload signatures",
+          "Review if similar systems are vulnerable to the same CVE"
+        ]
+      }
+    },
+    {
+      "rule_id": "OCI-PRIVILEGE-ESCALATION-006",
+      "name": "CVE-2026-86060 \u2014 RouterOS Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-86060: MikroTik RouterOS contains an improper neutralization of argument delimiters in a command vulnerability which allows an attacked to change the trusted RouterOS policy mask, leading to privilege escalation.. Product: RouterOS",
+      "severity": "CRITICAL",
+      "category": "privilege-escalation",
+      "mitre_attack": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SELECT metric VALUE FROM \"SIEM/Security\" WHERE metric = 'privilege_escalation' AND value > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "privilege_escalation",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-86060",
+        "exploited"
+      ],
+      "response_workflow": {
+        "description": "Active exploitation of known CVE \u2014 immediate response required",
+        "triage": [
+          "Identify the affected system and verify the CVE applies (check version, patch level)",
+          "Check if the exploit attempt succeeded (review logs for follow-on activity)",
+          "Identify the source IP and check for other activity from that IP"
+        ],
+        "containment": [
+          "Isolate the affected system from the network if exploitation confirmed",
+          "Block the source IP at the firewall/WAF",
+          "Apply the vendor patch or mitigation if available",
+          "If no patch available, apply virtual patch at WAF/IPS"
+        ],
+        "eradication": [
+          "Scan the affected system for persistence mechanisms (scheduled tasks, services, webshells)",
+          "Review all changes made since the exploitation attempt",
+          "Remove any implanted backdoors or malware"
+        ],
+        "recovery": [
+          "Restore the system from a known-good backup if compromised",
+          "Verify system integrity (file hashes, service configurations)",
+          "Reconnect to network only after verification"
+        ],
+        "lessons_learned": [
+          "Document the timeline: detection \u2192 response \u2192 resolution",
+          "Assess if detection latency meets SLA",
+          "Update IOC feeds with source IP, user-agent, and payload signatures",
+          "Review if similar systems are vulnerable to the same CVE"
+        ]
+      }
     }
   ]
 }
