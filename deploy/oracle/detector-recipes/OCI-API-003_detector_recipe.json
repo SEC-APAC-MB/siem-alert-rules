@@ -1,0 +1,41 @@
+{
+  "displayName": "OCI-API-003: API3: Broken Object Property Level Authorization (BOPLA)",
+  "description": "Detects API responses returning sensitive properties that the user should not access\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "OCI-API-003",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1078"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "OCI-API-003_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "api3",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_general_api_003\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%api3%' OR \"data__json.message\" LIKE '%broken%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_general_api_003\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%api3%' OR \"data__json.message\" LIKE '%broken%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "OCI-API-003",
+    "category": "general",
+    "severity_label": "MEDIUM"
+  }
+}

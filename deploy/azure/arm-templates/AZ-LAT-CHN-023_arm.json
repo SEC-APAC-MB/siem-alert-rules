@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-LAT-CHN-023",
+      "properties": {
+        "displayName": "Lateral movement chain \u2014 Admin Tool Abuse \u2192 Credential Dump \u2192 Lateral Spread",
+        "description": "Detects legitimate admin tool abuse followed by credential dumping and lateral movement across hosts",
+        "severity": "Medium",
+        "query": "let admin_events = SecurityEvent | where EventID == 4688 and NewProcessName has_any (\"procdump.exe\", \"mimikatz.exe\", \"lazagne.exe\", \"sharpkatz.exe\") | summarize admin_time=min(TimeGenerated) by SubjectUserName, Computer;\nlet cred_events = SecurityEvent | where EventID == 4663 and ObjectName has \"lsass\" | summarize cred_time=min(TimeGenerated) by SubjectUserName, Computer;\nlet spread_events = SecurityEvent | where EventID == 4624 and LogonType == 3 | summarize spread_time=min(TimeGenerated), host_count=dcount(Computer) by TargetUserName | where host_count > 3;\nadmin_events | join kind=inner cred_events on SubjectUserName, Computer | where cred_time - admin_time between (0min .. 30min)",
+        "queryFrequency": "PT30M",
+        "queryPeriod": "PT30M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 1,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4,NIS2-Art.15"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-LAT-CHN-023"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "displayName": "OCI-WSTG10-002: Business Logic \u2014 Rate Limit Bypass",
+  "description": "Detects API rate limit bypass attempts using header manipulation, IP rotation, or parameter tampering\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "OCI-WSTG10-002",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1190"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "OCI-WSTG10-002_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "business logic \u2014 rate limit bypass",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_general_wstg10_002\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%business%' OR \"data__json.message\" LIKE '%logic%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_general_wstg10_002\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%business%' OR \"data__json.message\" LIKE '%logic%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "OCI-WSTG10-002",
+    "category": "general",
+    "severity_label": "MEDIUM"
+  }
+}

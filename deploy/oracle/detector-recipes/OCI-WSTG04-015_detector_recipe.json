@@ -1,0 +1,41 @@
+{
+  "displayName": "OCI-WSTG04-015: Cross-Site Request Forgery (CSRF)",
+  "description": "Detects POST/PUT/DELETE requests missing CSRF tokens indicating potential cross-site request forgery\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "OCI-WSTG04-015",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1189"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "OCI-WSTG04-015_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "cross-site request forgery (csrf)",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_general_wstg04_015\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cross%' OR \"data__json.message\" LIKE '%site%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_general_wstg04_015\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cross%' OR \"data__json.message\" LIKE '%site%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "OCI-WSTG04-015",
+    "category": "general",
+    "severity_label": "MEDIUM"
+  }
+}

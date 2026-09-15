@@ -1,0 +1,41 @@
+{
+  "displayName": "GHADV-2600: Jenkins: Open Redirect phishing attacks possible via \"from\" parameter in \"Delegate to servlet container\"",
+  "description": "Jenkins: Open Redirect phishing attacks possible via \"from\" parameter in \"Delegate to servlet container\"\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "GHADV-2600",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1200"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "GHADV-2600_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "jenkins",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_redirect_ghadv_2600\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%jenkins%' OR \"data__json.message\" LIKE '%open%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_redirect_ghadv_2600\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%jenkins%' OR \"data__json.message\" LIKE '%open%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "GHADV-2600",
+    "category": "redirect",
+    "severity_label": "MEDIUM"
+  }
+}

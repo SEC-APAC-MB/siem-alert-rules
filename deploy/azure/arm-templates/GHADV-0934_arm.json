@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "GHADV-0934",
+      "properties": {
+        "displayName": "Microsoft Security Advisory CVE-2026-50526 \u2013 .NET Tampering Vulnerability",
+        "description": "Microsoft Security Advisory CVE-2026-50526 \u2013 .NET Tampering Vulnerability",
+        "severity": "Medium",
+        "query": "SecurityEvent | where Process has_any(\"Microsoft.NET.Build.Containers\", \"Microsoft.NET.Build.Containers\", \"Microsoft.NET.Build.Containers\")",
+        "queryFrequency": "PT5M",
+        "queryPeriod": "PT15M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 3,
+        "tactics": [
+          "Collection"
+        ],
+        "techniques": [
+          "T1005"
+        ],
+        "enabled": true,
+        "kind": "Scheduled"
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "GHADV-0934"
+    }
+  }
+}

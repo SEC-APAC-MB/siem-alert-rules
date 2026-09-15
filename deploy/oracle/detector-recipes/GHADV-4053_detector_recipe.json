@@ -1,0 +1,41 @@
+{
+  "displayName": "GHADV-4053: Kiota abstractions RedirectHandler leaks Cookie/Proxy-Authorization headers on cross-host redirect",
+  "description": "Kiota abstractions RedirectHandler leaks Cookie/Proxy-Authorization headers on cross-host redirect\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "GHADV-4053",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1200"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "GHADV-4053_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "kiota abstractions redirecthandler leaks cookie/pr",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_redirect_ghadv_4053\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%kiota%' OR \"data__json.message\" LIKE '%abstractions%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_redirect_ghadv_4053\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%kiota%' OR \"data__json.message\" LIKE '%abstractions%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "GHADV-4053",
+    "category": "redirect",
+    "severity_label": "MEDIUM"
+  }
+}

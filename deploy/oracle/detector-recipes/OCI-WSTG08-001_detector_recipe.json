@@ -1,0 +1,41 @@
+{
+  "displayName": "OCI-WSTG08-001: DOM-Based Cross-Site Scripting",
+  "description": "Detects DOM-based XSS patterns where client-side JavaScript renders user input unsafely\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "OCI-WSTG08-001",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1059.007"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "OCI-WSTG08-001_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "dom-based cross-site scripting",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_general_wstg08_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%dom%' OR \"data__json.message\" LIKE '%based%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_general_wstg08_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%dom%' OR \"data__json.message\" LIKE '%based%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "OCI-WSTG08-001",
+    "category": "general",
+    "severity_label": "MEDIUM"
+  }
+}

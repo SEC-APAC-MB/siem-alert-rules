@@ -1,0 +1,41 @@
+{
+  "displayName": "OCI-AI-DB-014: AI \u2014 Retrieval-Augmented Backdoor Attack",
+  "description": "Detects backdoor attacks embedded in RAG retrieval pipeline that trigger on specific keywords\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "OCI-AI-DB-014",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1195.001"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "OCI-AI-DB-014_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "ai \u2014 retrieval-augmented backdoor attack",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_general_ai_db_014\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%retrieval%' AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_general_ai_db_014\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%retrieval%' AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "OCI-AI-DB-014",
+    "category": "general",
+    "severity_label": "MEDIUM"
+  }
+}

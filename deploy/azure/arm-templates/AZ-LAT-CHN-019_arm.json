@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-LAT-CHN-019",
+      "properties": {
+        "displayName": "Lateral movement chain \u2014 Container Escape \u2192 Cloud Metadata \u2192 IAM Abuse",
+        "description": "Detects container escape followed by cloud metadata service access and IAM privilege escalation",
+        "severity": "Medium",
+        "query": "let container_events = KubeAuditLogs | where OperationName has_any (\"exec\", \"attach\", \"port-forward\") and StatusCode == \"Success\" | summarize container_time=min(TimeGenerated) by User, Namespace;\nlet metadata_events = NetworkEvents | where DestinationIP in (\"169.254.169.254\", \"fd00:ec2::254\") | summarize metadata_time=min(TimeGenerated) by SourceIP;\nlet iam_events = AzureActivity | where OperationNameValue has_any (\"Microsoft.Authorization/roleAssignments/write\", \"Microsoft.Authorization/roleDefinitions/write\") | summarize iam_time=min(TimeGenerated) by Caller;\ncontainer_events | join kind=inner metadata_events on $left.User == $right.SourceIP | where metadata_time - container_time between (0min .. 60min)",
+        "queryFrequency": "PT1H",
+        "queryPeriod": "PT1H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 1,
+        "tactics": [
+          "Persistence"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-LAT-CHN-019"
+    }
+  }
+}

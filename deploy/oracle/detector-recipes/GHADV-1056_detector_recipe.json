@@ -1,0 +1,41 @@
+{
+  "displayName": "GHADV-1056: ArcadeDB: Privilege escalation via reader role in /api/v1/command JS scripting language \u2014 arbitrary host file read",
+  "description": "ArcadeDB: Privilege escalation via reader role in /api/v1/command JS scripting language \u2014 arbitrary host file read\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "GHADV-1056",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1548"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "GHADV-1056_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "arcadedb",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_privilege_escalation_ghadv_1056\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%arcadedb%' AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_privilege_escalation_ghadv_1056\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%arcadedb%' AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "GHADV-1056",
+    "category": "privilege-escalation",
+    "severity_label": "MEDIUM"
+  }
+}

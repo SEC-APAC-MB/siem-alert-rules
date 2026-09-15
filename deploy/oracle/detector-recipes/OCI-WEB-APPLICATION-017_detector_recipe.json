@@ -1,0 +1,49 @@
+{
+  "displayName": "OCI-WEB-APPLICATION-017: CVE-2026-34486 \u2014 Tomcat Exploitation",
+  "description": "Detects exploitation attempts targeting CVE-2026-34486: Apache Tomcat contains a missing encryption of sensitive data vulnerability that allows the bypass of the EncryptInterceptor. This vulnerability can be chained with CVE\u20112025\u201124813.. Product: Tomcat\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "OCI-WEB-APPLICATION-017",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1059",
+      "T1548",
+      "T1190",
+      "T1592",
+      "T1213"
+    ],
+    "compliance": [
+      "PCI-DSS-6.5",
+      "NIST-800-53-SI-4",
+      "GDPR-32A"
+    ]
+  },
+  "conditionGroups": [
+    {
+      "groupName": "OCI-WEB-APPLICATION-017_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "cve-2026-34486 \u2014 tomcat exploitation",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_web_application_web_application_017\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_web_application_web_application_017\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "OCI-WEB-APPLICATION-017",
+    "category": "web-application",
+    "severity_label": "MEDIUM"
+  }
+}

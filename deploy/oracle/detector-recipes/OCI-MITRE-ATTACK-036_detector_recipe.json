@@ -1,0 +1,44 @@
+{
+  "displayName": "OCI-MITRE-ATTACK-036: MITRE T1583.007: Serverless",
+  "description": "Detects ATT&CK technique T1583.007 (Serverless). Adversaries may purchase and configure serverless cloud infrastructure, such as Cloudflare Workers, AWS Lambda functions, or Google Apps Scripts, that can be used during targeting. By utilizing server\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "OCI-MITRE-ATTACK-036",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1583.007"
+    ],
+    "compliance": [
+      "NIST-800-53-SI-4",
+      "PCI-DSS-10.2"
+    ]
+  },
+  "conditionGroups": [
+    {
+      "groupName": "OCI-MITRE-ATTACK-036_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "mitre t1583.007",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_mitre_attack_mitre_attack_036\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%mitre%' OR \"data__json.message\" LIKE '%t1583%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_mitre_attack_mitre_attack_036\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%mitre%' OR \"data__json.message\" LIKE '%t1583%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "OCI-MITRE-ATTACK-036",
+    "category": "mitre-attack",
+    "severity_label": "MEDIUM"
+  }
+}

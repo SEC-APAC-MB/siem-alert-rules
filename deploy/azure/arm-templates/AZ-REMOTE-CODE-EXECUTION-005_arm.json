@@ -1,0 +1,60 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-REMOTE-CODE-EXECUTION-005",
+      "properties": {
+        "displayName": "CVE-2026-9586 \u2014 Switchvox Exploitation",
+        "description": "Detects exploitation attempts targeting CVE-2026-9586: Sangoma Switchvox contains a SQL injection vulnerability which allows an unauthenticated remote attacker to execute arbitrary SQL statements against the backend PostgreSQL database using a single crafted request, including database operations and remote code execution.. Product: Switchvox",
+        "severity": "Medium",
+        "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"CVE-2026-9586\" or Message contains \"SWITCHVOX\" | summarize count() by bin(TimeGenerated, 5m), clientIp_s | where count_ > 3",
+        "queryFrequency": "5m",
+        "queryPeriod": "10m",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "Execution",
+          "InitialAccess",
+          "CredentialAccess",
+          "DefenseEvasion"
+        ],
+        "techniques": [
+          "T1110",
+          "T1078",
+          "T1059",
+          "T1190"
+        ],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "PCI-DSS-6.5,NIST-800-53-SI-4,GDPR-32A"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-REMOTE-CODE-EXECUTION-005"
+    }
+  }
+}

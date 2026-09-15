@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-LAT-CHN-010",
+      "properties": {
+        "displayName": "Lateral movement chain \u2014 Supply Chain \u2192 Internal Pivot \u2192 Data Staging",
+        "description": "Detects supply chain compromise followed by internal lateral movement and data staging for exfiltration",
+        "severity": "Medium",
+        "query": "let supply_events = SecurityEvent | where EventID == 4688 and ParentProcessName has_any (\"update.exe\", \"installer.exe\", \"setup.exe\") and ProcessName has_any (\"powershell\", \"cmd\", \"wscript\") | summarize supply_time=min(TimeGenerated) by Computer;\nlet pivot_events = SecurityEvent | where EventID == 4624 and LogonType == 3 | summarize pivot_time=min(TimeGenerated) by TargetUserName, Computer;\nlet staging_events = SecurityEvent | where EventID == 4663 and ObjectName has_any (\"temp\", \"staging\", \"export\") | summarize stage_time=min(TimeGenerated) by SubjectUserName;\nsupply_events | join kind=inner pivot_events on Computer | where pivot_time - supply_time between (0min .. 120min)",
+        "queryFrequency": "PT2H",
+        "queryPeriod": "PT2H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 1,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4,NIS2-Art.15"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-LAT-CHN-010"
+    }
+  }
+}

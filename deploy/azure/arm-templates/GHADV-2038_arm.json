@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "GHADV-2038",
+      "properties": {
+        "displayName": "DotVVM: Missing authorization in AuthorizeActionFilter",
+        "description": "DotVVM: Missing authorization in AuthorizeActionFilter",
+        "severity": "Medium",
+        "query": "AuditLogs | where OperationName contains \"dotvvm\" | summarize count() by bin(TimeGenerated, 5m), InitiatedBy | where count_ > 3 // GHADV-2038",
+        "queryFrequency": "PT5M",
+        "queryPeriod": "PT15M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 3,
+        "tactics": [
+          "PrivilegeEscalation"
+        ],
+        "techniques": [
+          "T1548"
+        ],
+        "enabled": true,
+        "kind": "Scheduled"
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "GHADV-2038"
+    }
+  }
+}

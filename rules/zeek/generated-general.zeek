@@ -1,6 +1,5 @@
-# DEPRECATED-CVE: Contains references to stale CVEs (CVE-2022-0995, CVE-2023-49105). Review before deployment.
 # Zeek SIEM Alert Rules — generated-general
-# Auto-generated: 2026-09-14T04:05:03.479441Z
+# Auto-generated: 2026-09-15T04:05:04.030469Z
 # Load in local.zeek: @load ./generated-general
 
 signature ZK-GENERAL-002 {
@@ -52,25 +51,11 @@ signature ZK-GENERAL-019 {
 	event "CVE-2026-18577 — N-central Exploitation"
 }
 
-signature ZK-GENERAL-001 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /.*(cve\-2023\-49105).*/ regex
-	event "CVE-2023-49105 — ownCloud Exploitation"
-}
-
 signature ZK-GENERAL-003 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*(cve\-2026\-66384).*/ regex
 	event "CVE-2026-66384 — Artifactory Exploitation"
-}
-
-signature ZK-GENERAL-007 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /.*(cve\-2022\-0995).*/ regex
-	event "CVE-2022-0995 — Kernel Exploitation"
 }
 
 signature ZK-GENERAL-010 {
@@ -115,13 +100,6 @@ signature ZK-GENERAL-017 {
 	event "CVE-2026-8452 — NetScaler ADC and NetScaler Gateway Exploitation"
 }
 
-signature ZK-GENERAL-011 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /.*(cve\-2023\-49105).*/ regex
-	event "CVE-2023-49105 — ownCloud Exploitation"
-}
-
 signature ZK-GENERAL-013 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
@@ -136,9 +114,16 @@ signature ZK-GENERAL-006 {
 	event "CVE-2026-59822 — LiteLLM Exploitation"
 }
 
-signature ZK-GENERAL-015 {
+signature ZK-GENERAL-001 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
-	http-request /.*(cve\-2023\-49105).*/ regex
-	event "CVE-2023-49105 — ownCloud Exploitation"
+	http-request /.*((login|auth|password|passwd)).*/ regex
+	event "CVE-2026-84869 — ScreenConnect Exploitation"
+}
+
+signature ZK-GENERAL-007 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((login|auth|password|passwd)).*/ regex
+	event "CVE-2026-19490 — NetScaler Exploitation"
 }

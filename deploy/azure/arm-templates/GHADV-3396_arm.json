@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "GHADV-3396",
+      "properties": {
+        "displayName": "ImageMagick: Heap Buffer Over-Write of a single byte in the JP2 encoder.",
+        "description": "ImageMagick: Heap Buffer Over-Write of a single byte in the JP2 encoder.",
+        "severity": "Medium",
+        "query": "SecurityEvent | where EventID == 4688 | where NewProcessName contains \"imagemagick\" or CommandLine contains \"heap\" | summarize count() by bin(TimeGenerated, 5m), Computer, Account, NewProcessName | where count_ > 3 // GHADV-3396",
+        "queryFrequency": "PT5M",
+        "queryPeriod": "PT15M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 3,
+        "tactics": [
+          "DefenseEvasion"
+        ],
+        "techniques": [
+          "T1205",
+          "T1068"
+        ],
+        "enabled": true,
+        "kind": "Scheduled"
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "GHADV-3396"
+    }
+  }
+}

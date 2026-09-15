@@ -1,0 +1,42 @@
+{
+  "displayName": "GHADV-4421: OpenMRS ModuleResourcesServlet has Path Traversal that Leads to Arbitrary File Read",
+  "description": "OpenMRS ModuleResourcesServlet has Path Traversal that Leads to Arbitrary File Read\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "GHADV-4421",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1005",
+      "T1083"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "GHADV-4421_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "openmrs moduleresourcesservlet has path traversal ",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_path_traversal_ghadv_4421\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%openmrs%' OR \"data__json.message\" LIKE '%moduleresourcesservlet%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_path_traversal_ghadv_4421\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%openmrs%' OR \"data__json.message\" LIKE '%moduleresourcesservlet%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "GHADV-4421",
+    "category": "path-traversal",
+    "severity_label": "MEDIUM"
+  }
+}

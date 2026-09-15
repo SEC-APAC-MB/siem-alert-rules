@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-AUTH-040",
+      "properties": {
+        "displayName": "Authentication \u2014 Concurrent Session Anomaly",
+        "description": "Detects anomalous concurrent sessions from multiple locations for the same user",
+        "severity": "Medium",
+        "query": "SigninLogs | where TimeGenerated > ago(1h) | where ResultType == 0 | summarize dcount(IpAddress), dcount(Location), count() by bin(TimeGenerated, 1h), UserPrincipalName | where dcount_IpAddress > 3 and dcount_Location > 2",
+        "queryFrequency": "PT1H",
+        "queryPeriod": "PT1H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 3,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-AUTH-040"
+    }
+  }
+}

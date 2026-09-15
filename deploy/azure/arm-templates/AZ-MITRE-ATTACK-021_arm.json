@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-MITRE-ATTACK-021",
+      "properties": {
+        "displayName": "MITRE T1055.011: Extra Window Memory Injection",
+        "description": "Detects ATT&CK technique T1055.011 (Extra Window Memory Injection). Adversaries may inject malicious code into process via Extra Window Memory (EWM) in order to evade process-based defenses as well as possibly elevate privileges. EWM injection is a method of executing",
+        "severity": "Medium",
+        "query": "SecurityEvent | where EventID == 4688 | where NewProcessName contains \"mitre\" or CommandLine contains \"t1055\" | summarize count() by bin(TimeGenerated, 5m), Computer, Account, NewProcessName | where count_ > 5 // AZ-MITRE-ATTACK-021",
+        "queryFrequency": "5m",
+        "queryPeriod": "10m",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "DefenseEvasion"
+        ],
+        "techniques": [
+          "T1055.011"
+        ],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4,PCI-DSS-10.2"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-MITRE-ATTACK-021"
+    }
+  }
+}

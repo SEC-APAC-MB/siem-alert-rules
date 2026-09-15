@@ -1,0 +1,41 @@
+{
+  "displayName": "GHADV-2859: Spring Cloud Function Context: Uncontrolled Recursion is possible while attempting to add infinite amount of functions t",
+  "description": "Spring Cloud Function Context: Uncontrolled Recursion is possible while attempting to add infinite amount of functions to Function Registry\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "GHADV-2859",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1499"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "GHADV-2859_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "spring cloud function context",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_dos_ghadv_2859\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%spring%' OR \"data__json.message\" LIKE '%cloud%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_dos_ghadv_2859\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%spring%' OR \"data__json.message\" LIKE '%cloud%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "GHADV-2859",
+    "category": "dos",
+    "severity_label": "MEDIUM"
+  }
+}

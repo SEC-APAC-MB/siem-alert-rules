@@ -1,0 +1,357 @@
+# Generated Suricata Detection Rules - 2026-09-15
+# Based on: GitHub Advisory Database CVEs (2026-08-27 to 2026-09-15)
+# MITRE ATT&CK coverage expansion + latest threat landscape
+# Total rules: 100 | Starting SID: 5203401
+
+# ============================================================
+# CRITICAL CVE-BASED RULES (CVE-2026-91998, CVE-2026-91995, CVE-2026-89308)
+# ============================================================
+
+# CVE-2026-91998 - Casdoor authorization bypass /api/mcp
+alert http any any -> any any (msg:"ET EXPLOIT Casdoor MCP Endpoint Authorization Bypass CVE-2026-91998"; flow:established,to_server; http.method; http.uri; content:"/api/mcp"; nocase; http.header; content:"clientId"; nocase; reference:cve,2026-91998; reference:ghsa,GHSA-jvmw-g7rg-x26f; classtype:attempted-admin; sid:5203401; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Casdoor MCP User Enumeration CVE-2026-91998"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/mcp"; nocase; http.header; content:"clientSecret"; classtype:attempted-admin; reference:cve,2026-91998; sid:5203402; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Casdoor Cross-Org Admin Creation CVE-2026-91998"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/mcp/user/create"; nocase; classtype:attempted-admin; reference:cve,2026-91998; sid:5203403; rev:1;)
+
+# CVE-2026-91995 - pig authentication bypass /register/password
+alert http any any -> any any (msg:"ET EXPLOIT Pig Platform Authentication Bypass CVE-2026-91995"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/register/password"; nocase; classtype:attempted-admin; reference:cve,2026-91995; reference:ghsa,GHSA-7g92-2j5x-mj6h; sid:5203404; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Pig Platform Password Change Without Verification CVE-2026-91995"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/register/password"; nocase; http.request_body; content:"password"; nocase; classtype:attempted-admin; reference:cve,2026-91995; sid:5203405; rev:1;)
+
+# CVE-2026-89308 - Unauthenticated OS command injection via ping.php
+alert http any any -> any any (msg:"ET EXPLOIT Unauthenticated OS Command Injection ping.php CVE-2026-89308"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"ping.php"; nocase; http.request_body; content:"|3b|"; classtype:attempted-admin; reference:cve,2026-89308; reference:ghsa,GHSA-cggc-5xph-qvw8; sid:5203406; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT OS Command Injection ping.php Backtick CVE-2026-89308"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"ping.php"; nocase; http.request_body; content:"`"; classtype:attempted-admin; reference:cve,2026-89308; sid:5203407; rev:1;)
+
+# ============================================================
+# HIGH CVE-BASED RULES
+# ============================================================
+
+# CVE-2026-91924 - pgweb missing auth on /api/connect
+alert http any any -> any any (msg:"ET EXPLOIT pgweb Unauthorized Database Connect CVE-2026-91924"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/connect"; nocase; http.header; content!"Authorization"; classtype:attempted-admin; reference:cve,2026-91924; reference:ghsa,GHSA-qp8h-c7qp-m297; sid:5203408; rev:1;)
+
+# CVE-2026-91996 - lamp-cloud /anno/ path bypass
+alert http any any -> any any (msg:"ET EXPLOIT lamp-cloud JVM Properties Exposure CVE-2026-91996"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/anno/getProperties"; nocase; classtype:attempted-recon; reference:cve,2026-91996; reference:ghsa,GHSA-8h63-cr94-gg65; sid:5203409; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT lamp-cloud Anonymous Path Access CVE-2026-91996"; flow:established,to_server; http.uri; content:"/anno/"; nocase; http.header; content!"Authorization"; classtype:attempted-recon; reference:cve,2026-91996; sid:5203410; rev:1;)
+
+# CVE-2026-91994 - Semaphore UI GET/HEAD bypass
+alert http any any -> any any (msg:"ET EXPLOIT Semaphore UI Permission Bypass CVE-2026-91994"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/api/v1/projects"; nocase; http.header; content!"Authorization"; classtype:attempted-recon; reference:cve,2026-91994; sid:5203411; rev:1;)
+
+# CVE-2026-91923 - KubeSphere SSRF via git
+alert http any any -> any any (msg:"ET EXPLOIT KubeSphere Git SSRF CVE-2026-91923"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/kapis/terminal.kubesphere.io"; nocase; http.request_body; content:"git"; nocase; http.request_body; content:"http://"; nocase; classtype:attempted-admin; reference:cve,2026-91923; reference:ghsa,GHSA-847j-gj2f-78j9; sid:5203412; rev:1;)
+
+# CVE-2026-91925 - Polyaxon Jinja2 SSTI
+alert http any any -> any any (msg:"ET EXPLOIT Polyaxon Jinja2 SSTI CVE-2026-91925"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/v1/operations"; nocase; http.request_body; content:"{{"; nocase; http.request_body; content:"__class__"; classtype:attempted-admin; reference:cve,2026-91925; reference:ghsa,GHSA-w7qq-x87w-72qx; sid:5203413; rev:1;)
+
+# CVE-2026-1758 - Secomea GateManager session fixation
+alert http any any -> any any (msg:"ET EXPLOIT Secomea GateManager Session Fixation CVE-2026-1758"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/gatemanager"; nocase; http.cookie; content:"JSESSIONID="; classtype:attempted-admin; reference:cve,2026-1758; sid:5203414; rev:1;)
+
+# CVE-2026-91922 - Steedos XSS via /api/page/render
+alert http any any -> any any (msg:"ET WEB Steedos Reflected XSS CVE-2026-91922"; flow:established,to_server; http.uri; content:"/api/page/render"; nocase; http.uri; content:"schemaApi="; nocase; http.uri; content:"</script>"; classtype:attempted-user; reference:cve,2026-91922; reference:ghsa,GHSA-925g-q5h8-6rmx; sid:5203415; rev:1;)
+
+# CVE-2026-92002 - MISP auth logging suppression via Redis outage
+alert http any any -> any any (msg:"ET POSSIBLE MISP Auth Failure Logging Suppression CVE-2026-92002"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/users/login"; nocase; http.response_body; content!"auth_fail"; classtype:attempted-admin; reference:cve,2026-92002; reference:ghsa,GHSA-f6c4-mg5x-232x; sid:5203416; rev:1;)
+
+# CVE-2026-92003 - MISP unthrottled API auth failure logging
+alert http any any -> any any (msg:"ET EXPLOIT MISP API Auth Failure Throttle Bypass CVE-2026-92003"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/users/login"; nocase; http.header; content!"X-Auth-Key"; classtype:attempted-admin; reference:cve,2026-92003; reference:ghsa,GHSA-rr6q-fmv4-p23m; sid:5203417; rev:1;)
+
+# CVE-2026-91926 - gss-ntlmssp memory leak NTLM
+alert tcp any any -> any any (msg:"ET EXPLOIT NTLM Duplicate AV_PAIR Memory Leak CVE-2026-91926"; flow:established,to_server; content:"NTLMSSP"; nocase; content:"|00 00 00 00|"; within:50; classtype:attempted-dos; reference:cve,2026-91926; reference:ghsa,GHSA-x7fj-4fx4-9f96; sid:5203418; rev:1;)
+
+# CVE-2026-91786 - GNOME Shell D-Bus icon OOB read
+alert tcp any any -> any any (msg:"ET EXPLOIT GNOME Shell D-Bus Icon OOB Read CVE-2026-91786"; flow:established,to_server; content:"org.gnome.Shell"; nocase; content:"SearchProvider"; classtype:attempted-dos; reference:cve,2026-91786; reference:ghsa,GHSA-f22f-r8xp-wr6f; sid:5203419; rev:1;)
+
+# CVE-2026-19515 - WSO2 MI VS Code extension command injection
+alert http any any -> any any (msg:"ET EXPLOIT WSO2 VS Code Extension Command Injection CVE-2026-19515"; flow:established,to_server; http.request_body; content:"wso2"; nocase; http.request_body; content:"mi-project"; nocase; http.request_body; content:"|3b|"; classtype:attempted-admin; reference:cve,2026-19515; reference:ghsa,GHSA-hrrx-73rq-wgm3; sid:5203420; rev:1;)
+
+# CVE-2026-77853 - OS command injection
+alert http any any -> any any (msg:"ET EXPLOIT Generic OS Command Injection CVE-2026-77853"; flow:established,to_server; http.request_body; content:"|3b|"; content:"cat"; nocase; distance:0; http.request_body; content:"|7c|"; classtype:attempted-admin; reference:cve,2026-77853; reference:ghsa,GHSA-fmfw-g6xj-377f; sid:5203421; rev:1;)
+
+# CVE-2026-91846 - MISP collection element from bare UUID
+alert http any any -> any any (msg:"ET EXPLOIT MISP Bare UUID Collection Element CVE-2026-91846"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/collections"; nocase; http.request_body; content:"uuid"; nocase; http.request_body; content!"collection_id"; classtype:attempted-admin; reference:cve,2026-91846; reference:ghsa,GHSA-wg2v-97w4-3m8g; sid:5203422; rev:1;)
+
+# CVE-2026-91825 - MISP sharing group authorization bypass
+alert http any any -> any any (msg:"ET EXPLOIT MISP Sharing Group Auth Bypass CVE-2026-91825"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/events/edit"; nocase; http.request_body; content:"SharingGroup"; nocase; classtype:attempted-admin; reference:cve,2026-91825; reference:ghsa,GHSA-f94m-4r58-rq9p; sid:5203423; rev:1;)
+
+# CVE-2026-76159 - Duplicati permission misassignment
+alert http any any -> any any (msg:"ET EXPLOIT Duplicati Config Permission Escalation CVE-2026-76159"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/api/v1/server"; nocase; http.response_body; content:"Duplicati"; classtype:attempted-admin; reference:cve,2026-76159; reference:ghsa,GHSA-8x3r-pmm8-3j9w; sid:5203424; rev:1;)
+
+# CVE-2026-91778 - Octopus Server scoped permission bypass
+alert http any any -> any any (msg:"ET EXPLOIT Octopus Server Scoped Permission Escalation CVE-2026-91778"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/tasks"; nocase; http.request_body; content:"SpacePermissions"; classtype:attempted-admin; reference:cve,2026-91778; reference:ghsa,GHSA-9wjw-f37c-vj83; sid:5203425; rev:1;)
+
+# CVE-2026-80217 - FF-RFI079I4 hidden functionality
+alert http any any -> any any (msg:"ET EXPLOIT FF-RFI Device Hidden Functionality CVE-2026-80217"; flow:established,to_server; http.uri; content:"/cgi-bin/"; nocase; http.header; content!"Referer"; classtype:attempted-admin; reference:cve,2026-80217; reference:ghsa,GHSA-g28v-9m8c-rvf6; sid:5203426; rev:1;)
+
+# CVE-2026-75092 - leapp-upgrade privilege escalation
+alert http any any -> any any (msg:"ET EXPLOIT leapp MySQL Actor Privilege Escalation CVE-2026-75092"; flow:established,to_server; http.request_body; content:"leapp"; nocase; http.request_body; content:"scan_mysql"; nocase; classtype:attempted-admin; reference:cve,2026-75092; reference:ghsa,GHSA-p54p-wj4h-hhp9; sid:5203427; rev:1;)
+
+# CVE-2026-75983 - Eventin WordPress plugin vulnerability
+alert http any any -> any any (msg:"ET WEB Eventin WordPress Plugin Exploitation CVE-2026-75983"; flow:established,to_server; http.uri; content:"/wp-content/plugins/eventin"; nocase; http.method; content:"POST"; classtype:attempted-admin; reference:cve,2026-75983; reference:ghsa,GHSA-4pw8-cp9g-3xr7; sid:5203428; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK COVERAGE EXPANSION - TACTIC: INITIAL ACCESS
+# ============================================================
+
+# T1133 - External Remote Services
+alert http any any -> any any (msg:"ET TROJAN External Remote Service VPN Portal Access"; flow:established,to_server; http.uri; content:"/remote/login"; nocase; http.header; content:"User-Agent"; content:"curl"; classtype:trojan-activity; reference:url,attack.mitre.org/techniques/T1133; sid:5203429; rev:1;)
+
+alert http any any -> any any (msg:"ET TROJAN Suspicious Remote Desktop Gateway Access Pattern"; flow:established,to_server; http.uri; content:"/RDWeb"; nocase; http.uri; content:"/Pages"; nocase; classtype:trojan-activity; reference:url,attack.mitre.org/techniques/T1133; sid:5203430; rev:1;)
+
+# T1190 - Exploit Public-Facing Application
+alert http any any -> any any (msg:"ET EXPLOIT Suspicious API Token Exposure in Response Header"; flow:established,to_client; http.header; content:"X-Auth-Token"; nocase; http.stat_code; content:"200"; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1190; sid:5203431; rev:1;)
+
+# T1078 - Valid Accounts
+alert http any any -> any any (msg:"ET POSSIBLE Valid Account Abuse Multiple Failed Then Success"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/login"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1078; sid:5203432; rev:1;)
+
+# T1566 - Phishing
+alert http any any -> any any (msg:"ET PHISHING Suspicious OAuth Consent URL"; flow:established,to_server; http.uri; content:"/oauth/authorize"; nocase; http.uri; content:"redirect_uri"; nocase; http.uri; content:"login.microsoftonline.com"; nocase; classtype:trojan-activity; reference:url,attack.mitre.org/techniques/T1566; sid:5203433; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - TACTIC: EXECUTION
+# ============================================================
+
+# T1059 - Command and Scripting Interpreter
+alert http any any -> any any (msg:"ET EXPLOIT Web Shell Command Execution via cmd.exe"; flow:established,to_server; http.request_body; content:"cmd.exe"; nocase; http.request_body; content:"/c"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1059; sid:5203434; rev:1;)
+
+alert http any any -> any any (msg:"ET EXPLOIT Unix Shell Command Execution Via Web"; flow:established,to_server; http.request_body; content:"/bin/sh"; nocase; http.request_body; content:"-c"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1059; sid:5203435; rev:1;)
+
+# T1053 - Scheduled Task/Job
+alert http any any -> any any (msg:"ET EXPLOIT Kubernetes CronJob Abuse for Persistence"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/apis/batch/v1beta1/cronjobs"; nocase; http.request_body; content:"schedule"; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1053; sid:5203436; rev:1;)
+
+# T1204 - User Execution
+alert http any any -> any any (msg:"ET TROJAN Malicious OneNote Document Download"; flow:established,to_client; http.header; content:"Content-Disposition"; nocase; http.header; content:".one"; nocase; classtype:trojan-activity; reference:url,attack.mitre.org/techniques/T1204; sid:5203437; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - TACTIC: PERSISTENCE
+# ============================================================
+
+# T1136 - Create Account
+alert http any any -> any any (msg:"ET EXPLOIT Kubernetes ServiceAccount Creation for Persistence"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/v1/namespaces"; nocase; http.uri; content:"/serviceaccounts"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1136; sid:5203438; rev:1;)
+
+# T1547 - Boot or Logon Autostart
+alert http any any -> any any (msg:"ET EXPLOIT Suspicious Registry Run Key Modification via Web"; flow:established,to_server; http.request_body; content:"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1547; sid:5203439; rev:1;)
+
+# T1078.004 - Cloud Accounts
+alert http any any -> any any (msg:"ET POSSIBLE Cloud Service Account Credential Stuffing"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/oauth/token"; nocase; http.header; content!"Cookie"; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1078/004; sid:5203440; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - TACTIC: PRIVILEGE ESCALATION
+# ============================================================
+
+# T1548 - Abuse Elevation Control Mechanism
+alert http any any -> any any (msg:"ET EXPLOIT sudo Privilege Escalation via Web Endpoint"; flow:established,to_server; http.request_body; content:"sudo"; nocase; http.request_body; content:"-S"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1548; sid:5203441; rev:1;)
+
+# T1068 - Exploitation for Privilege Escalation
+alert http any any -> any any (msg:"ET EXPLOIT Kubernetes Pod Escape via HostPID"; flow:established,to_server; http.request_body; content:"hostPID"; nocase; http.request_body; content:"hostNetwork"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1068; sid:5203442; rev:1;)
+
+# T1484 - Domain Policy Modification
+alert http any any -> any any (msg:"ET EXPLOIT Azure AD Domain Policy Modification"; flow:established,to_server; http.method; content:"PATCH"; http.uri; content:"/v1.0/policies"; nocase; http.request_body; content:"defaultUserRolePermissions"; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1484; sid:5203443; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - TACTIC: DEFENSE EVASION
+# ============================================================
+
+# T1027 - Obfuscated Files or Information
+alert http any any -> any any (msg:"ET EXPLOIT Base64 Encoded PowerShell Command via HTTP"; flow:established,to_server; http.request_body; content:"powershell"; nocase; http.request_body; content:"-enc"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1027; sid:5203444; rev:1;)
+
+# T1070 - Indicator Removal
+alert http any any -> any any (msg:"ET EXPLOIT Linux Log File Clearing via Web Shell"; flow:established,to_server; http.request_body; content:"/var/log/"; nocase; http.request_body; content:"truncate"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1070; sid:5203445; rev:1;)
+
+# T1562 - Impair Defenses
+alert http any any -> any any (msg:"ET EXPLOIT Cloud Security Group Rule Modification"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/v2/security-groups"; nocase; http.request_body; content:"0.0.0.0/0"; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1562; sid:5203446; rev:1;)
+
+# T1140 - Deobfuscate/Decode Files
+alert http any any -> any any (msg:"ET EXPLOIT XOR Decoded Payload in HTTP Request"; flow:established,to_server; http.request_body; content:"FromBase64String"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1140; sid:5203447; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - TACTIC: CREDENTIAL ACCESS
+# ============================================================
+
+# T1110 - Brute Force
+alert http any any -> any any (msg:"ET CREDENTIAL ACCESS Rapid Authentication Failure Burst"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/login"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1110; sid:5203448; rev:1;)
+
+# T1552 - Unsecured Credentials
+alert http any any -> any any (msg:"ET CREDENTIAL ACCESS Cloud Metadata Credential Access"; flow:established,to_server; http.uri; content:"/latest/meta-data/identity-credentials/"; nocase; http.header; content!"X-Forwarded-For"; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1552; sid:5203449; rev:1;)
+
+# T1003 - OS Credential Dumping
+alert http any any -> any any (msg:"ET EXPLOIT SAM Database Access via Web Shell"; flow:established,to_server; http.request_body; content:"sam"; nocase; http.request_body; content:"SYSTEM"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1003; sid:5203450; rev:1;)
+
+# T1558 - Steal or Forge Kerberos Tickets
+alert tcp any any -> any 88 (msg:"ET EXPLOIT Kerberos AS-REP Roasting"; flow:established,to_server; content:"krb5"; nocase; content:"AS-REQ"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1558; sid:5203451; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - TACTIC: DISCOVERY
+# ============================================================
+
+# T1087 - Account Discovery
+alert http any any -> any any (msg:"ET DISCOVERY Kubernetes API User Enumeration"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/api/v1/users"; nocase; classtype:attempted-recon; reference:url,attack.mitre.org/techniques/T1087; sid:5203452; rev:1;)
+
+# T1046 - Network Service Discovery
+alert tcp any any -> any any (msg:"ET DISCOVERY Mass Port Scan SYN Burst"; flags:S,12; threshold:type both, track by_src, count 50, seconds 10; classtype:attempted-recon; reference:url,attack.mitre.org/techniques/T1046; sid:5203453; rev:1;)
+
+# T1083 - File and Directory Discovery
+alert http any any -> any any (msg:"ET DISCOVERY Suspicious Directory Traversal Enumeration"; flow:established,to_server; http.uri; content:"../"; nocase; content:"etc/passwd"; nocase; classtype:attempted-recon; reference:url,attack.mitre.org/techniques/T1083; sid:5203454; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - TACTIC: LATERAL MOVEMENT
+# ============================================================
+
+# T1021 - Remote Services
+alert http any any -> any any (msg:"ET EXPLOIT Kubernetes API Server Proxy Lateral Movement"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/api/v1/namespaces/"; nocase; http.uri; content:"/proxy"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1021; sid:5203455; rev:1;)
+
+# T1210 - Exploitation of Remote Services
+alert tcp any any -> any 445 (msg:"ET EXPLOIT SMB Exploitation Attempt EternalBlue Pattern"; flow:established,to_server; content:"|FF 53 4D 42|"; content:"|00 00 00 00|"; distance:0; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1210; sid:5203456; rev:1;)
+
+# T1534 - Internal Spearphishing
+alert http any any -> any any (msg:"ET PHISHING Internal Phishing via Cloud File Share"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/share"; nocase; http.request_body; content:"password_reset"; nocase; classtype:trojan-activity; reference:url,attack.mitre.org/techniques/T1534; sid:5203457; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - TACTIC: COLLECTION
+# ============================================================
+
+# T1560 - Archive Collected Data
+alert http any any -> any any (msg:"ET EXFIL Suspicious Archive Creation via Web Shell"; flow:established,to_server; http.request_body; content:"tar"; nocase; http.request_body; content:"czf"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1560; sid:5203458; rev:1;)
+
+# T1005 - Data from Local System
+alert http any any -> any any (msg:"ET EXFIL Database Dump File Transfer"; flow:established,to_client; http.header; content:"Content-Disposition"; nocase; http.header; content:".sql"; nocase; http.header; content:".gz"; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1005; sid:5203459; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - TACTIC: EXFILTRATION
+# ============================================================
+
+# T1048 - Exfiltration Over Alternative Protocol
+alert http any any -> any any (msg:"ET EXFIL Large Data Transfer to Cloud Storage"; flow:established,to_server; http.method; content:"PUT"; http.uri; content:".blob.core.windows.net"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1048; sid:5203460; rev:1;)
+
+# T1041 - Exfiltration Over C2 Channel
+alert http any any -> any any (msg:"ET EXFIL Suspicious Base64 Data Exfiltration via HTTP POST"; flow:established,to_server; http.method; content:"POST"; http.request_body; content:"=="; http.request_body; content:"|0a|"; distance:0; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1041; sid:5203461; rev:1;)
+
+# T1567 - Exfiltration Over Web Service
+alert http any any -> any any (msg:"ET EXFIL Data Upload to Uncommon File Sharing Service"; flow:established,to_server; http.method; content:"POST"; http.host; content:"transfer.sh"; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1567; sid:5203462; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - TACTIC: COMMAND AND CONTROL
+# ============================================================
+
+# T1071 - Application Layer Protocol
+alert http any any -> any any (msg:"ET TROJAN Suspicious DNS-over-HTTPS C2 Communication"; flow:established,to_server; http.host; content:"dns.google"; nocase; http.method; content:"GET"; http.uri; content:"resolve"; nocase; classtype:trojan-activity; reference:url,attack.mitre.org/techniques/T1071; sid:5203463; rev:1;)
+
+# T1573 - Encrypted Channel
+alert tls any any -> any any (msg:"ET TROJAN Suspicious Self-Signed Certificate for C2"; tls.cert_subject; content:"CN="; content:"localhost"; classtype:trojan-activity; reference:url,attack.mitre.org/techniques/T1573; sid:5203464; rev:1;)
+
+# T1105 - Ingress Tool Transfer
+alert http any any -> any any (msg:"ET TROJAN Suspicious Binary Download from Untrusted Source"; flow:established,to_client; http.header; content:"Content-Type"; nocase; http.header; content:"application/octet-stream"; http.stat_code; content:"200"; http.uri; content:".exe"; nocase; classtype:trojan-activity; reference:url,attack.mitre.org/techniques/T1105; sid:5203465; rev:1;)
+
+# T1571 - Non-Standard Port
+alert tcp any any -> any 8443 (msg:"ET TROJAN Suspicious HTTPS C2 on Non-Standard Port"; flow:established,to_server; content:"|16 03|"; within:2; classtype:trojan-activity; reference:url,attack.mitre.org/techniques/T1571; sid:5203466; rev:1;)
+
+# T1090 - Proxy
+alert http any any -> any any (msg:"ET TROJAN Suspicious SOCKS Proxy Activity via HTTP"; flow:established,to_server; http.method; content:"CONNECT"; http.uri; content:":443"; classtype:trojan-activity; reference:url,attack.mitre.org/techniques/T1090; sid:5203467; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - TACTIC: IMPACT
+# ============================================================
+
+# T1486 - Data Encrypted for Impact
+alert http any any -> any any (msg:"ET RANSOMWARE Ransom Note Delivery via HTTP"; flow:established,to_client; http.response_body; content:"encrypted"; nocase; http.response_body; content:"bitcoin"; nocase; http.response_body; content:"payment"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1486; sid:5203468; rev:1;)
+
+# T1498 - Network Denial of Service
+alert icmp any any -> any any (msg:"ET DOS ICMP Flood Pattern"; icmp.type:8; threshold:type both, track by_src, count 100, seconds 5; classtype:attempted-dos; reference:url,attack.mitre.org/techniques/T1498; sid:5203469; rev:1;)
+
+# T1489 - Service Stop
+alert http any any -> any any (msg:"ET EXPLOIT Windows Service Termination via Web Shell"; flow:established,to_server; http.request_body; content:"net stop"; nocase; http.request_body; content:"WindowsDefender"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1489; sid:5203470; rev:1;)
+
+# ============================================================
+# CURRENT THREAT LANDSCAPE - 2026 EMERGING PATTERNS
+# ============================================================
+
+# AI/LLM supply chain attacks
+alert http any any -> any any (msg:"ET EXPLOIT AI Model API Unauthorized Prompt Injection"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/v1/chat/completions"; nocase; http.request_body; content:"ignore previous instructions"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1190; sid:5203471; rev:1;)
+
+# Supply chain - package manager abuse
+alert http any any -> any any (msg:"ET TROJAN Suspicious PyPI Package Download with Typo-Squat"; flow:established,to_server; http.host; content:"pypi.org"; http.uri; content:"reqeusts"; nocase; classtype:trojan-activity; reference:url,attack.mitre.org/techniques/T1195; sid:5203472; rev:1;)
+
+# API abuse patterns
+alert http any any -> any any (msg:"ET EXPLOIT GraphQL Introspection Query Abuse"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/graphql"; nocase; http.request_body; content:"__schema"; nocase; classtype:attempted-recon; reference:url,attack.mitre.org/techniques/T1087; sid:5203473; rev:1;)
+
+# OAuth token theft
+alert http any any -> any any (msg:"ET EXPLOIT OAuth Token Theft via Redirect URI Manipulation"; flow:established,to_server; http.uri; content:"/oauth/authorize"; nocase; http.uri; content:"redirect_uri"; nocase; http.uri; content:"evil.com"; nocase; classtype:attempted-admin; sid:5203474; rev:1;)
+
+# JWT algorithm confusion
+alert http any any -> any any (msg:"ET EXPLOIT JWT Algorithm Confusion Attack"; flow:established,to_server; http.header; content:"Authorization"; http.header; content:"eyJ"; http.request_body; content:"alg"; nocase; http.request_body; content:"none"; nocase; classtype:attempted-admin; sid:5203475; rev:1;)
+
+# HTTP Request Smuggling
+alert http any any -> any any (msg:"ET EXPLOIT HTTP Request Smuggling CL.TE Pattern"; flow:established,to_server; http.header; content:"Content-Length"; http.header; content:"Transfer-Encoding"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1133; sid:5203476; rev:1;)
+
+# Server-Side Template Injection (SSTI)
+alert http any any -> any any (msg:"ET EXPLOIT Jinja2 SSTI Template Injection"; flow:established,to_server; http.request_body; content:"{{"; http.request_body; content:"config"; nocase; distance:0; http.request_body; content:"}}"; distance:0; classtype:attempted-admin; sid:5203477; rev:1;)
+
+# SSRF to internal metadata
+alert http any any -> any any (msg:"ET EXPLOIT SSRF targeting AWS Metadata 169.254.169.254"; flow:established,to_server; http.uri; content:"169.254.169.254"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1190; sid:5203478; rev:1;)
+
+# Prototype Pollution
+alert http any any -> any any (msg:"ET EXPLOIT JavaScript Prototype Pollution"; flow:established,to_server; http.request_body; content:"__proto__"; nocase; classtype:attempted-admin; sid:5203479; rev:1;)
+
+# Cloud IAM abuse
+alert http any any -> any any (msg:"ET EXPLOIT AWS IAM Role Enumeration"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/v1/roles"; nocase; http.request_body; content:"Action"; nocase; http.request_body; content:"iam:"; nocase; classtype:attempted-recon; reference:url,attack.mitre.org/techniques/T1087; sid:5203480; rev:1;)
+
+# Container escape via privileged pod
+alert http any any -> any any (msg:"ET EXPLOIT Kubernetes Privileged Container Creation"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/v1/namespaces"; nocase; http.uri; content:"/pods"; nocase; http.request_body; content:"privileged"; nocase; http.request_body; content:"hostPID"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1611; sid:5203481; rev:1;)
+
+# Git config exposure
+alert http any any -> any any (msg:"ET RECON Git Configuration File Exposure"; flow:established,to_client; http.stat_code; content:"200"; http.uri; content:"/.gitconfig"; nocase; classtype:attempted-recon; sid:5203482; rev:1;)
+
+# .env file exposure
+alert http any any -> any any (msg:"ET RECON Environment Configuration File Exposure"; flow:established,to_client; http.stat_code; content:"200"; http.uri; content:"/.env"; nocase; classtype:attempted-recon; sid:5203483; rev:1;)
+
+# WordPress plugin exploitation
+alert http any any -> any any (msg:"ET WEB WordPress Plugin Arbitrary File Upload"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/wp-content/uploads"; nocase; http.request_body; content:"filename"; nocase; http.request_body; content:".php"; classtype:attempted-admin; sid:5203484; rev:1;)
+
+# Redis unauthorized access
+alert tcp any any -> any 6379 (msg:"ET EXPLOIT Redis Unauthenticated Access"; flow:established,to_server; content:"INFO"; nocase; within:10; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1190; sid:5203485; rev:1;)
+
+# MongoDB unauthorized access
+alert tcp any any -> any 27017 (msg:"ET EXPLOIT MongoDB Unauthenticated Access Attempt"; flow:established,to_server; content:"ismaster"; within:20; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1190; sid:5203486; rev:1;)
+
+# Elasticsearch RCE
+alert http any any -> any 9200 (msg:"ET EXPLOIT Elasticsearch Command Injection"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/_search"; nocase; http.request_body; content:"Runtime"; nocase; http.request_body; content:"exec"; nocase; classtype:attempted-admin; sid:5203487; rev:1;)
+
+# Kafka unauthorized access
+alert tcp any any -> any 9092 (msg:"ET EXPLOIT Apache Kafka Unauthenticated Metadata Request"; flow:established,to_server; content:"|00 00 00 00 19|"; within:5; content:"ApiVersions"; classtype:attempted-recon; sid:5203488; rev:1;)
+
+# Consul service registration abuse
+alert http any any -> any any (msg:"ET EXPLOIT HashiCorp Consul RCE via Service Registration"; flow:established,to_server; http.method; content:"PUT"; http.uri; content:"/v1/agent/service/register"; nocase; http.request_body; content:"/bin/sh"; nocase; classtype:attempted-admin; sid:5203489; rev:1;)
+
+# Terraform state file exposure
+alert http any any -> any any (msg:"ET RECON Terraform State File Exposure"; flow:established,to_client; http.stat_code; content:"200"; http.uri; content:"terraform.tfstate"; nocase; classtype:attempted-recon; sid:5203490; rev:1;)
+
+# CI/CD pipeline poisoning
+alert http any any -> any any (msg:"ET EXPLOIT GitHub Actions Workflow Injection"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/repos/"; nocase; http.uri; content:"/actions/workflows"; nocase; http.request_body; content:"pwn_request"; nocase; classtype:attempted-admin; reference:url,attack.mitre.org/techniques/T1195; sid:5203491; rev:1;)
+
+# Ansible playbook abuse
+alert http any any -> any any (msg:"ET EXPLOIT Ansible AWX/Tower Command Execution"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/v2/job_templates"; nocase; http.request_body; content:"ansible"; nocase; http.request_body; content:"command"; nocase; classtype:attempted-admin; sid:5203492; rev:1;)
+
+# Apache Airflow RCE
+alert http any any -> any any (msg:"ET EXPLOIT Apache Airflow Command Injection CVE Pattern"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/v1/dags"; nocase; http.request_body; content:"BashOperator"; nocase; classtype:attempted-admin; sid:5203493; rev:1;)
+
+# Nacos authentication bypass
+alert http any any -> any any (msg:"ET EXPLOIT Nacos Identity Key Bypass"; flow:established,to_server; http.uri; content:"/nacos/v1/auth"; nocase; http.header; content:"identity-key-match"; nocase; classtype:attempted-admin; sid:5203494; rev:1;)
+
+# Spring Actuator exposure
+alert http any any -> any any (msg:"ET RECON Spring Boot Actuator Env Exposure"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/actuator/env"; nocase; classtype:attempted-recon; sid:5203495; rev:1;)
+
+# Swagger/OpenAPI exposure
+alert http any any -> any any (msg:"ET RECON OpenAPI Specification Exposure"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/swagger-ui/"; nocase; classtype:attempted-recon; sid:5203496; rev:1;)
+
+# Grafana authentication bypass
+alert http any any -> any any (msg:"ET EXPLOIT Grafana Auth Proxy Header Bypass"; flow:established,to_server; http.uri; content:"/api/admin"; nocase; http.header; content:"X-WEBAUTH-USER"; classtype:attempted-admin; sid:5203497; rev:1;)
+
+# Jenkins script console abuse
+alert http any any -> any any (msg:"ET EXPLOIT Jenkins Script Console Execution"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/scriptText"; nocase; http.request_body; content:"println"; nocase; classtype:attempted-admin; sid:5203498; rev:1;)
+
+# ArgoCD unauthorized access
+alert http any any -> any any (msg:"ET EXPLOIT ArgoCD Session Token Abuse"; flow:established,to_server; http.uri; content:"/api/v1/session"; nocase; http.header; content!"Authorization"; classtype:attempted-admin; sid:5203499; rev:1;)
+
+# HashiCorp Vault token abuse
+alert http any any -> any any (msg:"ET EXPLOIT HashiCorp Vault Root Token Abuse"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/v1/sys/root"; nocase; http.header; content:"X-Vault-Token"; classtype:attempted-admin; sid:5203500; rev:1;)

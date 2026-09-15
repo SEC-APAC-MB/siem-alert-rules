@@ -1,0 +1,41 @@
+{
+  "displayName": "GHADV-1888: OpenAM Authenticated Server-Side Request Forgery (SSRF) via `/sessionservice`",
+  "description": "OpenAM Authenticated Server-Side Request Forgery (SSRF) via `/sessionservice`\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "GHADV-1888",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1190"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "GHADV-1888_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "openam authenticated server-side request forgery (",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_ssrf_ghadv_1888\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%openam%' OR \"data__json.message\" LIKE '%authenticated%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_ssrf_ghadv_1888\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%openam%' OR \"data__json.message\" LIKE '%authenticated%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "GHADV-1888",
+    "category": "ssrf",
+    "severity_label": "MEDIUM"
+  }
+}

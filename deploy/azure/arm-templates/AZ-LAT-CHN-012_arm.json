@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-LAT-CHN-012",
+      "properties": {
+        "displayName": "Lateral movement chain \u2014 VPN \u2192 Internal Recon \u2192 Lateral Movement",
+        "description": "Detects VPN compromise followed by internal reconnaissance and lateral movement",
+        "severity": "Medium",
+        "query": "let vpn_events = SigninLogs | where AppDisplayName has_any (\"VPN\", \"GlobalProtect\", \"AnyConnect\") and ResultType == 0 | summarize vpn_time=min(TimeGenerated) by UserPrincipalName, IpAddress;\nlet recon_events = SecurityEvent | where EventID in (4662, 5136) | summarize recon_time=min(TimeGenerated) by SubjectUserName;\nlet lateral_events = SecurityEvent | where EventID == 4624 and LogonType == 3 | summarize lat_time=min(TimeGenerated) by TargetUserName;\nvpn_events | join kind=inner recon_events on $left.UserPrincipalName == $right.SubjectUserName | where recon_time - vpn_time between (0min .. 60min)",
+        "queryFrequency": "PT1H",
+        "queryPeriod": "PT1H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 1,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4,PCI-DSS-10.2"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-LAT-CHN-012"
+    }
+  }
+}

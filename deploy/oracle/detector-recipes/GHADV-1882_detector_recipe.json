@@ -1,0 +1,42 @@
+{
+  "displayName": "GHADV-1882: Spinnaker has non-safe yaml deserialization, allowing RCE when using specific types",
+  "description": "Spinnaker has non-safe yaml deserialization, allowing RCE when using specific types\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "GHADV-1882",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1203",
+      "T1190"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "GHADV-1882_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "spinnaker has non-safe yaml deserialization, allow",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_deserialization_ghadv_1882\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%spinnaker%' OR \"data__json.message\" LIKE '%non%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_deserialization_ghadv_1882\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%spinnaker%' OR \"data__json.message\" LIKE '%non%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "GHADV-1882",
+    "category": "deserialization",
+    "severity_label": "MEDIUM"
+  }
+}

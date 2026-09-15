@@ -1,0 +1,41 @@
+{
+  "displayName": "GHADV-4550: Spring AI's VectorStoreChatMemoryAdvisor conversation scoping can lead to cross-tenant memory exfiltration",
+  "description": "Spring AI's VectorStoreChatMemoryAdvisor conversation scoping can lead to cross-tenant memory exfiltration\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "GHADV-4550",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1078"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "GHADV-4550_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "spring ai's vectorstorechatmemoryadvisor conversat",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_auth_bypass_ghadv_4550\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%spring%' OR \"data__json.message\" LIKE '%vectorstorechatmemoryadvisor%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_auth_bypass_ghadv_4550\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%spring%' OR \"data__json.message\" LIKE '%vectorstorechatmemoryadvisor%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "GHADV-4550",
+    "category": "auth-bypass",
+    "severity_label": "MEDIUM"
+  }
+}

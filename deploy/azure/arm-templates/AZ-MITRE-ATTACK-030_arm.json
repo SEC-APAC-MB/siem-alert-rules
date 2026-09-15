@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-MITRE-ATTACK-030",
+      "properties": {
+        "displayName": "MITRE T1037: Boot or Logon Initialization Scripts",
+        "description": "Detects ATT&CK technique T1037 (Boot or Logon Initialization Scripts). Adversaries may use scripts automatically executed at boot or logon initialization to establish persistence.(Citation: Mandiant APT29 Eye Spy Email Nov 22)(Citation: Anomali Rocke March 2019) Initiali",
+        "severity": "Medium",
+        "query": "SecurityEvent | where EventID == 4688 | where NewProcessName contains \"mitre\" or CommandLine contains \"t1037\" | summarize count() by bin(TimeGenerated, 5m), Computer, Account, NewProcessName | where count_ > 5 // AZ-MITRE-ATTACK-030",
+        "queryFrequency": "5m",
+        "queryPeriod": "10m",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [
+          "T1037"
+        ],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4,PCI-DSS-10.2"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-MITRE-ATTACK-030"
+    }
+  }
+}

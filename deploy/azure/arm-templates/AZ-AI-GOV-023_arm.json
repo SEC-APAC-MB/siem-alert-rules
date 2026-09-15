@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-AI-GOV-023",
+      "properties": {
+        "displayName": "AI \u2014 Children's Data Protection Violation",
+        "description": "Detects AI systems processing children's data without required parental consent or age verification",
+        "severity": "Medium",
+        "query": "AuditLogs | where OperationName contains \"children\" | summarize count() by bin(TimeGenerated, 5m), InitiatedBy | where count_ > 1 // AZ-AI-GOV-023",
+        "queryFrequency": "PT5M",
+        "queryPeriod": "PT5M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 1,
+        "tactics": [
+          "Persistence"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "AI-GOV-020,GDPR-8,COPPA,EU-AI-Art-5"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-AI-GOV-023"
+    }
+  }
+}

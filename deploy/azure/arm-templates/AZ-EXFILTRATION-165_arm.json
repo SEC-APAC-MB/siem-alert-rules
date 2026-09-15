@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-EXFILTRATION-165",
+      "properties": {
+        "displayName": "Web Shell Data Exfiltration",
+        "description": "Detect file upload/download via web shell endpoints",
+        "severity": "Medium",
+        "query": "CommonSecurityLog| where DestinationPort in (80, 443)| where DeviceAction == \"Denied\" or DeviceAction == \"Blocked\"| summarize count() by bin(TimeGenerated, 5m), SourceIP, DestinationIP | where count_ > 5 // AZ-EXFILTRATION-165",
+        "queryFrequency": "5m",
+        "queryPeriod": "10m",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "Exfiltration"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled"
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-EXFILTRATION-165"
+    }
+  }
+}

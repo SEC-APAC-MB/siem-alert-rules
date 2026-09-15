@@ -1,0 +1,42 @@
+{
+  "displayName": "GHADV-1061: ArcadeDB: IMPORT DATABASE allows SSRF and arbitrary local file read by authenticated users",
+  "description": "ArcadeDB: IMPORT DATABASE allows SSRF and arbitrary local file read by authenticated users\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "GHADV-1061",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1005",
+      "T1083"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "GHADV-1061_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "arcadedb",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_path_traversal_ghadv_1061\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%arcadedb%' OR \"data__json.message\" LIKE '%import%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_path_traversal_ghadv_1061\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%arcadedb%' OR \"data__json.message\" LIKE '%import%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "GHADV-1061",
+    "category": "path-traversal",
+    "severity_label": "MEDIUM"
+  }
+}

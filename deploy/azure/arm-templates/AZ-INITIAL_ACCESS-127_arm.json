@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-INITIAL_ACCESS-127",
+      "properties": {
+        "displayName": "Phishing Link Detection",
+        "description": "Detect credential harvesting links in email via URL reputation",
+        "severity": "Medium",
+        "query": "SecurityEvent | where EventID == 4688 | where NewProcessName contains \"phishing\" or CommandLine contains \"link\" | summarize count() by bin(TimeGenerated, 5m), Computer, Account, NewProcessName | where count_ > 5 // AZ-INITIAL_ACCESS-127",
+        "queryFrequency": "5m",
+        "queryPeriod": "10m",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled"
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-INITIAL_ACCESS-127"
+    }
+  }
+}

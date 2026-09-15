@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "GHADV-1414",
+      "properties": {
+        "displayName": "Steeltoe's static JWKS cache shared across schemes and never invalidated",
+        "description": "Steeltoe's static JWKS cache shared across schemes and never invalidated",
+        "severity": "Medium",
+        "query": "SecurityEvent | where Process has_any(\"Steeltoe.Security.Authentication.CloudFoundryBase\", \"Steeltoe.Security.Authentication.OpenIdConnect\", \"Steeltoe.Security.Authentication.JwtBearer\")",
+        "queryFrequency": "PT5M",
+        "queryPeriod": "PT15M",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 3,
+        "tactics": [
+          "InitialAccess"
+        ],
+        "techniques": [
+          "T1190"
+        ],
+        "enabled": true,
+        "kind": "Scheduled"
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "GHADV-1414"
+    }
+  }
+}

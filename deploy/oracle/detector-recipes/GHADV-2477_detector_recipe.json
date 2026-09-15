@@ -1,0 +1,41 @@
+{
+  "displayName": "GHADV-2477: ConnectBot SSH Client Library: Unbounded SSH field lengths can cause excessive memory allocation",
+  "description": "ConnectBot SSH Client Library: Unbounded SSH field lengths can cause excessive memory allocation\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "detector": "OCI_ACTIVITY",
+  "detectorRecipeId": "GHADV-2477",
+  "sourceDetectorRecipeId": null,
+  "severity": "MEDIUM",
+  "mappings": {
+    "mitreAttackTactics": [],
+    "mitreAttackTechniques": [
+      "T1190"
+    ],
+    "compliance": []
+  },
+  "conditionGroups": [
+    {
+      "groupName": "GHADV-2477_rewritten",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "CONTAINS",
+          "value": "connectbot ssh client library",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    }
+  ],
+  "dataSourceDetails": {
+    "dataSource": "OCI_AUDIT",
+    "namespace": "AuditEvents",
+    "query": "SELECT \"siem_input_validation_ghadv_2477\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%connectbot%' OR \"data__json.message\" LIKE '%ssh%') AND \"value\" > 0",
+    "originalQuery": "SELECT \"siem_input_validation_ghadv_2477\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%connectbot%' OR \"data__json.message\" LIKE '%ssh%') AND \"value\" > 0"
+  },
+  "isEnabled": true,
+  "labels": {
+    "rule_id": "GHADV-2477",
+    "category": "input-validation",
+    "severity_label": "MEDIUM"
+  }
+}

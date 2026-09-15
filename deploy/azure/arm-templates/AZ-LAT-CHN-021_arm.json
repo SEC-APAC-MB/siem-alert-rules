@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-LAT-CHN-021",
+      "properties": {
+        "displayName": "Lateral movement chain \u2014 Pass-the-Cert \u2192 AD CS \u2192 Domain Admin",
+        "description": "Detects certificate-based authentication abuse followed by AD CS exploitation for domain admin",
+        "severity": "Medium",
+        "query": "let cert_events = SecurityEvent | where EventID == 4624 and AuthenticationProtocol == \"X509\" | summarize cert_time=min(TimeGenerated) by TargetUserName, Computer;\nlet adcs_events = SecurityEvent | where EventID == 4898 or (EventID == 4662 and Properties has \"Certificate Templates\") | summarize adcs_time=min(TimeGenerated) by SubjectUserName;\ncert_events | join kind=inner adcs_events on $left.TargetUserName == $right.SubjectUserName | where adcs_time - cert_time between (0min .. 120min)",
+        "queryFrequency": "PT2H",
+        "queryPeriod": "PT2H",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 1,
+        "tactics": [
+          "Discovery"
+        ],
+        "techniques": [],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-LAT-CHN-021"
+    }
+  }
+}

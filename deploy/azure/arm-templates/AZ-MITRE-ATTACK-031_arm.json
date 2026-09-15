@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "The name of the Sentinel workspace"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2024-03-01",
+      "type": "Microsoft.SecurityInsights/alertRules",
+      "name": "AZ-MITRE-ATTACK-031",
+      "properties": {
+        "displayName": "MITRE T1557: Adversary-in-the-Middle",
+        "description": "Detects ATT&CK technique T1557 (Adversary-in-the-Middle). Adversaries may attempt to position themselves between two or more networked devices using an adversary-in-the-middle (AiTM) technique to support follow-on behaviors such as [Network Sniffing](https:/",
+        "severity": "Medium",
+        "query": "CommonSecurityLog| where DestinationIP !startswith \"10.\" and SourceIP !startswith \"10.\"| summarize count() by bin(TimeGenerated, 5m), SourceIP, DestinationIP | where count_ > 5 // AZ-MITRE-ATTACK-031",
+        "queryFrequency": "5m",
+        "queryPeriod": "10m",
+        "triggerOperator": "GreaterThan",
+        "triggerThreshold": 5,
+        "tactics": [
+          "CredentialAccess"
+        ],
+        "techniques": [
+          "T1557"
+        ],
+        "enabled": true,
+        "kind": "Scheduled",
+        "tags": {
+          "compliance": "NIST-800-53-SI-4,PCI-DSS-10.2"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "ruleId": {
+      "type": "string",
+      "value": "AZ-MITRE-ATTACK-031"
+    }
+  }
+}
