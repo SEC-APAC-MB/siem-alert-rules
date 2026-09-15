@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-privilege-escalation (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-14T04:05:03.547300Z",
-  "total_rules": 14,
+  "converted": "2026-09-15T04:05:04.100744Z",
+  "total_rules": 6,
   "rules": [
     {
       "rule_id": "AZ-PRIVILEGE-ESCALATION-002",
@@ -143,6 +143,36 @@
         "GDPR-32A"
       ],
       "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"CVE-2026-86060\" or Message contains \"ROUTEROS\" | summarize count() by bin(TimeGenerated, 5m), clientIp_s | where count_ > 3",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-86060",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AZ-PRIVILEGE-ESCALATION-005",
+      "name": "CVE-2026-86060 \u2014 RouterOS Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-86060: MikroTik RouterOS contains an improper neutralization of argument delimiters in a command vulnerability which allows an attacked to change the trusted RouterOS policy mask, leading to privilege escalation.. Product: RouterOS",
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "privilege-escalation",
+      "tactics": [
+        "PrivilegeEscalation"
+      ],
+      "mitre_attack": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SecurityEvent | where EventID in (4672, 4688) and (CommandLine contains \"sudo\" or CommandLine contains \"runas\") | summarize count() by Account, bin(TimeGenerated, 5m)",
       "queryFrequency": "5m",
       "queryPeriod": "10m",
       "triggerOperator": "GreaterThan",

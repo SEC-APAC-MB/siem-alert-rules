@@ -1,6 +1,5 @@
-# DEPRECATED-CVE: Contains references to stale CVEs (CVE-2019-1068). Review before deployment.
 # Zeek SIEM Alert Rules — generated-database
-# Auto-generated: 2026-09-14T04:05:03.478981Z
+# Auto-generated: 2026-09-15T04:05:04.029990Z
 # Load in local.zeek: @load ./generated-database
 
 signature ZK-DATABASE-001 {
@@ -8,13 +7,6 @@ signature ZK-DATABASE-001 {
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*(cve\-2026\-21962).*/ regex
 	event "CVE-2026-21962 — HTTP Server and Oracle Weblogic Server Proxy Plug-in Exploitation"
-}
-
-signature ZK-DATABASE-009 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /.*(cve\-2019\-1068).*/ regex
-	event "CVE-2019-1068 — SQL Server Exploitation"
 }
 
 signature ZK-DATABASE-011 {
@@ -31,23 +23,9 @@ signature ZK-DATABASE-013 {
 	event "CVE-2026-21962 — HTTP Server and Oracle Weblogic Server Proxy Plug-in Exploitation"
 }
 
-signature ZK-DATABASE-018 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /.*(cve\-2019\-1068).*/ regex
-	event "CVE-2019-1068 — SQL Server Exploitation"
-}
-
 signature ZK-DATABASE-020 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*(cve\-2026\-21962).*/ regex
 	event "CVE-2026-21962 — HTTP Server and Oracle Weblogic Server Proxy Plug-in Exploitation"
-}
-
-signature ZK-DATABASE-019 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /.*(cve\-2019\-1068).*/ regex
-	event "CVE-2019-1068 — SQL Server Exploitation"
 }

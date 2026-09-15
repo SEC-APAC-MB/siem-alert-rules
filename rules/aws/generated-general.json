@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-general (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-14T04:05:03.584694Z",
-  "total_rules": 20,
+  "converted": "2026-09-15T04:05:04.137255Z",
+  "total_rules": 18,
   "rules": [
     {
       "rule_id": "AWS-GENERAL-002",
@@ -962,6 +962,129 @@
         "general",
         "cve",
         "cve-2026-59822",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-GENERAL-001",
+      "name": "CVE-2026-84869 \u2014 ScreenConnect Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-84869: ConnectWise ScreenConnect contains both an improper privilege management and missing authorization vulnerability that may allow an attacker to file transfer and execution through an active remote sessions without authorization or host confirmation.. Product: ScreenConnect",
+      "severity": "critical",
+      "category": "general",
+      "mitre_attack": [
+        "T1110",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-84869\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202684869ScreenConnectExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-84869 \u2014 ScreenConnect Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "general",
+        "cve",
+        "cve-2026-84869",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-GENERAL-007",
+      "name": "CVE-2026-19490 \u2014 NetScaler Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-19490: Citrix NetScaler ADC and NetScaler Gateway contain an authentication-bypass vulnerability involving an alternate path or channel. When the NetScaler appliance is configured as an AAA virtual server or as a Gateway (SSL VPN, ICA Proxy, CVPN, or RDP Proxy), an unauthenticated remote threat actor may be able to bypass authentication.. Product: NetScaler",
+      "severity": "critical",
+      "category": "general",
+      "mitre_attack": [
+        "T1110",
+        "T1190",
+        "T1133",
+        "T1078",
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-19490\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202619490NetScalerExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-19490 \u2014 NetScaler Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "general",
+        "cve",
+        "cve-2026-19490",
         "exploited"
       ]
     }

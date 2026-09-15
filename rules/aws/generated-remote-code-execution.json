@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-remote-code-execution (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-14T04:05:03.595071Z",
-  "total_rules": 17,
+  "converted": "2026-09-15T04:05:04.146960Z",
+  "total_rules": 15,
   "rules": [
     {
       "rule_id": "AWS-REMOTE-CODE-EXECUTION-003",
@@ -859,6 +859,68 @@
         "remote-code-execution",
         "cve",
         "cve-2026-85046",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-REMOTE-CODE-EXECUTION-004",
+      "name": "CVE-2026-85706 \u2014 Community Edition and Enterprise Edition Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-85706: GitLab Community Edition and Enterprise Edition contains a path traversal vulnerability that allows an unauthenticated user to read arbitrary files due to an improper path confinement and missing authentication enforcement in the repository commits API.. Product: Community Edition and Enterprise Edition",
+      "severity": "critical",
+      "category": "remote-code-execution",
+      "mitre_attack": [
+        "T1059",
+        "T1190",
+        "T1110",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-85706\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202685706CommunityEditionandEnterpriseEditionExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-85706 \u2014 Community Edition and Enterprise "
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "remote-code-execution",
+        "cve",
+        "cve-2026-85706",
         "exploited"
       ]
     }
