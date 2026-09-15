@@ -1,25 +1,59 @@
 {
   "displayName": "OCI-WSTG09-003: Race Condition \u2014 Concurrent Request Exploitation",
-  "description": "Detects concurrent requests exploiting race conditions in financial or state-changing operations\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects concurrent requests exploiting race conditions in financial or state-changing operations",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-WSTG09-003",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1129"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-WSTG09-003_rewritten",
+      "groupName": "OCI-WSTG09-003_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "race condition \u2014 concurrent request exploitation",
+          "operator": "EQ",
+          "value": "CreateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "PutObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateAutonomousDatabase",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-WSTG09-003_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateVolumeAttachment",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +63,23 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_wstg09_003\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%race%' OR \"data__json.message\" LIKE '%condition%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_wstg09_003\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%race%' OR \"data__json.message\" LIKE '%condition%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateInstance','UpdateInstance','CreateObject','PutObject','UpdateAutonomousDatabase','CreateVolumeAttachment')",
+    "events": [
+      "CreateInstance",
+      "UpdateInstance",
+      "CreateObject",
+      "PutObject",
+      "UpdateAutonomousDatabase",
+      "CreateVolumeAttachment"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-WSTG09-003",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "wstg-07-09.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 6 real audit event(s)"
 }

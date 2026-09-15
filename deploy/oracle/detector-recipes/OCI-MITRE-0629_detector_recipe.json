@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-MITRE-0629: Remote Services: SMB",
-  "description": "Detects Remote Services: SMB (T1021.002)\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects Remote Services: SMB (T1021.002)",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-MITRE-0629",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1021.002"
     ],
@@ -20,12 +19,66 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-MITRE-0629_rewritten",
+      "groupName": "OCI-MITRE-0629_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "remote services",
+          "operator": "EQ",
+          "value": "CreateSession",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateAuthToken",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePolicy",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-MITRE-0629_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AddUserToGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateUser",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateUserState",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "InstanceAction",
           "dataType": "STRING"
         }
       ],
@@ -35,13 +88,26 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_mitre_attack_mitre_0629\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (3389) AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_mitre_attack_mitre_0629\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (3389) AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateSession','CreateAuthToken','CreateApiKey','UpdatePolicy','CreatePolicy','AddUserToGroup','UpdateUser','UpdateUserState','InstanceAction')",
+    "events": [
+      "CreateSession",
+      "CreateAuthToken",
+      "CreateApiKey",
+      "UpdatePolicy",
+      "CreatePolicy",
+      "AddUserToGroup",
+      "UpdateUser",
+      "UpdateUserState",
+      "InstanceAction"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-MITRE-0629",
     "category": "mitre-attack",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "mitre-attack.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 9 real audit event(s)"
 }

@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-PRIVILEGE-ESCALATION-001: CVE-2026-86060 \u2014 RouterOS Exploitation",
-  "description": "Detects exploitation attempts targeting CVE-2026-86060: MikroTik RouterOS contains an improper neutralization of argument delimiters in a command vulnerability which allows an attacked to change the trusted RouterOS policy mask, leading to privilege escalation.. Product: RouterOS\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects exploitation attempts targeting CVE-2026-86060: MikroTik RouterOS contains an improper neutralization of argument delimiters in a command vulnerability which allows an attacked to change the trusted RouterOS policy mask, leading to privilege escalation.. Product: RouterOS",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-PRIVILEGE-ESCALATION-001",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1548"
     ],
@@ -18,12 +17,30 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-PRIVILEGE-ESCALATION-001_rewritten",
+      "groupName": "OCI-PRIVILEGE-ESCALATION-001_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "cve-2026-86060 \u2014 routeros exploitation",
+          "operator": "EQ",
+          "value": "UpdatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AddUserToGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateUserCapabilities",
           "dataType": "STRING"
         }
       ],
@@ -33,13 +50,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_privilege_escalation_privilege_escalation_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_privilege_escalation_privilege_escalation_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('UpdatePolicy','CreatePolicy','AddUserToGroup','UpdateUserCapabilities')",
+    "events": [
+      "UpdatePolicy",
+      "CreatePolicy",
+      "AddUserToGroup",
+      "UpdateUserCapabilities"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-PRIVILEGE-ESCALATION-001",
     "category": "privilege-escalation",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "generated-privilege-escalation.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

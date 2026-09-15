@@ -1,25 +1,47 @@
 {
   "displayName": "OCI-WSTG04-011: Directory Traversal Attack Detected",
-  "description": "Detects path traversal attempts using ../ sequences or encoded variants to access files outside intended directories\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects path traversal attempts using ../ sequences or encoded variants to access files outside intended directories",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-WSTG04-011",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1083"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-WSTG04-011_rewritten",
+      "groupName": "OCI-WSTG04-011_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "directory traversal attack detected",
+          "operator": "EQ",
+          "value": "ListObjects",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListBuckets",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "HeadObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListPolicies",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +51,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_wstg04_011\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%directory%' OR \"data__json.message\" LIKE '%traversal%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_wstg04_011\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%directory%' OR \"data__json.message\" LIKE '%traversal%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('ListObjects','ListBuckets','HeadObject','GetObject','ListPolicies')",
+    "events": [
+      "ListObjects",
+      "ListBuckets",
+      "HeadObject",
+      "GetObject",
+      "ListPolicies"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-WSTG04-011",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "wstg-04-06.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

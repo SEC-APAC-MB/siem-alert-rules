@@ -1,25 +1,41 @@
 {
   "displayName": "GHADV-1576: GeoNetwork has ACL bypass on Elasticsearch search when request body omits query field",
-  "description": "GeoNetwork has ACL bypass on Elasticsearch search when request body omits query field\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "GeoNetwork has ACL bypass on Elasticsearch search when request body omits query field",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-1576",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1548"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-1576_rewritten",
+      "groupName": "GHADV-1576_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "geonetwork has acl bypass on elasticsearch search ",
+          "operator": "EQ",
+          "value": "UpdatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AddUserToGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateUserCapabilities",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +45,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_auth_bypass_ghadv_1576\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" IN ('CreateVcn', 'UpdateVcn', 'DeleteVcn', 'CreateSubnet', 'UpdateSubnet', 'DeleteSubnet', 'CreateSecurityList', 'UpdateSecurityList', 'CreateNetworkSecurityGroup', 'UpdateNetworkSecurityGroup') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_auth_bypass_ghadv_1576\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" IN ('CreateVcn', 'UpdateVcn', 'DeleteVcn', 'CreateSubnet', 'UpdateSubnet', 'DeleteSubnet', 'CreateSecurityList', 'UpdateSecurityList', 'CreateNetworkSecurityGroup', 'UpdateNetworkSecurityGroup') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('UpdatePolicy','CreatePolicy','AddUserToGroup','UpdateUserCapabilities')",
+    "events": [
+      "UpdatePolicy",
+      "CreatePolicy",
+      "AddUserToGroup",
+      "UpdateUserCapabilities"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-1576",
     "category": "auth-bypass",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

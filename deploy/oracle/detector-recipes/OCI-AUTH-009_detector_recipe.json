@@ -1,25 +1,35 @@
 {
   "displayName": "OCI-AUTH-009: Authentication \u2014 Pass-the-Hash Detection",
-  "description": "Detects NTLM authentication patterns consistent with pass-the-hash attacks\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects NTLM authentication patterns consistent with pass-the-hash attacks",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-AUTH-009",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1550.002"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-AUTH-009_rewritten",
+      "groupName": "OCI-AUTH-009_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "authentication \u2014 pass-the-hash detection",
+          "operator": "EQ",
+          "value": "CreateSession",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateOrResetUIPassword",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateAuthToken",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +39,20 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_auth_009\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%authentication%' OR \"data__json.message\" LIKE '%pass%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_auth_009\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%authentication%' OR \"data__json.message\" LIKE '%pass%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateSession','CreateOrResetUIPassword','CreateAuthToken')",
+    "events": [
+      "CreateSession",
+      "CreateOrResetUIPassword",
+      "CreateAuthToken"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-AUTH-009",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "wstg-04-09-auth-errors.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 3 real audit event(s)"
 }

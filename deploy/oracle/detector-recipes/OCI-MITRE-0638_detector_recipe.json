@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-MITRE-0638: Exfiltration to Cloud Storage",
-  "description": "Detects Exfiltration to Cloud Storage (T1567.002)\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects Exfiltration to Cloud Storage (T1567.002)",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-MITRE-0638",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1567.002"
     ],
@@ -20,12 +19,36 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-MITRE-0638_rewritten",
+      "groupName": "OCI-MITRE-0638_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "exfiltration to cloud storage",
+          "operator": "EQ",
+          "value": "CreateObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "PutObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CopyObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateBucket",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetObject",
           "dataType": "STRING"
         }
       ],
@@ -35,13 +58,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_mitre_attack_mitre_0638\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_mitre_attack_mitre_0638\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateObject','PutObject','CopyObject','CreateBucket','GetObject')",
+    "events": [
+      "CreateObject",
+      "PutObject",
+      "CopyObject",
+      "CreateBucket",
+      "GetObject"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-MITRE-0638",
     "category": "mitre-attack",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "mitre-attack.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

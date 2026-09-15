@@ -1,26 +1,60 @@
 {
   "displayName": "GHADV-0812: Netty: Missing CertificateID Validation in OCSP Response Allows Replay Attacks",
-  "description": "Netty: Missing CertificateID Validation in OCSP Response Allows Replay Attacks\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Netty: Missing CertificateID Validation in OCSP Response Allows Replay Attacks",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-0812",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1573",
       "T1526"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-0812_rewritten",
+      "groupName": "GHADV-0812_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "netty",
+          "operator": "EQ",
+          "value": "CreateVault",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateSecret",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateSecret",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetSecret",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "EncryptData",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "GHADV-0812_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DecryptData",
           "dataType": "STRING"
         }
       ],
@@ -30,13 +64,23 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_tls_ghadv_0812\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_tls_ghadv_0812\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateVault','CreateSecret','UpdateSecret','GetSecret','EncryptData','DecryptData')",
+    "events": [
+      "CreateVault",
+      "CreateSecret",
+      "UpdateSecret",
+      "GetSecret",
+      "EncryptData",
+      "DecryptData"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-0812",
     "category": "tls",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 6 real audit event(s)"
 }

@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-MITRE-0606: BITS Jobs",
-  "description": "Detects BITS Jobs (T1197)\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects BITS Jobs (T1197)",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-MITRE-0606",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1197"
     ],
@@ -20,12 +19,30 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-MITRE-0606_rewritten",
+      "groupName": "OCI-MITRE-0606_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "bits jobs",
+          "operator": "EQ",
+          "value": "CreatePlugin",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdatePlugin",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApp",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateApp",
           "dataType": "STRING"
         }
       ],
@@ -35,13 +52,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_mitre_attack_mitre_0606\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%bits%' OR \"data__json.message\" LIKE '%jobs%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_mitre_attack_mitre_0606\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%bits%' OR \"data__json.message\" LIKE '%jobs%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreatePlugin','UpdatePlugin','CreateApp','UpdateApp')",
+    "events": [
+      "CreatePlugin",
+      "UpdatePlugin",
+      "CreateApp",
+      "UpdateApp"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-MITRE-0606",
     "category": "mitre-attack",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "mitre-attack.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

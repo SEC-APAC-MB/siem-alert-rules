@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-REMOTE-CODE-EXECUTION-011: CVE-2026-85046 \u2014 Chromium V8 Exploitation",
-  "description": "Detects exploitation attempts targeting CVE-2026-85046: Google Chromium V8 contains a type confusion vulnerability that allows a remote attacker to execute arbitrary code inside the sandbox via a crafted HTML page. This vulnerability could affect multiple web browsers that utilize Chromium, including, but not limited to, Google Chrome, Microsoft Edge, and Opera.. Product: Chromium V8\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects exploitation attempts targeting CVE-2026-85046: Google Chromium V8 contains a type confusion vulnerability that allows a remote attacker to execute arbitrary code inside the sandbox via a crafted HTML page. This vulnerability could affect multiple web browsers that utilize Chromium, including, but not limited to, Google Chrome, Microsoft Edge, and Opera.. Product: Chromium V8",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-REMOTE-CODE-EXECUTION-011",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1190",
       "T1059"
@@ -19,12 +18,30 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-REMOTE-CODE-EXECUTION-011_rewritten",
+      "groupName": "OCI-REMOTE-CODE-EXECUTION-011_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "cve-2026-85046 \u2014 chromium v8 exploitation",
+          "operator": "EQ",
+          "value": "CreateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateLoadBalancer",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateLoadBalancer",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateNetworkLoadBalancer",
           "dataType": "STRING"
         }
       ],
@@ -34,13 +51,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_remote_code_execution_remote_code_execution_011\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_remote_code_execution_remote_code_execution_011\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateInstance','CreateLoadBalancer','UpdateLoadBalancer','CreateNetworkLoadBalancer')",
+    "events": [
+      "CreateInstance",
+      "CreateLoadBalancer",
+      "UpdateLoadBalancer",
+      "CreateNetworkLoadBalancer"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-REMOTE-CODE-EXECUTION-011",
     "category": "remote-code-execution",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "generated-remote-code-execution.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

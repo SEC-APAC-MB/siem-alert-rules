@@ -1,25 +1,47 @@
 {
   "displayName": "OCI-AUTH-044: Authentication \u2014 Account Manipulation",
-  "description": "Detects account manipulation including privilege escalation, group modification, and attribute changes\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects account manipulation including privilege escalation, group modification, and attribute changes",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-AUTH-044",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1098"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-AUTH-044_rewritten",
+      "groupName": "OCI-AUTH-044_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "authentication \u2014 account manipulation",
+          "operator": "EQ",
+          "value": "UpdateUser",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateUserState",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AddUserToGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePolicy",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +51,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_auth_044\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%authentication%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_auth_044\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%authentication%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('UpdateUser','UpdateUserState','AddUserToGroup','UpdateGroup','CreatePolicy')",
+    "events": [
+      "UpdateUser",
+      "UpdateUserState",
+      "AddUserToGroup",
+      "UpdateGroup",
+      "CreatePolicy"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-AUTH-044",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "wstg-04-09-auth-errors.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

@@ -1,23 +1,61 @@
 {
   "displayName": "OCI-ICS_OT-107: Modbus Command Injection",
-  "description": "Industrial Control Systems and Operational Technology attack detection\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Industrial Control Systems and Operational Technology attack detection",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-ICS_OT-107",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
-  "mappings": {
-    "mitreAttackTactics": [],
-    "mitreAttackTechniques": [],
-    "compliance": []
-  },
+  "mappings": {},
   "conditionGroups": [
     {
-      "groupName": "OCI-ICS_OT-107_rewritten",
+      "groupName": "OCI-ICS_OT-107_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "modbus command injection",
+          "operator": "EQ",
+          "value": "CreateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "InstanceAction",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePrivateIp",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateNetworkSecurityGroup",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-ICS_OT-107_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateSecurityList",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateSecurityRule",
           "dataType": "STRING"
         }
       ],
@@ -27,13 +65,24 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_ics_ot_ics_ot_107\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%modbus%' OR \"data__json.message\" LIKE '%command%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_ics_ot_ics_ot_107\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%modbus%' OR \"data__json.message\" LIKE '%command%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateInstance','UpdateInstance','InstanceAction','CreatePrivateIp','UpdateNetworkSecurityGroup','UpdateSecurityList','CreateSecurityRule')",
+    "events": [
+      "CreateInstance",
+      "UpdateInstance",
+      "InstanceAction",
+      "CreatePrivateIp",
+      "UpdateNetworkSecurityGroup",
+      "UpdateSecurityList",
+      "CreateSecurityRule"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-ICS_OT-107",
     "category": "ics_ot",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "generated-ics_ot.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 7 real audit event(s)"
 }

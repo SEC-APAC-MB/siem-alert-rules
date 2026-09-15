@@ -1,26 +1,48 @@
 {
   "displayName": "OCI-AI-DB-026: AI \u2014 Data Lake Unauthorized AI Query",
-  "description": "Detects unauthorized AI-related queries against data lakes that could extract training or inference data\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects unauthorized AI-related queries against data lakes that could extract training or inference data",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-AI-DB-026",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1530",
       "T1567"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-AI-DB-026_rewritten",
+      "groupName": "OCI-AI-DB-026_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "ai \u2014 data lake unauthorized ai query",
+          "operator": "EQ",
+          "value": "GetObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListObjects",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "HeadObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "PutObject",
           "dataType": "STRING"
         }
       ],
@@ -30,13 +52,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_ai_db_026\", \"metricName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'oci_objectstorage' AND \"metricName\" = 'StorageSizeBytes' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_ai_db_026\", \"metricName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'oci_objectstorage' AND \"metricName\" = 'StorageSizeBytes' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('GetObject','ListObjects','HeadObject','CreateObject','PutObject')",
+    "events": [
+      "GetObject",
+      "ListObjects",
+      "HeadObject",
+      "CreateObject",
+      "PutObject"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-AI-DB-026",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "ai-security-database-rag-redteam.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

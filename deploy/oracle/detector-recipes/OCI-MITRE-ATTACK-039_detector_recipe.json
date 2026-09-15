@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-MITRE-ATTACK-039: MITRE T1556.003: Pluggable Authentication Modules",
-  "description": "Detects ATT&CK technique T1556.003 (Pluggable Authentication Modules). Adversaries may modify pluggable authentication modules (PAM) to access user credentials or enable otherwise unwarranted access to accounts. PAM is a modular system of configuration files, libraries, \n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects ATT&CK technique T1556.003 (Pluggable Authentication Modules). Adversaries may modify pluggable authentication modules (PAM) to access user credentials or enable otherwise unwarranted access to accounts. PAM is a modular system of configuration files, libraries, ",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-MITRE-ATTACK-039",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1556.003"
     ],
@@ -17,12 +16,66 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-MITRE-ATTACK-039_rewritten",
+      "groupName": "OCI-MITRE-ATTACK-039_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "mitre t1556.003",
+          "operator": "EQ",
+          "value": "CreateSession",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateAuthToken",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePolicy",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-MITRE-ATTACK-039_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AddUserToGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateUser",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateUserState",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "InstanceAction",
           "dataType": "STRING"
         }
       ],
@@ -32,13 +85,26 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_mitre_attack_mitre_attack_039\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%mitre%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_mitre_attack_mitre_attack_039\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%mitre%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateSession','CreateAuthToken','CreateApiKey','UpdatePolicy','CreatePolicy','AddUserToGroup','UpdateUser','UpdateUserState','InstanceAction')",
+    "events": [
+      "CreateSession",
+      "CreateAuthToken",
+      "CreateApiKey",
+      "UpdatePolicy",
+      "CreatePolicy",
+      "AddUserToGroup",
+      "UpdateUser",
+      "UpdateUserState",
+      "InstanceAction"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-MITRE-ATTACK-039",
     "category": "mitre-attack",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "generated-mitre-attack.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 9 real audit event(s)"
 }

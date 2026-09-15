@@ -1,25 +1,47 @@
 {
   "displayName": "GHADV-4095: axonflow-sdk-java: Webhook signing-key (HMAC-SHA256) not exposed by SDK type, preventing signature verification",
-  "description": "axonflow-sdk-java: Webhook signing-key (HMAC-SHA256) not exposed by SDK type, preventing signature verification\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "axonflow-sdk-java: Webhook signing-key (HMAC-SHA256) not exposed by SDK type, preventing signature verification",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-4095",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1078"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-4095_rewritten",
+      "groupName": "GHADV-4095_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "axonflow-sdk-java",
+          "operator": "EQ",
+          "value": "CreateSession",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "Authenticate",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateAuthToken",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateSwiftPassword",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +51,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_auth_bypass_ghadv_4095\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%axonflow%' OR \"data__json.message\" LIKE '%sdk%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_auth_bypass_ghadv_4095\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%axonflow%' OR \"data__json.message\" LIKE '%sdk%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateSession','Authenticate','CreateAuthToken','CreateApiKey','CreateSwiftPassword')",
+    "events": [
+      "CreateSession",
+      "Authenticate",
+      "CreateAuthToken",
+      "CreateApiKey",
+      "CreateSwiftPassword"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-4095",
     "category": "auth-bypass",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

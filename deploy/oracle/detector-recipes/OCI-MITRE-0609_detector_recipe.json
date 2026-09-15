@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-MITRE-0609: Exploitation for Privilege Escalation",
-  "description": "Detects Exploitation for Privilege Escalation (T1068)\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects Exploitation for Privilege Escalation (T1068)",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-MITRE-0609",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1068"
     ],
@@ -20,12 +19,30 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-MITRE-0609_rewritten",
+      "groupName": "OCI-MITRE-0609_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "exploitation for privilege escalation",
+          "operator": "EQ",
+          "value": "UpdateUserCapabilities",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AddUserToGroup",
           "dataType": "STRING"
         }
       ],
@@ -35,13 +52,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_mitre_attack_mitre_0609\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%exploitation%' OR \"data__json.message\" LIKE '%privilege%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_mitre_attack_mitre_0609\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%exploitation%' OR \"data__json.message\" LIKE '%privilege%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('UpdateUserCapabilities','UpdatePolicy','CreatePolicy','AddUserToGroup')",
+    "events": [
+      "UpdateUserCapabilities",
+      "UpdatePolicy",
+      "CreatePolicy",
+      "AddUserToGroup"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-MITRE-0609",
     "category": "mitre-attack",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "mitre-attack.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

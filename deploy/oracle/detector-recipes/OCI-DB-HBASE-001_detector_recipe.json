@@ -1,25 +1,41 @@
 {
   "displayName": "OCI-DB-HBASE-001: HBase \u2014 Unauthorized ACL Modification",
-  "description": "Detects unauthorized ACL modifications in HBase including grant and revoke operations\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects unauthorized ACL modifications in HBase including grant and revoke operations",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-DB-HBASE-001",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1548"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-DB-HBASE-001_rewritten",
+      "groupName": "OCI-DB-HBASE-001_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "hbase \u2014 unauthorized acl modification",
+          "operator": "EQ",
+          "value": "UpdatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AddUserToGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateUserCapabilities",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +45,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_db_hbase_001\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%hbase%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_db_hbase_001\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%hbase%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('UpdatePolicy','CreatePolicy','AddUserToGroup','UpdateUserCapabilities')",
+    "events": [
+      "UpdatePolicy",
+      "CreatePolicy",
+      "AddUserToGroup",
+      "UpdateUserCapabilities"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-DB-HBASE-001",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "database-security.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

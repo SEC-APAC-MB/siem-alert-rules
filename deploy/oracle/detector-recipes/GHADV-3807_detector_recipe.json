@@ -1,25 +1,59 @@
 {
   "displayName": "GHADV-3807: Valtimo has sensitive data exposure through HTTP request/response logging in LoggingRestClientCustomizer",
-  "description": "Valtimo has sensitive data exposure through HTTP request/response logging in LoggingRestClientCustomizer\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Valtimo has sensitive data exposure through HTTP request/response logging in LoggingRestClientCustomizer",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-3807",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1087"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-3807_rewritten",
+      "groupName": "GHADV-3807_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "valtimo has sensitive data exposure through http r",
+          "operator": "EQ",
+          "value": "ListUsers",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListGroups",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListPolicies",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListUserGroups",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListApiKeys",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "GHADV-3807_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListAuthTokens",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +63,23 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_info_disclosure_ghadv_3807\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%valtimo%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_info_disclosure_ghadv_3807\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%valtimo%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('ListUsers','ListGroups','ListPolicies','ListUserGroups','ListApiKeys','ListAuthTokens')",
+    "events": [
+      "ListUsers",
+      "ListGroups",
+      "ListPolicies",
+      "ListUserGroups",
+      "ListApiKeys",
+      "ListAuthTokens"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-3807",
     "category": "info-disclosure",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 6 real audit event(s)"
 }

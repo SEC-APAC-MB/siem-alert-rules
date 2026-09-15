@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-DATABASE-001: CVE-2026-21962 \u2014 HTTP Server and Oracle Weblogic Server Proxy Plug-in Exploitation",
-  "description": "Detects exploitation attempts targeting CVE-2026-21962: Oracle HTTP Server and Oracle Weblogic Server Proxy Plug-in contain an improper access control vulnerability that can result in unauthorized creation, deletion or modification access to critical data as well as unauthorized access to critical data or complete access to all Oracle HTTP Server and Oracle Weblogic Server Proxy Plug-in accessible data.. Product: HTTP Server and Oracle Weblogic Server Proxy Plug-in\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects exploitation attempts targeting CVE-2026-21962: Oracle HTTP Server and Oracle Weblogic Server Proxy Plug-in contain an improper access control vulnerability that can result in unauthorized creation, deletion or modification access to critical data as well as unauthorized access to critical data or complete access to all Oracle HTTP Server and Oracle Weblogic Server Proxy Plug-in accessible data.. Product: HTTP Server and Oracle Weblogic Server Proxy Plug-in",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-DATABASE-001",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1110",
       "T1078"
@@ -19,12 +18,36 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-DATABASE-001_rewritten",
+      "groupName": "OCI-DATABASE-001_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "cve-2026-21962 \u2014 http server and oracle weblogic s",
+          "operator": "EQ",
+          "value": "CreateAuthToken",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateSwiftPassword",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateDbCredential",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateOrResetUIPassword",
           "dataType": "STRING"
         }
       ],
@@ -34,13 +57,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_database_database_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_database_database_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateAuthToken','CreateApiKey','CreateSwiftPassword','CreateDbCredential','CreateOrResetUIPassword')",
+    "events": [
+      "CreateAuthToken",
+      "CreateApiKey",
+      "CreateSwiftPassword",
+      "CreateDbCredential",
+      "CreateOrResetUIPassword"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-DATABASE-001",
     "category": "database",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "generated-database.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

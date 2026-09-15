@@ -1,25 +1,71 @@
 {
   "displayName": "GHADV-2621: Spring Data REST potentially exposes persistence-layer internals to HTTP clients",
-  "description": "Spring Data REST potentially exposes persistence-layer internals to HTTP clients\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Spring Data REST potentially exposes persistence-layer internals to HTTP clients",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-2621",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1592"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-2621_rewritten",
+      "groupName": "GHADV-2621_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "spring data rest potentially exposes persistence-l",
+          "operator": "EQ",
+          "value": "GetObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListObjects",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListBuckets",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListInstances",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "GHADV-2621_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListAutonomousDbs",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetSecret",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetSecretBundle",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +75,25 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_info_disclosure_ghadv_2621\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%spring%' OR \"data__json.message\" LIKE '%data%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_info_disclosure_ghadv_2621\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%spring%' OR \"data__json.message\" LIKE '%data%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('GetObject','ListObjects','ListBuckets','GetInstance','ListInstances','ListAutonomousDbs','GetSecret','GetSecretBundle')",
+    "events": [
+      "GetObject",
+      "ListObjects",
+      "ListBuckets",
+      "GetInstance",
+      "ListInstances",
+      "ListAutonomousDbs",
+      "GetSecret",
+      "GetSecretBundle"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-2621",
     "category": "info-disclosure",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 8 real audit event(s)"
 }

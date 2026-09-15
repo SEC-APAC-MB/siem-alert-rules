@@ -1,23 +1,61 @@
 {
   "displayName": "OCI-EXFILTRATION-163: Screen Capture Data Theft",
-  "description": "Detect frequent screenshot capture or screen recording activity\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detect frequent screenshot capture or screen recording activity",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-EXFILTRATION-163",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
-  "mappings": {
-    "mitreAttackTactics": [],
-    "mitreAttackTechniques": [],
-    "compliance": []
-  },
+  "mappings": {},
   "conditionGroups": [
     {
-      "groupName": "OCI-EXFILTRATION-163_rewritten",
+      "groupName": "OCI-EXFILTRATION-163_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "screen capture data theft",
+          "operator": "EQ",
+          "value": "CopyObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "PutObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateBucket",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-EXFILTRATION-163_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateBucket",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteObject",
           "dataType": "STRING"
         }
       ],
@@ -27,13 +65,24 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_exfiltration_exfiltration_163\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_exfiltration_exfiltration_163\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CopyObject','PutObject','CreateObject','GetObject','CreateBucket','UpdateBucket','DeleteObject')",
+    "events": [
+      "CopyObject",
+      "PutObject",
+      "CreateObject",
+      "GetObject",
+      "CreateBucket",
+      "UpdateBucket",
+      "DeleteObject"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-EXFILTRATION-163",
     "category": "exfiltration",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "generated-exfiltration.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 7 real audit event(s)"
 }

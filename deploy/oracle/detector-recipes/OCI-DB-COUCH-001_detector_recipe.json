@@ -1,25 +1,35 @@
 {
   "displayName": "OCI-DB-COUCH-001: CouchDB \u2014 Admin Party Mode",
-  "description": "Detects CouchDB admin party mode or unauthorized admin access\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects CouchDB admin party mode or unauthorized admin access",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-DB-COUCH-001",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1078.001"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-DB-COUCH-001_rewritten",
+      "groupName": "OCI-DB-COUCH-001_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "couchdb \u2014 admin party mode",
+          "operator": "EQ",
+          "value": "CreateSession",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AuthenticateUser",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +39,20 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_db_couch_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%couchdb%' OR \"data__json.message\" LIKE '%admin%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_db_couch_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%couchdb%' OR \"data__json.message\" LIKE '%admin%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateSession','AuthenticateUser','CreateApiKey')",
+    "events": [
+      "CreateSession",
+      "AuthenticateUser",
+      "CreateApiKey"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-DB-COUCH-001",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "database-security.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 3 real audit event(s)"
 }

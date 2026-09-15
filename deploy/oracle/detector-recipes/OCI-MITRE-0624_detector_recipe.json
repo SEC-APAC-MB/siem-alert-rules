@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-MITRE-0624: System Information Discovery",
-  "description": "Detects System Information Discovery (T1082)\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects System Information Discovery (T1082)",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-MITRE-0624",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1082"
     ],
@@ -20,12 +19,36 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-MITRE-0624_rewritten",
+      "groupName": "OCI-MITRE-0624_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "system information discovery",
+          "operator": "EQ",
+          "value": "ListInstances",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListVcns",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetVcn",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListPolicies",
           "dataType": "STRING"
         }
       ],
@@ -35,13 +58,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_mitre_attack_mitre_0624\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%system%' OR \"data__json.message\" LIKE '%information%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_mitre_attack_mitre_0624\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%system%' OR \"data__json.message\" LIKE '%information%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('ListInstances','GetInstance','ListVcns','GetVcn','ListPolicies')",
+    "events": [
+      "ListInstances",
+      "GetInstance",
+      "ListVcns",
+      "GetVcn",
+      "ListPolicies"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-MITRE-0624",
     "category": "mitre-attack",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "mitre-attack.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

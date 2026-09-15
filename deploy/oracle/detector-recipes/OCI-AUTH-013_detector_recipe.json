@@ -1,25 +1,71 @@
 {
   "displayName": "OCI-AUTH-013: Authentication \u2014 AS-REP Roasting",
-  "description": "Detects AS-REP roasting attacks targeting accounts with pre-authentication disabled\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects AS-REP roasting attacks targeting accounts with pre-authentication disabled",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-AUTH-013",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1558.004"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-AUTH-013_rewritten",
+      "groupName": "OCI-AUTH-013_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "authentication \u2014 as-rep roasting",
+          "operator": "EQ",
+          "value": "CreateSession",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateAuthToken",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePolicy",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-AUTH-013_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateUser",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AddUserToGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "InstanceAction",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +75,25 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_auth_013\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%authentication%' OR \"data__json.message\" LIKE '%rep%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_auth_013\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%authentication%' OR \"data__json.message\" LIKE '%rep%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateSession','CreateAuthToken','CreateApiKey','UpdatePolicy','CreatePolicy','UpdateUser','AddUserToGroup','InstanceAction')",
+    "events": [
+      "CreateSession",
+      "CreateAuthToken",
+      "CreateApiKey",
+      "UpdatePolicy",
+      "CreatePolicy",
+      "UpdateUser",
+      "AddUserToGroup",
+      "InstanceAction"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-AUTH-013",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "wstg-04-09-auth-errors.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 8 real audit event(s)"
 }

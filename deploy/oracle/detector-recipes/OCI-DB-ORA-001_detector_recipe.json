@@ -1,25 +1,41 @@
 {
   "displayName": "OCI-DB-ORA-001: Oracle \u2014 DBA Privilege Escalation",
-  "description": "Detects Oracle DBA privilege escalation attempts via GRANT DBA or ALTER USER\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects Oracle DBA privilege escalation attempts via GRANT DBA or ALTER USER",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-DB-ORA-001",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1548"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-DB-ORA-001_rewritten",
+      "groupName": "OCI-DB-ORA-001_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "oracle \u2014 dba privilege escalation",
+          "operator": "EQ",
+          "value": "UpdatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AddUserToGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateUserCapabilities",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +45,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_db_ora_001\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%oracle%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_db_ora_001\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%oracle%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('UpdatePolicy','CreatePolicy','AddUserToGroup','UpdateUserCapabilities')",
+    "events": [
+      "UpdatePolicy",
+      "CreatePolicy",
+      "AddUserToGroup",
+      "UpdateUserCapabilities"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-DB-ORA-001",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "database-security.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

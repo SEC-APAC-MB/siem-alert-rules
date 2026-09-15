@@ -1,26 +1,48 @@
 {
   "displayName": "OCI-PCI-020: PCI-DSS \u2014 Change Control Violation in CDE",
-  "description": "Detects unauthorized changes to cardholder data environment without proper change control\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects unauthorized changes to cardholder data environment without proper change control",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-PCI-020",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1195.002",
       "T1562"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-PCI-020_rewritten",
+      "groupName": "OCI-PCI-020_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "pci-dss \u2014 change control violation in cde",
+          "operator": "EQ",
+          "value": "CreateVault",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateSecret",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateSecret",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetSecret",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ScheduleSecretDeletion",
           "dataType": "STRING"
         }
       ],
@@ -30,13 +52,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_pci_020\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_pci_020\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%pci%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateVault','CreateSecret','UpdateSecret','GetSecret','ScheduleSecretDeletion')",
+    "events": [
+      "CreateVault",
+      "CreateSecret",
+      "UpdateSecret",
+      "GetSecret",
+      "ScheduleSecretDeletion"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-PCI-020",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "compliance-pci-dss.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

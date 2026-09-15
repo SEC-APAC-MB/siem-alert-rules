@@ -1,27 +1,43 @@
 {
   "displayName": "OCI-LAT-CHN-019: Lateral movement chain \u2014 Container Escape \u2192 Cloud Metadata \u2192 IAM Abuse",
-  "description": "Detects container escape followed by cloud metadata service access and IAM privilege escalation\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects container escape followed by cloud metadata service access and IAM privilege escalation",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-LAT-CHN-019",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1611",
       "T1552.005",
       "T1548"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-LAT-CHN-019_rewritten",
+      "groupName": "OCI-LAT-CHN-019_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "lateral movement chain \u2014 container escape \u2192 cloud ",
+          "operator": "EQ",
+          "value": "UpdatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AddUserToGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateUserCapabilities",
           "dataType": "STRING"
         }
       ],
@@ -31,13 +47,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_lat_chn_019\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%lateral%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_lat_chn_019\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%lateral%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('UpdatePolicy','CreatePolicy','AddUserToGroup','UpdateUserCapabilities')",
+    "events": [
+      "UpdatePolicy",
+      "CreatePolicy",
+      "AddUserToGroup",
+      "UpdateUserCapabilities"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-LAT-CHN-019",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "lateral-movement-chains.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

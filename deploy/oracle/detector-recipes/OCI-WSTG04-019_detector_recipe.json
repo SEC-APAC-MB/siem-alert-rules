@@ -1,25 +1,59 @@
 {
   "displayName": "OCI-WSTG04-019: JWT Token Tampering or Forgery",
-  "description": "Detects JWT tokens with invalid signatures, expired timestamps, or algorithm manipulation\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects JWT tokens with invalid signatures, expired timestamps, or algorithm manipulation",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-WSTG04-019",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1606"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-WSTG04-019_rewritten",
+      "groupName": "OCI-WSTG04-019_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "jwt token tampering or forgery",
+          "operator": "EQ",
+          "value": "CreateSession",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateAuthToken",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateOrResetUIPassword",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteAuthToken",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-WSTG04-019_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteApiKey",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +63,23 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_wstg04_019\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%jwt%' OR \"data__json.message\" LIKE '%token%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_wstg04_019\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%jwt%' OR \"data__json.message\" LIKE '%token%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateSession','CreateAuthToken','CreateApiKey','CreateOrResetUIPassword','DeleteAuthToken','DeleteApiKey')",
+    "events": [
+      "CreateSession",
+      "CreateAuthToken",
+      "CreateApiKey",
+      "CreateOrResetUIPassword",
+      "DeleteAuthToken",
+      "DeleteApiKey"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-WSTG04-019",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "wstg-04-06.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 6 real audit event(s)"
 }

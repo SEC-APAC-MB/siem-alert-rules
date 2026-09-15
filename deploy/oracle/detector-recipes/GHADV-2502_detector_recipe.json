@@ -1,25 +1,47 @@
 {
   "displayName": "GHADV-2502: Appsmith: Configuration-dependent origin validation bypass in password reset and email verification link generation",
-  "description": "Appsmith: Configuration-dependent origin validation bypass in password reset and email verification link generation\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Appsmith: Configuration-dependent origin validation bypass in password reset and email verification link generation",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-2502",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1534"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-2502_rewritten",
+      "groupName": "GHADV-2502_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "appsmith",
+          "operator": "EQ",
+          "value": "CreateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePrivateIp",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateVnic",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateSecurityRule",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateNetworkSecurityGroup",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +51,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_csrf_ghadv_2502\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_csrf_ghadv_2502\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateInstance','CreatePrivateIp','CreateVnic','UpdateSecurityRule','CreateNetworkSecurityGroup')",
+    "events": [
+      "CreateInstance",
+      "CreatePrivateIp",
+      "CreateVnic",
+      "UpdateSecurityRule",
+      "CreateNetworkSecurityGroup"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-2502",
     "category": "csrf",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

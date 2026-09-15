@@ -1,25 +1,41 @@
 {
   "displayName": "GHADV-2875: Apache Fesod is vulnerable to Server-Side Request Forgery through its UrlImageConverter component",
-  "description": "Apache Fesod is vulnerable to Server-Side Request Forgery through its UrlImageConverter component\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Apache Fesod is vulnerable to Server-Side Request Forgery through its UrlImageConverter component",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-2875",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1190"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-2875_rewritten",
+      "groupName": "GHADV-2875_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "apache fesod is vulnerable to server-side request ",
+          "operator": "EQ",
+          "value": "CreateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateLoadBalancer",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateLoadBalancer",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateNetworkLoadBalancer",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +45,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_ssrf_ghadv_2875\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%apache%' OR \"data__json.message\" LIKE '%fesod%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_ssrf_ghadv_2875\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%apache%' OR \"data__json.message\" LIKE '%fesod%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateInstance','CreateLoadBalancer','UpdateLoadBalancer','CreateNetworkLoadBalancer')",
+    "events": [
+      "CreateInstance",
+      "CreateLoadBalancer",
+      "UpdateLoadBalancer",
+      "CreateNetworkLoadBalancer"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-2875",
     "category": "ssrf",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

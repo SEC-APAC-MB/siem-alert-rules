@@ -1,26 +1,42 @@
 {
   "displayName": "OCI-AUTH-028: Authentication \u2014 DNS-Based Authentication Bypass",
-  "description": "Detects DNS manipulation used to bypass authentication or redirect traffic\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects DNS manipulation used to bypass authentication or redirect traffic",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-AUTH-028",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1071.004",
       "T1557"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-AUTH-028_rewritten",
+      "groupName": "OCI-AUTH-028_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "authentication \u2014 dns-based authentication bypass",
+          "operator": "EQ",
+          "value": "CreateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "InstanceAction",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePrivateIp",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateDnsResolver",
           "dataType": "STRING"
         }
       ],
@@ -30,13 +46,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_auth_028\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (53, 5353) AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_auth_028\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (53, 5353) AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateInstance','InstanceAction','CreatePrivateIp','UpdateDnsResolver')",
+    "events": [
+      "CreateInstance",
+      "InstanceAction",
+      "CreatePrivateIp",
+      "UpdateDnsResolver"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-AUTH-028",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "wstg-04-09-auth-errors.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

@@ -1,25 +1,41 @@
 {
   "displayName": "OCI-WSTG01-018: Account Provisioning Without Approval",
-  "description": "Detects account creation events bypassing approval workflows\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects account creation events bypassing approval workflows",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-WSTG01-018",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1136"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-WSTG01-018_rewritten",
+      "groupName": "OCI-WSTG01-018_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "account provisioning without approval",
+          "operator": "EQ",
+          "value": "CreateUser",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateDbUser",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateDbCredential",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +45,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_wstg01_018\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" IN ('ProvisionAutonomousDatabase', 'AdvanceAutonomousDatabase') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_wstg01_018\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" IN ('ProvisionAutonomousDatabase', 'AdvanceAutonomousDatabase') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateUser','CreateDbUser','CreateDbCredential','CreateApiKey')",
+    "events": [
+      "CreateUser",
+      "CreateDbUser",
+      "CreateDbCredential",
+      "CreateApiKey"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-WSTG01-018",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "wstg-01-03.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

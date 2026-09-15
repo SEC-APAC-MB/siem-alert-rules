@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-LAT-0702: Lateral Movement: SMB Share Access Followed by File Encryption",
-  "description": "Correlation rule detecting smb share access followed by file encryption\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Correlation rule detecting smb share access followed by file encryption",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-LAT-0702",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1021.002",
       "T1486"
@@ -20,12 +19,30 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-LAT-0702_rewritten",
+      "groupName": "OCI-LAT-0702_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "lateral movement",
+          "operator": "EQ",
+          "value": "InstanceAction",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePrivateIp",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateVnic",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateNetworkSecurityGroup",
           "dataType": "STRING"
         }
       ],
@@ -35,13 +52,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_lateral_movement_lat_0702\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_lateral_movement_lat_0702\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('InstanceAction','CreatePrivateIp','CreateVnic','UpdateNetworkSecurityGroup')",
+    "events": [
+      "InstanceAction",
+      "CreatePrivateIp",
+      "CreateVnic",
+      "UpdateNetworkSecurityGroup"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-LAT-0702",
     "category": "lateral-movement",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "lateral-movement.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

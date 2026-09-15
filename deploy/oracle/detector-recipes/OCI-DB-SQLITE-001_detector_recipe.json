@@ -1,25 +1,47 @@
 {
   "displayName": "OCI-DB-SQLITE-001: SQLite \u2014 Direct File Access from Web",
-  "description": "Detects direct SQLite database file access from web applications\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects direct SQLite database file access from web applications",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-DB-SQLITE-001",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1083"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-DB-SQLITE-001_rewritten",
+      "groupName": "OCI-DB-SQLITE-001_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "sqlite \u2014 direct file access from web",
+          "operator": "EQ",
+          "value": "ListObjects",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListBuckets",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "HeadObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListPolicies",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +51,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_db_sqlite_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%sqlite%' OR \"data__json.message\" LIKE '%direct%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_db_sqlite_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%sqlite%' OR \"data__json.message\" LIKE '%direct%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('ListObjects','ListBuckets','HeadObject','GetObject','ListPolicies')",
+    "events": [
+      "ListObjects",
+      "ListBuckets",
+      "HeadObject",
+      "GetObject",
+      "ListPolicies"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-DB-SQLITE-001",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "database-security.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

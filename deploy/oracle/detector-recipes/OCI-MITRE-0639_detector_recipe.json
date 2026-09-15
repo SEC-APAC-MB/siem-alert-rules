@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-MITRE-0639: Data Encrypted for Impact",
-  "description": "Detects Data Encrypted for Impact (T1486)\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects Data Encrypted for Impact (T1486)",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-MITRE-0639",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1486"
     ],
@@ -20,12 +19,48 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-MITRE-0639_rewritten",
+      "groupName": "OCI-MITRE-0639_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "data encrypted for impact",
+          "operator": "EQ",
+          "value": "CreateVault",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateSecret",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "EncryptData",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DisableKey",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-MITRE-0639_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteKey",
           "dataType": "STRING"
         }
       ],
@@ -35,13 +70,23 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_mitre_attack_mitre_0639\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%data%' OR \"data__json.message\" LIKE '%encrypted%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_mitre_attack_mitre_0639\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%data%' OR \"data__json.message\" LIKE '%encrypted%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateVault','CreateSecret','EncryptData','UpdateKey','DisableKey','DeleteKey')",
+    "events": [
+      "CreateVault",
+      "CreateSecret",
+      "EncryptData",
+      "UpdateKey",
+      "DisableKey",
+      "DeleteKey"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-MITRE-0639",
     "category": "mitre-attack",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "mitre-attack.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 6 real audit event(s)"
 }

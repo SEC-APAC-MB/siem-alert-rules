@@ -1,25 +1,47 @@
 {
   "displayName": "GHADV-4522: Jenkins HTML Publisher Plugin has a XSS vulnerability in the legacy wrapper file",
-  "description": "Jenkins HTML Publisher Plugin has a XSS vulnerability in the legacy wrapper file\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Jenkins HTML Publisher Plugin has a XSS vulnerability in the legacy wrapper file",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-4522",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1059.007"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-4522_rewritten",
+      "groupName": "GHADV-4522_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "jenkins html publisher plugin has a xss vulnerabil",
+          "operator": "EQ",
+          "value": "CreateApiDeployment",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateApiDeployment",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "InvokeFunction",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +51,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_xss_ghadv_4522\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%jenkins%' OR \"data__json.message\" LIKE '%html%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_xss_ghadv_4522\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%jenkins%' OR \"data__json.message\" LIKE '%html%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateApiDeployment','UpdateApiDeployment','CreateInstance','UpdateInstance','InvokeFunction')",
+    "events": [
+      "CreateApiDeployment",
+      "UpdateApiDeployment",
+      "CreateInstance",
+      "UpdateInstance",
+      "InvokeFunction"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-4522",
     "category": "xss",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

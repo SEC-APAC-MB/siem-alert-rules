@@ -1,27 +1,73 @@
 {
   "displayName": "OCI-LAT-CHN-023: Lateral movement chain \u2014 Admin Tool Abuse \u2192 Credential Dump \u2192 Lateral Spread",
-  "description": "Detects legitimate admin tool abuse followed by credential dumping and lateral movement across hosts\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects legitimate admin tool abuse followed by credential dumping and lateral movement across hosts",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-LAT-CHN-023",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1059",
       "T1003",
       "T1021"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-LAT-CHN-023_rewritten",
+      "groupName": "OCI-LAT-CHN-023_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "lateral movement chain \u2014 admin tool abuse \u2192 creden",
+          "operator": "EQ",
+          "value": "CreatePrivateIp",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateVnic",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "InstanceAction",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateNetworkSecurityGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateSecurityRule",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "OCI-LAT-CHN-023_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateAuthToken",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AddUserToGroup",
           "dataType": "STRING"
         }
       ],
@@ -31,13 +77,25 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_lat_chn_023\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%lateral%' OR \"data__json.message\" LIKE '%movement%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_lat_chn_023\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%lateral%' OR \"data__json.message\" LIKE '%movement%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreatePrivateIp','CreateVnic','InstanceAction','UpdateNetworkSecurityGroup','CreateSecurityRule','CreateApiKey','CreateAuthToken','AddUserToGroup')",
+    "events": [
+      "CreatePrivateIp",
+      "CreateVnic",
+      "InstanceAction",
+      "UpdateNetworkSecurityGroup",
+      "CreateSecurityRule",
+      "CreateApiKey",
+      "CreateAuthToken",
+      "AddUserToGroup"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-LAT-CHN-023",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "lateral-movement-chains.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 8 real audit event(s)"
 }

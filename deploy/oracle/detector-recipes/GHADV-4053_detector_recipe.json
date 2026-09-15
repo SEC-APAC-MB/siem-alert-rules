@@ -1,25 +1,59 @@
 {
   "displayName": "GHADV-4053: Kiota abstractions RedirectHandler leaks Cookie/Proxy-Authorization headers on cross-host redirect",
-  "description": "Kiota abstractions RedirectHandler leaks Cookie/Proxy-Authorization headers on cross-host redirect\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Kiota abstractions RedirectHandler leaks Cookie/Proxy-Authorization headers on cross-host redirect",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-4053",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1200"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-4053_rewritten",
+      "groupName": "GHADV-4053_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "kiota abstractions redirecthandler leaks cookie/pr",
+          "operator": "EQ",
+          "value": "GetInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListInstances",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListObjects",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetAutonomousDatabase",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "GHADV-4053_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListAutonomousDbs",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +63,23 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_redirect_ghadv_4053\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%kiota%' OR \"data__json.message\" LIKE '%abstractions%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_redirect_ghadv_4053\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%kiota%' OR \"data__json.message\" LIKE '%abstractions%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('GetInstance','ListInstances','GetObject','ListObjects','GetAutonomousDatabase','ListAutonomousDbs')",
+    "events": [
+      "GetInstance",
+      "ListInstances",
+      "GetObject",
+      "ListObjects",
+      "GetAutonomousDatabase",
+      "ListAutonomousDbs"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-4053",
     "category": "redirect",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 6 real audit event(s)"
 }

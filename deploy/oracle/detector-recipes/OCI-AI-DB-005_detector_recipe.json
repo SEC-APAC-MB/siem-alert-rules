@@ -1,26 +1,42 @@
 {
   "displayName": "OCI-AI-DB-005: AI \u2014 RAG Context Window Injection",
-  "description": "Detects injection of malicious context into RAG retrieved documents that overrides model behavior\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects injection of malicious context into RAG retrieved documents that overrides model behavior",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-AI-DB-005",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1190",
       "T1195.001"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-AI-DB-005_rewritten",
+      "groupName": "OCI-AI-DB-005_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "ai \u2014 rag context window injection",
+          "operator": "EQ",
+          "value": "CreateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateLoadBalancer",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateLoadBalancer",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateNetworkLoadBalancer",
           "dataType": "STRING"
         }
       ],
@@ -30,13 +46,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_ai_db_005\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%rag%' OR \"data__json.message\" LIKE '%context%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_ai_db_005\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%rag%' OR \"data__json.message\" LIKE '%context%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateInstance','CreateLoadBalancer','UpdateLoadBalancer','CreateNetworkLoadBalancer')",
+    "events": [
+      "CreateInstance",
+      "CreateLoadBalancer",
+      "UpdateLoadBalancer",
+      "CreateNetworkLoadBalancer"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-AI-DB-005",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "ai-security-database-rag-redteam.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

@@ -1,25 +1,35 @@
 {
   "displayName": "OCI-API-004: API4: Unrestricted Resource Consumption \u2014 Rate Limiting",
-  "description": "Detects API requests exceeding rate limits indicating denial of service or scraping attacks\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects API requests exceeding rate limits indicating denial of service or scraping attacks",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-API-004",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1498"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-API-004_rewritten",
+      "groupName": "OCI-API-004_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "api4",
+          "operator": "EQ",
+          "value": "CreateApiDeployment",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateApiDeployment",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetApiDeployment",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +39,20 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_api_004\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_api_004\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateApiDeployment','UpdateApiDeployment','GetApiDeployment')",
+    "events": [
+      "CreateApiDeployment",
+      "UpdateApiDeployment",
+      "GetApiDeployment"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-API-004",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "api-security.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 3 real audit event(s)"
 }

@@ -1,25 +1,41 @@
 {
   "displayName": "GHADV-3719: Apache Tomcat - HTTP/2 request headers not validated",
-  "description": "Apache Tomcat - HTTP/2 request headers not validated\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Apache Tomcat - HTTP/2 request headers not validated",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-3719",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1190"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-3719_rewritten",
+      "groupName": "GHADV-3719_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "apache tomcat - http/2 request headers not validat",
+          "operator": "EQ",
+          "value": "CreateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateLoadBalancer",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateLoadBalancer",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateNetworkLoadBalancer",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +45,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_input_validation_ghadv_3719\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%apache%' OR \"data__json.message\" LIKE '%tomcat%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_input_validation_ghadv_3719\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%apache%' OR \"data__json.message\" LIKE '%tomcat%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateInstance','CreateLoadBalancer','UpdateLoadBalancer','CreateNetworkLoadBalancer')",
+    "events": [
+      "CreateInstance",
+      "CreateLoadBalancer",
+      "UpdateLoadBalancer",
+      "CreateNetworkLoadBalancer"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-3719",
     "category": "input-validation",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-SSRF-006: CVE-2026-83548 \u2014 SMA1000 Appliances Exploitation",
-  "description": "Detects exploitation attempts targeting CVE-2026-83548: SonicWall SMA1000 Appliances contains a server-side request forgery vulnerability that could allow a remote unauthenticated attacker to gain unauthorized access to sensitive functionality and perform unauthorized operations.. Product: SMA1000 Appliances\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects exploitation attempts targeting CVE-2026-83548: SonicWall SMA1000 Appliances contains a server-side request forgery vulnerability that could allow a remote unauthenticated attacker to gain unauthorized access to sensitive functionality and perform unauthorized operations.. Product: SMA1000 Appliances",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-SSRF-006",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1110",
       "T1078",
@@ -22,12 +21,36 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-SSRF-006_rewritten",
+      "groupName": "OCI-SSRF-006_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "cve-2026-83548 \u2014 sma1000 appliances exploitation",
+          "operator": "EQ",
+          "value": "CreateAuthToken",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateSwiftPassword",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateDbCredential",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateOrResetUIPassword",
           "dataType": "STRING"
         }
       ],
@@ -37,13 +60,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_ssrf_ssrf_006\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_ssrf_ssrf_006\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateAuthToken','CreateApiKey','CreateSwiftPassword','CreateDbCredential','CreateOrResetUIPassword')",
+    "events": [
+      "CreateAuthToken",
+      "CreateApiKey",
+      "CreateSwiftPassword",
+      "CreateDbCredential",
+      "CreateOrResetUIPassword"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-SSRF-006",
     "category": "ssrf",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "generated-ssrf.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

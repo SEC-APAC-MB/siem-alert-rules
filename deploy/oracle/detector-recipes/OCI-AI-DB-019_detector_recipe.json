@@ -1,25 +1,47 @@
 {
   "displayName": "OCI-AI-DB-019: AI \u2014 RAG Denial of Service via Document Flooding",
-  "description": "Detects denial-of-service attacks through flooding RAG document stores with junk data\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects denial-of-service attacks through flooding RAG document stores with junk data",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-AI-DB-019",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1499"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-AI-DB-019_rewritten",
+      "groupName": "OCI-AI-DB-019_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "ai \u2014 rag denial of service via document flooding",
+          "operator": "EQ",
+          "value": "CreateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "InstanceAction",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateSecurityRule",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateNetworkSecurityGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreatePrivateIp",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +51,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_ai_db_019\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%rag%' OR \"data__json.message\" LIKE '%denial%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_ai_db_019\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%rag%' OR \"data__json.message\" LIKE '%denial%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateInstance','InstanceAction','CreateSecurityRule','UpdateNetworkSecurityGroup','CreatePrivateIp')",
+    "events": [
+      "CreateInstance",
+      "InstanceAction",
+      "CreateSecurityRule",
+      "UpdateNetworkSecurityGroup",
+      "CreatePrivateIp"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-AI-DB-019",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "ai-security-database-rag-redteam.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

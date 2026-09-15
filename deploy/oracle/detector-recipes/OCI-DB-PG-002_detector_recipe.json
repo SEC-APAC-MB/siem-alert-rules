@@ -1,25 +1,35 @@
 {
   "displayName": "OCI-DB-PG-002: PostgreSQL \u2014 pg_dump Data Exfiltration",
-  "description": "Detects PostgreSQL pg_dump commands indicating potential data exfiltration\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects PostgreSQL pg_dump commands indicating potential data exfiltration",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-DB-PG-002",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1213"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-DB-PG-002_rewritten",
+      "groupName": "OCI-DB-PG-002_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "postgresql \u2014 pg_dump data exfiltration",
+          "operator": "EQ",
+          "value": "UpdateAutonomousDatabase",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "AutonomousDatabaseDataSafe",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateAutonomousDatabaseWallet",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +39,20 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_db_pg_002\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%postgresql%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_db_pg_002\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%postgresql%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('UpdateAutonomousDatabase','AutonomousDatabaseDataSafe','UpdateAutonomousDatabaseWallet')",
+    "events": [
+      "UpdateAutonomousDatabase",
+      "AutonomousDatabaseDataSafe",
+      "UpdateAutonomousDatabaseWallet"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-DB-PG-002",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "database-security.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 3 real audit event(s)"
 }

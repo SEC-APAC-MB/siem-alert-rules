@@ -1,25 +1,41 @@
 {
   "displayName": "GHADV-2098: Armeria: External Control of File Name or Path in xDS SDS DataSource",
-  "description": "Armeria: External Control of File Name or Path in xDS SDS DataSource\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Armeria: External Control of File Name or Path in xDS SDS DataSource",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-2098",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1190"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-2098_rewritten",
+      "groupName": "GHADV-2098_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "armeria",
+          "operator": "EQ",
+          "value": "CreateInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateLoadBalancer",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateLoadBalancer",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateNetworkLoadBalancer",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +45,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_other_ghadv_2098\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%armeria%' OR \"data__json.message\" LIKE '%external%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_other_ghadv_2098\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%armeria%' OR \"data__json.message\" LIKE '%external%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateInstance','CreateLoadBalancer','UpdateLoadBalancer','CreateNetworkLoadBalancer')",
+    "events": [
+      "CreateInstance",
+      "CreateLoadBalancer",
+      "UpdateLoadBalancer",
+      "CreateNetworkLoadBalancer"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-2098",
     "category": "other",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

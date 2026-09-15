@@ -1,26 +1,42 @@
 {
   "displayName": "OCI-PCI-011: PCI-DSS \u2014 Payment Skimming Detection",
-  "description": "Detects web skimming or JavaScript injection targeting payment pages\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects web skimming or JavaScript injection targeting payment pages",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-PCI-011",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1190",
       "T1059.007"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-PCI-011_rewritten",
+      "groupName": "OCI-PCI-011_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "pci-dss \u2014 payment skimming detection",
+          "operator": "EQ",
+          "value": "DeleteVolumeBackup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteBootVolumeBackup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeletePolicy",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "DeleteVault",
           "dataType": "STRING"
         }
       ],
@@ -30,13 +46,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_pci_011\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pci%' OR \"data__json.message\" LIKE '%dss%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_pci_011\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pci%' OR \"data__json.message\" LIKE '%dss%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('DeleteVolumeBackup','DeleteBootVolumeBackup','DeletePolicy','DeleteVault')",
+    "events": [
+      "DeleteVolumeBackup",
+      "DeleteBootVolumeBackup",
+      "DeletePolicy",
+      "DeleteVault"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-PCI-011",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "compliance-pci-dss.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

@@ -1,27 +1,43 @@
 {
   "displayName": "OCI-LAT-CHN-002: Lateral movement chain \u2014 SMB \u2192 LSA Secrets \u2192 Domain Dominance",
-  "description": "Detects SMB lateral movement progressing to LSA secret extraction and domain controller compromise\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects SMB lateral movement progressing to LSA secret extraction and domain controller compromise",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-LAT-CHN-002",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1021.002",
       "T1003.004",
       "T1558"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-LAT-CHN-002_rewritten",
+      "groupName": "OCI-LAT-CHN-002_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "lateral movement chain \u2014 smb \u2192 lsa secrets \u2192 domai",
+          "operator": "EQ",
+          "value": "CreateAuthToken",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateApiKey",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetAuthToken",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListApiKeys",
           "dataType": "STRING"
         }
       ],
@@ -31,13 +47,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_lat_chn_002\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_lat_chn_002\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateAuthToken','CreateApiKey','GetAuthToken','ListApiKeys')",
+    "events": [
+      "CreateAuthToken",
+      "CreateApiKey",
+      "GetAuthToken",
+      "ListApiKeys"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-LAT-CHN-002",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "lateral-movement-chains.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

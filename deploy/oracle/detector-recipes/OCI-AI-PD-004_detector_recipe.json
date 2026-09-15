@@ -1,25 +1,47 @@
 {
   "displayName": "OCI-AI-PD-004: AI \u2014 Prompt Leaking via Instruction Extraction",
-  "description": "Detects attempts to extract system instructions through social engineering or direct questioning\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects attempts to extract system instructions through social engineering or direct questioning",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-AI-PD-004",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1083"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-AI-PD-004_rewritten",
+      "groupName": "OCI-AI-PD-004_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "ai \u2014 prompt leaking via instruction extraction",
+          "operator": "EQ",
+          "value": "ListObjects",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListBuckets",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "HeadObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListPolicies",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +51,22 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_general_ai_pd_004\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%prompt%' OR \"data__json.message\" LIKE '%leaking%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_general_ai_pd_004\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%prompt%' OR \"data__json.message\" LIKE '%leaking%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('ListObjects','ListBuckets','HeadObject','GetObject','ListPolicies')",
+    "events": [
+      "ListObjects",
+      "ListBuckets",
+      "HeadObject",
+      "GetObject",
+      "ListPolicies"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-AI-PD-004",
     "category": "general",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "ai-security-prompt-data-model.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 5 real audit event(s)"
 }

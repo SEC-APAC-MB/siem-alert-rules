@@ -1,26 +1,60 @@
 {
   "displayName": "GHADV-3725: sealed-env: TOTP secret embedded in unseal token payload (enterprise mode)",
-  "description": "sealed-env: TOTP secret embedded in unseal token payload (enterprise mode)\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "sealed-env: TOTP secret embedded in unseal token payload (enterprise mode)",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-3725",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1087",
       "T1592"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-3725_rewritten",
+      "groupName": "GHADV-3725_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "sealed-env",
+          "operator": "EQ",
+          "value": "ListUsers",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListGroups",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListPolicies",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListUserGroups",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListApiKeys",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "GHADV-3725_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListAuthTokens",
           "dataType": "STRING"
         }
       ],
@@ -30,13 +64,23 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_info_disclosure_ghadv_3725\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%sealed%' AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_info_disclosure_ghadv_3725\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%sealed%' AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('ListUsers','ListGroups','ListPolicies','ListUserGroups','ListApiKeys','ListAuthTokens')",
+    "events": [
+      "ListUsers",
+      "ListGroups",
+      "ListPolicies",
+      "ListUserGroups",
+      "ListApiKeys",
+      "ListAuthTokens"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-3725",
     "category": "info-disclosure",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 6 real audit event(s)"
 }

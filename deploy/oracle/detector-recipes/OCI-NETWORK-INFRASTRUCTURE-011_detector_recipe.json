@@ -1,12 +1,11 @@
 {
   "displayName": "OCI-NETWORK-INFRASTRUCTURE-011: CVE-2026-20349 \u2014 Secure Firewall Adaptive Security Appliance (ASA) and Secure Firewall Threat Defense (FTD)  Exploitation",
-  "description": "Detects exploitation attempts targeting CVE-2026-20349: Cisco Secure Firewall Adaptive Security Appliance (ASA) and Secure Firewall Threat Defense (FTD) contain a heap inspection vulnerability that could allow an unauthenticated, remote attacker to cause the device to reload unexpectedly, resulting in a denial of service (DoS) condition.. Product: Secure Firewall Adaptive Security Appliance (ASA) and Secure Firewall Threat Defense (FTD) \n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Detects exploitation attempts targeting CVE-2026-20349: Cisco Secure Firewall Adaptive Security Appliance (ASA) and Secure Firewall Threat Defense (FTD) contain a heap inspection vulnerability that could allow an unauthenticated, remote attacker to cause the device to reload unexpectedly, resulting in a denial of service (DoS) condition.. Product: Secure Firewall Adaptive Security Appliance (ASA) and Secure Firewall Threat Defense (FTD) ",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "OCI-NETWORK-INFRASTRUCTURE-011",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1498",
       "T1110",
@@ -20,12 +19,30 @@
   },
   "conditionGroups": [
     {
-      "groupName": "OCI-NETWORK-INFRASTRUCTURE-011_rewritten",
+      "groupName": "OCI-NETWORK-INFRASTRUCTURE-011_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "cve-2026-20349 \u2014 secure firewall adaptive security",
+          "operator": "EQ",
+          "value": "CreateSecurityRule",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateNetworkSecurityGroup",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "UpdateSecurityList",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "CreateNetworkSecurityGroup",
           "dataType": "STRING"
         }
       ],
@@ -35,13 +52,21 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_network_infrastructure_network_infrastructure_011\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_network_infrastructure_network_infrastructure_011\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('CreateSecurityRule','UpdateNetworkSecurityGroup','UpdateSecurityList','CreateNetworkSecurityGroup')",
+    "events": [
+      "CreateSecurityRule",
+      "UpdateNetworkSecurityGroup",
+      "UpdateSecurityList",
+      "CreateNetworkSecurityGroup"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "OCI-NETWORK-INFRASTRUCTURE-011",
     "category": "network-infrastructure",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "generated-network-infrastructure.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 4 real audit event(s)"
 }

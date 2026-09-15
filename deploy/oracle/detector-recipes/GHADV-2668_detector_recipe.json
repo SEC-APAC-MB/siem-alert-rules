@@ -1,25 +1,59 @@
 {
   "displayName": "GHADV-2668: Spring Framework Open Redirect in Spring MVC and WebFlux",
-  "description": "Spring Framework Open Redirect in Spring MVC and WebFlux\n\n\u26a0\ufe0f NEEDS-REWRITE: Query is generic SQL, needs conversion to Cloud Guard detector condition",
+  "description": "Spring Framework Open Redirect in Spring MVC and WebFlux",
   "detector": "OCI_ACTIVITY",
   "detectorRecipeId": "GHADV-2668",
   "sourceDetectorRecipeId": null,
   "severity": "MEDIUM",
   "mappings": {
-    "mitreAttackTactics": [],
     "mitreAttackTechniques": [
       "T1200"
-    ],
-    "compliance": []
+    ]
   },
   "conditionGroups": [
     {
-      "groupName": "GHADV-2668_rewritten",
+      "groupName": "GHADV-2668_events",
       "conditions": [
         {
           "fieldName": "data.eventName",
-          "operator": "CONTAINS",
-          "value": "spring framework open redirect in spring mvc and w",
+          "operator": "EQ",
+          "value": "GetInstance",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListInstances",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetObject",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListObjects",
+          "dataType": "STRING"
+        },
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "GetAutonomousDatabase",
+          "dataType": "STRING"
+        }
+      ],
+      "operator": "OR"
+    },
+    {
+      "groupName": "GHADV-2668_events_2",
+      "conditions": [
+        {
+          "fieldName": "data.eventName",
+          "operator": "EQ",
+          "value": "ListAutonomousDbs",
           "dataType": "STRING"
         }
       ],
@@ -29,13 +63,23 @@
   "dataSourceDetails": {
     "dataSource": "OCI_AUDIT",
     "namespace": "AuditEvents",
-    "query": "SELECT \"siem_redirect_ghadv_2668\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%spring%' OR \"data__json.message\" LIKE '%framework%') AND \"value\" > 0",
-    "originalQuery": "SELECT \"siem_redirect_ghadv_2668\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%spring%' OR \"data__json.message\" LIKE '%framework%') AND \"value\" > 0"
+    "query": "SELECT * FROM AuditEvents WHERE eventName IN ('GetInstance','ListInstances','GetObject','ListObjects','GetAutonomousDatabase','ListAutonomousDbs')",
+    "events": [
+      "GetInstance",
+      "ListInstances",
+      "GetObject",
+      "ListObjects",
+      "GetAutonomousDatabase",
+      "ListAutonomousDbs"
+    ]
   },
   "isEnabled": true,
   "labels": {
     "rule_id": "GHADV-2668",
     "category": "redirect",
-    "severity_label": "MEDIUM"
-  }
+    "severity_label": "MEDIUM",
+    "source_file": "github-advisory-rules.json"
+  },
+  "status": "DEPLOY-AS-IS",
+  "statusReason": "Production OCI Cloud Guard detector recipe with 6 real audit event(s)"
 }
