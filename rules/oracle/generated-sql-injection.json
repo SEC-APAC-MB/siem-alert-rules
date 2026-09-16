@@ -1,12 +1,12 @@
 {
-  "description": "SIEM alert rules — generated-sql-injection (converted)",
+  "description": "SIEM alert rules \u2014 generated-sql-injection (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-15T04:05:04.055295Z",
-  "total_rules": 1,
+  "converted": "2026-09-16T04:05:27.286693Z",
+  "total_rules": 2,
   "rules": [
     {
       "rule_id": "OCI-SQL-INJECTION-013",
-      "name": "CVE-2026-72898 — Metabase Exploitation",
+      "name": "CVE-2026-72898 \u2014 Metabase Exploitation",
       "description": "Detects exploitation attempts targeting CVE-2026-72898: Metabase contains a SQL Injection vulnerability that allows an unauthenticated remote attacker to inject arbitrary SQL into the Metabase application database, which can give them administrator access to the instance. From there, the attacker could change the application configuration, steal stored credentials for the connected databases, read any data accessible through those connections, and export data.. Product: Metabase",
       "severity": "MEDIUM",
       "category": "sql-injection",
@@ -42,6 +42,47 @@
         "sql-injection",
         "cve",
         "cve-2026-72898",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "OCI-SQL-INJECTION-001",
+      "name": "CVE-2026-76461 \u2014 Secure Email Gateway Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-76461: Cisco AsyncOS software for Cisco Secure Email Gateway (SEG) contains a SQL injection vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary commands with root privileges on the underlying operating system.. Product: Secure Email Gateway",
+      "severity": "MEDIUM",
+      "category": "sql-injection",
+      "mitre_attack": [
+        "T1110",
+        "T1190",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SELECT \"siem_sql_injection_sql_injection_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_sql_injection_sql_injection_001",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "sql-injection",
+        "cve",
+        "cve-2026-76461",
         "exploited"
       ]
     }

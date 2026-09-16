@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-remote-code-execution (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-15T04:05:04.146960Z",
-  "total_rules": 15,
+  "converted": "2026-09-16T04:05:28.993382Z",
+  "total_rules": 16,
   "rules": [
     {
       "rule_id": "AWS-REMOTE-CODE-EXECUTION-003",
@@ -921,6 +921,68 @@
         "remote-code-execution",
         "cve",
         "cve-2026-85706",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-REMOTE-CODE-EXECUTION-014",
+      "name": "CVE-2026-86218 \u2014 N-central Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-86218: N-able N-central contains a static code injection vulnerability that could allow for pre-authentication remote code execution.. Product: N-central",
+      "severity": "critical",
+      "category": "remote-code-execution",
+      "mitre_attack": [
+        "T1110",
+        "T1078",
+        "T1190",
+        "T1059"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-86218\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202686218NcentralExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-86218 \u2014 N-central Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "remote-code-execution",
+        "cve",
+        "cve-2026-86218",
         "exploited"
       ]
     }

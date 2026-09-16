@@ -6,9 +6,9 @@ The minimum baseline is the essential set of SIEM detection rules that should be
 
 ## What's Included
 
-### Oracle OCI Baseline: 138 rules across 13 domains
+### Oracle OCI Baseline: 141 rules across 13 domains
 
-### Microsoft Azure Baseline: 121 rules across 13 domains
+### Microsoft Azure Baseline: 124 rules across 13 domains
 
 ## Domains Covered
 
@@ -84,4 +84,4 @@ deployments/baseline/
     └── deploy.sh                    # Deployment script
 ```
 
-Generated: 2026-09-15T04:05:04.502561+00:00
+Generated: 2026-09-16T04:05:30.288321+00:00

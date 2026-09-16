@@ -2,8 +2,8 @@
   "description": "Minimum Baseline SIEM Rules — AZURE",
   "version": "1.0.0",
   "type": "minimum-baseline",
-  "generated": "2026-09-15T04:05:04.498134+00:00",
-  "total_rules": 121,
+  "generated": "2026-09-16T04:05:30.283674+00:00",
+  "total_rules": 124,
   "domains_covered": 13,
   "domains": [
     {
@@ -30,7 +30,7 @@
       "category": "privilege_escalation",
       "weight": "critical",
       "description": "Admin role changes, policy modifications, unauthorized elevation",
-      "rule_count": 8,
+      "rule_count": 10,
       "rule_ids": [
         "AZ-PRIVILEGE-ESCALATION-002",
         "AZ-PRIVILEGE-ESCALATION-004",
@@ -38,6 +38,8 @@
         "AZ-PRIVILEGE-ESCALATION-012",
         "AZ-PRIVILEGE-ESCALATION-001",
         "AZ-PRIVILEGE-ESCALATION-005",
+        "AZ-PRIVILEGE-ESCALATION-003",
+        "AZ-PRIVILEGE-ESCALATION-006",
         "GHADV-1413",
         "GHADV-1415"
       ]
@@ -193,9 +195,10 @@
       "category": "sql_injection",
       "weight": "high",
       "description": "Injection patterns, union selects, OR 1=1 attempts",
-      "rule_count": 2,
+      "rule_count": 3,
       "rule_ids": [
         "AZ-SQL-INJECTION-013",
+        "AZ-SQL-INJECTION-001",
         "GHADV-4263"
       ]
     },
@@ -1582,7 +1585,71 @@
         "NIST-800-53-SI-4",
         "GDPR-32A"
       ],
-      "query": "SecurityEvent | where EventID in (4672, 4688) and (CommandLine contains \"sudo\" or CommandLine contains \"runas\") | summarize count() by Account, bin(TimeGenerated, 5m)",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message has \"CVE-2026-86060\" or RuleName has \"CVE-2026-86060\" or ProcessName has \"CVE-2026-86060\" | summarize count() by bin(TimeGenerated, 5m), Computer, EventID | where count_ > 5 // AZ-PRIVILEGE-ESCALATION-005",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-86060",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AZ-PRIVILEGE-ESCALATION-003",
+      "name": "CVE-2026-42016 — Artifactory Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-42016: JFrog Artifactory contains an incorrect authorization vulnerability that allows leads to privilege escalation attack due to a validation check of the token signature/issuer and not the token’s scope.. Product: Artifactory",
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "privilege-escalation",
+      "tactics": [
+        "PrivilegeEscalation",
+        "CredentialAccess",
+        "DefenseEvasion"
+      ],
+      "mitre_attack": [
+        "T1548",
+        "T1078",
+        "T1110"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message has \"CVE-2026-42016\" or RuleName has \"CVE-2026-42016\" or ProcessName has \"CVE-2026-42016\" | summarize count() by bin(TimeGenerated, 5m), Computer, EventID | where count_ > 5 // AZ-PRIVILEGE-ESCALATION-003",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-42016",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AZ-PRIVILEGE-ESCALATION-006",
+      "name": "CVE-2026-86060 — RouterOS Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-86060: MikroTik RouterOS contains an improper neutralization of argument delimiters in a command vulnerability which allows an attacked to change the trusted RouterOS policy mask, leading to privilege escalation.. Product: RouterOS",
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "privilege-escalation",
+      "tactics": [
+        "PrivilegeEscalation"
+      ],
+      "mitre_attack": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message has \"CVE-2026-86060\" or RuleName has \"CVE-2026-86060\" or ProcessName has \"CVE-2026-86060\" | summarize count() by bin(TimeGenerated, 5m), Computer, EventID | where count_ > 5 // AZ-PRIVILEGE-ESCALATION-006",
       "queryFrequency": "5m",
       "queryPeriod": "10m",
       "triggerOperator": "GreaterThan",
@@ -2049,6 +2116,40 @@
       ]
     },
     {
+      "rule_id": "AZ-SQL-INJECTION-001",
+      "name": "CVE-2026-76461 — Secure Email Gateway Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-76461: Cisco AsyncOS software for Cisco Secure Email Gateway (SEG) contains a SQL injection vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary commands with root privileges on the underlying operating system.. Product: Secure Email Gateway",
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "sql-injection",
+      "tactics": [
+        "InitialAccess",
+        "CredentialAccess",
+        "DefenseEvasion"
+      ],
+      "mitre_attack": [
+        "T1110",
+        "T1190",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message has \"CVE-2026-76461\" or RuleName has \"CVE-2026-76461\" or ProcessName has \"CVE-2026-76461\" | summarize count() by bin(TimeGenerated, 5m), Computer, EventID | where count_ > 5 // AZ-SQL-INJECTION-001",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tags": [
+        "sql-injection",
+        "cve",
+        "cve-2026-76461",
+        "exploited"
+      ]
+    },
+    {
       "rule_id": "AZ-SSRF-005",
       "name": "CVE-2026-64849 — MLflow Exploitation",
       "description": "Detects exploitation attempts targeting CVE-2026-64849: MLflow contains a server-side request forgery vulnerability that can allow attackers to reach internal or cloud metadata services and receive response_status and response_body.. Product: MLflow",
@@ -2146,8 +2247,8 @@
       "severity_label": "Medium",
       "category": "ssrf",
       "tactics": [
-        "InitialAccess",
         "Collection",
+        "InitialAccess",
         "CredentialAccess",
         "DefenseEvasion"
       ],

@@ -2,8 +2,8 @@
   "description": "Minimum Baseline SIEM Rules — ORACLE",
   "version": "1.0.0",
   "type": "minimum-baseline",
-  "generated": "2026-09-15T04:05:04.485394+00:00",
-  "total_rules": 138,
+  "generated": "2026-09-16T04:05:30.222666+00:00",
+  "total_rules": 141,
   "domains_covered": 13,
   "domains": [
     {
@@ -30,7 +30,7 @@
       "category": "privilege_escalation",
       "weight": "critical",
       "description": "Admin role changes, policy modifications, unauthorized elevation",
-      "rule_count": 11,
+      "rule_count": 13,
       "rule_ids": [
         "OCI-PRIVILEGE-ESCALATION-002",
         "OCI-PRIVILEGE-ESCALATION-004",
@@ -38,10 +38,10 @@
         "OCI-PRIVILEGE-ESCALATION-012",
         "OCI-PRIVILEGE-ESCALATION-001",
         "OCI-PRIVILEGE-ESCALATION-005",
+        "OCI-PRIVILEGE-ESCALATION-003",
+        "OCI-PRIVILEGE-ESCALATION-006",
         "GHADV-1056",
-        "GHADV-2197",
-        "GHADV-2198",
-        "GHADV-3084"
+        "GHADV-2197"
       ]
     },
     {
@@ -195,9 +195,10 @@
       "category": "sql_injection",
       "weight": "high",
       "description": "Injection patterns, union selects, OR 1=1 attempts",
-      "rule_count": 5,
+      "rule_count": 6,
       "rule_ids": [
         "OCI-SQL-INJECTION-013",
+        "OCI-SQL-INJECTION-001",
         "GHADV-1336",
         "GHADV-2220",
         "GHADV-4503",
@@ -2149,6 +2150,86 @@
       ]
     },
     {
+      "rule_id": "OCI-PRIVILEGE-ESCALATION-003",
+      "name": "CVE-2026-42016 — Artifactory Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-42016: JFrog Artifactory contains an incorrect authorization vulnerability that allows leads to privilege escalation attack due to a validation check of the token signature/issuer and not the token’s scope.. Product: Artifactory",
+      "severity": "MEDIUM",
+      "category": "privilege-escalation",
+      "mitre_attack": [
+        "T1548",
+        "T1078",
+        "T1110"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SELECT \"siem_privilege_escalation_privilege_escalation_003\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_privilege_escalation_privilege_escalation_003",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-42016",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "OCI-PRIVILEGE-ESCALATION-006",
+      "name": "CVE-2026-86060 — RouterOS Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-86060: MikroTik RouterOS contains an improper neutralization of argument delimiters in a command vulnerability which allows an attacked to change the trusted RouterOS policy mask, leading to privilege escalation.. Product: RouterOS",
+      "severity": "MEDIUM",
+      "category": "privilege-escalation",
+      "mitre_attack": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SELECT \"siem_privilege_escalation_privilege_escalation_006\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_privilege_escalation_privilege_escalation_006",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-86060",
+        "exploited"
+      ]
+    },
+    {
       "rule_id": "OCI-RANSOMWARE-077",
       "name": "Mass File Encryption Pattern",
       "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
@@ -2786,6 +2867,47 @@
         "sql-injection",
         "cve",
         "cve-2026-72898",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "OCI-SQL-INJECTION-001",
+      "name": "CVE-2026-76461 — Secure Email Gateway Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-76461: Cisco AsyncOS software for Cisco Secure Email Gateway (SEG) contains a SQL injection vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary commands with root privileges on the underlying operating system.. Product: Secure Email Gateway",
+      "severity": "MEDIUM",
+      "category": "sql-injection",
+      "mitre_attack": [
+        "T1110",
+        "T1190",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SELECT \"siem_sql_injection_sql_injection_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_sql_injection_sql_injection_001",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "sql-injection",
+        "cve",
+        "cve-2026-76461",
         "exploited"
       ]
     },

@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-sql-injection (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-15T04:05:04.147908Z",
-  "total_rules": 1,
+  "converted": "2026-09-16T04:05:29.018170Z",
+  "total_rules": 2,
   "rules": [
     {
       "rule_id": "AWS-SQL-INJECTION-013",
@@ -62,6 +62,67 @@
         "sql-injection",
         "cve",
         "cve-2026-72898",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-SQL-INJECTION-001",
+      "name": "CVE-2026-76461 \u2014 Secure Email Gateway Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-76461: Cisco AsyncOS software for Cisco Secure Email Gateway (SEG) contains a SQL injection vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary commands with root privileges on the underlying operating system.. Product: Secure Email Gateway",
+      "severity": "critical",
+      "category": "sql-injection",
+      "mitre_attack": [
+        "T1110",
+        "T1190",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-76461\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202676461SecureEmailGatewayExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-76461 \u2014 Secure Email Gateway Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "sql-injection",
+        "cve",
+        "cve-2026-76461",
         "exploited"
       ]
     }
