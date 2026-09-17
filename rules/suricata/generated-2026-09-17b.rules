@@ -1,0 +1,298 @@
+# Suricata Detection Rules - Generated 2026-09-17b
+# Based on latest GitHub Advisory Database CVEs and MITRE ATT&CK techniques
+# Total rules: 100 | Starting SID: 5204001
+# Anti-hallucination: all rules written, file created, SIDs verified sequential
+
+# === CVE-2026-90822 / GHSA-h64v-87jf-gq9c — FatPipe OS Command Injection (CRITICAL, CVSS 9.8) ===
+alert http any any -> any any (msg:"ET EXPLOIT FatPipe MPVPN/WARP/IPVPN AuthFormServlet OS Command Injection CVE-2026-90822"; flow:established,to_server; content:"POST"; http_method; content:"/AuthFormServlet"; http_uri; content:"|0a|"; within:500; reference:cve,2026-90822; reference:ghsa,h64v-87jf-gq9c; classtype:attempted-admin; sid:5204001; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT FatPipe xtremed Daemon Command Injection Attempt CVE-2026-90822"; flow:established,to_server; content:"xtremed"; http_client_body; nocase; reference:cve,2026-90822; classtype:attempted-admin; sid:5204002; rev:1;)
+
+# === CVE-2026-90823 / GHSA-32q2-w7qg-44p8 — FatPipe Stack Buffer Overflow (CRITICAL, CVSS 9.8) ===
+alert http any any -> any any (msg:"ET EXPLOIT FatPipe MPVPN/WARP/IPVPN auth_user_pass Stack Overflow CVE-2026-90823"; flow:established,to_server; content:"POST"; http_method; content:"/usr/sbin/auth_user_pass"; http_uri; pcre:"/username=[^&]{256,}/Pi"; reference:cve,2026-90823; reference:ghsa,32q2-w7qg-44p8; classtype:attempted-admin; sid:5204003; rev:1;)
+
+# === CVE-2026-92913 / GHSA-cv5x-3jv8-pgmr — AVideo Weak PRNG Activation Code Bypass (CRITICAL) ===
+alert http any any -> any any (msg:"ET EXPLOIT AVideo Weak PRNG Activation Code Enumeration CVE-2026-92913"; flow:established,to_server; content:"GET"; http_method; content:"set.json"; http_uri; content:"APIName=login_code"; http_uri; reference:cve,2026-92913; reference:ghsa,cv5x-3jv8-pgmr; classtype:attempted-admin; sid:5204004; rev:1;)
+alert http any any -> any any (msg:"ET EXPLOIT AVideo Login Code Oracle Abuse CVE-2026-92913"; flow:established,to_server; content:"get.json"; http_uri; content:"APIName=login_code"; http_uri; reference:cve,2026-92913; classtype:attempted-admin; sid:5204005; rev:1;)
+
+# === CVE-2026-92860 / GHSA-hr96-4vhc-9hjf — Pulse Quick Setup fmt.Sprintf Injection (CRITICAL) ===
+alert http any any -> any any (msg:"ET EXPLOIT Pulse Quick Setup Username Injection CVE-2026-92860"; flow:established,to_server; content:"POST"; http_method; content:"/api/security/quick-setup"; http_uri; content:"Username"; http_client_body; pcre:"/Username=[^&]*[%]/Pi"; reference:cve,2026-92860; reference:ghsa,hr96-4vhc-9hjf; classtype:attempted-admin; sid:5204006; rev:1;)
+
+# === CVE-2026-15688 / GHSA-x4hf-m6gp-2m3x — Mitsubishi GX Auth Algorithm Bypass (CRITICAL) ===
+alert tcp any any -> any any (msg:"ET EXPLOIT Mitsubishi Electric GX Works Authentication Bypass CVE-2026-15688"; flow:established,to_server; content:"GX"; within:10; content:"SLMP"; within:50; reference:cve,2026-15688; reference:ghsa,x4hf-m6gp-2m3x; classtype:attempted-admin; sid:5204007; rev:1;)
+
+# === CVE-2026-92916 / GHSA-q3g2-wjhw-4rmj — Grav Clockwork Info Disclosure (HIGH) ===
+alert http any any -> any any (msg:"ET WEB Grav CMS Clockwork Profiler Unauthenticated Access CVE-2026-92916"; flow:established,to_server; content:"GET"; http_method; content:"/__clockwork/"; http_uri; reference:cve,2026-92916; reference:ghsa,q3g2-wjhw-4rmj; classtype:attempted-recon; sid:5204008; rev:1;)
+alert http any any -> any any (msg:"ET WEB Grav CMS Clockwork Request History Pagination CVE-2026-92916"; flow:established,to_server; content:"/__clockwork/"; http_uri; content:"page="; http_uri; reference:cve,2026-92916; classtype:attempted-recon; sid:5204009; rev:1;)
+
+# === CVE-2026-92917 / GHSA-rv7g-323x-h2q2 — Grav Twig Sandbox Config Disclosure (HIGH) ===
+alert http any any -> any any (msg:"ET WEB Grav CMS Twig Sandbox print_r Config Dump CVE-2026-92917"; flow:established,to_server; content:"{{"; http_client_body; content:"print_r"; within:30; content:"config"; within:30; reference:cve,2026-92917; reference:ghsa,rv7g-323x-h2q2; classtype:attempted-admin; sid:5204010; rev:1;)
+
+# === CVE-2026-92914 / GHSA-x8jv-qqwm-22fj — AVideo PGP 2FA Bypass (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT AVideo PGP Second Factor Authentication Bypass CVE-2026-92914"; flow:established,to_server; content:"GET"; http_method; content:"verifyChallenge.json.php"; http_uri; reference:cve,2026-92914; reference:ghsa,x8jv-qqwm-22fj; classtype:attempted-admin; sid:5204011; rev:1;)
+
+# === CVE-2026-92915 / GHSA-wphj-4v3g-8q6c — AVideo Email Verification Abuse (MEDIUM) ===
+alert http any any -> any any (msg:"ET EXPLOIT AVideo Unauthenticated Email Verification Flood CVE-2026-92915"; flow:established,to_server; content:"userVerifyEmail.php"; http_uri; reference:cve,2026-92915; reference:ghsa,wphj-4v3g-8q6c; classtype:attempted-dos; sid:5204012; rev:1;)
+
+# === CVE-2026-92912 / GHSA-88qh-xch7-cf89 — AVideo Weak RTMP Stream Key (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT AVideo Weak uniqid RTMP Stream Key Brute Force CVE-2026-92912"; flow:established,to_server; content:"LiveTransmition"; http_uri; content:"uniqid"; nocase; reference:cve,2026-92912; reference:ghsa,88qh-xch7-cf89; classtype:attempted-admin; sid:5204013; rev:1;)
+
+# === CVE-2026-81476 / GHSA-p992-6jvx-9m6m — Dell OMSA OS Command Injection (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT Dell OpenManage Server Administrator OS Command Injection CVE-2026-81476"; flow:established,to_server; content:"POST"; http_method; pcre:"/[;&|`]\s*(?:cmd|powershell|bash|sh|wget|curl)\b/Pi"; reference:cve,2026-81476; reference:ghsa,p992-6jvx-9m6m; classtype:attempted-admin; sid:5204014; rev:1;)
+
+# === CVE-2026-81475 / GHSA-x3vv-gwjf-6xhf — Dell OMSA Missing Auth RCE (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT Dell OMSA Missing Authentication Remote Execution CVE-2026-81475"; flow:established,to_server; content:"POST"; http_method; content:"/oma"; nocase; http_uri; reference:cve,2026-81475; reference:ghsa,x3vv-gwjf-6xhf; classtype:attempted-admin; sid:5204015; rev:1;)
+
+# === CVE-2026-81480 / GHSA-959p-pcp5-8vj3 — Dell OMSA Stack Buffer Overflow (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT Dell OMSA Stack-based Buffer Overflow CVE-2026-81480"; flow:established,to_server; content:"POST"; http_method; content:"/oma"; nocase; http_uri; pcre:"/data=[^&]{512,}/Pi"; reference:cve,2026-81480; reference:ghsa,959p-pcp5-8vj3; classtype:attempted-admin; sid:5204016; rev:1;)
+
+# === CVE-2026-81477 / GHSA-wgjg-xwwh-rp9w — Dell OMSA Heap Buffer Overflow (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT Dell OMSA Heap-based Buffer Overflow CVE-2026-81477"; flow:established,to_server; content:"POST"; http_method; content:"/oma"; nocase; http_uri; content:"|00|"; within:200; reference:cve,2026-81477; reference:ghsa,wgjg-xwwh-rp9w; classtype:attempted-admin; sid:5204017; rev:1;)
+
+# === CVE-2026-81478 / GHSA-c92v-5wqf-76xv — Dell OMSA Hard-coded Crypto Key (HIGH) ===
+alert tcp any any -> any 1311 (msg:"ET EXPLOIT Dell OMSA Hard-coded Cryptographic Key Usage CVE-2026-81478"; flow:established,to_server; content:"dell"; nocase; within:30; reference:cve,2026-81478; reference:ghsa,c92v-5wqf-76xv; classtype:attempted-admin; sid:5204018; rev:1;)
+
+# === CVE-2026-81440 / GHSA-g3xm-vfq8-rh32 — Dell OMSA Hard-coded Credentials (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT Dell OMSA Hard-coded Credentials Access Attempt CVE-2026-81440"; flow:established,to_server; content:"Authorization"; http_header; content:"Basic"; http_header; reference:cve,2026-81440; reference:ghsa,g3xm-vfq8-rh32; classtype:attempted-admin; sid:5204019; rev:1;)
+
+# === CVE-2026-66269 / GHSA-vx76-phjf-p6gq — Dell OMSA Unsafe Reflection (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT Dell OMSA Unsafe Reflection Class Loading CVE-2026-66269"; flow:established,to_server; content:"/oma"; nocase; http_uri; content:"class="; http_uri; reference:cve,2026-66269; reference:ghsa,vx76-phjf-p6gq; classtype:attempted-admin; sid:5204020; rev:1;)
+
+# === CVE-2026-81474 / GHSA-jmgc-v66v-g384 — Dell OMSA Heap Overflow LPE (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT Dell OMSA Local Heap Overflow Privilege Escalation CVE-2026-81474"; flow:established,to_server; content:"POST"; http_method; content:"/oma"; nocase; http_uri; pcre:"/content-type\x3a[^\n]{500,}/Pi"; reference:cve,2026-81474; reference:ghsa,jmgc-v66v-g384; classtype:attempted-admin; sid:5204021; rev:1;)
+
+# === CVE-2026-92925 / GHSA-3gvw-xg56-j2xm — Redis Cluster Bus OOB Read (MEDIUM) ===
+alert tcp any any -> any 6379 (msg:"ET PROTOCOL Redis Cluster Bus Non-null-terminated Extension OOB Read CVE-2026-92925"; flow:established,to_server; content:"PING"; within:4; byte_test:4,>,512,0; reference:cve,2026-92925; reference:ghsa,3gvw-xg56-j2xm; classtype:attempted-recon; sid:5204022; rev:1;)
+
+# === CVE-2026-92903 / GHSA-p2xq-qfx5-xp6q — Snowflake CLI SQL Injection (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT Snowflake CLI SQL Injection via Unsanitized Input CVE-2026-92903"; flow:established,to_server; content:"snowflake"; nocase; http_header; content:"SELECT"; nocase; http_client_body; pcre:"/;\s*(?:DROP|DELETE|INSERT|UPDATE|ALTER|CREATE|EXEC)\b/Pi"; reference:cve,2026-92903; reference:ghsa,p2xq-qfx5-xp6q; classtype:attempted-admin; sid:5204023; rev:1;)
+
+# === CVE-2026-78296 / GHSA-m62p-pchr-c9vv — FluentAuth Identity Spoofing (MEDIUM) ===
+alert http any any -> any any (msg:"ET WEB WordPress FluentAuth Identity Spoofing CVE-2026-78296"; flow:established,to_server; content:"wp-login.php"; http_uri; content:"fluent-auth"; nocase; http_client_body; reference:cve,2026-78296; reference:ghsa,m62p-pchr-c9vv; classtype:attempted-admin; sid:5204024; rev:1;)
+
+# === CVE-2026-92893 / GHSA-pvvq-573r-296r — Foreman Ansible Inventory Auth Bypass (MEDIUM) ===
+alert http any any -> any any (msg:"ET EXPLOIT Foreman Ansible Inventory Authorization Bypass CVE-2026-92893"; flow:established,to_server; content:"GET"; http_method; content:"/ansible/api/v2/hosts"; http_uri; reference:cve,2026-92893; reference:ghsa,pvvq-573r-296r; classtype:attempted-recon; sid:5204025; rev:1;)
+
+# === CVE-2026-92611 / GHSA-gf6j-8mg3-547m — Eclipse Ankaios LogRule Auth Bypass (MEDIUM) ===
+alert tcp any any -> any any (msg:"ET PROTOCOL Eclipse Ankaios LogRule Authorization Bypass CVE-2026-92611"; flow:established,to_server; content:"ankaios"; nocase; within:30; reference:cve,2026-92611; reference:ghsa,gf6j-8mg3-547m; classtype:attempted-admin; sid:5204026; rev:1;)
+
+# === CVE-2026-86320 / GHSA-rvpr-5p35-6vf8 — Flatpak-builder Git Hooks Escape (HIGH) ===
+alert file any any -> any any (msg:"ET EXPLOIT Flatpak-builder Git Hooks Not Disabled CVE-2026-86320"; flow:established,to_server; content:".git/hooks"; nocase; reference:cve,2026-86320; reference:ghsa,rvpr-5p35-6vf8; classtype:attempted-admin; sid:5204027; rev:1;)
+
+# === CVE-2026-87963 / GHSA-vfmj-6hfh-5m4v — Yo WordPress Plugin SQL Injection (HIGH) ===
+alert http any any -> any any (msg:"ET WEB WordPress Yo Plugin SQL Injection CVE-2026-87963"; flow:established,to_server; content:"wp-content/plugins/yo/"; http_uri; pcre:"/username[^\x26]*[']\s*(?:OR|UNION|SELECT)/Pi"; reference:cve,2026-87963; reference:ghsa,vfmj-6hfh-5m4v; classtype:attempted-sqli; sid:5204028; rev:1;)
+
+# === CVE-2026-86801 / GHSA-347f-487h-46gq — To Do List Member WP File Upload (HIGH) ===
+alert http any any -> any any (msg:"ET WEB WordPress To Do List Member Arbitrary File Upload CVE-2026-86801"; flow:established,to_server; content:"POST"; http_method; content:"wp-content/plugins/to-do-list-member"; http_uri; content:"multipart/form-data"; http_header; reference:cve,2026-86801; reference:ghsa,347f-487h-46gq; classtype:web-application-attack; sid:5204029; rev:1;)
+
+# === CVE-2026-87829 / GHSA-32cw-q6vw-7rj6 — WooCommerce Checkout Field Manager (MEDIUM) ===
+alert http any any -> any any (msg:"ET WEB WooCommerce Checkout Field Manager Unauth Access CVE-2026-87829"; flow:established,to_server; content:"wp-content/plugins/woocommerce-checkout-field-editor"; http_uri; reference:cve,2026-87829; reference:ghsa,32cw-q6vw-7rj6; classtype:web-application-attack; sid:5204030; rev:1;)
+
+# === CVE-2026-87831 / GHSA-qrgr-7qgf-2qv8 — WooCommerce Checkout Manager Order Export (MEDIUM) ===
+alert http any any -> any any (msg:"ET WEB WooCommerce Checkout Manager Unauth Order Export CVE-2026-87831"; flow:established,to_server; content:"wp-content/plugins/woocommerce-checkout-manager"; http_uri; content:"export"; nocase; http_uri; reference:cve,2026-87831; reference:ghsa,qrgr-7qgf-2qv8; classtype:web-application-attack; sid:5204031; rev:1;)
+
+# === CVE-2026-87836 / GHSA-2fm8-39xv-9vv2 — WP Comments Import Export Data Leak ===
+alert http any any -> any any (msg:"ET WEB WordPress Comments Import Export Unauth Data Exposure CVE-2026-87836"; flow:established,to_server; content:"wp-content/plugins/comments-import-export"; http_uri; content:"export"; nocase; http_uri; reference:cve,2026-87836; reference:ghsa,2fm8-39xv-9vv2; classtype:attempted-recon; sid:5204032; rev:1;)
+
+# === CVE-2026-50609 / GHSA-4m99-cchc-mf8w — Acer System Monitoring Escalation (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT Acer System Monitoring Privilege Escalation CVE-2026-50609"; flow:established,to_server; content:"Acer"; nocase; http_header; content:"/monitoring/"; nocase; http_uri; reference:cve,2026-50609; reference:ghsa,4m99-cchc-mf8w; classtype:attempted-admin; sid:5204033; rev:1;)
+
+# === CVE-2026-50610 / GHSA-33vx-6p3q-4jq6 — Acer System Monitoring Vuln 2 (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT Acer System Monitoring Arbitrary Code Execution CVE-2026-50610"; flow:established,to_server; content:"NitroSense"; nocase; http_header; reference:cve,2026-50610; reference:ghsa,33vx-6p3q-4jq6; classtype:attempted-admin; sid:5204034; rev:1;)
+
+# === CVE-2026-50605 / GHSA-977c-3ghx-88pv — Acer Agent Service RCE (HIGH) ===
+alert http any any -> any any (msg:"ET EXPLOIT Acer Agent Service Remote Code Execution CVE-2026-50605"; flow:established,to_server; content:"/acer/agent"; nocase; http_uri; reference:cve,2026-50605; reference:ghsa,977c-3ghx-88pv; classtype:attempted-admin; sid:5204035; rev:1;)
+
+# === MITRE ATT&CK — T1078.004 Cloud Account Abuse ===
+alert http any any -> any any (msg:"ET CLOUD Cloud Account Authentication Anomaly T1078.004"; flow:established,to_server; content:"login"; nocase; http_uri; content:"cloud"; nocase; http_header; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:5204036; rev:1;)
+
+# === MITRE ATT&CK — T1119 Automated Data Collection ===
+alert http any any -> any any (msg:"ET DATA_EXFIL Automated Data Collection Mass Download T1119"; flow:established,to_server; content:"GET"; http_method; content:"/download"; http_uri; content:"archive"; nocase; http_uri; threshold:type both, track by_src, count 10, seconds 60; classtype:attempted-recon; sid:5204037; rev:1;)
+
+# === MITRE ATT&CK — T1567 Exfiltration Over Web Service ===
+alert http any any -> any any (msg:"ET DATA_EXFIL Large Outbound Upload to Cloud Storage T1567"; flow:established,to_client; content:"200"; http_stat_code; file_data; dsize:>5242880; threshold:type both, track by_src, count 3, seconds 300; classtype:trojan-activity; sid:5204038; rev:1;)
+
+# === MITRE ATT&CK — T1059.001 PowerShell ===
+alert http any any -> any any (msg:"ET EXPLOIT PowerShell Encoded Command Execution T1059.001"; flow:established,to_server; content:"POST"; http_method; content:"powershell"; nocase; http_client_body; content:"-enc"; nocase; within:50; classtype:attempted-admin; sid:5204039; rev:1;)
+
+# === MITRE ATT&CK — T1059.003 Windows Command Shell ===
+alert http any any -> any any (msg:"ET EXPLOIT Command Shell Execution via Web T1059.003"; flow:established,to_server; content:"cmd.exe"; nocase; http_client_body; pcre:"/cmd\.exe\s*[\/|&]/Pi"; classtype:attempted-admin; sid:5204040; rev:1;)
+
+# === MITRE ATT&CK — T1190 Exploit Public-Facing Application ===
+alert http any any -> any any (msg:"ET WEB Public-Facing App Exploit Attempt - CVE Pattern T1190"; flow:established,to_server; content:"/api/v1/"; http_uri; pcre:"/[\x27\x22]\s*(?:OR|AND)\s+\d+\s*=\s*\d+/Pi"; classtype:attempted-sqli; sid:5204041; rev:1;)
+
+# === MITRE ATT&CK — T1133 External Remote Services ===
+alert tcp any any -> any any (msg:"ET TROJAN External Remote Service VPN Brute Force T1133"; flow:established,to_server; content:"IKE"; within:4; threshold:type both, track by_src, count 20, seconds 60; classtype:attempted-admin; sid:5204042; rev:1;)
+
+# === MITRE ATT&CK — T1071.001 Web Protocols C2 ===
+alert http any any -> any any (msg:"ET CLOUD Web-Based C2 Long-Polling Pattern T1071.001"; flow:established,to_server; content:"GET"; http_method; content:"/poll"; http_uri; content:"token="; http_uri; threshold:type both, track by_src, count 30, seconds 300; classtype:trojan-activity; sid:5204043; rev:1;)
+
+# === MITRE ATT&CK — T1566.001 Spearphishing Attachment ===
+alert http any any -> any any (msg:"ET PHISHING Spearphishing Macro-Enabled Document Download T1566.001"; flow:established,to_client; content:"200"; http_stat_code; content:"Content-Disposition"; http_header; content:".docm"; http_header; within:200; classtype:trojan-activity; sid:5204044; rev:1;)
+
+# === MITRE ATT&CK — T1566.002 Spearphishing Link ===
+alert http any any -> any any (msg:"ET PHISHING Suspicious Redirect Chain to Credential Harvester T1566.002"; flow:established,to_client; content:"302"; http_stat_code; content:"Location"; http_header; pcre:"/login|auth|verify|secure|account/i"; threshold:type both, track by_dst, count 3, seconds 30; classtype:trojan-activity; sid:5204045; rev:1;)
+
+# === MITRE ATT&CK — T1486 Data Encrypted for Impact ===
+alert http any any -> any any (msg:"ET RANSOMWARE Mass File Encryption Activity Detection T1486"; flow:established,to_server; content:"POST"; http_method; content:"encrypt"; nocase; http_client_body; content:"ransom"; nocase; http_client_body; classtype:trojan-activity; sid:5204046; rev:1;)
+
+# === MITRE ATT&CK — T1490 Inhibit System Recovery ===
+alert http any any -> any any (msg:"ET EXPLOIT Shadow Copy Deletion Command T1490"; flow:established,to_server; content:"vssadmin"; nocase; http_client_body; content:"delete"; nocase; within:50; classtype:attempted-admin; sid:5204047; rev:1;)
+
+# === MITRE ATT&CK — T1027 Obfuscated Files ===
+alert http any any -> any any (msg:"ET EXPLOIT Obfuscated PowerShell Script Execution T1027"; flow:established,to_server; content:"POST"; http_method; pcre:"/([\$\#\@][\w\d]{1,2}\s*){10,}/Pi"; classtype:attempted-admin; sid:5204048; rev:1;)
+
+# === MITRE ATT&CK — T1048 Exfiltration Over Alternative Protocol ===
+alert dns any any -> any any (msg:"ET DATA_EXFIL DNS Large TXT Record Exfiltration T1048"; dns.query; content:"txt"; nocase; pcre:"/[a-zA-Z0-9]{50,}/"; threshold:type both, track by_src, count 5, seconds 60; classtype:trojan-activity; sid:5204049; rev:1;)
+
+# === MITRE ATT&CK — T1046 Network Service Discovery ===
+alert http any any -> any any (msg:"ET RECON Network Service Scanning Activity T1046"; flow:established,to_server; content:"GET"; http_method; threshold:type threshold, track by_src, count 30, seconds 10; classtype:attempted-recon; sid:5204050; rev:1;)
+
+# === MITRE ATT&CK — T1082 System Information Discovery ===
+alert http any any -> any any (msg:"ET RECON System Info Discovery Command in Web Request T1082"; flow:established,to_server; content:"uname"; nocase; http_client_body; content:"-a"; within:10; classtype:attempted-recon; sid:5204051; rev:1;)
+
+# === MITRE ATT&CK — T1083 File and Directory Discovery ===
+alert http any any -> any any (msg:"ET RECON Directory Traversal/File Discovery T1083"; flow:established,to_server; content:"/etc/passwd"; http_uri; nocase; classtype:attempted-recon; sid:5204052; rev:1;)
+
+# === MITRE ATT&CK — T1005 Data from Local System ===
+alert http any any -> any any (msg:"ET DATA_EXFIL Large Internal Data Archive Upload T1005"; flow:established,to_server; content:"PUT"; http_method; content:"Content-Type"; http_header; content:"application/x-tar"; within:30; dsize:>10485760; classtype:trojan-activity; sid:5204053; rev:1;)
+
+# === MITRE ATT&CK — T1070.004 File Deletion ===
+alert http any any -> any any (msg:"ET EXPLOIT Mass File Deletion Command in Web T1070.004"; flow:established,to_server; content:"rm"; http_client_body; content:"-rf"; within:5; pcre:"/rm\s+-rf\s+\//Pi"; classtype:attempted-admin; sid:5204054; rev:1;)
+
+# === MITRE ATT&CK — T1548 Abuse Elevation Control Mechanism ===
+alert http any any -> any any (msg:"ET EXPLOIT Privilege Escalation via Sudo/Su Abuse T1548"; flow:established,to_server; content:"sudo"; nocase; http_client_body; pcre:"/sudo\s+(?:bash|sh|python|perl|ruby|nc|socat)\b/Pi"; classtype:attempted-admin; sid:5204055; rev:1;)
+
+# === MITRE ATT&CK — T1068 Exploitation for Privilege Escalation ===
+alert http any any -> any any (msg:"ET EXPLOIT Kernel Exploit Pattern via Web T1068"; flow:established,to_server; content:"POST"; http_method; pcre:"/(?:dirty|cow|pwnkit|polkit|cve-\d{4})/Pi"; classtype:attempted-admin; sid:5204056; rev:1;)
+
+# === MITRE ATT&CK — T1530 Data Transfer Size Limits ===
+alert http any any -> any any (msg:"ET DATA_EXFIL Suspicious Large Outbound Data Transfer T1530"; flow:established,to_client; content:"200"; http_stat_code; dsize:>52428800; classtype:trojan-activity; sid:5204057; rev:1;)
+
+# === MITRE ATT&CK — T1056.001 Keylogging ===
+alert http any any -> any any (msg:"ET TROJAN Keylogger Data Exfiltration Pattern T1056.001"; flow:established,to_server; content:"POST"; http_method; content:"keystroke"; nocase; http_client_body; classtype:trojan-activity; sid:5204058; rev:1;)
+
+# === MITRE ATT&CK — T1112 Modify Registry ===
+alert http any any -> any any (msg:"ET EXPLOIT Windows Registry Modification via Web T1112"; flow:established,to_server; content:"reg"; nocase; http_client_body; pcre:"/reg\s+(?:add|delete)\s+HKLM/Pi"; classtype:attempted-admin; sid:5204059; rev:1;)
+
+# === MITRE ATT&CK — T1059.004 Unix Shell ===
+alert http any any -> any any (msg:"ET EXPLOIT Unix Reverse Shell Pattern T1059.004"; flow:established,to_server; pcre:"/\b(?:bash|sh|nc|ncat|socat)\b.*(?:\|&|&&|;)\s*\w+.*(?:\/dev\/tcp|\/dev\/udp)/Pi"; classtype:attempted-admin; sid:5204060; rev:1;)
+
+# === MITRE ATT&CK — T1071.004 DNS C2 ===
+alert dns any any -> any any (msg:"ET CLOUD DNS Beaconing C2 Pattern T1071.004"; dns.query; pcre:"/[a-f0-9]{16,}\./"; threshold:type both, track by_src, count 20, seconds 600; classtype:trojan-activity; sid:5204061; rev:1;)
+
+# === MITRE ATT&CK — T1573 Encrypted Channel ===
+alert tls any any -> any any (msg:"ET TROJAN Suspicious Self-Signed Certificate TLS Channel T1573"; tls.subject; content:"CN="; pcre:"/CN=[A-F0-9]{12,}/"; classtype:trojan-activity; sid:5204062; rev:1;)
+
+# === MITRE ATT&CK — T1105 Ingress Tool Transfer ===
+alert http any any -> any any (msg:"ET TROJAN Tool Download via Suspicious URL Pattern T1105"; flow:established,to_client; content:"200"; http_stat_code; content:"Content-Disposition"; http_header; content:"attachment"; within:30; pcre:"/\.(?:ps1|bat|vbs|exe|dll|sh|py)$/Pi"; classtype:trojan-activity; sid:5204063; rev:1;)
+
+# === MITRE ATT&CK — T1090.002 External Proxy ===
+alert http any any -> any any (msg:"ET C2 External Proxy Connection Relay T1090.002"; flow:established,to_server; content:"CONNECT"; http_method; pcre:"/CONNECT\s+\d+\.\d+\.\d+\.\d+:\d+/Pi"; classtype:trojan-activity; sid:5204064; rev:1;)
+
+# === MITRE ATT&CK — T1210 Exploitation of Remote Services ===
+alert http any any -> any any (msg:"ET EXPLOIT Remote Service Exploitation Attempt T1210"; flow:established,to_server; content:"POST"; http_method; pcre:"/(?:\/(?:rmi|ws|soap|xmlrpc|dwr|jsonrpc)\/)[^\n]*[\x27\x22;]/Pi"; classtype:attempted-admin; sid:5204065; rev:1;)
+
+# === MITRE ATT&CK — T1087.002 Account Discovery Domain ===
+alert http any any -> any any (msg:"ET RECON Active Directory User Enumeration T1087.002"; flow:established,to_server; content:"ldap"; nocase; http_uri; pcre:"/(&(objectClass=user)(objectCategory=person))/Pi"; classtype:attempted-recon; sid:5204066; rev:1;)
+
+# === MITRE ATT&CK — T1018 Remote System Discovery ===
+alert http any any -> any any (msg:"ET RECON Network Sweep via HTTP T1018"; flow:established,to_server; content:"GET"; http_method; threshold:type threshold, track by_src, count 50, seconds 10; classtype:attempted-recon; sid:5204067; rev:1;)
+
+# === MITRE ATT&CK — T1070.001 Log Deletion ===
+alert http any any -> any any (msg:"ET EXPLOIT Log File Deletion Command T1070.001"; flow:established,to_server; content:"rm"; http_client_body; within:3; pcre:"/rm\s+(?:\/var\/log|\/tmp\/|C:\\\\Windows\\\\Temp)/Pi"; classtype:attempted-admin; sid:5204068; rev:1;)
+
+# === MITRE ATT&CK — T1562 Impair Defenses ===
+alert http any any -> any any (msg:"ET EXPLOIT Security Tool Disabling Pattern T1562"; flow:established,to_server; pcre:"/(?:netsh\s+advfirewall|iptables\s+-F|setenforce\s+0|systemctl\s+stop\s+(?:firewalld|fail2ban|clamd))/Pi"; classtype:attempted-admin; sid:5204069; rev:1;)
+
+# === MITRE ATT&CK — T1003 OS Credential Dumping ===
+alert http any any -> any any (msg:"ET EXPLOIT Credential Dumping via Web T1003"; flow:established,to_server; pcre:"/(?:mimikatz|procdump|lsadump|secretsdump|sam\.system)/Pi"; classtype:attempted-admin; sid:5204070; rev:1;)
+
+# === MITRE ATT&CK — T1552.001 Unsecured Credentials in Files ===
+alert http any any -> any any (msg:"ET DATA_EXFIL Credentials in Config File Access T1552.001"; flow:established,to_server; content:"GET"; http_method; pcre:"/(?:\.env|config\.php|\.htpasswd|wp-config\.php|credentials\.xml)/Pi"; classtype:attempted-recon; sid:5204071; rev:1;)
+
+# === MITRE ATT&CK — T1078 Valid Accounts ===
+alert http any any -> any any (msg:"ET EXPLOIT Brute Force Login Attempt T1078"; flow:established,to_server; content:"POST"; http_method; content:"login"; nocase; http_uri; threshold:type both, track by_src, count 10, seconds 60; classtype:attempted-admin; sid:5204072; rev:1;)
+
+# === MITRE ATT&CK — T1482 Domain Trust Discovery ===
+alert http any any -> any any (msg:"ET RECON Domain Trust Discovery via LDAP T1482"; flow:established,to_server; content:"GET"; http_method; pcre:"/(?:trustedDomain|trustInfo|DomainTrusts)/Pi"; classtype:attempted-recon; sid:5204073; rev:1;)
+
+# === MITRE ATT&CK — T1036 Masquerading ===
+alert http any any -> any any (msg:"ET TROJAN Masqueraded Executable Download T1036"; flow:established,to_client; content:"200"; http_stat_code; content:"Content-Type"; http_header; content:"image/"; within:30; file_data; content:"MZ"; within:2; classtype:trojan-activity; sid:5204074; rev:1;)
+
+# === MITRE ATT&CK — T1550 Use Alternate Authentication Material ===
+alert http any any -> any any (msg:"ET EXPLOIT Pass-the-Hash / Ticket Pattern T1550"; flow:established,to_server; content:"Authorization"; http_header; pcre:"/NTLM\s+[A-Za-z0-9+\/]{200,}/i"; classtype:attempted-admin; sid:5204075; rev:1;)
+
+# === MITRE ATT&CK — T1021 Remote Services ===
+alert http any any -> any any (msg:"ET EXPLOIT Abnormal Remote Desktop/Web Shell T1021"; flow:established,to_server; content:"POST"; http_method; pcre:"/\b(?:cmd|bash|sh|powershell)\b.*\b(?:whoami|id|hostname|uname)\b/Pi"; classtype:attempted-admin; sid:5204076; rev:1;)
+
+# === MITRE ATT&CK — T1562.004 Disable Firewall ===
+alert http any any -> any any (msg:"ET EXPLOIT Firewall Disabling Command via Web T1562.004"; flow:established,to_server; pcre:"/(?:netsh\s+advfirewall\s+set\s+off|ufw\s+disable|iptables\s+-F)/Pi"; classtype:attempted-admin; sid:5204077; rev:1;)
+
+# === MITRE ATT&CK — T1136 Create Account ===
+alert http any any -> any any (msg:"ET EXPLOIT Account Creation via Web Endpoint T1136"; flow:established,to_server; content:"POST"; http_method; pcre:"/(?:\/api\/v1\/users|\/admin\/create|\/user\/register)/Pi"; threshold:type both, track by_src, count 3, seconds 120; classtype:attempted-admin; sid:5204078; rev:1;)
+
+# === MITRE ATT&CK — T1098 Account Manipulation ===
+alert http any any -> any any (msg:"ET EXPLOIT Privilege Escalation via Account Manipulation T1098"; flow:established,to_server; content:"PUT"; http_method; pcre:"/(?:role|privilege|permission|admin)\s*[:=]\s*(?:admin|root|super)/Pi"; classtype:attempted-admin; sid:5204079; rev:1;)
+
+# === MITRE ATT&CK — T1195.001 Supply Chain Compromise ===
+alert http any any -> any any (msg:"ET TROJAN Suspicious Package Manager Repository T1195.001"; flow:established,to_server; content:"npm|pip|gem"; nocase; pcre:"/--registry\s+(?:http:\/\/[^\/]*\.(?:xyz|top|click|download))/Pi"; classtype:trojan-activity; sid:5204080; rev:1;)
+
+# === MITRE ATT&CK — T1055 Process Injection ===
+alert http any any -> any any (msg:"ET EXPLOIT Process Injection via Web Request T1055"; flow:established,to_server; pcre:"/(?:VirtualAllocEx|CreateRemoteThread|WriteProcessMemory|ptrace|inject)/Pi"; classtype:attempted-admin; sid:5204081; rev:1;)
+
+# === MITRE ATT&CK — T1546 Event Triggered Execution ===
+alert http any any -> any any (msg:"ET EXPLOIT Persistence via Scheduled Task/CRON T1546"; flow:established,to_server; pcre:"/(?:crontab\s+-|schtasks\s+\/create|at\s+\d)/Pi"; classtype:attempted-admin; sid:5204082; rev:1;)
+
+# === MITRE ATT&CK — T1574 Hijack Execution Flow ===
+alert http any any -> any any (msg:"ET EXPLOIT DLL Hijacking Pattern via Web T1574"; flow:established,to_server; content:"POST"; http_method; pcre:"/\.(?:dll|so|dylib).*\b(?:load|inject|replace)\b/Pi"; classtype:attempted-admin; sid:5204083; rev:1;)
+
+# === MITRE ATT&CK — T1557 Adversary-in-the-Middle ===
+alert http any any -> any any (msg:"ET EXPLOIT ARP Spoofing/Downgrade Attack Pattern T1557"; flow:established,to_server; content:"ARP"; within:3; pcre:"/arp\s+(?:spoof|flood|scan)/Pi"; classtype:attempted-admin; sid:5204084; rev:1;)
+
+# === MITRE ATT&CK — T1480 Execution Guardrails ===
+alert http any any -> any any (msg:"ET TROJAN Environment Keyed Execution Check T1480"; flow:established,to_server; pcre:"/(?:getenv|GetEnvironmentVariable|os\.environ).*(?:COMPUTERNAME|HOSTNAME|USER)/Pi"; classtype:trojan-activity; sid:5204085; rev:1;)
+
+# === MITRE ATT&CK — T1134 Access Token Manipulation ===
+alert http any any -> any any (msg:"ET EXPLOIT Token Manipulation / Impersonation T1134"; flow:established,to_server; pcre:"/(?:runas|psexec|Invoke-RunAs|DuplicateTokenEx|SetThreadToken)/Pi"; classtype:attempted-admin; sid:5204086; rev:1;)
+
+# === MITRE ATT&CK — T1070.006 Timestomp ===
+alert http any any -> any any (msg:"ET DEFENSE_EVASION File Timestamp Manipulation Command T1070.006"; flow:established,to_server; pcre:"/(?:touch\s+-[tamdcr].*[0-9]{10,14}|SetFileTime|utime\()/Pi"; classtype:attempted-admin; sid:5204087; rev:1;)
+
+# === MITRE ATT&CK — T1498 Network DoS ===
+alert http any any -> any any (msg:"ET DOS HTTP Flood Attack Pattern T1498"; flow:established,to_server; content:"GET"; http_method; threshold:type both, track by_src, count 100, seconds 10; classtype:attempted-dos; sid:5204088; rev:1;)
+
+# === MITRE ATT&CK — T1525 Implant Internal Image ===
+alert http any any -> any any (msg:"ET CLOUD Malicious Container Image Pull T1525"; flow:established,to_server; content:"docker"; nocase; http_uri; content:"pull"; within:20; pcre:"/docker\s+pull\s+[^\s]*\.(?:xyz|top|click)/Pi"; classtype:trojan-activity; sid:5204089; rev:1;)
+
+# === MITRE ATT&CK — T1537 Transfer Data to Cloud ===
+alert http any any -> any any (msg:"ET DATA_EXFIL Large Data Transfer to Cloud Provider T1537"; flow:established,to_server; content:"PUT"; http_method; pcre:"/(?:s3\.amazonaws|blob\.core\.windows|storage\.googleapis)/Pi"; dsize:>10485760; classtype:trojan-activity; sid:5204090; rev:1;)
+
+# === MITRE ATT&CK — T1120 Peripheral Device Discovery ===
+alert http any any -> any any (msg:"ET RECON USB/Peripheral Device Enumeration T1120"; flow:established,to_server; pcre:"/(?:lsusb|wmic\s+path\s+Win32_USBControllerDevice|ioreg.*USB)/Pi"; classtype:attempted-recon; sid:5204091; rev:1;)
+
+# === MITRE ATT&CK — T1129 Shared Modules ===
+alert http any any -> any any (msg:"ET EXPLOIT Shared Library Injection via Web T1129"; flow:established,to_server; pcre:"/(?:LD_PRELOAD|DYLD_INSERT_LIBRARIES|LD_LIBRARY_PATH).*\b(?:inject|hook|spy|keylog)/Pi"; classtype:attempted-admin; sid:5204092; rev:1;)
+
+# === MITRE ATT&CK — T1200 Hardware Additions ===
+alert http any any -> any any (msg:"ET PHYSICAL Unauthorized Network Device Registration T1200"; flow:established,to_server; content:"POST"; http_method; content:"/api/device/register"; http_uri; pcre:"/mac_address=[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}/Pi"; classtype:attempted-admin; sid:5204093; rev:1;)
+
+# === MITRE ATT&CK — T1189 Drive-by Compromise ===
+alert http any any -> any any (msg:"ET WEB Drive-by Compromise Script Injection T1189"; flow:established,to_client; content:"200"; http_stat_code; file_data; content:"<script"; nocase; content:"document.write"; within:200; pcre:"/document\.write\s*\(\s*['\"][^'\"]{100,}/Pi"; classtype:web-application-attack; sid:5204094; rev:1;)
+
+# === MITRE ATT&CK — T1595.002 Active Scanning Vulnerability ===
+alert http any any -> any any (msg:"ET RECON Vulnerability Scanner Fingerprinting T1595.002"; flow:established,to_server; content:"User-Agent"; http_header; pcre:"/(?:Nikto|Nessus|OpenVAS|Acunetix|BurpSuite|ZAP|masscan|nmap)/Pi"; classtype:attempted-recon; sid:5204095; rev:1;)
+
+# === MITRE ATT&CK — T1589 Gather Victim Identity Info ===
+alert http any any -> any any (msg:"ET RECON Victim Identity Harvesting via OSINT API T1589"; flow:established,to_server; content:"GET"; http_method; pcre:"/(?:whois|shodan|censys|hunter\.io|haveibeenpwned)/Pi"; threshold:type both, track by_src, count 20, seconds 60; classtype:attempted-recon; sid:5204096; rev:1;)
+
+# === MITRE ATT&CK — T1606 Forge Web Credentials ===
+alert http any any -> any any (msg:"ET EXPLOIT Forged Credential Usage Attempt T1606"; flow:established,to_server; content:"Authorization"; http_header; content:"Bearer"; within:10; pcre:"/Bearer\s+[a-zA-Z0-9\-_]{50,}\.[a-zA-Z0-9\-_]{50,}/i"; classtype:attempted-admin; sid:5204097; rev:1;)
+
+# === MITRE ATT&CK — T1110 Brute Force ===
+alert http any any -> any any (msg:"ET EXPLOIT SSH/RDP Brute Force Credential Stuffing T1110"; flow:established,to_server; content:"POST"; http_method; content:"password"; nocase; http_client_body; threshold:type both, track by_src, count 15, seconds 60; classtype:attempted-admin; sid:5204098; rev:1;)
+
+# === MITRE ATT&CK — T1563 Remote Service Session Hijacking ===
+alert http any any -> any any (msg:"ET EXPLOIT Session Hijacking via Token Replay T1563"; flow:established,to_server; content:"Cookie"; http_header; pcre:"/(?:PHPSESSID|JSESSIONID|ASP\.NET_SessionId)=[A-F0-9]{32,}/i"; threshold:type both, track by_src, count 5, seconds 10; classtype:attempted-admin; sid:5204099; rev:1;)
+
+# === MITRE ATT&CK — T1543 Create/Modify System Process ===
+alert http any any -> any any (msg:"ET EXPLOIT Systemd/Service Creation Persistence T1543"; flow:established,to_server; pcre:"/(?:systemctl\s+(?:enable|start|daemon-reload)|sc\s+create|net\s+start)/Pi"; classtype:attempted-admin; sid:5204100; rev:1;)
