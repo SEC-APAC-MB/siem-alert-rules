@@ -1,440 +1,260 @@
 # =============================================================================
-# Zeek Signatures — WSTG 07-09 (Input Validation, Error Handling, Cryptography)
-# Total rules: 42
-# MITRE ATT&CK: T1190, T1059, T1187, T1040, T1552
-# Compliance: PCI-DSS 6.5, GDPR 32, HIPAA 164.312, NIST SI-4, SC-8
+# Zeek Signatures — wstg-07-09
+# Total rules: 32
 # =============================================================================
 
-@load base/frameworks/signatures/main
-@load base/protocols/http/software
-
-# =============================================================================
-# WSTG-INPV-01: SQL Injection
-# =============================================================================
-
-signature ZK-WSTG0701 {
+signature ZK-WSTG07001 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*=(.*('|%27)(|%20)*(OR|AND|%20OR%20|%20AND%20)(|%20)*(1|true|%271%27|%27true%27)).*/ regex
-	event "WSTG-INPV-01: SQL injection - boolean-based tautology detected"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|sql-injection/
+	event "Detect_SQL_Injection_Attack_Detected"
 }
 
-signature ZK-WSTG0702 {
+signature ZK-WSTG07002 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(UNION(%20|%2B)(ALL)?(%20|%2B)SELECT|UNION%20ALL%20SELECT|UNION%20SELECT).*/ regex
-	event "WSTG-INPV-01: SQL injection - UNION SELECT detected"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|xss/
+	event "Detect_Cross-Site_Scripting_(XSS)_Reflected"
 }
 
-signature ZK-WSTG0703 {
+signature ZK-WSTG07003 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(;|%3B)(DROP|ALTER|CREATE|INSERT|UPDATE|DELETE|TRUNCATE)(%20|%2B)(TABLE|DATABASE|USER|INDEX).*/ regex
-	event "WSTG-INPV-01: SQL injection - DDL/DML statement after semicolon"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|xss/
+	event "Detect_Cross-Site_Scripting_(XSS)_Stored"
 }
 
-signature ZK-WSTG0704 {
+signature ZK-WSTG07004 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(SLEEP%28|BENCHMARK%28|WAITFOR%20DELAY|PG_SLEEP|DBMS_PIPE\.RECEIVE_MESSAGE).*/ regex
-	event "WSTG-INPV-01: SQL injection - time-based blind detected"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|command-injection/
+	event "Detect_Command_Injection_Detection"
 }
 
-signature ZK-WSTG0705 {
+signature ZK-WSTG07005 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(OR%201%3D1|AND%201%3D1|%27%20OR%20%271%27%3D%271|%22%20OR%20%22|%27%20--|%27%20--|1%3D1--).*/ regex
-	event "WSTG-INPV-01: SQL injection - classic OR 1=1 tautology"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|ldap-injection/
+	event "Detect_LDAP_Injection_Attack"
 }
 
-signature ZK-WSTG0706 {
+signature ZK-WSTG07006 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(EXTRACTVALUE|UPDATEXML|XMLPATH|CONCAT|GROUP_CONCAT|INFORMATION_SCHEMA|SYS\.|MYSQL\.|PG_|DBA_|SYS\.).*/ regex
-	event "WSTG-INPV-01: SQL injection - error-based extraction functions"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|xxe/
+	event "Detect_XML_External_Entity_(XXE)_Injection"
 }
 
-# =============================================================================
-# WSTG-INPV-02: XSS (Cross-Site Scripting)
-# =============================================================================
-
-signature ZK-WSTG0707 {
+signature ZK-WSTG07007 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(%3Cscript|%3CScript|<script|<Script|<SCRIPT).*(%3E|>|%3e).*/ regex
-	event "WSTG-INPV-02: Reflected XSS - script tag injection detected"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|ssrf/
+	event "Detect_Server-Side_Request_Forgery_(SSRF)"
 }
 
-signature ZK-WSTG0708 {
+signature ZK-WSTG07008 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(%3Cimg|<img|%3cimg).*(onerror|onload|onclick|onmouseover).*(%3E|>|%3e).*/ regex
-	event "WSTG-INPV-02: XSS - image tag with event handler injection"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|ssti/
+	event "Detect_Server-Side_Template_Injection_(SSTI)"
 }
 
-signature ZK-WSTG0709 {
+signature ZK-WSTG07009 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(javascript%3A|javascript:|vbscript%3A|vbscript:|data%3Atext\/html|data:text\/html).*/ regex
-	event "WSTG-INPV-02: XSS - JavaScript/VBScript/data URI injection"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|nosql-injection/
+	event "Detect_NoSQL_Injection_Attack"
 }
 
-signature ZK-WSTG0710 {
+signature ZK-WSTG07010 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(%3Csvg|<svg|%3csvg).*(onload|onerror|onclick|onmouseover).*(%3E|>|%3e).*/ regex
-	event "WSTG-INPV-02: XSS - SVG tag with event handler injection"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|deserialization/
+	event "Detect_Insecure_Deserialization_Attack"
 }
 
-signature ZK-WSTG0711 {
+signature ZK-WSTG07011 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(%3Ciframe|<iframe|%3ciframe).*(src|onload).*(%3E|>|%3e).*/ regex
-	event "WSTG-INPV-02: XSS - iframe injection detected"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|hpp/
+	event "Detect_HTTP_Parameter_Pollution"
 }
 
-signature ZK-WSTG0712 {
+signature ZK-WSTG07012 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(on(error|load|click|mouseover|focus|blur|submit|change)=%22|%22on(error|load|click|mouseover)=%22|on(error|load|click)='|'on(error|load|click)=').*/ regex
-	event "WSTG-INPV-02: XSS - HTML event handler attribute injection"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|file-upload/
+	event "Detect_File_Upload_Attack_—_Malicious_File_Type"
 }
 
-signature ZK-WSTG0713 {
+signature ZK-WSTG07013 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(%3Cbody|<body|%3cbody).*(onload|onerror|onfocus|onmouseover).*(%3E|>|%3e).*/ regex
-	event "WSTG-INPV-02: XSS - body tag with event handler injection"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|host-header/
+	event "Detect_Host_Header_Injection"
 }
 
-# =============================================================================
-# WSTG-INPV-03: Command Injection
-# =============================================================================
-
-signature ZK-WSTG0714 {
+signature ZK-WSTG07014 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(;|%3B|%26|%7C|`|%60|\|%5C).*(ls|cat|id|whoami|pwd|uname|ifconfig|ipconfig|netstat|ping|wget|curl|nc).*/ regex
-	event "WSTG-INPV-03: OS command injection detected"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|graphql/
+	event "Detect_GraphQL_Injection_and_Introspection_Abus"
 }
 
-signature ZK-WSTG0715 {
+signature ZK-WSTG07015 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(\|%7C).*(ls|cat|id|whoami|pwd|uname|ifconfig|ipconfig|netstat).*/ regex
-	event "WSTG-INPV-03: OS command injection via pipe operator"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /input-validation|buffer-overflow/
+	event "Detect_Buffer_Overflow_via_HTTP_Request"
 }
 
-signature ZK-WSTG0716 {
+signature ZK-WSTG08001 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(\$%28|%28%29|`|%60).*(whoami|id|uname|hostname|cat|ls|pwd).*/ regex
-	event "WSTG-INPV-03: OS command injection via command substitution"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /client-side|dom-xss/
+	event "Detect_DOM-Based_Cross-Site_Scripting"
 }
 
-signature ZK-WSTG0717 {
+signature ZK-WSTG08002 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(\n|%0a|\r|%0d).*(cat|ls|id|whoami|pwd|uname|/bin/sh|/bin/bash).*/ regex
-	event "WSTG-INPV-03: OS command injection via newline injection"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /client-side|js-execution/
+	event "Detect_JavaScript_Execution_via_eval_or_documen"
 }
 
-# =============================================================================
-# WSTG-INPV-04: Path Traversal
-# =============================================================================
-
-signature ZK-WSTG0718 {
+signature ZK-WSTG08003 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\.\.\/|\.\.\\|%2e%2e%2f|%2e%2e\/|\.\.%2f|%2e%2e%5c).*(etc\/passwd|etc\/shadow|windows\/system32|boot\.ini|win\.ini|web\.config|\.htaccess).*/ regex
-	event "WSTG-INPV-04: Path traversal targeting system files"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /client-side|open-redirect/
+	event "Detect_Client-Side_URL_Redirect_(Open_Redirect)"
 }
 
-signature ZK-WSTG0719 {
+signature ZK-WSTG08004 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\.\.\/|\.\.\\|%2e%2e%2f|%2e%2e\/|\.\.%2f).*(\.env|\.git|\.svn|\.htaccess|\.DS_Store|web\.config|database\.yml|config\.php|settings\.py).*/ regex
-	event "WSTG-INPV-04: Path traversal targeting configuration files"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /client-side|css-injection/
+	event "Detect_CSS_Injection_via_Style_Attribute"
 }
 
-signature ZK-WSTG0720 {
+signature ZK-WSTG08005 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\.\.%2f|%2e%2e\/|%2e%2e%2f|%2e%2e%5c|%252e%252e%252f).*/ regex
-	event "WSTG-INPV-04: Path traversal with double encoding detected"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /client-side|postmessage/
+	event "Detect_PostMessage_API_Abuse_—_Wildcard_Origin"
 }
 
-# =============================================================================
-# WSTG-INPV-05: NoSQL Injection
-# =============================================================================
-
-signature ZK-WSTG0721 {
+signature ZK-WSTG08006 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(\$where|\$gt|\$gte|\$lt|\$lte|\$ne|\$in|\$nin|\$regex|\$expr|\$jsonSchema).*/ regex
-	event "WSTG-INPV-05: NoSQL injection operator detected"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /client-side|web-storage/
+	event "Detect_Web_Storage_(localStorage/sessionStorage"
 }
 
-signature ZK-WSTG0722 {
+signature ZK-WSTG08007 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/api\/.*(query|search|find|filter|where).*/ regex
-	payload /.*\{\s*"\$where"\s*:.*\}.*|\{\s*"\$gt"\s*:.*\}.*|\{\s*"\$regex"\s*:.*\}.*/ regex
-	event "WSTG-INPV-05: NoSQL injection via MongoDB query operators"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /client-side|service-worker/
+	event "Detect_Service_Worker_Registration_Abuse"
 }
 
-# =============================================================================
-# WSTG-INPV-06: SSRF (Server-Side Request Forgery)
-# =============================================================================
-
-signature ZK-WSTG0723 {
+signature ZK-WSTG08008 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(url=|callback=|redirect=|next=|dest=|target=|return=|path=|file=|page=|feed=|reference=).*(http|https|ftp|file|gopher):\/\/(127\.0\.0\.1|localhost|0\.0\.0\.0|10\.|192\.168|172\.(1[6-9]|2[0-9]|3[01])|169\.254|metadata\.google\.internal|169\.254\.169\.254).*/ regex
-	event "WSTG-INPV-06: SSRF - internal/metadata URL access detected"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /client-side|cors/
+	event "Detect_CORS_Wildcard_Configuration"
 }
 
-signature ZK-WSTG0724 {
+signature ZK-WSTG09001 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(url=|callback=|redirect=|next=|dest=|target=|path=|fetch=|link=|reference=).*(http|https|ftp|file|gopher):\/\/.*/ regex
-	http-header /X-Forwarded-For: .*/ regex
-	event "WSTG-INPV-06: SSRF - URL fetch parameter with potential internal access"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /server-side|ssrf/
+	event "Detect_SSRF_to_Internal_Services_and_Cloud_Meta"
 }
 
-signature ZK-WSTG0725 {
+signature ZK-WSTG09002 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(url=|callback=|redirect=|next=|dest=|target=|path=).*(http|https):\/\/(10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+|127\.\d+\.\d+\.\d+|localhost).*/ regex
-	event "WSTG-INPV-06: SSRF - targeting internal RFC 1918 addresses"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /server-side|request-smuggling/
+	event "Detect_HTTP_Request_Smuggling"
 }
 
-# =============================================================================
-# WSTG-INPV-07: XXE (XML External Entity)
-# =============================================================================
-
-signature ZK-WSTG0726 {
+signature ZK-WSTG09003 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /(POST|PUT|PATCH) .*/ regex
-	http-header /Content-Type: (application\/xml|text\/xml).*/ regex
-	payload /.*<!DOCTYPE.*<!ENTITY.*SYSTEM.*>.*/ regex
-	event "WSTG-INPV-07: XXE - external entity declaration in XML payload"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /server-side|race-condition/
+	event "Detect_Race_Condition_—_Concurrent_Request_Expl"
 }
 
-signature ZK-WSTG0727 {
+signature ZK-WSTG09004 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /(POST|PUT|PATCH) .*/ regex
-	http-header /Content-Type: (application\/xml|text\/xml).*/ regex
-	payload /.*<!DOCTYPE.*<!ENTITY.*%(.*).*>.*/ regex
-	event "WSTG-INPV-07: XXE - parameter entity declaration detected"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /server-side|file-inclusion/
+	event "Detect_File_Inclusion_(LFI/RFI)"
 }
 
-signature ZK-WSTG0728 {
+signature ZK-WSTG09005 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /(POST|PUT|PATCH) .*/ regex
-	http-header /Content-Type: (application\/xml|text\/xml).*/ regex
-	payload /.*<!ENTITY.*SYSTEM\s+"(file|ftp|http|https|gopher):\/\/.*/ regex
-	event "WSTG-INPV-07: XXE - SYSTEM entity with external URI detected"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /server-side|code-injection/
+	event "Detect_Server-Side_Code_Injection"
 }
 
-# =============================================================================
-# WSTG-INPV-08: File Upload
-# =============================================================================
-
-signature ZK-WSTG0729 {
+signature ZK-WSTG09006 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /(POST|PUT) \/(upload|api\/upload|api\/files|api\/attachments|api\/media)/ regex
-	http-header /Content-Type: multipart\/form-data/ regex
-	payload /.*filename=".*\.(php|jsp|asp|aspx|cgi|pl|py|rb|sh|exe|bat|cmd|com|vbs|wsf|msi|dll|so).*/ regex
-	event "WSTG-INPV-08: Malicious file upload - executable file extension"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /server-side|dos/
+	event "Detect_Denial_of_Service_via_Resource_Exhaustio"
 }
 
-signature ZK-WSTG0730 {
+signature ZK-WSTG09007 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /(POST|PUT) \/(upload|api\/upload|api\/files|api\/attachments)/ regex
-	http-header /Content-Type: multipart\/form-data/ regex
-	payload /.*filename=".*\.(php\d*|phtml|phps|pht|phar|inc|shtml|stm|shtm).*/ regex
-	event "WSTG-INPV-08: Malicious file upload - PHP double extension bypass"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /server-side|file-upload/
+	event "Detect_Unsafe_File_Upload_—_Webshell"
 }
 
-signature ZK-WSTG0731 {
+signature ZK-WSTG09008 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /(POST|PUT) \/(upload|api\/upload|api\/files|api\/attachments)/ regex
-	http-header /Content-Type: multipart\/form-data/ regex
-	payload /.*filename=".*\.(htaccess|web\.config|\.env|crossdomain\.xml|clientaccesspolicy\.xml).*/ regex
-	event "WSTG-INPV-08: Malicious file upload - server configuration file"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /cryptography|weak-tls/
+	event "Detect_Cryptography_—_Weak_TLS_Cipher_Suite"
 }
 
-signature ZK-WSTG0732 {
+signature ZK-WSTG09009 {
 	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /(POST|PUT) \/(upload|api\/upload|api\/files|api\/attachments)/ regex
-	http-header /Content-Type: multipart\/form-data/ regex
-	payload /.*Content-Type:.*(<?|<%|<script|<\?php).*/ regex
-	event "WSTG-INPV-08: Malicious file upload - script content in file body"
-}
-
-# =============================================================================
-# WSTG-ERRH-01: Error Handling
-# =============================================================================
-
-signature ZK-WSTG0733 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-response /500 Internal Server Error/ regex
-	payload /.*(stack trace|Traceback \(most recent call last\)|Exception Details|at .*\.java:\d+|at .*\.py:\d+|at .*\.rb:\d+|in .*\.php.*line \d+).*/ regex
-	event "WSTG-ERRH-01: Stack trace disclosure in 500 error response"
-}
-
-signature ZK-WSTG0734 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-response /500 Internal Server Error/ regex
-	payload /.*(ORA-\d{5}|MySQL Error|PostgreSQL query failed|SQLSTATE\[|Microsoft OLE DB|Unclosed quotation mark|SQL error|ODBC SQL Server Driver).*/ regex
-	event "WSTG-ERRH-01: Database error disclosure in error response"
-}
-
-signature ZK-WSTG0735 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-response /500 Internal Server Error/ regex
-	payload /.*(\/home\/|\/usr\/|\/var\/|C:\\Users\\|C:\\inetpub\\|\/opt\/|\/etc\/|Application path|DOCUMENT_ROOT|SERVER_SOFTWARE).*/ regex
-	event "WSTG-ERRH-01: Server path disclosure in error response"
-}
-
-signature ZK-WSTG0736 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-response /500 Internal Server Error/ regex
-	payload /.*(debug mode|DEBUG=True|APP_DEBUG=true|config\.debug|stack frames|application error).*/ regex
-	event "WSTG-ERRH-01: Debug mode information in error response"
-}
-
-# =============================================================================
-# WSTG-CRYP-01: Weak Cryptography
-# =============================================================================
-
-signature ZK-WSTG0737 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-header /Set-Cookie: .*(sessionid|session_id|PHPSESSID|JSESSIONID).*/ regex
-	http-header /Set-Cookie: .*(?!(\bSecure\b)).*/ regex
-	event "WSTG-CRYP-01: Session cookie transmitted over insecure channel - weak crypto"
-}
-
-signature ZK-WSTG0738 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-header /Authorization: Basic .*/ regex
-	event "WSTG-CRYP-01: Basic authentication used - credentials sent in base64"
-}
-
-signature ZK-WSTG0739 {
-	ip-proto tcp
-	dst-port = { 80 }
-	http-header /Authorization: .*/ regex
-	event "WSTG-CRYP-01: Credentials transmitted over unencrypted HTTP"
-}
-
-signature ZK-WSTG0740 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(password|passwd|pwd|secret|token|api_key|apikey|private_key)=.*/ regex
-	event "WSTG-CRYP-01: Sensitive credentials in URL query string - unencrypted transmission"
-}
-
-# =============================================================================
-# WSTG-CRYP-02: Padding Oracle
-# =============================================================================
-
-signature ZK-WSTG0741 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(token|data|cipher|iv|payload|enc)=.*/ regex
-	http-response /.*(PaddingException|pad block corrupted|PKCS|bad padding|Invalid padding|decryption error|MAC verification failed).*/ regex
-	event "WSTG-CRYP-02: Padding oracle error response detected"
-}
-
-# =============================================================================
-# WSTG-CRYP-03: Sensitive Data in Transit
-# =============================================================================
-
-signature ZK-WSTG0742 {
-	ip-proto tcp
-	dst-port = { 80 }
-	http-request /\/(login|auth|signin|register|password-reset|payment|checkout|account|profile|settings)/ regex
-	event "WSTG-CRYP-03: Sensitive page accessed over unencrypted HTTP"
-}
-
-signature ZK-WSTG0743 {
-	ip-proto tcp
-	dst-port = { 80 }
-	http-header /Set-Cookie: .*/ regex
-	http-header /Set-Cookie: .*(?!(\bSecure\b)).*/ regex
-	event "WSTG-CRYP-03: Cookie without Secure flag set on HTTP - insecure transit"
-}
-
-# =============================================================================
-# WSTG-CRYP-04: Weak SSL/TLS
-# =============================================================================
-
-signature ZK-WSTG0744 {
-	ip-proto tcp
-	dst-port = { 443 }
-	payload /.*TLS 1\.0|TLS 1\.1|SSLv3|SSLv2|SSLv23.*/ regex
-	event "WSTG-CRYP-04: Weak TLS/SSL protocol version negotiated"
-}
-
-signature ZK-WSTG0745 {
-	ip-proto tcp
-	dst-port = { 443 }
-	payload /.*(TLS_RSA_WITH_RC4|TLS_RSA_WITH_3DES|TLS_RSA_WITH_DES|TLS_RSA_EXPORT|TLS_DHE_RSA_EXPORT|TLS_RSA_WITH_NULL|TLS_ECDHE_RSA_WITH_NULL).*/ regex
-	event "WSTG-CRYP-04: Weak cipher suite negotiated - insecure encryption"
-}
-
-# =============================================================================
-# Additional Input Validation Rules
-# =============================================================================
-
-signature ZK-WSTG0746 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(<|%3c)(script|iframe|object|embed|applet|form|input|button|video|audio|svg|marquee|isindex|meta|base|link|style|math|noscript|noembed|noframes|plaintext|xss|details|summary|textarea|title|svg|animate|set|use|handler).*(>|%3e).*/ regex
-	event "WSTG-INPV-02: XSS - HTML tag injection attempt"
-}
-
-signature ZK-WSTG0747 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*((procedure|function|trigger|view|index|constraint|schema|database|table|column|grant|revoke|commit|rollback|savepoint|lock|unlock)\s*\(.*\)|exec\s*\(|execute\s*\(|sp_.*|xp_.*|0x[0-9a-fA-F]{8,}|char\s*\(|concat\s*\(|group_concat\s*\().*/ regex
-	event "WSTG-INPV-01: SQL injection - stored procedure or advanced SQL syntax"
-}
-
-signature ZK-WSTG0748 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(=|%3D).*((\.\.\/){3,}|%2e%2e%2f%2e%2e%2f|%252e%252e%252f%252e%252e%252f|\/proc\/self|\/dev\/|\\device\\|\\\\[a-z]+\\|file:\/\/|gopher:\/\/|dict:\/\/|ldap:\/\/|tftp:\/\/).*/ regex
-	event "WSTG-INPV-04: Path traversal with deep directory traversal or protocol scheme"
-}
-
-signature ZK-WSTG0749 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /(POST|PUT|PATCH|DELETE) \/api\/.*/ regex
-	http-header /Content-Type: application\/json/ regex
-	payload /.*"\$where":.*|.*"\$gt":.*|.*"\$regex":.*|.*"\$ne":.*|.*"\$in":.*/ regex
-	event "WSTG-INPV-05: NoSQL injection in JSON API payload"
-}
-
-signature ZK-WSTG0750 {
-	ip-proto tcp
-	dst-port = { 80 443 8080 8443 }
-	http-request /\/.*(\?|%3F).*(redirect=|return=|next=|returnUrl=|return_to=|continue=|dest=|destination=|redir=|redirect_url=|redirect_uri=).*(https?:\/\/|\/\/|%2F%2F)[a-zA-Z0-9.-]*\.(com|net|org|io|xyz|top|click|download|stream|gq|ml|cf|tk|pw).*/ regex
-	event "WSTG-INPV-06: Open redirect to suspicious external domain"
+	src-ip $HOME_NET
+	dst-port 80 443 8080 8443
+	payload /cryptography|hardcoded-keys/
+	event "Detect_Cryptography_—_Hardcoded_Encryption_Keys"
 }

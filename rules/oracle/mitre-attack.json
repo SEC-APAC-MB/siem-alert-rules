@@ -1,37 +1,22 @@
 {
-  "description": "SIEM alert rules — mitre-attack (converted)",
-  "version": "2.0.0",
-  "converted": "2026-09-16T04:05:27.447498Z",
-  "total_rules": 43,
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "OCI Alarm and Event rules — mitre-attack",
+  "total_rules": 15,
   "rules": [
     {
-      "rule_id": "OCI-MITRE-0600",
-      "name": "Scheduled Task/Job: Scheduled Task",
-      "description": "Detects Scheduled Task/Job: Scheduled Task (T1053.005)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1053.005"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0600\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%scheduled%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
+      "rule_id": "OCI-MITRE-T1190",
+      "name": "Exploit Public-Facing Application",
+      "description": "Detects exploitation of public-facing web applications, APIs, and services",
+      "severity": "CRITICAL",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0600",
+        "metric": "initial_access",
         "operator": "GT",
-        "threshold": 3
+        "threshold": 5
       },
       "actions": [
         {
@@ -39,36 +24,33 @@
           "description": "Send alert notification"
         }
       ],
-      "tags": []
+      "references": [
+        "PCI-DSS-6.5",
+        "NIST-SI-10"
+      ],
+      "mitre": [
+        "T1190"
+      ],
+      "tags": [
+        "mitre",
+        "initial-access",
+        "exploit",
+        "web-application"
+      ]
     },
     {
-      "rule_id": "OCI-MITRE-0601",
-      "name": "Create Account: Local Account",
-      "description": "Detects Create Account: Local Account (T1136.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1136.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0601\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%create%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
+      "rule_id": "OCI-MITRE-T1078",
+      "name": "Valid Accounts Usage",
+      "description": "Detects use of legitimate credentials for unauthorized access including default, compromised, and stolen accounts",
+      "severity": "HIGH",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0601",
+        "metric": "defense_evasion",
         "operator": "GT",
-        "threshold": 3
+        "threshold": 5
       },
       "actions": [
         {
@@ -76,253 +58,33 @@
           "description": "Send alert notification"
         }
       ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0602",
-      "name": "Boot Autostart: Registry Run Keys",
-      "description": "Detects Boot Autostart: Registry Run Keys (T1547.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1547.001"
+      "references": [
+        "PCI-DSS-8.5",
+        "NIST-AC-3"
       ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0602\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%boot%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.audit",
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0602",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0603",
-      "name": "Event Triggered Execution: WMI",
-      "description": "Detects Event Triggered Execution: WMI (T1546.003)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1546.003"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0603\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%triggered%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.audit",
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0603",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0604",
-      "name": "Hijack Execution Flow: DLL Search Order",
-      "description": "Detects Hijack Execution Flow: DLL Search Order (T1574.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1574.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0604\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%hijack%' OR \"data__json.message\" LIKE '%execution%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0604",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0605",
-      "name": "External Remote Services",
-      "description": "Detects External Remote Services (T1133)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1133"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0605\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (3389) AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0605",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0606",
-      "name": "BITS Jobs",
-      "description": "Detects BITS Jobs (T1197)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1197"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0606\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%bits%' OR \"data__json.message\" LIKE '%jobs%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0606",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0607",
-      "name": "Command Scripting: PowerShell",
-      "description": "Detects Command Scripting: PowerShell (T1059.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1059.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0607\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%command%' OR \"data__json.message\" LIKE '%scripting%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0607",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0608",
-      "name": "Valid Accounts",
-      "description": "Detects Valid Accounts (T1078)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
+      "mitre": [
         "T1078"
       ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0608\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%valid%' OR \"data__json.message\" LIKE '%accounts%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
+      "tags": [
+        "mitre",
+        "defense-evasion",
+        "valid-accounts",
+        "credential-abuse"
+      ]
+    },
+    {
+      "rule_id": "OCI-MITRE-T1110",
+      "name": "Brute Force Authentication",
+      "description": "Detects brute force authentication attempts including password spraying and credential stuffing",
+      "severity": "HIGH",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0608",
+        "metric": "credential_access",
         "operator": "GT",
-        "threshold": 3
+        "threshold": 5
       },
       "actions": [
         {
@@ -330,35 +92,33 @@
           "description": "Send alert notification"
         }
       ],
-      "tags": []
+      "references": [
+        "PCI-DSS-8.5",
+        "NIST-AC-7"
+      ],
+      "mitre": [
+        "T1110"
+      ],
+      "tags": [
+        "mitre",
+        "credential-access",
+        "brute-force",
+        "authentication"
+      ]
     },
     {
-      "rule_id": "OCI-MITRE-0609",
-      "name": "Exploitation for Privilege Escalation",
-      "description": "Detects Exploitation for Privilege Escalation (T1068)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1068"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0609\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%exploitation%' OR \"data__json.message\" LIKE '%privilege%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
+      "rule_id": "OCI-MITRE-T1059",
+      "name": "Command and Scripting Interpreter",
+      "description": "Detects malicious command/script execution including PowerShell, Bash, Python, and JavaScript",
+      "severity": "HIGH",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0609",
+        "metric": "execution",
         "operator": "GT",
-        "threshold": 3
+        "threshold": 5
       },
       "actions": [
         {
@@ -366,36 +126,33 @@
           "description": "Send alert notification"
         }
       ],
-      "tags": []
+      "references": [
+        "PCI-DSS-6.5",
+        "NIST-SI-10"
+      ],
+      "mitre": [
+        "T1059"
+      ],
+      "tags": [
+        "mitre",
+        "execution",
+        "command-scripting",
+        "rce"
+      ]
     },
     {
-      "rule_id": "OCI-MITRE-0610",
-      "name": "Abuse Elevation: Setuid/Setgid",
-      "description": "Detects Abuse Elevation: Setuid/Setgid (T1548.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1548.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0610\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%abuse%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
+      "rule_id": "OCI-MITRE-T1486",
+      "name": "Data Encrypted for Impact (Ransomware)",
+      "description": "Detects mass file encryption activity consistent with ransomware operations",
+      "severity": "CRITICAL",
       "condition": {
         "eventType": [
-          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0610",
+        "metric": "impact",
         "operator": "GT",
-        "threshold": 3
+        "threshold": 5
       },
       "actions": [
         {
@@ -403,1086 +160,33 @@
           "description": "Send alert notification"
         }
       ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0611",
-      "name": "Access Token Manipulation: Impersonation",
-      "description": "Detects Access Token Manipulation: Impersonation (T1134.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1134.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0611\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" IN ('CreateAuthToken', 'UpdateAuthToken', 'DeleteAuthToken', 'CreateCustomerSecretKey', 'DeleteCustomerSecretKey') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.audit",
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0611",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0612",
-      "name": "Indicator Removal: File Deletion",
-      "description": "Detects Indicator Removal: File Deletion (T1070.004)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1070.004"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0612\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%indicator%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.audit",
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0612",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0613",
-      "name": "Impair Defenses: Disable Tools",
-      "description": "Detects Impair Defenses: Disable Tools (T1562.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1562.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0613\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%impair%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.audit",
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0613",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0614",
-      "name": "Obfuscated Files or Information",
-      "description": "Detects Obfuscated Files or Information (T1027)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1027"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0614\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%obfuscated%' OR \"data__json.message\" LIKE '%files%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0614",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0615",
-      "name": "Deobfuscate/Decode Files",
-      "description": "Detects Deobfuscate/Decode Files (T1140)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1140"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0615\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%deobfuscate%' OR \"data__json.message\" LIKE '%decode%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0615",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0616",
-      "name": "Masquerading: Invalid Code Signature",
-      "description": "Detects Masquerading: Invalid Code Signature (T1036.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1036.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0616\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%masquerading%' OR \"data__json.message\" LIKE '%invalid%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0616",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0617",
-      "name": "Process Injection",
-      "description": "Detects Process Injection (T1055)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1055"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0617\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%process%' OR \"data__json.message\" LIKE '%injection%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0617",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0618",
-      "name": "Brute Force: Password Guessing",
-      "description": "Detects Brute Force: Password Guessing (T1110.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1110.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0618\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%brute%' OR \"data__json.message\" LIKE '%force%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0618",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0619",
-      "name": "Brute Force: Password Spraying",
-      "description": "Detects Brute Force: Password Spraying (T1110.003)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1110.003"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0619\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%brute%' OR \"data__json.message\" LIKE '%force%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0619",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0620",
-      "name": "Unsecured Credentials in Files",
-      "description": "Detects Unsecured Credentials in Files (T1552.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1552.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0620\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%unsecured%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.audit",
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0620",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0621",
-      "name": "OS Credential Dumping: LSASS",
-      "description": "Detects OS Credential Dumping: LSASS (T1003.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1003.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0621\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%credential%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.audit",
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0621",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0622",
-      "name": "OS Credential Dumping: NTDS",
-      "description": "Detects OS Credential Dumping: NTDS (T1003.003)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1003.003"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0622\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%credential%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.audit",
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0622",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0623",
-      "name": "Kerberos Ticket: Golden Ticket",
-      "description": "Detects Kerberos Ticket: Golden Ticket (T1558.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1558.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0623\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%kerberos%' OR \"data__json.message\" LIKE '%ticket%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0623",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0624",
-      "name": "System Information Discovery",
-      "description": "Detects System Information Discovery (T1082)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1082"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0624\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%system%' OR \"data__json.message\" LIKE '%information%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0624",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0625",
-      "name": "File and Directory Discovery",
-      "description": "Detects File and Directory Discovery (T1083)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1083"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0625\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%file%' OR \"data__json.message\" LIKE '%directory%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0625",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0626",
-      "name": "Network Service Discovery",
-      "description": "Detects Network Service Discovery (T1046)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1046"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0626\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0626",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0627",
-      "name": "Account Discovery",
-      "description": "Detects Account Discovery (T1087)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1087"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0627\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%account%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.audit",
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0627",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0628",
-      "name": "Remote Services: RDP",
-      "description": "Detects Remote Services: RDP (T1021.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1021.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0628\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (3389) AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0628",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0629",
-      "name": "Remote Services: SMB",
-      "description": "Detects Remote Services: SMB (T1021.002)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1021.002"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0629\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (3389) AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0629",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0630",
-      "name": "Remote Services: SSH",
-      "description": "Detects Remote Services: SSH (T1021.006)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1021.006"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0630\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (3389) AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0630",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0631",
-      "name": "Application Layer: HTTP/HTTPS",
-      "description": "Detects Application Layer: HTTP/HTTPS (T1071.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1071.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0631\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0631",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0632",
-      "name": "Application Layer: DNS",
-      "description": "Detects Application Layer: DNS (T1071.004)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1071.004"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0632\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0632",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0633",
-      "name": "Encrypted Channel: Symmetric Crypto",
-      "description": "Detects Encrypted Channel: Symmetric Crypto (T1573.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1573.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0633\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0633",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0634",
-      "name": "Dynamic Resolution: DGA",
-      "description": "Detects Dynamic Resolution: DGA (T1568.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1568.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0634\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%dynamic%' OR \"data__json.message\" LIKE '%resolution%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0634",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0635",
-      "name": "Exfiltration Over C2 Channel",
-      "description": "Detects Exfiltration Over C2 Channel (T1566)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1566"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0635\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%exfiltration%' OR \"data__json.message\" LIKE '%channel%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0635",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0636",
-      "name": "Exfiltration Over Alternative Protocol",
-      "description": "Detects Exfiltration Over Alternative Protocol (T1048)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1048"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0636\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0636",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0637",
-      "name": "Exfiltration to Code Repository",
-      "description": "Detects Exfiltration to Code Repository (T1567.001)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1567.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0637\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0637",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0638",
-      "name": "Exfiltration to Cloud Storage",
-      "description": "Detects Exfiltration to Cloud Storage (T1567.002)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1567.002"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0638\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0638",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-MITRE-0639",
-      "name": "Data Encrypted for Impact",
-      "description": "Detects Data Encrypted for Impact (T1486)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
+      "references": [
+        "PCI-DSS-3.4",
+        "NIST-SC-28"
+      ],
+      "mitre": [
         "T1486"
       ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0639\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%data%' OR \"data__json.message\" LIKE '%encrypted%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0639",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
+      "tags": [
+        "mitre",
+        "impact",
+        "ransomware",
+        "encryption"
+      ]
     },
     {
-      "rule_id": "OCI-MITRE-0640",
-      "name": "Service Stop",
-      "description": "Detects Service Stop (T1489)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1489"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0640\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%service%' OR \"data__json.message\" LIKE '%stop%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
+      "rule_id": "OCI-MITRE-T1566",
+      "name": "Phishing Link Click Detection",
+      "description": "Detects clicks on known phishing URLs or suspicious links in email and messaging",
+      "severity": "HIGH",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0640",
+        "metric": "initial_access",
         "operator": "GT",
-        "threshold": 3
+        "threshold": 5
       },
       "actions": [
         {
@@ -1490,35 +194,33 @@
           "description": "Send alert notification"
         }
       ],
-      "tags": []
+      "references": [
+        "PCI-DSS-5.3",
+        "NIST-AT-2"
+      ],
+      "mitre": [
+        "T1566"
+      ],
+      "tags": [
+        "mitre",
+        "initial-access",
+        "phishing",
+        "social-engineering"
+      ]
     },
     {
-      "rule_id": "OCI-MITRE-0641",
-      "name": "Inhibit System Recovery",
-      "description": "Detects Inhibit System Recovery (T1490)",
+      "rule_id": "OCI-MITRE-T1053",
+      "name": "Scheduled Task/Job Creation",
+      "description": "Detects suspicious scheduled task or cron job creation for persistence or execution",
       "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1490"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0641\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%inhibit%' OR \"data__json.message\" LIKE '%system%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0641",
+        "metric": "persistence",
         "operator": "GT",
-        "threshold": 3
+        "threshold": 5
       },
       "actions": [
         {
@@ -1526,35 +228,32 @@
           "description": "Send alert notification"
         }
       ],
-      "tags": []
+      "references": [
+        "NIST-CM-7"
+      ],
+      "mitre": [
+        "T1053"
+      ],
+      "tags": [
+        "mitre",
+        "persistence",
+        "scheduled-task",
+        "cron"
+      ]
     },
     {
-      "rule_id": "OCI-MITRE-0642",
-      "name": "Network Denial of Service",
-      "description": "Detects Network Denial of Service (T1498)",
-      "severity": "MEDIUM",
-      "category": "mitre-attack",
-      "mitre_attack": [
-        "T1498"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "query": "SELECT \"siem_mitre_attack_mitre_0642\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
+      "rule_id": "OCI-MITRE-T1071",
+      "name": "Application Layer Protocol Abuse (C2)",
+      "description": "Detects suspicious use of HTTP, DNS, or other application protocols for C2 communication",
+      "severity": "HIGH",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_mitre_attack_mitre_0642",
+        "metric": "command_and_control",
         "operator": "GT",
-        "threshold": 3
+        "threshold": 5
       },
       "actions": [
         {
@@ -1562,7 +261,255 @@
           "description": "Send alert notification"
         }
       ],
-      "tags": []
+      "references": [
+        "PCI-DSS-1.3"
+      ],
+      "mitre": [
+        "T1071"
+      ],
+      "tags": [
+        "mitre",
+        "command-and-control",
+        "protocol-abuse",
+        "c2"
+      ]
+    },
+    {
+      "rule_id": "OCI-MITRE-T1562",
+      "name": "Impair Defenses — Security Tool Disable",
+      "description": "Detects attempts to disable or impair security tools including AV, EDR, and logging",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "defense_evasion",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "PCI-DSS-5.3",
+        "NIST-SI-4"
+      ],
+      "mitre": [
+        "T1562"
+      ],
+      "tags": [
+        "mitre",
+        "defense-evasion",
+        "impair-defenses",
+        "security-tool"
+      ]
+    },
+    {
+      "rule_id": "OCI-MITRE-T1087",
+      "name": "Account Discovery",
+      "description": "Detects account enumeration and discovery activity on domain controllers and directory services",
+      "severity": "MEDIUM",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "discovery",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "NIST-AC-2"
+      ],
+      "mitre": [
+        "T1087"
+      ],
+      "tags": [
+        "mitre",
+        "discovery",
+        "account-discovery",
+        "enumeration"
+      ]
+    },
+    {
+      "rule_id": "OCI-MITRE-T1210",
+      "name": "Exploitation of Remote Services",
+      "description": "Detects exploitation of remote services including RDP, SSH, SMB, and database services",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "lateral_movement",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "PCI-DSS-1.3",
+        "NIST-CM-7"
+      ],
+      "mitre": [
+        "T1210"
+      ],
+      "tags": [
+        "mitre",
+        "lateral-movement",
+        "remote-exploit",
+        "exploitation"
+      ]
+    },
+    {
+      "rule_id": "OCI-MITRE-T1055",
+      "name": "Process Injection",
+      "description": "Detects process injection techniques including DLL injection, process hollowing, and thread injection",
+      "severity": "HIGH",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "defense_evasion",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "PCI-DSS-5.3",
+        "NIST-SI-4"
+      ],
+      "mitre": [
+        "T1055"
+      ],
+      "tags": [
+        "mitre",
+        "defense-evasion",
+        "process-injection",
+        "evasion"
+      ]
+    },
+    {
+      "rule_id": "OCI-MITRE-T1003",
+      "name": "OS Credential Dumping",
+      "description": "Detects credential dumping tools and techniques including Mimikatz, LSASS access, and /proc/*/mem",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "credential_access",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "PCI-DSS-8.5",
+        "NIST-IA-5"
+      ],
+      "mitre": [
+        "T1003"
+      ],
+      "tags": [
+        "mitre",
+        "credential-access",
+        "credential-dumping",
+        "mimikatz"
+      ]
+    },
+    {
+      "rule_id": "OCI-MITRE-T1046",
+      "name": "Network Service Discovery",
+      "description": "Detects network scanning and service enumeration including port scans and banner grabbing",
+      "severity": "MEDIUM",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "discovery",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "PCI-DSS-1.3",
+        "NIST-CM-7"
+      ],
+      "mitre": [
+        "T1046"
+      ],
+      "tags": [
+        "mitre",
+        "discovery",
+        "network-scan",
+        "enumeration"
+      ]
+    },
+    {
+      "rule_id": "OCI-MITRE-T1048",
+      "name": "Exfiltration Over Alternative Protocol",
+      "description": "Detects data exfiltration over non-standard protocols including DNS, ICMP, and HTTPS to unknown destinations",
+      "severity": "HIGH",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "exfiltration",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "PCI-DSS-1.3",
+        "GDPR-25-008"
+      ],
+      "mitre": [
+        "T1048"
+      ],
+      "tags": [
+        "mitre",
+        "exfiltration",
+        "alternative-protocol",
+        "data-theft"
+      ]
     }
   ]
 }

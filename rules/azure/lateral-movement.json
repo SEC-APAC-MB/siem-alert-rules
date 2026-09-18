@@ -1,282 +1,246 @@
 {
-  "description": "SIEM alert rules — lateral-movement (converted)",
-  "version": "2.0.0",
-  "converted": "2026-09-16T04:05:28.223867Z",
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "Azure Monitor and Policy rules — lateral-movement",
   "total_rules": 10,
   "rules": [
     {
-      "rule_id": "AZ-LAT-0700",
-      "name": "Lateral Movement: RDP Followed by Credential Access",
-      "description": "Correlation rule detecting rdp followed by credential access",
-      "severity": 2,
-      "severity_label": "Medium",
-      "category": "lateral-movement",
-      "tactics": [
-        "LateralMovement",
-        "CredentialAccess"
-      ],
-      "mitre_attack": [
-        "T1021.001",
-        "T1555"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "CommonSecurityLog| where DestinationIP !startswith \"10.\" and SourceIP !startswith \"10.\"| summarize count() by bin(TimeGenerated, 5m), SourceIP, DestinationIP | where count_ > 3 // AZ-LAT-0700",
+      "rule_id": "AZ-LM-001",
+      "name": "Pass-the-Hash Detection",
+      "description": "Detects NTLM pass-the-hash attacks where an adversary uses a password hash instead of plaintext password",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'pass_the_hash' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tags": []
-    },
-    {
-      "rule_id": "AZ-LAT-0701",
-      "name": "Lateral Movement: SSH Followed by Privilege Escalation",
-      "description": "Correlation rule detecting ssh followed by privilege escalation",
-      "severity": 2,
-      "severity_label": "Medium",
-      "category": "lateral-movement",
+      "triggerThreshold": 5,
       "tactics": [
-        "PrivilegeEscalation"
-      ],
-      "mitre_attack": [
-        "T1021.006",
-        "T1548"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "CommonSecurityLog| where DestinationIP !startswith \"10.\" and SourceIP !startswith \"10.\"| summarize count() by bin(TimeGenerated, 5m), SourceIP, DestinationIP | where count_ > 3 // AZ-LAT-0701",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tags": []
-    },
-    {
-      "rule_id": "AZ-LAT-0702",
-      "name": "Lateral Movement: SMB Share Access Followed by File Encryption",
-      "description": "Correlation rule detecting smb share access followed by file encryption",
-      "severity": 2,
-      "severity_label": "Medium",
-      "category": "lateral-movement",
-      "tactics": [
-        "LateralMovement",
-        "Impact"
-      ],
-      "mitre_attack": [
-        "T1021.002",
-        "T1486"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "CommonSecurityLog| where DestinationIP !startswith \"10.\" and SourceIP !startswith \"10.\"| summarize count() by bin(TimeGenerated, 5m), SourceIP, DestinationIP | where count_ > 3 // AZ-LAT-0702",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tags": []
-    },
-    {
-      "rule_id": "AZ-LAT-0703",
-      "name": "Lateral Movement: WMI Remote Execution Followed by Persistence",
-      "description": "Correlation rule detecting wmi remote execution followed by persistence",
-      "severity": 2,
-      "severity_label": "Medium",
-      "category": "lateral-movement",
-      "tactics": [
-        "PrivilegeEscalation",
-        "Persistence"
-      ],
-      "mitre_attack": [
-        "T1546.003",
-        "T1547.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "AuditLogs | where OperationName contains \"lateral\" | summarize count() by bin(TimeGenerated, 5m), InitiatedBy | where count_ > 3 // AZ-LAT-0703",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tags": []
-    },
-    {
-      "rule_id": "AZ-LAT-0704",
-      "name": "Lateral Movement: PsExec Followed by Discovery",
-      "description": "Correlation rule detecting psexec followed by discovery",
-      "severity": 2,
-      "severity_label": "Medium",
-      "category": "lateral-movement",
-      "tactics": [
-        "LateralMovement"
-      ],
-      "mitre_attack": [
-        "T1021.002",
-        "T1082"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "CommonSecurityLog| where DestinationIP !startswith \"10.\" and SourceIP !startswith \"10.\"| summarize count() by bin(TimeGenerated, 5m), SourceIP, DestinationIP | where count_ > 3 // AZ-LAT-0704",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tags": []
-    },
-    {
-      "rule_id": "AZ-LAT-0705",
-      "name": "Lateral Movement: PowerShell Remoting Followed by Credential Dumping",
-      "description": "Correlation rule detecting powershell remoting followed by credential dumping",
-      "severity": 2,
-      "severity_label": "Medium",
-      "category": "lateral-movement",
-      "tactics": [
-        "Execution",
-        "CredentialAccess"
-      ],
-      "mitre_attack": [
-        "T1059.001",
-        "T1003.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SecurityEvent | where EventID == 4688 | where NewProcessName contains \"lateral\" or CommandLine contains \"movement\" | summarize count() by bin(TimeGenerated, 5m), Computer, Account, NewProcessName | where count_ > 3 // AZ-LAT-0705",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tags": []
-    },
-    {
-      "rule_id": "AZ-LAT-0706",
-      "name": "Lateral Movement: WinRM Followed by Defense Evasion",
-      "description": "Correlation rule detecting winrm followed by defense evasion",
-      "severity": 2,
-      "severity_label": "Medium",
-      "category": "lateral-movement",
-      "tactics": [
-        "LateralMovement"
-      ],
-      "mitre_attack": [
-        "T1021.001",
-        "T1027"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "CommonSecurityLog| where DestinationIP !startswith \"10.\" and SourceIP !startswith \"10.\"| summarize count() by bin(TimeGenerated, 5m), SourceIP, DestinationIP | where count_ > 3 // AZ-LAT-0706",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tags": []
-    },
-    {
-      "rule_id": "AZ-LAT-0707",
-      "name": "Lateral Movement: Kerberoasting Followed by Lateral Movement",
-      "description": "Correlation rule detecting kerberoasting followed by lateral movement",
-      "severity": 2,
-      "severity_label": "Medium",
-      "category": "lateral-movement",
-      "tactics": [
-        "CredentialAccess",
-        "LateralMovement"
-      ],
-      "mitre_attack": [
-        "T1558.001",
-        "T1021"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SigninLogs | where UserPrincipalName contains \"lateral\" or IPAddress !startswith \"10.\" | where ResultType == \"50126\" or ResultType == \"50057\" | summarize count() by bin(TimeGenerated, 5m), UserPrincipalName, IPAddress | where count_ > 3 // AZ-LAT-0707",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tags": []
-    },
-    {
-      "rule_id": "AZ-LAT-0708",
-      "name": "Lateral Movement: DCSync Attack Chain",
-      "description": "Correlation rule detecting dcsync attack chain",
-      "severity": 2,
-      "severity_label": "Medium",
-      "category": "lateral-movement",
-      "tactics": [
-        "CredentialAccess"
-      ],
-      "mitre_attack": [
-        "T1003.006",
-        "T1558"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "AuditLogs | where OperationName contains \"lateral\" | summarize count() by bin(TimeGenerated, 5m), InitiatedBy | where count_ > 3 // AZ-LAT-0708",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tags": []
-    },
-    {
-      "rule_id": "AZ-LAT-0709",
-      "name": "Lateral Movement: Pass-the-Hash Detection",
-      "description": "Correlation rule detecting pass-the-hash detection",
-      "severity": 2,
-      "severity_label": "Medium",
-      "category": "lateral-movement",
-      "tactics": [
-        "DefenseEvasion"
-      ],
-      "mitre_attack": [
         "T1550.002"
       ],
       "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+        "PCI-DSS-8.5",
+        "NIST-IA-2"
       ],
-      "query": "SigninLogs | where UserPrincipalName contains \"lateral\" or IPAddress !startswith \"10.\" | where ResultType == \"50126\" or ResultType == \"50057\" | summarize count() by bin(TimeGenerated, 5m), UserPrincipalName, IPAddress | where count_ > 3 // AZ-LAT-0709",
+      "tags": [
+        "lateral-movement",
+        "pass-the-hash",
+        "windows"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-LM-002",
+      "name": "Pass-the-Ticket (Kerberos)",
+      "description": "Detects Kerberos ticket reuse across systems indicating pass-the-ticket attacks",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'pass_the_ticket' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tags": []
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1550.003"
+      ],
+      "compliance": [
+        "NIST-IA-2"
+      ],
+      "tags": [
+        "lateral-movement",
+        "pass-the-ticket",
+        "kerberos"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-LM-003",
+      "name": "RDP Anomalous Connection",
+      "description": "Detects anomalous RDP connections including unusual source IPs, off-hours access, or lateral movement patterns",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'rdp' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1021.001"
+      ],
+      "compliance": [
+        "PCI-DSS-1.3"
+      ],
+      "tags": [
+        "lateral-movement",
+        "rdp",
+        "remote-desktop"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-LM-004",
+      "name": "SSH Lateral Movement",
+      "description": "Detects SSH connections from compromised hosts to internal systems indicating lateral movement",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'ssh' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1021.004"
+      ],
+      "compliance": [
+        "NIST-AC-17"
+      ],
+      "tags": [
+        "lateral-movement",
+        "ssh",
+        "remote-access"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-LM-005",
+      "name": "WMI/PSExec Remote Execution",
+      "description": "Detects remote execution via WMI, PSExec, or similar tools indicating lateral movement",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'wmi' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1047",
+        "T1021.002"
+      ],
+      "compliance": [
+        "NIST-AC-17"
+      ],
+      "tags": [
+        "lateral-movement",
+        "wmi",
+        "psexec",
+        "remote-execution"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-LM-006",
+      "name": "SMB Lateral Movement via Admin Shares",
+      "description": "Detects lateral movement through SMB admin shares (C$, ADMIN$) for remote execution",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'smb' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1021.002"
+      ],
+      "compliance": [
+        "PCI-DSS-1.3"
+      ],
+      "tags": [
+        "lateral-movement",
+        "smb",
+        "admin-shares",
+        "windows"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-LM-007",
+      "name": "DCOM Lateral Movement",
+      "description": "Detects DCOM-based lateral movement through distributed COM object activation",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'dcom' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1021.003"
+      ],
+      "compliance": [
+        "NIST-AC-17"
+      ],
+      "tags": [
+        "lateral-movement",
+        "dcom",
+        "distributed-com"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-LM-008",
+      "name": "WinRM Remote Shell Access",
+      "description": "Detects Windows Remote Management shell access for lateral movement and remote execution",
+      "severity": 1,
+      "query": "AzureDiagnostics | where Category contains 'winrm' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1021.006"
+      ],
+      "compliance": [
+        "NIST-AC-17"
+      ],
+      "tags": [
+        "lateral-movement",
+        "winrm",
+        "remote-shell"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "AZ-LM-009",
+      "name": "Golden Ticket Attack (Kerberos)",
+      "description": "Detects Kerberos Golden Ticket attacks where forged TGTs grant persistent domain access",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'golden_ticket' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1558.001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-IA-2"
+      ],
+      "tags": [
+        "lateral-movement",
+        "golden-ticket",
+        "kerberos",
+        "persistence"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "AZ-LM-010",
+      "name": "Silver Ticket Attack (Kerberos)",
+      "description": "Detects Kerberos Silver Ticket attacks using forged service tickets for targeted service access",
+      "severity": 0,
+      "query": "AzureDiagnostics | where Category contains 'silver_ticket' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "T1558.002"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-IA-2"
+      ],
+      "tags": [
+        "lateral-movement",
+        "silver-ticket",
+        "kerberos",
+        "privilege-escalation"
+      ],
+      "risk_score": 90
     }
   ]
 }

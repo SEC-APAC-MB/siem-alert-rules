@@ -1,36 +1,22 @@
 {
-  "description": "SIEM alert rules — lateral-movement (converted)",
-  "version": "2.0.0",
-  "converted": "2026-09-16T04:05:27.423511Z",
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "OCI Alarm and Event rules — lateral-movement",
   "total_rules": 10,
   "rules": [
     {
-      "rule_id": "OCI-LAT-0700",
-      "name": "Lateral Movement: RDP Followed by Credential Access",
-      "description": "Correlation rule detecting rdp followed by credential access",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1021.001",
-        "T1555"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0700\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
+      "rule_id": "OCI-LM-001",
+      "name": "Pass-the-Hash Detection",
+      "description": "Detects NTLM pass-the-hash attacks where an adversary uses a password hash instead of plaintext password",
+      "severity": "CRITICAL",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0700",
+        "metric": "pass_the_hash",
         "operator": "GT",
-        "threshold": 3
+        "threshold": 5
       },
       "actions": [
         {
@@ -38,324 +24,32 @@
           "description": "Send alert notification"
         }
       ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0701",
-      "name": "Lateral Movement: SSH Followed by Privilege Escalation",
-      "description": "Correlation rule detecting ssh followed by privilege escalation",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1021.006",
-        "T1548"
+      "references": [
+        "PCI-DSS-8.5",
+        "NIST-IA-2"
       ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0701\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0701",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0702",
-      "name": "Lateral Movement: SMB Share Access Followed by File Encryption",
-      "description": "Correlation rule detecting smb share access followed by file encryption",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1021.002",
-        "T1486"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0702\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0702",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0703",
-      "name": "Lateral Movement: WMI Remote Execution Followed by Persistence",
-      "description": "Correlation rule detecting wmi remote execution followed by persistence",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1546.003",
-        "T1547.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0703\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%lateral%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.audit",
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0703",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0704",
-      "name": "Lateral Movement: PsExec Followed by Discovery",
-      "description": "Correlation rule detecting psexec followed by discovery",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1021.002",
-        "T1082"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0704\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0704",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0705",
-      "name": "Lateral Movement: PowerShell Remoting Followed by Credential Dumping",
-      "description": "Correlation rule detecting powershell remoting followed by credential dumping",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1059.001",
-        "T1003.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0705\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%lateral%' OR \"data__json.message\" LIKE '%movement%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0705",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0706",
-      "name": "Lateral Movement: WinRM Followed by Defense Evasion",
-      "description": "Correlation rule detecting winrm followed by defense evasion",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1021.001",
-        "T1027"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0706\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0706",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0707",
-      "name": "Lateral Movement: Kerberoasting Followed by Lateral Movement",
-      "description": "Correlation rule detecting kerberoasting followed by lateral movement",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1558.001",
-        "T1021"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0707\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%lateral%' OR \"data__json.message\" LIKE '%movement%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0707",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0708",
-      "name": "Lateral Movement: DCSync Attack Chain",
-      "description": "Correlation rule detecting dcsync attack chain",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1003.006",
-        "T1558"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0708\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%lateral%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.audit",
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0708",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0709",
-      "name": "Lateral Movement: Pass-the-Hash Detection",
-      "description": "Correlation rule detecting pass-the-hash detection",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
+      "mitre": [
         "T1550.002"
       ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0709\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%lateral%' OR \"data__json.message\" LIKE '%movement%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
+      "tags": [
+        "lateral-movement",
+        "pass-the-hash",
+        "windows"
+      ]
+    },
+    {
+      "rule_id": "OCI-LM-002",
+      "name": "Pass-the-Ticket (Kerberos)",
+      "description": "Detects Kerberos ticket reuse across systems indicating pass-the-ticket attacks",
+      "severity": "CRITICAL",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0709",
+        "metric": "pass_the_ticket",
         "operator": "GT",
-        "threshold": 3
+        "threshold": 5
       },
       "actions": [
         {
@@ -363,7 +57,280 @@
           "description": "Send alert notification"
         }
       ],
-      "tags": []
+      "references": [
+        "NIST-IA-2"
+      ],
+      "mitre": [
+        "T1550.003"
+      ],
+      "tags": [
+        "lateral-movement",
+        "pass-the-ticket",
+        "kerberos"
+      ]
+    },
+    {
+      "rule_id": "OCI-LM-003",
+      "name": "RDP Anomalous Connection",
+      "description": "Detects anomalous RDP connections including unusual source IPs, off-hours access, or lateral movement patterns",
+      "severity": "HIGH",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "rdp",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "PCI-DSS-1.3"
+      ],
+      "mitre": [
+        "T1021.001"
+      ],
+      "tags": [
+        "lateral-movement",
+        "rdp",
+        "remote-desktop"
+      ]
+    },
+    {
+      "rule_id": "OCI-LM-004",
+      "name": "SSH Lateral Movement",
+      "description": "Detects SSH connections from compromised hosts to internal systems indicating lateral movement",
+      "severity": "HIGH",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "ssh",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "NIST-AC-17"
+      ],
+      "mitre": [
+        "T1021.004"
+      ],
+      "tags": [
+        "lateral-movement",
+        "ssh",
+        "remote-access"
+      ]
+    },
+    {
+      "rule_id": "OCI-LM-005",
+      "name": "WMI/PSExec Remote Execution",
+      "description": "Detects remote execution via WMI, PSExec, or similar tools indicating lateral movement",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "wmi",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "NIST-AC-17"
+      ],
+      "mitre": [
+        "T1047",
+        "T1021.002"
+      ],
+      "tags": [
+        "lateral-movement",
+        "wmi",
+        "psexec",
+        "remote-execution"
+      ]
+    },
+    {
+      "rule_id": "OCI-LM-006",
+      "name": "SMB Lateral Movement via Admin Shares",
+      "description": "Detects lateral movement through SMB admin shares (C$, ADMIN$) for remote execution",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "smb",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "PCI-DSS-1.3"
+      ],
+      "mitre": [
+        "T1021.002"
+      ],
+      "tags": [
+        "lateral-movement",
+        "smb",
+        "admin-shares",
+        "windows"
+      ]
+    },
+    {
+      "rule_id": "OCI-LM-007",
+      "name": "DCOM Lateral Movement",
+      "description": "Detects DCOM-based lateral movement through distributed COM object activation",
+      "severity": "HIGH",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "dcom",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "NIST-AC-17"
+      ],
+      "mitre": [
+        "T1021.003"
+      ],
+      "tags": [
+        "lateral-movement",
+        "dcom",
+        "distributed-com"
+      ]
+    },
+    {
+      "rule_id": "OCI-LM-008",
+      "name": "WinRM Remote Shell Access",
+      "description": "Detects Windows Remote Management shell access for lateral movement and remote execution",
+      "severity": "HIGH",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "winrm",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "NIST-AC-17"
+      ],
+      "mitre": [
+        "T1021.006"
+      ],
+      "tags": [
+        "lateral-movement",
+        "winrm",
+        "remote-shell"
+      ]
+    },
+    {
+      "rule_id": "OCI-LM-009",
+      "name": "Golden Ticket Attack (Kerberos)",
+      "description": "Detects Kerberos Golden Ticket attacks where forged TGTs grant persistent domain access",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "golden_ticket",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "PCI-DSS-8.5",
+        "NIST-IA-2"
+      ],
+      "mitre": [
+        "T1558.001"
+      ],
+      "tags": [
+        "lateral-movement",
+        "golden-ticket",
+        "kerberos",
+        "persistence"
+      ]
+    },
+    {
+      "rule_id": "OCI-LM-010",
+      "name": "Silver Ticket Attack (Kerberos)",
+      "description": "Detects Kerberos Silver Ticket attacks using forged service tickets for targeted service access",
+      "severity": "CRITICAL",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "silver_ticket",
+        "operator": "GT",
+        "threshold": 5
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "references": [
+        "PCI-DSS-8.5",
+        "NIST-IA-2"
+      ],
+      "mitre": [
+        "T1558.002"
+      ],
+      "tags": [
+        "lateral-movement",
+        "silver-ticket",
+        "kerberos",
+        "privilege-escalation"
+      ]
     }
   ]
 }

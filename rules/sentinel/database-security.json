@@ -1,21 +1,25 @@
 {
-  "description": "SIEM alert rules \u2014 database-security (converted)",
-  "version": "2.0.0",
-  "converted": "2026-09-16T04:05:25.943093Z",
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "Microsoft Sentinel analytics rules — database-security",
   "total_rules": 30,
   "rules": [
     {
       "rule_id": "MS-DB-PG-001",
-      "name": "PostgreSQL \u2014 Privilege Escalation via SET ROLE",
+      "name": "PostgreSQL — Privilege Escalation via SET ROLE",
       "description": "Detects PostgreSQL SET ROLE attempts for privilege escalation",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"postgresql\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\npostgresql_events\n| where postgresql has_any(\"database\", \"postgresql\", \"privilege-escalation\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "PrivilegeEscalation"
+      ],
+      "techniques": [
+        "T1548"
+      ],
       "references": [
         "DB-PG-001"
       ],
@@ -28,20 +32,24 @@
         "privilege-escalation",
         "sql"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-PG-002",
-      "name": "PostgreSQL \u2014 pg_dump Data Exfiltration",
+      "name": "PostgreSQL — pg_dump Data Exfiltration",
       "description": "Detects PostgreSQL pg_dump commands indicating potential data exfiltration",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"postgresql\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\npostgresql_events\n| where postgresql has_any(\"database\", \"postgresql\", \"data-exfiltration\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1213"
+      ],
       "references": [
         "DB-PG-002"
       ],
@@ -54,20 +62,24 @@
         "data-exfiltration",
         "sql"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-DB-PG-003",
-      "name": "PostgreSQL \u2014 Row-Level Security Bypass",
+      "name": "PostgreSQL — Row-Level Security Bypass",
       "description": "Detects PostgreSQL queries bypassing row-level security policies",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"postgresql\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\npostgresql_events\n| where postgresql has_any(\"database\", \"postgresql\", \"rls-bypass\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078"
+      ],
       "references": [
         "DB-PG-003"
       ],
@@ -81,20 +93,24 @@
         "rls-bypass",
         "sql"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-MY-001",
-      "name": "MySQL \u2014 UNION-Based SQL Injection",
+      "name": "MySQL — UNION-Based SQL Injection",
       "description": "Detects UNION-based SQL injection attacks against MySQL databases",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"mysql\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\nmysql_events\n| where mysql has_any(\"database\", \"mysql\", \"sql-injection\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
       "references": [
         "DB-MY-001"
       ],
@@ -107,20 +123,24 @@
         "sql-injection",
         "sql"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-MY-002",
-      "name": "MySQL \u2014 Root Account Remote Login",
+      "name": "MySQL — Root Account Remote Login",
       "description": "Detects remote login attempts to MySQL root account from non-localhost",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"mysql\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\nmysql_events\n| where mysql has_any(\"database\", \"mysql\", \"default-account\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078.001"
+      ],
       "references": [
         "DB-MY-002"
       ],
@@ -133,20 +153,24 @@
         "default-account",
         "sql"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-MSS-001",
-      "name": "SQL Server \u2014 xp_cmdshell Execution",
+      "name": "SQL Server — xp_cmdshell Execution",
       "description": "Detects execution of xp_cmdshell stored procedure enabling OS command execution",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"sqlserver\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\nsqlserver_events\n| where sqlserver has_any(\"database\", \"sqlserver\", \"command-execution\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Execution"
+      ],
+      "techniques": [
+        "T1059"
+      ],
       "references": [
         "DB-MSS-001"
       ],
@@ -159,20 +183,24 @@
         "command-execution",
         "sql"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-MSS-002",
-      "name": "SQL Server \u2014 SUSPENDED Login State Anomaly",
+      "name": "SQL Server — SUSPENDED Login State Anomaly",
       "description": "Detects SQL Server logins in SUSPENDED state indicating potential credential abuse",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"sqlserver\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Low",
+      "query": "let threshold = 5;\nsqlserver_events\n| where sqlserver has_any(\"database\", \"sqlserver\", \"login-anomaly\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078"
+      ],
       "references": [
         "DB-MSS-002"
       ],
@@ -189,16 +217,20 @@
     },
     {
       "rule_id": "MS-DB-ORA-001",
-      "name": "Oracle \u2014 DBA Privilege Escalation",
+      "name": "Oracle — DBA Privilege Escalation",
       "description": "Detects Oracle DBA privilege escalation attempts via GRANT DBA or ALTER USER",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"oracle\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\noracle_events\n| where oracle has_any(\"database\", \"oracle\", \"privilege-escalation\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "PrivilegeEscalation"
+      ],
+      "techniques": [
+        "T1548"
+      ],
       "references": [
         "DB-ORA-001"
       ],
@@ -211,20 +243,24 @@
         "privilege-escalation",
         "sql"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-SQLITE-001",
-      "name": "SQLite \u2014 Direct File Access from Web",
+      "name": "SQLite — Direct File Access from Web",
       "description": "Detects direct SQLite database file access from web applications",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"sqlite\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\nsqlite_events\n| where sqlite has_any(\"database\", \"sqlite\", \"file-access\", \"sql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1083"
+      ],
       "references": [
         "DB-SQLITE-001"
       ],
@@ -237,20 +273,24 @@
         "file-access",
         "sql"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-DB-MONGO-001",
-      "name": "MongoDB \u2014 NoSQL Injection via $where",
+      "name": "MongoDB — NoSQL Injection via $where",
       "description": "Detects MongoDB $where operator injection for JavaScript execution",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"mongodb\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\nmongodb_events\n| where mongodb has_any(\"database\", \"mongodb\", \"nosql-injection\", \"nosql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
       "references": [
         "DB-MONGO-001"
       ],
@@ -263,20 +303,24 @@
         "nosql-injection",
         "nosql"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-MONGO-002",
-      "name": "MongoDB \u2014 admin Database Unauthorized Access",
+      "name": "MongoDB — admin Database Unauthorized Access",
       "description": "Detects unauthorized access to MongoDB admin database",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"mongodb\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\nmongodb_events\n| where mongodb has_any(\"database\", \"mongodb\", \"default-account\", \"nosql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078.001"
+      ],
       "references": [
         "DB-MONGO-002"
       ],
@@ -289,20 +333,24 @@
         "default-account",
         "nosql"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-DYNAMO-001",
-      "name": "DynamoDB \u2014 Excessive Scan Operations",
+      "name": "DynamoDB — Excessive Scan Operations",
       "description": "Detects excessive DynamoDB Scan operations indicating potential data exfiltration",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"dynamodb\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\ndynamodb_events\n| where dynamodb has_any(\"database\", \"dynamodb\", \"data-exfiltration\", \"nosql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1213"
+      ],
       "references": [
         "DB-DYNAMO-001"
       ],
@@ -315,20 +363,24 @@
         "data-exfiltration",
         "nosql"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-DB-CASS-001",
-      "name": "Cassandra \u2014 Unauthorized CQL Command Execution",
+      "name": "Cassandra — Unauthorized CQL Command Execution",
       "description": "Detects unauthorized CQL commands including ALTER, DROP, and GRANT operations",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"cassandra\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\ncassandra_events\n| where cassandra has_any(\"database\", \"cassandra\", \"privilege-escalation\", \"nosql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "PrivilegeEscalation"
+      ],
+      "techniques": [
+        "T1548"
+      ],
       "references": [
         "DB-CASS-001"
       ],
@@ -341,20 +393,24 @@
         "privilege-escalation",
         "nosql"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-COUCH-001",
-      "name": "CouchDB \u2014 Admin Party Mode",
+      "name": "CouchDB — Admin Party Mode",
       "description": "Detects CouchDB admin party mode or unauthorized admin access",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"couchdb\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\ncouchdb_events\n| where couchdb has_any(\"database\", \"couchdb\", \"default-account\", \"nosql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078.001"
+      ],
       "references": [
         "DB-COUCH-001"
       ],
@@ -367,20 +423,24 @@
         "default-account",
         "nosql"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-FIRE-001",
-      "name": "Firestore \u2014 Overly Permissive Security Rules",
+      "name": "Firestore — Overly Permissive Security Rules",
       "description": "Detects Firestore security rules allowing unauthenticated read/write access",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"firestore\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\nfirestore_events\n| where firestore has_any(\"database\", \"firestore\", \"misconfiguration\", \"nosql\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
       "references": [
         "DB-FIRE-001"
       ],
@@ -393,20 +453,24 @@
         "misconfiguration",
         "nosql"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-DB-NEO4J-001",
-      "name": "Neo4j \u2014 Cypher Injection Attack",
+      "name": "Neo4j — Cypher Injection Attack",
       "description": "Detects Cypher injection attacks in Neo4j graph database queries",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"neo4j\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\nneo4j_events\n| where neo4j has_any(\"database\", \"neo4j\", \"cypher-injection\", \"graph\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
       "references": [
         "DB-NEO4J-001"
       ],
@@ -419,20 +483,24 @@
         "cypher-injection",
         "graph"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-ARANGO-001",
-      "name": "ArangoDB \u2014 AQL Injection Detection",
+      "name": "ArangoDB — AQL Injection Detection",
       "description": "Detects AQL injection attacks in ArangoDB queries",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"arangodb\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\narangodb_events\n| where arangodb has_any(\"database\", \"arangodb\", \"aql-injection\", \"graph\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
       "references": [
         "DB-ARANGO-001"
       ],
@@ -445,20 +513,24 @@
         "aql-injection",
         "graph"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-DB-NEPTUNE-001",
-      "name": "Neptune \u2014 Gremlin/SPARQL Injection",
+      "name": "Neptune — Gremlin/SPARQL Injection",
       "description": "Detects Gremlin or SPARQL injection attacks against Amazon Neptune",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"neptune\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\nneptune_events\n| where neptune has_any(\"database\", \"neptune\", \"graph-injection\", \"graph\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
       "references": [
         "DB-NEPTUNE-001"
       ],
@@ -471,20 +543,24 @@
         "graph-injection",
         "graph"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-DB-INFLUX-001",
-      "name": "InfluxDB \u2014 Unauthorized Data Deletion",
+      "name": "InfluxDB — Unauthorized Data Deletion",
       "description": "Detects DROP DATABASE or DELETE SERIES commands in InfluxDB",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"influxdb\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\ninfluxdb_events\n| where influxdb has_any(\"database\", \"influxdb\", \"data-destruction\", \"timeseries\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1485"
+      ],
       "references": [
         "DB-INFLUX-001"
       ],
@@ -497,20 +573,24 @@
         "data-destruction",
         "timeseries"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-TSCALE-001",
-      "name": "TimescaleDB \u2014 Hypertable Data Exfiltration",
+      "name": "TimescaleDB — Hypertable Data Exfiltration",
       "description": "Detects bulk data extraction from TimescaleDB hypertables",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"timescaledb\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\ntimescaledb_events\n| where timescaledb has_any(\"database\", \"timescaledb\", \"data-exfiltration\", \"timeseries\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Collection"
+      ],
+      "techniques": [
+        "T1213"
+      ],
       "references": [
         "DB-TSCALE-001"
       ],
@@ -523,20 +603,24 @@
         "data-exfiltration",
         "timeseries"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-DB-PROM-001",
-      "name": "Prometheus \u2014 Unauthorized Metric Scraping",
+      "name": "Prometheus — Unauthorized Metric Scraping",
       "description": "Detects unauthorized metric scraping from Prometheus endpoints revealing infrastructure details",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"prometheus\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Low",
+      "query": "let threshold = 5;\nprometheus_events\n| where prometheus has_any(\"database\", \"prometheus\", \"information-disclosure\", \"timeseries\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1592"
+      ],
       "references": [
         "DB-PROM-001"
       ],
@@ -553,16 +637,20 @@
     },
     {
       "rule_id": "MS-DB-PINE-001",
-      "name": "Pinecone \u2014 Namespace Isolation Bypass",
+      "name": "Pinecone — Namespace Isolation Bypass",
       "description": "Detects cross-namespace data access in Pinecone vector database",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"pinecone\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\npinecone_events\n| where pinecone has_any(\"database\", \"pinecone\", \"vector\", \"isolation-bypass\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078"
+      ],
       "references": [
         "DB-PINE-001"
       ],
@@ -575,20 +663,24 @@
         "vector",
         "isolation-bypass"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-WEAV-001",
-      "name": "Weaviate \u2014 Tenant Data Isolation Failure",
+      "name": "Weaviate — Tenant Data Isolation Failure",
       "description": "Detects cross-tenant data access in Weaviate vector database",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"weaviate\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\nweaviate_events\n| where weaviate has_any(\"database\", \"weaviate\", \"vector\", \"isolation-bypass\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078"
+      ],
       "references": [
         "DB-WEAV-001"
       ],
@@ -601,20 +693,24 @@
         "vector",
         "isolation-bypass"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-MILV-001",
-      "name": "Milvus \u2014 Collection-Level Access Bypass",
+      "name": "Milvus — Collection-Level Access Bypass",
       "description": "Detects unauthorized collection access in Milvus vector database",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"milvus\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\nmilvus_events\n| where milvus has_any(\"database\", \"milvus\", \"vector\", \"access-bypass\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078"
+      ],
       "references": [
         "DB-MILV-001"
       ],
@@ -627,20 +723,24 @@
         "vector",
         "access-bypass"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-DB-CHROMA-001",
-      "name": "ChromaDB \u2014 Embedding Poisoning Detection",
+      "name": "ChromaDB — Embedding Poisoning Detection",
       "description": "Detects adversarial embedding vectors inserted into ChromaDB collections",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"chromadb\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\nchromadb_events\n| where chromadb has_any(\"database\", \"chromadb\", \"vector\", \"embedding-poisoning\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
       "references": [
         "DB-CHROMA-001"
       ],
@@ -653,20 +753,24 @@
         "vector",
         "embedding-poisoning"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-DB-QDRANT-001",
-      "name": "Qdrant \u2014 Payload Filter Injection",
+      "name": "Qdrant — Payload Filter Injection",
       "description": "Detects filter injection attacks in Qdrant vector search payloads",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"qdrant\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\nqdrant_events\n| where qdrant has_any(\"database\", \"qdrant\", \"vector\", \"filter-injection\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
       "references": [
         "DB-QDRANT-001"
       ],
@@ -679,20 +783,24 @@
         "vector",
         "filter-injection"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-DB-REDIS-001",
-      "name": "Redis \u2014 CONFIG GET Credential Exposure",
+      "name": "Redis — CONFIG GET Credential Exposure",
       "description": "Detects Redis CONFIG commands targeting credentials or authentication configuration",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"redis\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\nredis_events\n| where redis has_any(\"database\", \"redis\", \"credential-exposure\", \"key-value\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1552"
+      ],
       "references": [
         "DB-REDIS-001"
       ],
@@ -705,20 +813,24 @@
         "credential-exposure",
         "key-value"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-REDIS-002",
-      "name": "Redis \u2014 FLUSHALL/FLUSHDB Data Destruction",
+      "name": "Redis — FLUSHALL/FLUSHDB Data Destruction",
       "description": "Detects Redis FLUSHALL or FLUSHDB commands indicating potential data destruction",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"redis\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\nredis_events\n| where redis has_any(\"database\", \"redis\", \"data-destruction\", \"key-value\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1485"
+      ],
       "references": [
         "DB-REDIS-002"
       ],
@@ -731,20 +843,24 @@
         "data-destruction",
         "key-value"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-DB-MEMC-001",
-      "name": "Memcached \u2014 Amplification Attack",
+      "name": "Memcached — Amplification Attack",
       "description": "Detects Memcached amplification attacks via stats or get requests from external IPs",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"memcached\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\nmemcached_events\n| where memcached has_any(\"database\", \"memcached\", \"amplification\", \"key-value\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1498"
+      ],
       "references": [
         "DB-MEMC-001"
       ],
@@ -757,20 +873,24 @@
         "amplification",
         "key-value"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-DB-HBASE-001",
-      "name": "HBase \u2014 Unauthorized ACL Modification",
+      "name": "HBase — Unauthorized ACL Modification",
       "description": "Detects unauthorized ACL modifications in HBase including grant and revoke operations",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"database\" or Message contains \"hbase\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\nhbase_events\n| where hbase has_any(\"database\", \"hbase\", \"acl-modification\", \"column-family\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "PrivilegeEscalation"
+      ],
+      "techniques": [
+        "T1548"
+      ],
       "references": [
         "DB-HBASE-001"
       ],
@@ -783,7 +903,7 @@
         "acl-modification",
         "column-family"
       ],
-      "risk_score": 50
+      "risk_score": 90
     }
   ]
 }

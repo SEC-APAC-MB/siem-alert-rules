@@ -1,278 +1,286 @@
 {
-  "description": "SIEM alert rules \u2014 lateral-movement (converted)",
-  "version": "2.0.0",
-  "converted": "2026-09-16T04:05:24.435132Z",
+  "description": "Elastic Security SIEM alert rules — lateral-movement",
+  "version": "1.0.0",
+  "elastic_version": "8.x",
   "total_rules": 10,
   "rules": [
     {
-      "rule_id": "",
-      "name": "Lateral Movement: RDP Followed by Credential Access",
-      "description": "Detects lateral movement: rdp followed by credential access \u2014 lateral movement chain correlation",
+      "rule_id": "ES-LM-001",
+      "name": "Pass-the-Hash Detection",
+      "description": "Detects NTLM pass-the-hash attacks where an adversary uses a password hash instead of plaintext password",
       "severity": "critical",
       "type": "query",
-      "query": "event.category:\"network\" AND (network.protocol:(\"smb\" OR \"rdp\" OR \"winrm\" OR \"wmi\") AND source.ip:(10.* OR 172.16.* OR 192.168.*) AND destination.ip:(10.* OR 172.16.* OR 192.168.*) AND source.ip != destination.ip)",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"pass-the-hash\" OR \"windows\")",
       "index": [
-        "logs-*",
-        "apm-*"
+        "logs-*"
       ],
-      "references": [],
-      "threat": [],
-      "risk_score": 95,
-      "interval": "5m",
-      "tags": [],
+      "references": [
+        "LM-001"
+      ],
+      "mitre": [
+        "T1550.002"
+      ],
       "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+        "PCI-DSS-8.5",
+        "NIST-IA-2"
       ],
-      "author": [
-        "SIEM Alert Rules"
+      "tags": [
+        "lateral-movement",
+        "pass-the-hash",
+        "windows"
       ],
-      "license": "Elastic License v2"
+      "risk_score": 90,
+      "interval": "5m"
     },
     {
-      "rule_id": "",
-      "name": "Lateral Movement: SSH Followed by Privilege Escalation",
-      "description": "Detects lateral movement: ssh followed by privilege escalation \u2014 lateral movement chain correlation",
+      "rule_id": "ES-LM-002",
+      "name": "Pass-the-Ticket (Kerberos)",
+      "description": "Detects Kerberos ticket reuse across systems indicating pass-the-ticket attacks",
       "severity": "critical",
       "type": "query",
-      "query": "event.category:\"network\" AND (network.protocol:(\"smb\" OR \"rdp\" OR \"winrm\" OR \"wmi\") AND source.ip:(10.* OR 172.16.* OR 192.168.*) AND destination.ip:(10.* OR 172.16.* OR 192.168.*) AND source.ip != destination.ip)",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"pass-the-ticket\" OR \"kerberos\")",
       "index": [
-        "logs-*",
-        "apm-*"
+        "logs-*"
       ],
-      "references": [],
-      "threat": [],
-      "risk_score": 95,
-      "interval": "5m",
-      "tags": [],
+      "references": [
+        "LM-002"
+      ],
+      "mitre": [
+        "T1550.003"
+      ],
       "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+        "NIST-IA-2"
       ],
-      "author": [
-        "SIEM Alert Rules"
+      "tags": [
+        "lateral-movement",
+        "pass-the-ticket",
+        "kerberos"
       ],
-      "license": "Elastic License v2"
+      "risk_score": 90,
+      "interval": "5m"
     },
     {
-      "rule_id": "",
-      "name": "Lateral Movement: SMB Share Access Followed by File Encryption",
-      "description": "Detects lateral movement: smb share access followed by file encryption \u2014 lateral movement chain correlation",
-      "severity": "critical",
-      "type": "query",
-      "query": "event.category:\"network\" AND (network.protocol:(\"smb\" OR \"rdp\" OR \"winrm\" OR \"wmi\") AND source.ip:(10.* OR 172.16.* OR 192.168.*) AND destination.ip:(10.* OR 172.16.* OR 192.168.*) AND source.ip != destination.ip)",
-      "index": [
-        "logs-*",
-        "apm-*"
-      ],
-      "references": [],
-      "threat": [],
-      "risk_score": 95,
-      "interval": "5m",
-      "tags": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "author": [
-        "SIEM Alert Rules"
-      ],
-      "license": "Elastic License v2"
-    },
-    {
-      "rule_id": "",
-      "name": "Lateral Movement: WMI Remote Execution Followed by Persistence",
-      "description": "Detects lateral movement: wmi remote execution followed by persistence \u2014 lateral movement chain correlation",
+      "rule_id": "ES-LM-003",
+      "name": "RDP Anomalous Connection",
+      "description": "Detects anomalous RDP connections including unusual source IPs, off-hours access, or lateral movement patterns",
       "severity": "high",
       "type": "query",
-      "query": "event.category:\"network\" AND (network.protocol:(\"smb\" OR \"rdp\" OR \"winrm\" OR \"wmi\") AND source.ip:(10.* OR 172.16.* OR 192.168.*) AND destination.ip:(10.* OR 172.16.* OR 192.168.*) AND source.ip != destination.ip)",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"rdp\" OR \"remote-desktop\")",
       "index": [
-        "logs-*",
-        "apm-*"
+        "logs-*"
       ],
-      "references": [],
-      "threat": [],
-      "risk_score": 75,
-      "interval": "5m",
-      "tags": [],
+      "references": [
+        "LM-003"
+      ],
+      "mitre": [
+        "T1021.001"
+      ],
       "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+        "PCI-DSS-1.3"
       ],
-      "author": [
-        "SIEM Alert Rules"
+      "tags": [
+        "lateral-movement",
+        "rdp",
+        "remote-desktop"
       ],
-      "license": "Elastic License v2"
+      "risk_score": 70,
+      "interval": "5m"
     },
     {
-      "rule_id": "",
-      "name": "Lateral Movement: PsExec Followed by Discovery",
-      "description": "Detects lateral movement: psexec followed by discovery \u2014 lateral movement chain correlation",
+      "rule_id": "ES-LM-004",
+      "name": "SSH Lateral Movement",
+      "description": "Detects SSH connections from compromised hosts to internal systems indicating lateral movement",
       "severity": "high",
       "type": "query",
-      "query": "event.category:\"network\" AND (network.protocol:(\"smb\" OR \"rdp\" OR \"winrm\" OR \"wmi\") AND source.ip:(10.* OR 172.16.* OR 192.168.*) AND destination.ip:(10.* OR 172.16.* OR 192.168.*) AND source.ip != destination.ip)",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"ssh\" OR \"remote-access\")",
       "index": [
-        "logs-*",
-        "apm-*"
+        "logs-*"
       ],
-      "references": [],
-      "threat": [],
-      "risk_score": 75,
-      "interval": "5m",
-      "tags": [],
+      "references": [
+        "LM-004"
+      ],
+      "mitre": [
+        "T1021.004"
+      ],
       "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+        "NIST-AC-17"
       ],
-      "author": [
-        "SIEM Alert Rules"
+      "tags": [
+        "lateral-movement",
+        "ssh",
+        "remote-access"
       ],
-      "license": "Elastic License v2"
+      "risk_score": 70,
+      "interval": "5m"
     },
     {
-      "rule_id": "",
-      "name": "Lateral Movement: PowerShell Remoting Followed by Credential Dumping",
-      "description": "Detects lateral movement: powershell remoting followed by credential dumping \u2014 lateral movement chain correlation",
+      "rule_id": "ES-LM-005",
+      "name": "WMI/PSExec Remote Execution",
+      "description": "Detects remote execution via WMI, PSExec, or similar tools indicating lateral movement",
       "severity": "critical",
       "type": "query",
-      "query": "event.category:\"network\" AND (network.protocol:(\"smb\" OR \"rdp\" OR \"winrm\" OR \"wmi\") AND source.ip:(10.* OR 172.16.* OR 192.168.*) AND destination.ip:(10.* OR 172.16.* OR 192.168.*) AND source.ip != destination.ip)",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"wmi\" OR \"psexec\" OR \"remote-execution\")",
       "index": [
-        "logs-*",
-        "apm-*"
+        "logs-*"
       ],
-      "references": [],
-      "threat": [],
-      "risk_score": 95,
-      "interval": "5m",
-      "tags": [],
+      "references": [
+        "LM-005"
+      ],
+      "mitre": [
+        "T1047",
+        "T1021.002"
+      ],
       "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+        "NIST-AC-17"
       ],
-      "author": [
-        "SIEM Alert Rules"
+      "tags": [
+        "lateral-movement",
+        "wmi",
+        "psexec",
+        "remote-execution"
       ],
-      "license": "Elastic License v2"
+      "risk_score": 90,
+      "interval": "5m"
     },
     {
-      "rule_id": "",
-      "name": "Lateral Movement: WinRM Followed by Defense Evasion",
-      "description": "Detects lateral movement: winrm followed by defense evasion \u2014 lateral movement chain correlation",
+      "rule_id": "ES-LM-006",
+      "name": "SMB Lateral Movement via Admin Shares",
+      "description": "Detects lateral movement through SMB admin shares (C$, ADMIN$) for remote execution",
       "severity": "critical",
       "type": "query",
-      "query": "event.category:\"network\" AND (network.protocol:(\"smb\" OR \"rdp\" OR \"winrm\" OR \"wmi\") AND source.ip:(10.* OR 172.16.* OR 192.168.*) AND destination.ip:(10.* OR 172.16.* OR 192.168.*) AND source.ip != destination.ip)",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"smb\" OR \"admin-shares\" OR \"windows\")",
       "index": [
-        "logs-*",
-        "apm-*"
+        "logs-*"
       ],
-      "references": [],
-      "threat": [],
-      "risk_score": 95,
-      "interval": "5m",
-      "tags": [],
+      "references": [
+        "LM-006"
+      ],
+      "mitre": [
+        "T1021.002"
+      ],
       "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+        "PCI-DSS-1.3"
       ],
-      "author": [
-        "SIEM Alert Rules"
+      "tags": [
+        "lateral-movement",
+        "smb",
+        "admin-shares",
+        "windows"
       ],
-      "license": "Elastic License v2"
+      "risk_score": 90,
+      "interval": "5m"
     },
     {
-      "rule_id": "",
-      "name": "Lateral Movement: Kerberoasting Followed by Lateral Movement",
-      "description": "Detects lateral movement: kerberoasting followed by lateral movement \u2014 lateral movement chain correlation",
-      "severity": "critical",
+      "rule_id": "ES-LM-007",
+      "name": "DCOM Lateral Movement",
+      "description": "Detects DCOM-based lateral movement through distributed COM object activation",
+      "severity": "high",
       "type": "query",
-      "query": "event.category:\"network\" AND (network.protocol:(\"smb\" OR \"rdp\" OR \"winrm\" OR \"wmi\") AND source.ip:(10.* OR 172.16.* OR 192.168.*) AND destination.ip:(10.* OR 172.16.* OR 192.168.*) AND source.ip != destination.ip)",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"dcom\" OR \"distributed-com\")",
       "index": [
-        "logs-*",
-        "apm-*"
+        "logs-*"
       ],
-      "references": [],
-      "threat": [],
-      "risk_score": 95,
-      "interval": "5m",
-      "tags": [],
+      "references": [
+        "LM-007"
+      ],
+      "mitre": [
+        "T1021.003"
+      ],
       "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+        "NIST-AC-17"
       ],
-      "author": [
-        "SIEM Alert Rules"
+      "tags": [
+        "lateral-movement",
+        "dcom",
+        "distributed-com"
       ],
-      "license": "Elastic License v2"
+      "risk_score": 70,
+      "interval": "5m"
     },
     {
-      "rule_id": "",
-      "name": "Lateral Movement: DCSync Attack Chain",
-      "description": "Detects lateral movement: dcsync attack chain \u2014 lateral movement chain correlation",
-      "severity": "critical",
+      "rule_id": "ES-LM-008",
+      "name": "WinRM Remote Shell Access",
+      "description": "Detects Windows Remote Management shell access for lateral movement and remote execution",
+      "severity": "high",
       "type": "query",
-      "query": "event.category:\"network\" AND (network.protocol:(\"smb\" OR \"rdp\" OR \"winrm\" OR \"wmi\") AND source.ip:(10.* OR 172.16.* OR 192.168.*) AND destination.ip:(10.* OR 172.16.* OR 192.168.*) AND source.ip != destination.ip)",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"winrm\" OR \"remote-shell\")",
       "index": [
-        "logs-*",
-        "apm-*"
+        "logs-*"
       ],
-      "references": [],
-      "threat": [],
-      "risk_score": 95,
-      "interval": "5m",
-      "tags": [],
+      "references": [
+        "LM-008"
+      ],
+      "mitre": [
+        "T1021.006"
+      ],
       "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+        "NIST-AC-17"
       ],
-      "author": [
-        "SIEM Alert Rules"
+      "tags": [
+        "lateral-movement",
+        "winrm",
+        "remote-shell"
       ],
-      "license": "Elastic License v2"
+      "risk_score": 70,
+      "interval": "5m"
     },
     {
-      "rule_id": "",
-      "name": "Lateral Movement: Pass-the-Hash Detection",
-      "description": "Detects lateral movement: pass-the-hash detection \u2014 lateral movement chain correlation",
+      "rule_id": "ES-LM-009",
+      "name": "Golden Ticket Attack (Kerberos)",
+      "description": "Detects Kerberos Golden Ticket attacks where forged TGTs grant persistent domain access",
       "severity": "critical",
       "type": "query",
-      "query": "event.category:\"network\" AND (network.protocol:(\"smb\" OR \"rdp\" OR \"winrm\" OR \"wmi\") AND source.ip:(10.* OR 172.16.* OR 192.168.*) AND destination.ip:(10.* OR 172.16.* OR 192.168.*) AND source.ip != destination.ip)",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"golden-ticket\" OR \"kerberos\" OR \"persistence\")",
       "index": [
-        "logs-*",
-        "apm-*"
+        "logs-*"
       ],
-      "references": [],
-      "threat": [],
-      "risk_score": 95,
-      "interval": "5m",
-      "tags": [],
+      "references": [
+        "LM-009"
+      ],
+      "mitre": [
+        "T1558.001"
+      ],
       "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+        "PCI-DSS-8.5",
+        "NIST-IA-2"
       ],
-      "author": [
-        "SIEM Alert Rules"
+      "tags": [
+        "lateral-movement",
+        "golden-ticket",
+        "kerberos",
+        "persistence"
       ],
-      "license": "Elastic License v2"
+      "risk_score": 90,
+      "interval": "5m"
+    },
+    {
+      "rule_id": "ES-LM-010",
+      "name": "Silver Ticket Attack (Kerberos)",
+      "description": "Detects Kerberos Silver Ticket attacks using forged service tickets for targeted service access",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:(\"network\" OR \"authentication\" OR \"database\" OR \"iam\") AND (\"silver-ticket\" OR \"kerberos\" OR \"privilege-escalation\")",
+      "index": [
+        "logs-*"
+      ],
+      "references": [
+        "LM-010"
+      ],
+      "mitre": [
+        "T1558.002"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-IA-2"
+      ],
+      "tags": [
+        "lateral-movement",
+        "silver-ticket",
+        "kerberos",
+        "privilege-escalation"
+      ],
+      "risk_score": 90,
+      "interval": "5m"
     }
   ]
 }

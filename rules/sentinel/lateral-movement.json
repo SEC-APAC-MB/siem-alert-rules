@@ -1,228 +1,307 @@
 {
-  "description": "SIEM alert rules \u2014 lateral-movement (converted)",
-  "version": "2.0.0",
-  "converted": "2026-09-16T04:05:26.195162Z",
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "Microsoft Sentinel analytics rules — lateral-movement",
   "total_rules": 10,
   "rules": [
     {
-      "rule_id": "MS-LAT-0700",
-      "name": "Lateral Movement: RDP Followed by Credential Access",
-      "description": "Correlation rule detecting rdp followed by credential access",
-      "severity": "Medium",
-      "query": "CommonSecurityLog | where (Protocol == \"SMB\" or Protocol == \"RDP\" or Protocol == \"WinRM\") and SourceIP startswith \"10.\" and DestinationIP startswith \"10.\" and SourceIP != DestinationIP | summarize count() by SourceIP, DestinationIP, Protocol, bin(TimeGenerated, 5m)",
+      "rule_id": "MS-LM-001",
+      "name": "Pass-the-Hash Detection",
+      "description": "Detects NTLM pass-the-hash attacks where an adversary uses a password hash instead of plaintext password",
+      "severity": "High",
+      "query": "let threshold = 5;\npass_the_hash_events\n| where pass_the_hash has_any(\"lateral-movement\", \"pass-the-hash\", \"windows\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+      "triggerThreshold": 5,
+      "tactics": [
+        "LateralMovement"
       ],
-      "tags": [],
-      "risk_score": 50
+      "techniques": [
+        "T1550.002"
+      ],
+      "references": [
+        "LM-001"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-IA-2"
+      ],
+      "tags": [
+        "lateral-movement",
+        "pass-the-hash",
+        "windows"
+      ],
+      "risk_score": 90
     },
     {
-      "rule_id": "MS-LAT-0701",
-      "name": "Lateral Movement: SSH Followed by Privilege Escalation",
-      "description": "Correlation rule detecting ssh followed by privilege escalation",
-      "severity": "Medium",
-      "query": "SecurityEvent | where EventID in (4672, 4688) and (Process contains \"sudo\" or Process contains \"runas\") | summarize count() by Account, Process, bin(TimeGenerated, 5m)",
+      "rule_id": "MS-LM-002",
+      "name": "Pass-the-Ticket (Kerberos)",
+      "description": "Detects Kerberos ticket reuse across systems indicating pass-the-ticket attacks",
+      "severity": "High",
+      "query": "let threshold = 5;\npass_the_ticket_events\n| where pass_the_ticket has_any(\"lateral-movement\", \"pass-the-ticket\", \"kerberos\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+      "triggerThreshold": 5,
+      "tactics": [
+        "LateralMovement"
       ],
-      "tags": [],
-      "risk_score": 50
+      "techniques": [
+        "T1550.003"
+      ],
+      "references": [
+        "LM-002"
+      ],
+      "compliance": [
+        "NIST-IA-2"
+      ],
+      "tags": [
+        "lateral-movement",
+        "pass-the-ticket",
+        "kerberos"
+      ],
+      "risk_score": 90
     },
     {
-      "rule_id": "MS-LAT-0702",
-      "name": "Lateral Movement: SMB Share Access Followed by File Encryption",
-      "description": "Correlation rule detecting smb share access followed by file encryption",
+      "rule_id": "MS-LM-003",
+      "name": "RDP Anomalous Connection",
+      "description": "Detects anomalous RDP connections including unusual source IPs, off-hours access, or lateral movement patterns",
       "severity": "Medium",
-      "query": "CommonSecurityLog | where (Protocol == \"SMB\" or Protocol == \"RDP\" or Protocol == \"WinRM\") and SourceIP startswith \"10.\" and DestinationIP startswith \"10.\" and SourceIP != DestinationIP | summarize count() by SourceIP, DestinationIP, Protocol, bin(TimeGenerated, 5m)",
+      "query": "let threshold = 5;\nrdp_events\n| where rdp has_any(\"lateral-movement\", \"rdp\", \"remote-desktop\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+      "triggerThreshold": 5,
+      "tactics": [
+        "LateralMovement"
       ],
-      "tags": [],
-      "risk_score": 50
+      "techniques": [
+        "T1021.001"
+      ],
+      "references": [
+        "LM-003"
+      ],
+      "compliance": [
+        "PCI-DSS-1.3"
+      ],
+      "tags": [
+        "lateral-movement",
+        "rdp",
+        "remote-desktop"
+      ],
+      "risk_score": 70
     },
     {
-      "rule_id": "MS-LAT-0703",
-      "name": "Lateral Movement: WMI Remote Execution Followed by Persistence",
-      "description": "Correlation rule detecting wmi remote execution followed by persistence",
+      "rule_id": "MS-LM-004",
+      "name": "SSH Lateral Movement",
+      "description": "Detects SSH connections from compromised hosts to internal systems indicating lateral movement",
       "severity": "Medium",
-      "query": "CommonSecurityLog | where (Protocol == \"SMB\" or Protocol == \"RDP\" or Protocol == \"WinRM\") and SourceIP startswith \"10.\" and DestinationIP startswith \"10.\" and SourceIP != DestinationIP | summarize count() by SourceIP, DestinationIP, Protocol, bin(TimeGenerated, 5m)",
+      "query": "let threshold = 5;\nssh_events\n| where ssh has_any(\"lateral-movement\", \"ssh\", \"remote-access\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+      "triggerThreshold": 5,
+      "tactics": [
+        "LateralMovement"
       ],
-      "tags": [],
-      "risk_score": 50
+      "techniques": [
+        "T1021.004"
+      ],
+      "references": [
+        "LM-004"
+      ],
+      "compliance": [
+        "NIST-AC-17"
+      ],
+      "tags": [
+        "lateral-movement",
+        "ssh",
+        "remote-access"
+      ],
+      "risk_score": 70
     },
     {
-      "rule_id": "MS-LAT-0704",
-      "name": "Lateral Movement: PsExec Followed by Discovery",
-      "description": "Correlation rule detecting psexec followed by discovery",
-      "severity": "Medium",
-      "query": "CommonSecurityLog | where (Protocol == \"SMB\" or Protocol == \"RDP\" or Protocol == \"WinRM\") and SourceIP startswith \"10.\" and DestinationIP startswith \"10.\" and SourceIP != DestinationIP | summarize count() by SourceIP, DestinationIP, Protocol, bin(TimeGenerated, 5m)",
+      "rule_id": "MS-LM-005",
+      "name": "WMI/PSExec Remote Execution",
+      "description": "Detects remote execution via WMI, PSExec, or similar tools indicating lateral movement",
+      "severity": "High",
+      "query": "let threshold = 5;\nwmi_events\n| where wmi has_any(\"lateral-movement\", \"wmi\", \"psexec\", \"remote-execution\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+      "triggerThreshold": 5,
+      "tactics": [
+        "Execution",
+        "LateralMovement"
       ],
-      "tags": [],
-      "risk_score": 50
+      "techniques": [
+        "T1047",
+        "T1021.002"
+      ],
+      "references": [
+        "LM-005"
+      ],
+      "compliance": [
+        "NIST-AC-17"
+      ],
+      "tags": [
+        "lateral-movement",
+        "wmi",
+        "psexec",
+        "remote-execution"
+      ],
+      "risk_score": 90
     },
     {
-      "rule_id": "MS-LAT-0705",
-      "name": "Lateral Movement: PowerShell Remoting Followed by Credential Dumping",
-      "description": "Correlation rule detecting powershell remoting followed by credential dumping",
-      "severity": "Medium",
-      "query": "SecurityEvent | where EventID == 4688 and (Process == \"powershell.exe\" or Process == \"cmd.exe\") and (CommandLine contains \"-enc\" or CommandLine contains \"base64\") | summarize count() by Computer, Process, CommandLine, bin(TimeGenerated, 5m)",
+      "rule_id": "MS-LM-006",
+      "name": "SMB Lateral Movement via Admin Shares",
+      "description": "Detects lateral movement through SMB admin shares (C$, ADMIN$) for remote execution",
+      "severity": "High",
+      "query": "let threshold = 5;\nsmb_events\n| where smb has_any(\"lateral-movement\", \"smb\", \"admin-shares\", \"windows\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+      "triggerThreshold": 5,
+      "tactics": [
+        "LateralMovement"
       ],
-      "tags": [],
-      "risk_score": 50
+      "techniques": [
+        "T1021.002"
+      ],
+      "references": [
+        "LM-006"
+      ],
+      "compliance": [
+        "PCI-DSS-1.3"
+      ],
+      "tags": [
+        "lateral-movement",
+        "smb",
+        "admin-shares",
+        "windows"
+      ],
+      "risk_score": 90
     },
     {
-      "rule_id": "MS-LAT-0706",
-      "name": "Lateral Movement: WinRM Followed by Defense Evasion",
-      "description": "Correlation rule detecting winrm followed by defense evasion",
+      "rule_id": "MS-LM-007",
+      "name": "DCOM Lateral Movement",
+      "description": "Detects DCOM-based lateral movement through distributed COM object activation",
       "severity": "Medium",
-      "query": "CommonSecurityLog | where (Protocol == \"SMB\" or Protocol == \"RDP\" or Protocol == \"WinRM\") and SourceIP startswith \"10.\" and DestinationIP startswith \"10.\" and SourceIP != DestinationIP | summarize count() by SourceIP, DestinationIP, Protocol, bin(TimeGenerated, 5m)",
+      "query": "let threshold = 5;\ndcom_events\n| where dcom has_any(\"lateral-movement\", \"dcom\", \"distributed-com\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+      "triggerThreshold": 5,
+      "tactics": [
+        "LateralMovement"
       ],
-      "tags": [],
-      "risk_score": 50
+      "techniques": [
+        "T1021.003"
+      ],
+      "references": [
+        "LM-007"
+      ],
+      "compliance": [
+        "NIST-AC-17"
+      ],
+      "tags": [
+        "lateral-movement",
+        "dcom",
+        "distributed-com"
+      ],
+      "risk_score": 70
     },
     {
-      "rule_id": "MS-LAT-0707",
-      "name": "Lateral Movement: Kerberoasting Followed by Lateral Movement",
-      "description": "Correlation rule detecting kerberoasting followed by lateral movement",
+      "rule_id": "MS-LM-008",
+      "name": "WinRM Remote Shell Access",
+      "description": "Detects Windows Remote Management shell access for lateral movement and remote execution",
       "severity": "Medium",
-      "query": "CommonSecurityLog | where (Protocol == \"SMB\" or Protocol == \"RDP\" or Protocol == \"WinRM\") and SourceIP startswith \"10.\" and DestinationIP startswith \"10.\" and SourceIP != DestinationIP | summarize count() by SourceIP, DestinationIP, Protocol, bin(TimeGenerated, 5m)",
+      "query": "let threshold = 5;\nwinrm_events\n| where winrm has_any(\"lateral-movement\", \"winrm\", \"remote-shell\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+      "triggerThreshold": 5,
+      "tactics": [
+        "LateralMovement"
       ],
-      "tags": [],
-      "risk_score": 50
+      "techniques": [
+        "T1021.006"
+      ],
+      "references": [
+        "LM-008"
+      ],
+      "compliance": [
+        "NIST-AC-17"
+      ],
+      "tags": [
+        "lateral-movement",
+        "winrm",
+        "remote-shell"
+      ],
+      "risk_score": 70
     },
     {
-      "rule_id": "MS-LAT-0708",
-      "name": "Lateral Movement: DCSync Attack Chain",
-      "description": "Correlation rule detecting dcsync attack chain",
-      "severity": "Medium",
-      "query": "CommonSecurityLog | where (Protocol == \"SMB\" or Protocol == \"RDP\" or Protocol == \"WinRM\") and SourceIP startswith \"10.\" and DestinationIP startswith \"10.\" and SourceIP != DestinationIP | summarize count() by SourceIP, DestinationIP, Protocol, bin(TimeGenerated, 5m)",
+      "rule_id": "MS-LM-009",
+      "name": "Golden Ticket Attack (Kerberos)",
+      "description": "Detects Kerberos Golden Ticket attacks where forged TGTs grant persistent domain access",
+      "severity": "High",
+      "query": "let threshold = 5;\ngolden_ticket_events\n| where golden_ticket has_any(\"lateral-movement\", \"golden-ticket\", \"kerberos\", \"persistence\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+      "triggerThreshold": 5,
+      "tactics": [
+        "CredentialAccess"
       ],
-      "tags": [],
-      "risk_score": 50
+      "techniques": [
+        "T1558.001"
+      ],
+      "references": [
+        "LM-009"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-IA-2"
+      ],
+      "tags": [
+        "lateral-movement",
+        "golden-ticket",
+        "kerberos",
+        "persistence"
+      ],
+      "risk_score": 90
     },
     {
-      "rule_id": "MS-LAT-0709",
-      "name": "Lateral Movement: Pass-the-Hash Detection",
-      "description": "Correlation rule detecting pass-the-hash detection",
-      "severity": "Medium",
-      "query": "CommonSecurityLog | where (Protocol == \"SMB\" or Protocol == \"RDP\" or Protocol == \"WinRM\") and SourceIP startswith \"10.\" and DestinationIP startswith \"10.\" and SourceIP != DestinationIP | summarize count() by SourceIP, DestinationIP, Protocol, bin(TimeGenerated, 5m)",
+      "rule_id": "MS-LM-010",
+      "name": "Silver Ticket Attack (Kerberos)",
+      "description": "Detects Kerberos Silver Ticket attacks using forged service tickets for targeted service access",
+      "severity": "High",
+      "query": "let threshold = 5;\nsilver_ticket_events\n| where silver_ticket has_any(\"lateral-movement\", \"silver-ticket\", \"kerberos\", \"privilege-escalation\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
+      "triggerThreshold": 5,
+      "tactics": [
+        "CredentialAccess"
       ],
-      "tags": [],
-      "risk_score": 50
+      "techniques": [
+        "T1558.002"
+      ],
+      "references": [
+        "LM-010"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-IA-2"
+      ],
+      "tags": [
+        "lateral-movement",
+        "silver-ticket",
+        "kerberos",
+        "privilege-escalation"
+      ],
+      "risk_score": 90
     }
   ]
 }

@@ -1,997 +1,470 @@
 {
-  "description": "SIEM alert rules \u2014 mitre-attack (converted)",
-  "version": "2.0.0",
-  "converted": "2026-09-16T04:05:26.203019Z",
-  "total_rules": 43,
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "Microsoft Sentinel analytics rules — mitre-attack",
+  "total_rules": 15,
   "rules": [
     {
-      "rule_id": "MS-MITRE-0600",
-      "name": "Scheduled Task/Job: Scheduled Task",
-      "description": "Detects Scheduled Task/Job: Scheduled Task (T1053.005)",
-      "severity": "Medium",
-      "query": "// Scheduled Task/Job: Scheduled Task (T1053.005)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Scheduled Task\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
+      "rule_id": "MS-MITRE-T1190",
+      "name": "Exploit Public-Facing Application",
+      "description": "Detects exploitation of public-facing web applications, APIs, and services",
+      "severity": "High",
+      "query": "let threshold = 5;\ninitial_access_events\n| where initial_access has_any(\"mitre\", \"initial-access\", \"exploit\", \"web-application\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
       ],
-      "tags": [],
+      "techniques": [
+        "T1190"
+      ],
+      "references": [
+        "MITRE-T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-SI-10"
+      ],
+      "tags": [
+        "mitre",
+        "initial-access",
+        "exploit",
+        "web-application"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-MITRE-T1078",
+      "name": "Valid Accounts Usage",
+      "description": "Detects use of legitimate credentials for unauthorized access including default, compromised, and stolen accounts",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ndefense_evasion_events\n| where defense_evasion has_any(\"mitre\", \"defense-evasion\", \"valid-accounts\", \"credential-abuse\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078"
+      ],
+      "references": [
+        "MITRE-T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-AC-3"
+      ],
+      "tags": [
+        "mitre",
+        "defense-evasion",
+        "valid-accounts",
+        "credential-abuse"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-MITRE-T1110",
+      "name": "Brute Force Authentication",
+      "description": "Detects brute force authentication attempts including password spraying and credential stuffing",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ncredential_access_events\n| where credential_access has_any(\"mitre\", \"credential-access\", \"brute-force\", \"authentication\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1110"
+      ],
+      "references": [
+        "MITRE-T1110"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-AC-7"
+      ],
+      "tags": [
+        "mitre",
+        "credential-access",
+        "brute-force",
+        "authentication"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-MITRE-T1059",
+      "name": "Command and Scripting Interpreter",
+      "description": "Detects malicious command/script execution including PowerShell, Bash, Python, and JavaScript",
+      "severity": "Medium",
+      "query": "let threshold = 5;\nexecution_events\n| where execution has_any(\"mitre\", \"execution\", \"command-scripting\", \"rce\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Execution"
+      ],
+      "techniques": [
+        "T1059"
+      ],
+      "references": [
+        "MITRE-T1059"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-SI-10"
+      ],
+      "tags": [
+        "mitre",
+        "execution",
+        "command-scripting",
+        "rce"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-MITRE-T1486",
+      "name": "Data Encrypted for Impact (Ransomware)",
+      "description": "Detects mass file encryption activity consistent with ransomware operations",
+      "severity": "High",
+      "query": "let threshold = 5;\nimpact_events\n| where impact has_any(\"mitre\", \"impact\", \"ransomware\", \"encryption\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Impact"
+      ],
+      "techniques": [
+        "T1486"
+      ],
+      "references": [
+        "MITRE-T1486"
+      ],
+      "compliance": [
+        "PCI-DSS-3.4",
+        "NIST-SC-28"
+      ],
+      "tags": [
+        "mitre",
+        "impact",
+        "ransomware",
+        "encryption"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-MITRE-T1566",
+      "name": "Phishing Link Click Detection",
+      "description": "Detects clicks on known phishing URLs or suspicious links in email and messaging",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ninitial_access_events\n| where initial_access has_any(\"mitre\", \"initial-access\", \"phishing\", \"social-engineering\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1566"
+      ],
+      "references": [
+        "MITRE-T1566"
+      ],
+      "compliance": [
+        "PCI-DSS-5.3",
+        "NIST-AT-2"
+      ],
+      "tags": [
+        "mitre",
+        "initial-access",
+        "phishing",
+        "social-engineering"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-MITRE-T1053",
+      "name": "Scheduled Task/Job Creation",
+      "description": "Detects suspicious scheduled task or cron job creation for persistence or execution",
+      "severity": "Low",
+      "query": "let threshold = 5;\npersistence_events\n| where persistence has_any(\"mitre\", \"persistence\", \"scheduled-task\", \"cron\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Persistence"
+      ],
+      "techniques": [
+        "T1053"
+      ],
+      "references": [
+        "MITRE-T1053"
+      ],
+      "compliance": [
+        "NIST-CM-7"
+      ],
+      "tags": [
+        "mitre",
+        "persistence",
+        "scheduled-task",
+        "cron"
+      ],
       "risk_score": 50
     },
     {
-      "rule_id": "MS-MITRE-0601",
-      "name": "Create Account: Local Account",
-      "description": "Detects Create Account: Local Account (T1136.001)",
+      "rule_id": "MS-MITRE-T1071",
+      "name": "Application Layer Protocol Abuse (C2)",
+      "description": "Detects suspicious use of HTTP, DNS, or other application protocols for C2 communication",
       "severity": "Medium",
-      "query": "// Create Account: Local Account (T1136.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Local Account\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
+      "query": "let threshold = 5;\ncommand_and_control_events\n| where command_and_control has_any(\"mitre\", \"command-and-control\", \"protocol-abuse\", \"c2\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
+      "triggerThreshold": 5,
+      "tactics": [
+        "CommandAndControl"
       ],
-      "tags": [],
-      "risk_score": 50
+      "techniques": [
+        "T1071"
+      ],
+      "references": [
+        "MITRE-T1071"
+      ],
+      "compliance": [
+        "PCI-DSS-1.3"
+      ],
+      "tags": [
+        "mitre",
+        "command-and-control",
+        "protocol-abuse",
+        "c2"
+      ],
+      "risk_score": 70
     },
     {
-      "rule_id": "MS-MITRE-0602",
-      "name": "Boot Autostart: Registry Run Keys",
-      "description": "Detects Boot Autostart: Registry Run Keys (T1547.001)",
-      "severity": "Medium",
-      "query": "// Boot Autostart: Registry Run Keys (T1547.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Registry Run Keys\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
+      "rule_id": "MS-MITRE-T1562",
+      "name": "Impair Defenses — Security Tool Disable",
+      "description": "Detects attempts to disable or impair security tools including AV, EDR, and logging",
+      "severity": "High",
+      "query": "let threshold = 5;\ndefense_evasion_events\n| where defense_evasion has_any(\"mitre\", \"defense-evasion\", \"impair-defenses\", \"security-tool\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
       ],
-      "tags": [],
-      "risk_score": 50
+      "techniques": [
+        "T1562"
+      ],
+      "references": [
+        "MITRE-T1562"
+      ],
+      "compliance": [
+        "PCI-DSS-5.3",
+        "NIST-SI-4"
+      ],
+      "tags": [
+        "mitre",
+        "defense-evasion",
+        "impair-defenses",
+        "security-tool"
+      ],
+      "risk_score": 90
     },
     {
-      "rule_id": "MS-MITRE-0603",
-      "name": "Event Triggered Execution: WMI",
-      "description": "Detects Event Triggered Execution: WMI (T1546.003)",
-      "severity": "Medium",
-      "query": "// Event Triggered Execution: WMI (T1546.003)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"WMI\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0604",
-      "name": "Hijack Execution Flow: DLL Search Order",
-      "description": "Detects Hijack Execution Flow: DLL Search Order (T1574.001)",
-      "severity": "Medium",
-      "query": "// Hijack Execution Flow: DLL Search Order (T1574.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"DLL Search Order\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0605",
-      "name": "External Remote Services",
-      "description": "Detects External Remote Services (T1133)",
-      "severity": "Medium",
-      "query": "// External Remote Services (T1133)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"External Remote Services\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0606",
-      "name": "BITS Jobs",
-      "description": "Detects BITS Jobs (T1197)",
-      "severity": "Medium",
-      "query": "// BITS Jobs (T1197)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"BITS Jobs\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0607",
-      "name": "Command Scripting: PowerShell",
-      "description": "Detects Command Scripting: PowerShell (T1059.001)",
-      "severity": "Medium",
-      "query": "// Command Scripting: PowerShell (T1059.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"PowerShell\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0608",
-      "name": "Valid Accounts",
-      "description": "Detects Valid Accounts (T1078)",
-      "severity": "Medium",
-      "query": "// Valid Accounts (T1078)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Valid Accounts\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0609",
-      "name": "Exploitation for Privilege Escalation",
-      "description": "Detects Exploitation for Privilege Escalation (T1068)",
-      "severity": "Medium",
-      "query": "// Exploitation for Privilege Escalation (T1068)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Exploitation for Privilege Escalation\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0610",
-      "name": "Abuse Elevation: Setuid/Setgid",
-      "description": "Detects Abuse Elevation: Setuid/Setgid (T1548.001)",
-      "severity": "Medium",
-      "query": "// Abuse Elevation: Setuid/Setgid (T1548.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Setuid/Setgid\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0611",
-      "name": "Access Token Manipulation: Impersonation",
-      "description": "Detects Access Token Manipulation: Impersonation (T1134.001)",
-      "severity": "Medium",
-      "query": "// Access Token Manipulation: Impersonation (T1134.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Impersonation\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0612",
-      "name": "Indicator Removal: File Deletion",
-      "description": "Detects Indicator Removal: File Deletion (T1070.004)",
-      "severity": "Medium",
-      "query": "// Indicator Removal: File Deletion (T1070.004)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"File Deletion\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0613",
-      "name": "Impair Defenses: Disable Tools",
-      "description": "Detects Impair Defenses: Disable Tools (T1562.001)",
-      "severity": "Medium",
-      "query": "// Impair Defenses: Disable Tools (T1562.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Disable Tools\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0614",
-      "name": "Obfuscated Files or Information",
-      "description": "Detects Obfuscated Files or Information (T1027)",
-      "severity": "Medium",
-      "query": "// Obfuscated Files or Information (T1027)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Obfuscated Files or Information\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0615",
-      "name": "Deobfuscate/Decode Files",
-      "description": "Detects Deobfuscate/Decode Files (T1140)",
-      "severity": "Medium",
-      "query": "// Deobfuscate/Decode Files (T1140)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Deobfuscate/Decode Files\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0616",
-      "name": "Masquerading: Invalid Code Signature",
-      "description": "Detects Masquerading: Invalid Code Signature (T1036.001)",
-      "severity": "Medium",
-      "query": "// Masquerading: Invalid Code Signature (T1036.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Invalid Code Signature\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0617",
-      "name": "Process Injection",
-      "description": "Detects Process Injection (T1055)",
-      "severity": "Medium",
-      "query": "// Process Injection (T1055)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Process Injection\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0618",
-      "name": "Brute Force: Password Guessing",
-      "description": "Detects Brute Force: Password Guessing (T1110.001)",
-      "severity": "Medium",
-      "query": "// Brute Force: Password Guessing (T1110.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Password Guessing\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0619",
-      "name": "Brute Force: Password Spraying",
-      "description": "Detects Brute Force: Password Spraying (T1110.003)",
-      "severity": "Medium",
-      "query": "// Brute Force: Password Spraying (T1110.003)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Password Spraying\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0620",
-      "name": "Unsecured Credentials in Files",
-      "description": "Detects Unsecured Credentials in Files (T1552.001)",
-      "severity": "Medium",
-      "query": "// Unsecured Credentials in Files (T1552.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Unsecured Credentials in Files\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0621",
-      "name": "OS Credential Dumping: LSASS",
-      "description": "Detects OS Credential Dumping: LSASS (T1003.001)",
-      "severity": "Medium",
-      "query": "// OS Credential Dumping: LSASS (T1003.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"LSASS\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0622",
-      "name": "OS Credential Dumping: NTDS",
-      "description": "Detects OS Credential Dumping: NTDS (T1003.003)",
-      "severity": "Medium",
-      "query": "// OS Credential Dumping: NTDS (T1003.003)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"NTDS\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0623",
-      "name": "Kerberos Ticket: Golden Ticket",
-      "description": "Detects Kerberos Ticket: Golden Ticket (T1558.001)",
-      "severity": "Medium",
-      "query": "// Kerberos Ticket: Golden Ticket (T1558.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Golden Ticket\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0624",
-      "name": "System Information Discovery",
-      "description": "Detects System Information Discovery (T1082)",
-      "severity": "Medium",
-      "query": "// System Information Discovery (T1082)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"System Information Discovery\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0625",
-      "name": "File and Directory Discovery",
-      "description": "Detects File and Directory Discovery (T1083)",
-      "severity": "Medium",
-      "query": "// File and Directory Discovery (T1083)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"File and Directory Discovery\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0626",
-      "name": "Network Service Discovery",
-      "description": "Detects Network Service Discovery (T1046)",
-      "severity": "Medium",
-      "query": "// Network Service Discovery (T1046)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Network Service Discovery\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0627",
+      "rule_id": "MS-MITRE-T1087",
       "name": "Account Discovery",
-      "description": "Detects Account Discovery (T1087)",
-      "severity": "Medium",
-      "query": "// Account Discovery (T1087)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Account Discovery\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
+      "description": "Detects account enumeration and discovery activity on domain controllers and directory services",
+      "severity": "Low",
+      "query": "let threshold = 5;\ndiscovery_events\n| where discovery has_any(\"mitre\", \"discovery\", \"account-discovery\", \"enumeration\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
+      "triggerThreshold": 5,
+      "tactics": [
+        "Discovery"
       ],
-      "tags": [],
+      "techniques": [
+        "T1087"
+      ],
+      "references": [
+        "MITRE-T1087"
+      ],
+      "compliance": [
+        "NIST-AC-2"
+      ],
+      "tags": [
+        "mitre",
+        "discovery",
+        "account-discovery",
+        "enumeration"
+      ],
       "risk_score": 50
     },
     {
-      "rule_id": "MS-MITRE-0628",
-      "name": "Remote Services: RDP",
-      "description": "Detects Remote Services: RDP (T1021.001)",
-      "severity": "Medium",
-      "query": "// Remote Services: RDP (T1021.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"RDP\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
+      "rule_id": "MS-MITRE-T1210",
+      "name": "Exploitation of Remote Services",
+      "description": "Detects exploitation of remote services including RDP, SSH, SMB, and database services",
+      "severity": "High",
+      "query": "let threshold = 5;\nlateral_movement_events\n| where lateral_movement has_any(\"mitre\", \"lateral-movement\", \"remote-exploit\", \"exploitation\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
+      "triggerThreshold": 5,
+      "tactics": [
+        "LateralMovement"
       ],
-      "tags": [],
+      "techniques": [
+        "T1210"
+      ],
+      "references": [
+        "MITRE-T1210"
+      ],
+      "compliance": [
+        "PCI-DSS-1.3",
+        "NIST-CM-7"
+      ],
+      "tags": [
+        "mitre",
+        "lateral-movement",
+        "remote-exploit",
+        "exploitation"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-MITRE-T1055",
+      "name": "Process Injection",
+      "description": "Detects process injection techniques including DLL injection, process hollowing, and thread injection",
+      "severity": "Medium",
+      "query": "let threshold = 5;\ndefense_evasion_events\n| where defense_evasion has_any(\"mitre\", \"defense-evasion\", \"process-injection\", \"evasion\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1055"
+      ],
+      "references": [
+        "MITRE-T1055"
+      ],
+      "compliance": [
+        "PCI-DSS-5.3",
+        "NIST-SI-4"
+      ],
+      "tags": [
+        "mitre",
+        "defense-evasion",
+        "process-injection",
+        "evasion"
+      ],
+      "risk_score": 70
+    },
+    {
+      "rule_id": "MS-MITRE-T1003",
+      "name": "OS Credential Dumping",
+      "description": "Detects credential dumping tools and techniques including Mimikatz, LSASS access, and /proc/*/mem",
+      "severity": "High",
+      "query": "let threshold = 5;\ncredential_access_events\n| where credential_access has_any(\"mitre\", \"credential-access\", \"credential-dumping\", \"mimikatz\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1003"
+      ],
+      "references": [
+        "MITRE-T1003"
+      ],
+      "compliance": [
+        "PCI-DSS-8.5",
+        "NIST-IA-5"
+      ],
+      "tags": [
+        "mitre",
+        "credential-access",
+        "credential-dumping",
+        "mimikatz"
+      ],
+      "risk_score": 90
+    },
+    {
+      "rule_id": "MS-MITRE-T1046",
+      "name": "Network Service Discovery",
+      "description": "Detects network scanning and service enumeration including port scans and banner grabbing",
+      "severity": "Low",
+      "query": "let threshold = 5;\ndiscovery_events\n| where discovery has_any(\"mitre\", \"discovery\", \"network-scan\", \"enumeration\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1046"
+      ],
+      "references": [
+        "MITRE-T1046"
+      ],
+      "compliance": [
+        "PCI-DSS-1.3",
+        "NIST-CM-7"
+      ],
+      "tags": [
+        "mitre",
+        "discovery",
+        "network-scan",
+        "enumeration"
+      ],
       "risk_score": 50
     },
     {
-      "rule_id": "MS-MITRE-0629",
-      "name": "Remote Services: SMB",
-      "description": "Detects Remote Services: SMB (T1021.002)",
-      "severity": "Medium",
-      "query": "// Remote Services: SMB (T1021.002)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"SMB\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0630",
-      "name": "Remote Services: SSH",
-      "description": "Detects Remote Services: SSH (T1021.006)",
-      "severity": "Medium",
-      "query": "// Remote Services: SSH (T1021.006)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"SSH\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0631",
-      "name": "Application Layer: HTTP/HTTPS",
-      "description": "Detects Application Layer: HTTP/HTTPS (T1071.001)",
-      "severity": "Medium",
-      "query": "// Application Layer: HTTP/HTTPS (T1071.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"HTTP/HTTPS\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0632",
-      "name": "Application Layer: DNS",
-      "description": "Detects Application Layer: DNS (T1071.004)",
-      "severity": "Medium",
-      "query": "// Application Layer: DNS (T1071.004)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"DNS\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0633",
-      "name": "Encrypted Channel: Symmetric Crypto",
-      "description": "Detects Encrypted Channel: Symmetric Crypto (T1573.001)",
-      "severity": "Medium",
-      "query": "// Encrypted Channel: Symmetric Crypto (T1573.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Symmetric Crypto\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0634",
-      "name": "Dynamic Resolution: DGA",
-      "description": "Detects Dynamic Resolution: DGA (T1568.001)",
-      "severity": "Medium",
-      "query": "// Dynamic Resolution: DGA (T1568.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"DGA\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0635",
-      "name": "Exfiltration Over C2 Channel",
-      "description": "Detects Exfiltration Over C2 Channel (T1566)",
-      "severity": "Medium",
-      "query": "// Exfiltration Over C2 Channel (T1566)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Exfiltration Over C2 Channel\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0636",
+      "rule_id": "MS-MITRE-T1048",
       "name": "Exfiltration Over Alternative Protocol",
-      "description": "Detects Exfiltration Over Alternative Protocol (T1048)",
+      "description": "Detects data exfiltration over non-standard protocols including DNS, ICMP, and HTTPS to unknown destinations",
       "severity": "Medium",
-      "query": "// Exfiltration Over Alternative Protocol (T1048)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Exfiltration Over Alternative Protocol\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
+      "query": "let threshold = 5;\nexfiltration_events\n| where exfiltration has_any(\"mitre\", \"exfiltration\", \"alternative-protocol\", \"data-theft\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
+      "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
+      "triggerThreshold": 5,
+      "tactics": [
+        "Exfiltration"
       ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0637",
-      "name": "Exfiltration to Code Repository",
-      "description": "Detects Exfiltration to Code Repository (T1567.001)",
-      "severity": "Medium",
-      "query": "// Exfiltration to Code Repository (T1567.001)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Exfiltration to Code Repository\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
+      "techniques": [
+        "T1048"
       ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0638",
-      "name": "Exfiltration to Cloud Storage",
-      "description": "Detects Exfiltration to Cloud Storage (T1567.002)",
-      "severity": "Medium",
-      "query": "// Exfiltration to Cloud Storage (T1567.002)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Exfiltration to Cloud Storage\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
+      "references": [
+        "MITRE-T1048"
       ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0639",
-      "name": "Data Encrypted for Impact",
-      "description": "Detects Data Encrypted for Impact (T1486)",
-      "severity": "Medium",
-      "query": "// Data Encrypted for Impact (T1486)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Data Encrypted for Impact\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
       "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
+        "PCI-DSS-1.3",
+        "GDPR-25-008"
       ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0640",
-      "name": "Service Stop",
-      "description": "Detects Service Stop (T1489)",
-      "severity": "Medium",
-      "query": "// Service Stop (T1489)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Service Stop\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
+      "tags": [
+        "mitre",
+        "exfiltration",
+        "alternative-protocol",
+        "data-theft"
       ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0641",
-      "name": "Inhibit System Recovery",
-      "description": "Detects Inhibit System Recovery (T1490)",
-      "severity": "Medium",
-      "query": "// Inhibit System Recovery (T1490)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Inhibit System Recovery\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
-    },
-    {
-      "rule_id": "MS-MITRE-0642",
-      "name": "Network Denial of Service",
-      "description": "Detects Network Denial of Service (T1498)",
-      "severity": "Medium",
-      "query": "// Network Denial of Service (T1498)\nSecurityEvent\n| where TimeGenerated > ago(5m)\n| where Process has_any (\"Network Denial of Service\")\n| summarize count() by bin(TimeGenerated, 5m), Computer, TargetUserName\n| where count_ > 10",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT15M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 3,
-      "tactics": [],
-      "techniques": [],
-      "references": [],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8",
-        "GDPR-32A"
-      ],
-      "tags": [],
-      "risk_score": 50
+      "risk_score": 70
     }
   ]
 }

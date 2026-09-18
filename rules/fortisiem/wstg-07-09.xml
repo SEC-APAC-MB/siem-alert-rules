@@ -1,1039 +1,261 @@
-<!-- FortiSIEM SIEM Alert Rules — WSTG 07-09: Input Validation, Error Handling, Cryptography -->
-<rules>
-  <rule id="FSIEM-IVLD-001" severity="CRITICAL" enabled="true">
-    <name>SQL Injection - Union-Based</name>
-    <description>Detects UNION-based SQL injection attempts</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*(\bUNION\b.*\bSELECT\b|\bSELECT\b.*\bUNION\b).*</url>
-        <http_method regex="true">GET|POST</http_method>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>HIPAA</standard>
-      <control>164.312(b)</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-01</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-002" severity="CRITICAL" enabled="true">
-    <name>SQL Injection - Error-Based</name>
-    <description>Detects error-based SQL injection via database error messages</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*(\bOR\b\s+\d+\s*=\s*\d+|'\s*OR\s+'[^']*'\s*=\s*'[^']*|\bAND\b\s+\d+\s*=\s*\d+).*</url>
-        <response_code regex="true">200|500</response_code>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-01</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-003" severity="CRITICAL" enabled="true">
-    <name>SQL Injection - Blind Boolean-Based</name>
-    <description>Detects blind boolean-based SQL injection attempts</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*(\band\b\s+\d+\s*=\s*\d+|\bor\b\s+\d+\s*=\s*\d+|\band\b\s+.*\s*--|\bor\b\s+.*\s*--).*</url>
-        <http_method regex="true">GET|POST</http_method>
-        <count regex="true">>5</count>
-        <time_window>60</time_window>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-01</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-004" severity="CRITICAL" enabled="true">
-    <name>SQL Injection - Time-Based Blind</name>
-    <description>Detects time-based blind SQL injection using SLEEP or BENCHMARK</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*(\bSLEEP\s*\(|\bBENCHMARK\s*\(|\bWAITFOR\s+DELAY\b|\bpg_sleep\s*\().*</url>
-        <http_method regex="true">GET|POST</http_method>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-01</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-005" severity="CRITICAL" enabled="true">
-    <name>Cross-Site Scripting - Reflected</name>
-    <description>Detects reflected XSS payloads in request parameters</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*(&lt;script|&lt;img|&lt;svg|&lt;iframe|javascript:|onerror\s*=|onload\s*=|onmouseover\s*=|onfocus\s*=|onmouse\s*=).*</url>
-        <http_method>GET</http_method>
-        <response_code>200</response_code>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-02</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-006" severity="HIGH" enabled="true">
-    <name>Cross-Site Scripting - DOM-Based</name>
-    <description>Detects DOM-based XSS patterns in URL parameters</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*(document\.(write|cookie|location|domain|URL)|eval\s*\(|innerHTML|outerHTML|document\.createElement|location\.hash|location\.search).*</url>
-        <http_method>GET</http_method>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-02</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-007" severity="CRITICAL" enabled="true">
-    <name>Command Injection - OS Command</name>
-    <description>Detects OS command injection attempts</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*(\b(;\s*(cat|ls|id|whoami|uname|pwd|wget|curl|nc|bash|sh|cmd|powershell)\b|\|.*\b(cat|ls|id|whoami|uname|pwd|wget|curl|nc)\b|`[^`]+`|\$\([^)]+\)).*</url>
-        <http_method regex="true">GET|POST</http_method>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Execution</tactic>
-      <technique>T1059</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>HIPAA</standard>
-      <control>164.312(b)</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-03</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-008" severity="CRITICAL" enabled="true">
-    <name>Local File Inclusion</name>
-    <description>Detects local file inclusion attempts accessing system files</description>
-    <pattern>
-      <event>
-        <product>Web Server</product>
-        <url regex="true">.*(\.\./|\.\.\\|%2e%2e%2f|%2e%2e\/|..%2f|%2e%2e%5c).*(etc/passwd|etc/shadow|etc/hosts|windows/system32|boot\.ini|web\.config|wp-config\.php|\.htaccess).*</url>
-        <http_method>GET</http_method>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>HIPAA</standard>
-      <control>164.312(b)</control>
-    </compliance>
-    <references>WSTG-INPV-04</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-009" severity="CRITICAL" enabled="true">
-    <name>Remote File Inclusion</name>
-    <description>Detects remote file inclusion attempts via URL parameters</description>
-    <pattern>
-      <event>
-        <product>Web Server</product>
-        <url regex="true">.*(\bfile\b|\bpage\b|\bpath\b|\binclude\b|\btemplate\b|\bdoc\b|\blast\b|\bredirect\b|\burl\b)=.*(https?://|ftp://|php://|data://|zip://|phar://).*</url>
-        <http_method>GET</http_method>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-04</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-010" severity="HIGH" enabled="true">
-    <name>XPath Injection</name>
-    <description>Detects XPath injection attempts in XML-based applications</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*('(\s)*or(\s)*'|(\s)*or(\s)+'[^']*'\s*=\s*'|string-length\(|count\(|name\(|\bor\b\s+\d+\s*=\s*\d+).*</url>
-        <content_type regex="true">.*xml.*</content_type>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-05</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-011" severity="HIGH" enabled="true">
-    <name>LDAP Injection</name>
-    <description>Detects LDAP injection attempts in authentication queries</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*(\)(\|?\()|(\)\(|\*\)\(|\)\|\(|\)\&amp;\(|(\*\*\0\)).*</url>
-        <http_method regex="true">GET|POST</http_method>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-05</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-012" severity="MEDIUM" enabled="true">
-    <name>HTTP Response Splitting</name>
-    <description>Detects HTTP response splitting attempts via CRLF injection</description>
-    <pattern>
-      <event>
-        <product>Web Server</product>
-        <url regex="true">.*(%0d%0a|%0D%0A|\r\n).*(Content-Type|Location|Set-Cookie|HTTP\/).*</url>
-        <http_method regex="true">GET|POST</http_method>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-06</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-013" severity="HIGH" enabled="true">
-    <name>Server-Side Template Injection</name>
-    <description>Detects server-side template injection attempts</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*(\{\{.*\}\}|\$\{.*\}|&lt;%.*%&gt;|\{%.*%\}|\#\{.*\}).*</url>
-        <http_method regex="true">GET|POST</http_method>
-        <response_code regex="true">200|500</response_code>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Execution</tactic>
-      <technique>T1059</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-07</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-014" severity="MEDIUM" enabled="true">
-    <name>Open Redirect</name>
-    <description>Detects open redirect vulnerabilities allowing external URL redirection</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*(\bredirect\b|\bnext\b|\burl\b|\breturn\b|\bdest\b|\bforward\b|\bcontinue\b|\bgoto\b)=.*(https?://|//).*</url>
-        <http_method>GET</http_method>
-        <response_code regex="true">301|302|303|307|308</response_code>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1078</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-08</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-015" severity="MEDIUM" enabled="true">
-    <name>XML External Entity Injection</name>
-    <description>Detects XXE injection attempts in XML payloads</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <content_type regex="true">.*xml.*</content_type>
-        <content regex="true">.*(&lt;!ENTITY|&lt;!DOCTYPE.*SYSTEM|&lt;!DOCTYPE.*PUBLIC|&lt;!ENTITY.*SYSTEM|externalEntity|parameterEntity).*</content>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-05</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-ERRH-001" severity="HIGH" enabled="true">
-    <name>Stack Trace Exposure - Java</name>
-    <description>Detects Java stack traces exposed in error responses</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <response_code regex="true">500|501|502|503</response_code>
-        <content regex="true">.*(java\.lang\.|java\.util\.|java\.io\.|org\.apache\.|javax\.servlet\.|at\s+[a-zA-Z0-9_]+\.[a-zA-Z0-9_]+).*</content>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Discovery</tactic>
-      <technique>T1082</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-ERRH-01</references>
-    <action>ALERT</action>
-    <group>error_handling</group>
-  </rule>
-
-  <rule id="FSIEM-ERRH-002" severity="HIGH" enabled="true">
-    <name>Stack Trace Exposure - .NET</name>
-    <description>Detects .NET stack traces exposed in error responses</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <response_code regex="true">500</response_code>
-        <content regex="true">.*(System\.[a-zA-Z]+|Microsoft\.|at\s+[A-Za-z0-9_\.]+\(\)|Exception:\s*|Stack Trace:).*</content>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Discovery</tactic>
-      <technique>T1082</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-ERRH-01</references>
-    <action>ALERT</action>
-    <group>error_handling</group>
-  </rule>
-
-  <rule id="FSIEM-ERRH-003" severity="MEDIUM" enabled="true">
-    <name>Database Error Message Exposure</name>
-    <description>Detects database error messages exposed to end users</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <response_code regex="true">500</response_code>
-        <content regex="true">.*(ORA-\d{5}|Microsoft OLE DB|PostgreSQL query failed|mysql_fetch|SQLSTATE|SQL error|Supplied argument is not a valid MySQL|Warning: mysql_).*</content>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Discovery</tactic>
-      <technique>T1082</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>HIPAA</standard>
-      <control>164.312(b)</control>
-    </compliance>
-    <references>WSTG-ERRH-01</references>
-    <action>ALERT</action>
-    <group>error_handling</group>
-  </rule>
-
-  <rule id="FSIEM-ERRH-004" severity="MEDIUM" enabled="true">
-    <name>Verbose Error Messages - Path Disclosure</name>
-    <description>Detects error messages revealing file system paths</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <response_code regex="true">500|404</response_code>
-        <content regex="true">.*(/[a-zA-Z]:/|/var/www/|/usr/share/|/home/[a-z]+/|/opt/|C:\\inetpub\\|C:\\Program Files\\).*</content>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Discovery</tactic>
-      <technique>T1082</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-ERRH-02</references>
-    <action>ALERT</action>
-    <group>error_handling</group>
-  </rule>
-
-  <rule id="FSIEM-ERRH-005" severity="MEDIUM" enabled="true">
-    <name>Improper Error Handling - Default Error Pages</name>
-    <description>Detects default framework error pages in production</description>
-    <pattern>
-      <event>
-        <product>Web Server</product>
-        <response_code regex="true">500|501|502|503</response_code>
-        <content regex="true">.*(Whitelabel Error Page|Apache Tomcat|Nginx Error|IIS Detailed Error|Express Error|Django Error|Ruby on Rails Error).*</content>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Discovery</tactic>
-      <technique>T1082</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>CM-7</control>
-    </compliance>
-    <references>WSTG-ERRH-01</references>
-    <action>ALERT</action>
-    <group>error_handling</group>
-  </rule>
-
-  <rule id="FSIEM-ERRH-006" severity="HIGH" enabled="true">
-    <name>Information Leakage via Error - Version Disclosure</name>
-    <description>Detects error messages revealing software version details</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <response_code regex="true">500</response_code>
-        <content regex="true">.*(version|v[0-9]+\.[0-9]+|build|release).*(OpenSSL|Apache|nginx|PHP|Python|Java|Node\.js|Express|Django|Flask).*</content>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Discovery</tactic>
-      <technique>T1082</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>CM-7</control>
-    </compliance>
-    <references>WSTG-ERRH-02</references>
-    <action>ALERT</action>
-    <group>error_handling</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-001" severity="CRITICAL" enabled="true">
-    <name>Weak TLS Version - SSL 3.0</name>
-    <description>Detects use of SSL 3.0 protocol</description>
-    <pattern>
-      <event>
-        <product>Network</product>
-        <tls_version>SSLv3</tls_version>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Credential Access</tactic>
-      <technique>T1040</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>4.1</control>
-      <standard>HIPAA</standard>
-      <control>164.312(e)</control>
-      <standard>NIST</standard>
-      <control>SC-8</control>
-    </compliance>
-    <references>WSTG-CRPT-01</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-002" severity="CRITICAL" enabled="true">
-    <name>Weak TLS Version - TLS 1.0</name>
-    <description>Detects use of deprecated TLS 1.0 protocol</description>
-    <pattern>
-      <event>
-        <product>Network</product>
-        <tls_version>TLSv1.0</tls_version>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Credential Access</tactic>
-      <technique>T1040</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>4.1</control>
-      <standard>HIPAA</standard>
-      <control>164.312(e)</control>
-      <standard>NIST</standard>
-      <control>SC-8</control>
-    </compliance>
-    <references>WSTG-CRPT-01</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-003" severity="HIGH" enabled="true">
-    <name>Weak TLS Version - TLS 1.1</name>
-    <description>Detects use of deprecated TLS 1.1 protocol</description>
-    <pattern>
-      <event>
-        <product>Network</product>
-        <tls_version>TLSv1.1</tls_version>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Credential Access</tactic>
-      <technique>T1040</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>4.1</control>
-      <standard>NIST</standard>
-      <control>SC-8</control>
-    </compliance>
-    <references>WSTG-CRPT-01</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-004" severity="CRITICAL" enabled="true">
-    <name>Weak Cipher Suite - RC4</name>
-    <description>Detects use of RC4 cipher which is cryptographically broken</description>
-    <pattern>
-      <event>
-        <product>Network</product>
-        <cipher_suite regex="true">.*RC4.*|.*RC2.*</cipher_suite>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Credential Access</tactic>
-      <technique>T1040</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>4.1</control>
-      <standard>NIST</standard>
-      <control>SC-8</control>
-    </compliance>
-    <references>WSTG-CRPT-01</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-005" severity="CRITICAL" enabled="true">
-    <name>Weak Cipher Suite - NULL or Export</name>
-    <description>Detects use of NULL or export-grade cipher suites</description>
-    <pattern>
-      <event>
-        <product>Network</product>
-        <cipher_suite regex="true">.*NULL.*|.*EXPORT.*|.*eNULL.*|.*aNULL.*</cipher_suite>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Credential Access</tactic>
-      <technique>T1040</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>4.1</control>
-      <standard>NIST</standard>
-      <control>SC-8</control>
-    </compliance>
-    <references>WSTG-CRPT-01</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-006" severity="HIGH" enabled="true">
-    <name>Weak Hash Algorithm - MD5</name>
-    <description>Detects use of MD5 hash algorithm in certificates or signatures</description>
-    <pattern>
-      <event>
-        <product>Network</product>
-        <certificate_hash>MD5</certificate_hash>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Credential Access</tactic>
-      <technique>T1040</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>4.1</control>
-      <standard>NIST</standard>
-      <control>SC-8</control>
-    </compliance>
-    <references>WSTG-CRPT-02</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-007" severity="HIGH" enabled="true">
-    <name>Weak Hash Algorithm - SHA1</name>
-    <description>Detects use of SHA-1 hash algorithm in certificates</description>
-    <pattern>
-      <event>
-        <product>Network</product>
-        <certificate_hash>SHA1</certificate_hash>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Credential Access</tactic>
-      <technique>T1040</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>4.1</control>
-      <standard>NIST</standard>
-      <control>SC-8</control>
-    </compliance>
-    <references>WSTG-CRPT-02</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-008" severity="HIGH" enabled="true">
-    <name>Self-Signed Certificate in Production</name>
-    <description>Detects self-signed certificates used in production environments</description>
-    <pattern>
-      <event>
-        <product>Network</product>
-        <certificate_issuer regex="true">.*self-signed.*|.*SnakeOil.*</certificate_issuer>
-        <certificate_subject regex="true">.*self-signed.*|.*SnakeOil.*</certificate_subject>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>4.1</control>
-      <standard>NIST</standard>
-      <control>SC-8</control>
-    </compliance>
-    <references>WSTG-CRPT-02</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-009" severity="CRITICAL" enabled="true">
-    <name>Certificate Expired</name>
-    <description>Detects use of expired SSL/TLS certificates</description>
-    <pattern>
-      <event>
-        <product>Network</product>
-        <certificate_expired regex="true">true</certificate_expired>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>4.1</control>
-      <standard>NIST</standard>
-      <control>SC-8</control>
-    </compliance>
-    <references>WSTG-CRPT-02</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-010" severity="HIGH" enabled="true">
-    <name>Weak Key Length - RSA 1024 or Less</name>
-    <description>Detects certificates with RSA key length of 1024 bits or less</description>
-    <pattern>
-      <event>
-        <product>Network</product>
-        <certificate_key_length regex="true">&lt;=1024</certificate_key_length>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Credential Access</tactic>
-      <technique>T1040</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>4.1</control>
-      <standard>NIST</standard>
-      <control>SC-8</control>
-    </compliance>
-    <references>WSTG-CRPT-02</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-016" severity="HIGH" enabled="true">
-    <name>Cross-Site Request Forgery</name>
-    <description>Detects state-changing requests missing CSRF protection</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*\/(transfer|delete|update|change|remove|modify).*</url>
-        <http_method>POST</http_method>
-        <origin_different regex="true">true</origin_different>
-        <content_not_present>csrf</content_not_present>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-09</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-017" severity="MEDIUM" enabled="true">
-    <name>HTTP Parameter Pollution</name>
-    <description>Detects HTTP parameter pollution attacks using duplicate parameters</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*(\?|&amp;)[^=&amp;]+=([^&amp;]*)(&amp;)[^=&amp;]+=([^&amp;]*).*\3=\4.*</url>
-        <http_method regex="true">GET|POST</http_method>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-10</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-IVLD-018" severity="HIGH" enabled="true">
-    <name>Prototype Pollution</name>
-    <description>Detects JavaScript prototype pollution attempts</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <url regex="true">.*(__proto__|constructor\.prototype|prototype\[).*</url>
-        <http_method regex="true">GET|POST|PUT|PATCH</http_method>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-INPV-11</references>
-    <action>ALERT</action>
-    <group>input_validation</group>
-  </rule>
-
-  <rule id="FSIEM-ERRH-007" severity="MEDIUM" enabled="true">
-    <name>Error Response - 500 Status Code Spike</name>
-    <description>Detects abnormal spikes in 500-level error responses</description>
-    <pattern>
-      <event>
-        <product>Web Server</product>
-        <response_code regex="true">500|501|502|503|504</response_code>
-        <count regex="true">>20</count>
-        <time_window>300</time_window>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Impact</tactic>
-      <technique>T1498</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SI-4</control>
-    </compliance>
-    <references>WSTG-ERRH-03</references>
-    <action>ALERT</action>
-    <group>error_handling</group>
-  </rule>
-
-  <rule id="FSIEM-ERRH-008" severity="HIGH" enabled="true">
-    <name>Information Exposure via Error - Connection String</name>
-    <description>Detects database connection strings leaked in error messages</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <response_code regex="true">500</response_code>
-        <content regex="true">.*(mongodb://|postgres://|mysql://|jdbc:|Server=[^;]+;Database=[^;]+;User|Data Source=[^;]+;Initial Catalog).*</content>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Discovery</tactic>
-      <technique>T1082</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>GDPR</standard>
-      <control>32</control>
-    </compliance>
-    <references>WSTG-ERRH-02</references>
-    <action>ALERT</action>
-    <group>error_handling</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-011" severity="MEDIUM" enabled="true">
-    <name>Sensitive Data Over Unencrypted Channel</name>
-    <description>Detects transmission of sensitive data over HTTP</description>
-    <pattern>
-      <event>
-        <product>Web Server</product>
-        <url regex="true">http://.*\/(login|signin|register|checkout|payment|account|password|api).*</url>
-        <http_method>POST</http_method>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Credential Access</tactic>
-      <technique>T1040</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>4.1</control>
-      <standard>HIPAA</standard>
-      <control>164.312(e)</control>
-      <standard>GDPR</standard>
-      <control>32</control>
-    </compliance>
-    <references>WSTG-CRPT-03</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-012" severity="HIGH" enabled="true">
-    <name>Hardcoded Cryptographic Key</name>
-    <description>Detects hardcoded encryption keys in source code or configuration</description>
-    <pattern>
-      <event>
-        <product>Web Application</product>
-        <content regex="true">.*(AES_KEY|SECRET_KEY|ENCRYPTION_KEY|PRIVATE_KEY|API_SECRET).*=.*['\"][a-zA-Z0-9+/=]{16,}['\"].*</content>
-        <url regex="true">.*\.(js|env|config|yaml|yml|json|properties|xml|conf).*</url>
-        <response_code>200</response_code>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Credential Access</tactic>
-      <technique>T1552</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>GDPR</standard>
-      <control>32</control>
-      <standard>NIST</standard>
-      <control>SC-8</control>
-    </compliance>
-    <references>WSTG-CRPT-04</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-013" severity="HIGH" enabled="true">
-    <name>Certificate Hostname Mismatch</name>
-    <description>Detects TLS certificates with hostname mismatch</description>
-    <pattern>
-      <event>
-        <product>Network</product>
-        <certificate_hostname_mismatch regex="true">true</certificate_hostname_mismatch>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Initial Access</tactic>
-      <technique>T1190</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>4.1</control>
-      <standard>NIST</standard>
-      <control>SC-8</control>
-    </compliance>
-    <references>WSTG-CRPT-02</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-014" severity="MEDIUM" enabled="true">
-    <name>Insecure Cookie Flag - Missing SameSite</name>
-    <description>Detects session cookies missing SameSite attribute</description>
-    <pattern>
-      <event>
-        <product>Web Server</product>
-        <header regex="true">.*Set-Cookie:.*session.*(!?SameSite).*</header>
-        <response_code regex="true">200|302</response_code>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Credential Access</tactic>
-      <technique>T1539</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>NIST</standard>
-      <control>SC-8</control>
-    </compliance>
-    <references>WSTG-CRPT-03</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-
-  <rule id="FSIEM-CRPT-015" severity="MEDIUM" enabled="true">
-    <name>Credential in URL</name>
-    <description>Detects credentials embedded in URLs</description>
-    <pattern>
-      <event>
-        <product>Web Server</product>
-        <url regex="true">.*:\/\/[^:]+:[^@]+@.*</url>
-      </event>
-    </pattern>
-    <mitre>
-      <tactic>Credential Access</tactic>
-      <technique>T1189</technique>
-    </mitre>
-    <compliance>
-      <standard>PCI-DSS</standard>
-      <control>6.5</control>
-      <standard>GDPR</standard>
-      <control>32</control>
-      <standard>NIST</standard>
-      <control>IA-5</control>
-    </compliance>
-    <references>WSTG-CRPT-03</references>
-    <action>ALERT</action>
-    <group>cryptography</group>
-  </rule>
-</rules>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- FortiSIEM Pattern Rules — wstg-07-09 -->
+<!-- Total rules: 32 -->
+<Rules>
+  <Rule name="FSIEM-WSTG07-001" id="FSIEM-WSTG07-001">
+    <Description>Detects SQL injection patterns in HTTP requests including UNION SELECT, OR 1=1, and comment-based injection</Description>
+    <Severity>Critical</Severity>
+    <Pattern>"input-validation" OR "sql-injection"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>PCI-DSS-6.5,NIST-SI-10</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-002" id="FSIEM-WSTG07-002">
+    <Description>Detects reflected XSS patterns in HTTP request parameters including script tags and event handlers</Description>
+    <Severity>High</Severity>
+    <Pattern>"input-validation" OR "xss"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1059.007</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-003" id="FSIEM-WSTG07-003">
+    <Description>Detects stored XSS patterns where malicious scripts are persisted and served to other users</Description>
+    <Severity>High</Severity>
+    <Pattern>"input-validation" OR "xss"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1059.007</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-004" id="FSIEM-WSTG07-004">
+    <Description>Detects OS command injection patterns including pipe, semicolon, backtick, and dollar-paren command substitution</Description>
+    <Severity>Critical</Severity>
+    <Pattern>"input-validation" OR "command-injection"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1190,T1059</MITRE>
+    <Compliance>PCI-DSS-6.5,NIST-SI-10</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-005" id="FSIEM-WSTG07-005">
+    <Description>Detects LDAP injection patterns in authentication and search parameters using LDAP special characters</Description>
+    <Severity>High</Severity>
+    <Pattern>"input-validation" OR "ldap-injection"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-006" id="FSIEM-WSTG07-006">
+    <Description>Detects XXE attack patterns in XML request bodies including SYSTEM and PUBLIC external entity declarations</Description>
+    <Severity>Critical</Severity>
+    <Pattern>"input-validation" OR "xxe"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-007" id="FSIEM-WSTG07-007">
+    <Description>Detects SSRF attempts targeting internal networks, cloud metadata, and localhost services</Description>
+    <Severity>Critical</Severity>
+    <Pattern>"input-validation" OR "ssrf"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>PCI-DSS-6.5,NIST-AC-4</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-008" id="FSIEM-WSTG07-008">
+    <Description>Detects template injection patterns including Jinja2, Twig, Freemarker, and Velocity expressions</Description>
+    <Severity>Critical</Severity>
+    <Pattern>"input-validation" OR "ssti"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-009" id="FSIEM-WSTG07-009">
+    <Description>Detects NoSQL injection patterns including MongoDB $where, $regex, and $gt operators</Description>
+    <Severity>High</Severity>
+    <Pattern>"input-validation" OR "nosql-injection"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-010" id="FSIEM-WSTG07-010">
+    <Description>Detects insecure deserialization of Java, Python, PHP, and .NET serialized objects</Description>
+    <Severity>Critical</Severity>
+    <Pattern>"input-validation" OR "deserialization"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-011" id="FSIEM-WSTG07-011">
+    <Description>Detects HTTP parameter pollution attacks where duplicate parameters bypass validation</Description>
+    <Severity>Medium</Severity>
+    <Pattern>"input-validation" OR "hpp"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-012" id="FSIEM-WSTG07-012">
+    <Description>Detects upload of potentially malicious file types including webshells, executables, and script files</Description>
+    <Severity>High</Severity>
+    <Pattern>"input-validation" OR "file-upload"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1190,T1105</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-013" id="FSIEM-WSTG07-013">
+    <Description>Detects Host header injection attacks used for password reset poisoning, cache poisoning, and SSRF</Description>
+    <Severity>High</Severity>
+    <Pattern>"input-validation" OR "host-header"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-014" id="FSIEM-WSTG07-014">
+    <Description>Detects GraphQL injection, excessive introspection queries, and depth-based DoS attacks</Description>
+    <Severity>High</Severity>
+    <Pattern>"input-validation" OR "graphql"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>API3-009</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG07-015" id="FSIEM-WSTG07-015">
+    <Description>Detects unusually long HTTP requests that may trigger buffer overflow vulnerabilities</Description>
+    <Severity>High</Severity>
+    <Pattern>"input-validation" OR "buffer-overflow"</Pattern>
+    <EventType>INPUT_VALIDATION</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG08-001" id="FSIEM-WSTG08-001">
+    <Description>Detects DOM-based XSS patterns where client-side JavaScript renders user input unsafely</Description>
+    <Severity>High</Severity>
+    <Pattern>"client-side" OR "dom-xss"</Pattern>
+    <EventType>CLIENT_SIDE</EventType>
+    <MITRE>T1059.007</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG08-002" id="FSIEM-WSTG08-002">
+    <Description>Detects unsafe JavaScript patterns including eval(), document.write(), and innerHTML with untrusted input</Description>
+    <Severity>Medium</Severity>
+    <Pattern>"client-side" OR "js-execution"</Pattern>
+    <EventType>CLIENT_SIDE</EventType>
+    <MITRE>T1059.007</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG08-003" id="FSIEM-WSTG08-003">
+    <Description>Detects open redirect vulnerabilities where client-side JavaScript redirects to untrusted URLs</Description>
+    <Severity>Medium</Severity>
+    <Pattern>"client-side" OR "open-redirect"</Pattern>
+    <EventType>CLIENT_SIDE</EventType>
+    <MITRE>T1189</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG08-004" id="FSIEM-WSTG08-004">
+    <Description>Detects CSS injection patterns through style attributes or CSS files that could exfiltrate data</Description>
+    <Severity>Low</Severity>
+    <Pattern>"client-side" OR "css-injection"</Pattern>
+    <EventType>CLIENT_SIDE</EventType>
+    <MITRE>T1189</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG08-005" id="FSIEM-WSTG08-005">
+    <Description>Detects PostMessage API usage with wildcard origins enabling cross-origin data theft</Description>
+    <Severity>Medium</Severity>
+    <Pattern>"client-side" OR "postmessage"</Pattern>
+    <EventType>CLIENT_SIDE</EventType>
+    <MITRE>T1189</MITRE>
+    <Compliance>NIST-CM-7</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG08-006" id="FSIEM-WSTG08-006">
+    <Description>Detects sensitive data stored in browser web storage accessible to XSS attacks</Description>
+    <Severity>Medium</Severity>
+    <Pattern>"client-side" OR "web-storage"</Pattern>
+    <EventType>CLIENT_SIDE</EventType>
+    <MITRE>T1539</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG08-007" id="FSIEM-WSTG08-007">
+    <Description>Detects unauthorized service worker registration that could intercept network requests</Description>
+    <Severity>High</Severity>
+    <Pattern>"client-side" OR "service-worker"</Pattern>
+    <EventType>CLIENT_SIDE</EventType>
+    <MITRE>T1189</MITRE>
+    <Compliance>NIST-CM-7</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG08-008" id="FSIEM-WSTG08-008">
+    <Description>Detects CORS configurations with wildcard origins or origin reflection enabling data theft</Description>
+    <Severity>High</Severity>
+    <Pattern>"client-side" OR "cors"</Pattern>
+    <EventType>CLIENT_SIDE</EventType>
+    <MITRE>T1189</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG09-001" id="FSIEM-WSTG09-001">
+    <Description>Detects SSRF requests targeting internal services, localhost, and cloud metadata endpoints</Description>
+    <Severity>Critical</Severity>
+    <Pattern>"server-side" OR "ssrf"</Pattern>
+    <EventType>SERVER_SIDE</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>PCI-DSS-6.5,NIST-AC-4</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG09-002" id="FSIEM-WSTG09-002">
+    <Description>Detects HTTP request smuggling via CL.TE or TE.CL content-length/transfer-encoding discrepancies</Description>
+    <Severity>Critical</Severity>
+    <Pattern>"server-side" OR "request-smuggling"</Pattern>
+    <EventType>SERVER_SIDE</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG09-003" id="FSIEM-WSTG09-003">
+    <Description>Detects concurrent requests exploiting race conditions in financial or state-changing operations</Description>
+    <Severity>High</Severity>
+    <Pattern>"server-side" OR "race-condition"</Pattern>
+    <EventType>SERVER_SIDE</EventType>
+    <MITRE>T1129</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG09-004" id="FSIEM-WSTG09-004">
+    <Description>Detects local and remote file inclusion attacks via path traversal or URL inclusion</Description>
+    <Severity>Critical</Severity>
+    <Pattern>"server-side" OR "file-inclusion"</Pattern>
+    <EventType>SERVER_SIDE</EventType>
+    <MITRE>T1190</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG09-005" id="FSIEM-WSTG09-005">
+    <Description>Detects server-side code injection through eval, exec, system calls, and expression language abuse</Description>
+    <Severity>Critical</Severity>
+    <Pattern>"server-side" OR "code-injection"</Pattern>
+    <EventType>SERVER_SIDE</EventType>
+    <MITRE>T1190,T1059</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG09-006" id="FSIEM-WSTG09-006">
+    <Description>Detects denial of service attacks through resource exhaustion including CPU, memory, and connection limits</Description>
+    <Severity>High</Severity>
+    <Pattern>"server-side" OR "dos"</Pattern>
+    <EventType>SERVER_SIDE</EventType>
+    <MITRE>T1498,T1499</MITRE>
+    <Compliance>NIST-SC-5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG09-007" id="FSIEM-WSTG09-007">
+    <Description>Detects upload of webshell files (PHP, JSP, ASP) through file upload functionality</Description>
+    <Severity>Critical</Severity>
+    <Pattern>"server-side" OR "file-upload"</Pattern>
+    <EventType>SERVER_SIDE</EventType>
+    <MITRE>T1190,T1105</MITRE>
+    <Compliance>PCI-DSS-6.5</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG09-008" id="FSIEM-WSTG09-008">
+    <Description>Detects negotiation of weak or deprecated TLS cipher suites during connection setup</Description>
+    <Severity>Medium</Severity>
+    <Pattern>"cryptography" OR "weak-tls"</Pattern>
+    <EventType>CRYPTOGRAPHY</EventType>
+    <MITRE>T1573</MITRE>
+    <Compliance>PCI-DSS-4.1,HIPAA-TS-001</Compliance>
+  </Rule>
+  <Rule name="FSIEM-WSTG09-009" id="FSIEM-WSTG09-009">
+    <Description>Detects hardcoded encryption keys in source code or configuration files</Description>
+    <Severity>Critical</Severity>
+    <Pattern>"cryptography" OR "hardcoded-keys"</Pattern>
+    <EventType>CRYPTOGRAPHY</EventType>
+    <MITRE>T1552</MITRE>
+    <Compliance>PCI-DSS-3.5,HIPAA-ADM-006</Compliance>
+  </Rule>
+</Rules>

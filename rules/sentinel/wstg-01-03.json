@@ -1,21 +1,26 @@
 {
-  "description": "SIEM alert rules \u2014 wstg-01-03 (converted)",
-  "version": "2.0.0",
-  "converted": "2026-09-16T04:05:26.233886Z",
+  "version": "1.0.0",
+  "generated": "2026-08-17",
+  "description": "Microsoft Sentinel analytics rules — wstg-01-03",
   "total_rules": 20,
   "rules": [
     {
       "rule_id": "MS-WSTG01-001",
       "name": "Search Engine Discovery of Sensitive Content",
       "description": "Detects search engine crawlers accessing sensitive paths like /admin, /.env, /.git, /wp-admin, /backup, /config",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"information-gathering\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Informational",
+      "query": "let threshold = 5;\ninformation_gathering_events\n| where information_gathering has_any(\"wstg\", \"information-gathering\", \"reconnaissance\", \"search-engine\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1595",
+        "T1592"
+      ],
       "references": [
         "WSTG01-001"
       ],
@@ -30,20 +35,24 @@
         "reconnaissance",
         "search-engine"
       ],
-      "risk_score": 50
+      "risk_score": 30
     },
     {
       "rule_id": "MS-WSTG01-002",
       "name": "Web Server Fingerprinting via Headers",
       "description": "Detects verbose server headers disclosing technology stack versions enabling targeted attacks",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"information-gathering\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Informational",
+      "query": "let threshold = 5;\ninformation_gathering_events\n| where information_gathering has_any(\"wstg\", \"information-gathering\", \"fingerprinting\", \"headers\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1592.001"
+      ],
       "references": [
         "WSTG01-002"
       ],
@@ -57,20 +66,24 @@
         "fingerprinting",
         "headers"
       ],
-      "risk_score": 50
+      "risk_score": 10
     },
     {
       "rule_id": "MS-WSTG01-003",
       "name": "Application Architecture Fingerprinting",
       "description": "Detects reconnaissance of application architecture through technology-specific error pages and headers",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"information-gathering\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Informational",
+      "query": "let threshold = 5;\ninformation_gathering_events\n| where information_gathering has_any(\"wstg\", \"information-gathering\", \"fingerprinting\", \"architecture\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1592.001"
+      ],
       "references": [
         "WSTG01-003"
       ],
@@ -84,20 +97,24 @@
         "fingerprinting",
         "architecture"
       ],
-      "risk_score": 50
+      "risk_score": 10
     },
     {
       "rule_id": "MS-WSTG01-004",
       "name": "Directory Listing Exposure",
       "description": "Detects directory listing responses exposing file structure and sensitive files",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"information-gathering\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Low",
+      "query": "let threshold = 5;\ninformation_gathering_events\n| where information_gathering has_any(\"wstg\", \"information-gathering\", \"directory-listing\", \"exposure\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1083"
+      ],
       "references": [
         "WSTG01-004"
       ],
@@ -117,14 +134,18 @@
       "rule_id": "MS-WSTG01-005",
       "name": "Metadata and Source Code Exposure",
       "description": "Detects access to metadata files and source code repositories exposing implementation details",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"information-gathering\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Low",
+      "query": "let threshold = 5;\ninformation_gathering_events\n| where information_gathering has_any(\"wstg\", \"information-gathering\", \"metadata\", \"source-code\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1592.001"
+      ],
       "references": [
         "WSTG01-005"
       ],
@@ -144,14 +165,18 @@
       "rule_id": "MS-WSTG01-006",
       "name": "Error Message Information Disclosure",
       "description": "Detects verbose error messages leaking stack traces, database details, or internal paths",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"information-gathering\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Low",
+      "query": "let threshold = 5;\ninformation_gathering_events\n| where information_gathering has_any(\"wstg\", \"information-gathering\", \"error-disclosure\", \"verbose-errors\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1592.001"
+      ],
       "references": [
         "WSTG01-006"
       ],
@@ -172,13 +197,17 @@
       "name": "Sensitive Data in URL Parameters",
       "description": "Detects sensitive data such as tokens, passwords, and PII transmitted in URL query parameters",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"information-gathering\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\ninformation_gathering_events\n| where information_gathering has_any(\"wstg\", \"information-gathering\", \"url-exposure\", \"sensitive-data\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1187"
+      ],
       "references": [
         "WSTG01-007"
       ],
@@ -192,20 +221,24 @@
         "url-exposure",
         "sensitive-data"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-WSTG01-008",
-      "name": "HTTP Methods Allowed \u2014 Verbose OPTIONS Response",
+      "name": "HTTP Methods Allowed — Verbose OPTIONS Response",
       "description": "Detects HTTP OPTIONS responses revealing dangerous methods like PUT, DELETE, TRACE, or DEBUG",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"configuration\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Low",
+      "query": "let threshold = 5;\nconfiguration_events\n| where configuration has_any(\"wstg\", \"configuration\", \"http-methods\", \"misconfiguration\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
       "references": [
         "WSTG01-008"
       ],
@@ -226,13 +259,17 @@
       "name": "CORS Wildcard Origin Misconfiguration",
       "description": "Detects CORS headers with wildcard origins or origin reflection enabling cross-origin data theft",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"configuration\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\nconfiguration_events\n| where configuration has_any(\"wstg\", \"configuration\", \"cors\", \"misconfiguration\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1189"
+      ],
       "references": [
         "WSTG01-009"
       ],
@@ -246,20 +283,24 @@
         "cors",
         "misconfiguration"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-WSTG01-010",
       "name": "Content Security Policy Missing or Weak",
       "description": "Detects responses missing Content-Security-Policy headers or with overly permissive CSP directives",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"configuration\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Low",
+      "query": "let threshold = 5;\nconfiguration_events\n| where configuration has_any(\"wstg\", \"configuration\", \"csp\", \"headers\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1059.007"
+      ],
       "references": [
         "WSTG01-010"
       ],
@@ -279,14 +320,19 @@
       "rule_id": "MS-WSTG01-011",
       "name": "Security Headers Missing (HSTS, X-Frame-Options, X-Content-Type-Options)",
       "description": "Detects responses missing critical security headers like Strict-Transport-Security, X-Frame-Options, X-Content-Type-Options",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"configuration\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Low",
+      "query": "let threshold = 5;\nconfiguration_events\n| where configuration has_any(\"wstg\", \"configuration\", \"security-headers\", \"missing-headers\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1187",
+        "T1059.007"
+      ],
       "references": [
         "WSTG01-011"
       ],
@@ -307,13 +353,17 @@
       "name": "Subdomain Takeover via CNAME",
       "description": "Detects dangling CNAME records pointing to unclaimed external services enabling subdomain takeover",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"information-gathering\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\ninformation_gathering_events\n| where information_gathering has_any(\"wstg\", \"information-gathering\", \"subdomain-takeover\", \"dns\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1584.001"
+      ],
       "references": [
         "WSTG01-012"
       ],
@@ -327,20 +377,26 @@
         "subdomain-takeover",
         "dns"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-WSTG01-013",
       "name": "Cloud Storage Bucket Enumeration",
       "description": "Detects enumeration of cloud storage buckets (S3, GCS, Azure Blob) for data exposure",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"information-gathering\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\ninformation_gathering_events\n| where information_gathering has_any(\"wstg\", \"information-gathering\", \"cloud-enumeration\", \"storage\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Discovery",
+        "Exfiltration"
+      ],
+      "techniques": [
+        "T1580",
+        "T1537"
+      ],
       "references": [
         "WSTG01-013"
       ],
@@ -354,20 +410,24 @@
         "cloud-enumeration",
         "storage"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-WSTG01-014",
       "name": "API Documentation Exposure (Swagger/OpenAPI)",
       "description": "Detects unauthorized access to API documentation endpoints like /swagger, /api-docs, /openapi.json",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"information-gathering\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Low",
+      "query": "let threshold = 5;\ninformation_gathering_events\n| where information_gathering has_any(\"wstg\", \"information-gathering\", \"api-docs\", \"exposure\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Discovery"
+      ],
+      "techniques": [
+        "T1592.001"
+      ],
       "references": [
         "WSTG01-014"
       ],
@@ -388,13 +448,17 @@
       "name": "Debug Mode and Test Endpoints Exposed",
       "description": "Detects access to debug endpoints, test pages, or development tools left in production",
       "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"configuration\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "query": "let threshold = 5;\nconfiguration_events\n| where configuration has_any(\"wstg\", \"configuration\", \"debug-mode\", \"misconfiguration\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "InitialAccess"
+      ],
+      "techniques": [
+        "T1190"
+      ],
       "references": [
         "WSTG01-015"
       ],
@@ -408,20 +472,24 @@
         "debug-mode",
         "misconfiguration"
       ],
-      "risk_score": 50
+      "risk_score": 70
     },
     {
       "rule_id": "MS-WSTG01-016",
       "name": "Default Credentials on Network Devices",
       "description": "Detects login attempts using default credentials on network devices, firewalls, and routers",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"identity-management\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\nidentity_management_events\n| where identity_management has_any(\"wstg\", \"identity-management\", \"default-credentials\", \"network\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "DefenseEvasion"
+      ],
+      "techniques": [
+        "T1078.001"
+      ],
       "references": [
         "WSTG01-016"
       ],
@@ -435,20 +503,24 @@
         "default-credentials",
         "network"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-WSTG01-017",
       "name": "User Enumeration via Login Error Messages",
       "description": "Detects login error messages that differentiate between invalid username and invalid password",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"identity-management\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Low",
+      "query": "let threshold = 5;\nidentity_management_events\n| where identity_management has_any(\"wstg\", \"identity-management\", \"user-enumeration\", \"authentication\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1110.001"
+      ],
       "references": [
         "WSTG01-017"
       ],
@@ -468,14 +540,18 @@
       "rule_id": "MS-WSTG01-018",
       "name": "Account Provisioning Without Approval",
       "description": "Detects account creation events bypassing approval workflows",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"identity-management\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "Low",
+      "query": "let threshold = 5;\nidentity_management_events\n| where identity_management has_any(\"wstg\", \"identity-management\", \"account-provisioning\", \"workflow\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "Persistence"
+      ],
+      "techniques": [
+        "T1136"
+      ],
       "references": [
         "WSTG01-018"
       ],
@@ -495,14 +571,18 @@
       "rule_id": "MS-WSTG01-019",
       "name": "Privilege Escalation via Role Assignment",
       "description": "Detects unauthorized role elevation during account modification including admin role grants",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"identity-management\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\nidentity_management_events\n| where identity_management has_any(\"wstg\", \"identity-management\", \"privilege-escalation\", \"role-assignment\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "PrivilegeEscalation"
+      ],
+      "techniques": [
+        "T1548"
+      ],
       "references": [
         "WSTG01-019"
       ],
@@ -516,20 +596,24 @@
         "privilege-escalation",
         "role-assignment"
       ],
-      "risk_score": 50
+      "risk_score": 90
     },
     {
       "rule_id": "MS-WSTG01-020",
       "name": "SSO Token Replay Attack",
       "description": "Detects replay of SAML or OAuth tokens from different source IPs or outside expected time windows",
-      "severity": "Medium",
-      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"wstg\" or Message contains \"identity-management\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
+      "severity": "High",
+      "query": "let threshold = 5;\nidentity_management_events\n| where identity_management has_any(\"wstg\", \"identity-management\", \"sso\", \"token-replay\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [],
-      "techniques": [],
+      "tactics": [
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1606"
+      ],
       "references": [
         "WSTG01-020"
       ],
@@ -543,7 +627,7 @@
         "sso",
         "token-replay"
       ],
-      "risk_score": 50
+      "risk_score": 90
     }
   ]
 }
