@@ -2,7 +2,7 @@
   "description": "SIEM alert rules \u2014 generated-general (converted)",
   "version": "2.0.0",
   "converted": "2026-09-17T04:05:04.273073Z",
-  "total_rules": 18,
+  "total_rules": 19,
   "rules": [
     {
       "rule_id": "QR-GENERAL-002",
@@ -475,6 +475,62 @@
         "cve-2026-19490",
         "exploited"
       ]
+    },
+    {
+      "rule_id": "QR-GENERAL-011",
+      "name": "CVE-2026-19490 \u2014 NetScaler Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-19490: Citrix NetScaler ADC and NetScaler Gateway contain an authentication-bypass vulnerability involving an alternate path or channel. When the NetScaler appliance is configured as an AAA virtual server or as a Gateway (SSL VPN, ICA Proxy, CVPN, or RDP Proxy), an unauthenticated remote threat actor may be able to bypass authentication.. Product: NetScaler",
+      "severity": "critical",
+      "category": "general",
+      "mitre_attack": [
+        "T1133",
+        "T1110",
+        "T1078",
+        "T1548",
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "aql_query": "SELECT USERNAME, SOURCE_IP, COUNT(*) AS failures FROM events WHERE EVENT_TYPE = 'Authentication' AND OUTCOME = 'FAILURE' GROUP BY USERNAME, SOURCE_IP HAVING COUNT(*) > 10 LAST 15 MINUTES",
+      "tags": [
+        "general",
+        "cve",
+        "cve-2026-19490",
+        "exploited"
+      ],
+      "response_workflow": {
+        "description": "Active exploitation of known CVE \u2014 immediate response required",
+        "triage": [
+          "Identify the affected system and verify the CVE applies (check version, patch level)",
+          "Check if the exploit attempt succeeded (review logs for follow-on activity)",
+          "Identify the source IP and check for other activity from that IP"
+        ],
+        "containment": [
+          "Isolate the affected system from the network if exploitation confirmed",
+          "Block the source IP at the firewall/WAF",
+          "Apply the vendor patch or mitigation if available",
+          "If no patch available, apply virtual patch at WAF/IPS"
+        ],
+        "eradication": [
+          "Scan the affected system for persistence mechanisms (scheduled tasks, services, webshells)",
+          "Review all changes made since the exploitation attempt",
+          "Remove any implanted backdoors or malware"
+        ],
+        "recovery": [
+          "Restore the system from a known-good backup if compromised",
+          "Verify system integrity (file hashes, service configurations)",
+          "Reconnect to network only after verification"
+        ],
+        "lessons_learned": [
+          "Document the timeline: detection \u2192 response \u2192 resolution",
+          "Assess if detection latency meets SLA",
+          "Update IOC feeds with source IP, user-agent, and payload signatures",
+          "Review if similar systems are vulnerable to the same CVE"
+        ]
+      }
     }
   ]
 }

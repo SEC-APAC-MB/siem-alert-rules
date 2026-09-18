@@ -2,7 +2,7 @@
   "description": "SIEM alert rules \u2014 generated-sql-injection (converted)",
   "version": "2.0.0",
   "converted": "2026-09-17T04:05:04.534747Z",
-  "total_rules": 2,
+  "total_rules": 3,
   "rules": [
     {
       "rule_id": "AWS-SQL-INJECTION-013",
@@ -125,6 +125,83 @@
         "cve-2026-76461",
         "exploited"
       ]
+    },
+    {
+      "rule_id": "AWS-SQL-INJECTION-004",
+      "name": "CVE-2026-76461 \u2014 Secure Email Gateway Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-76461: Cisco AsyncOS software for Cisco Secure Email Gateway (SEG) contains a SQL injection vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary commands with root privileges on the underlying operating system.. Product: Secure Email Gateway",
+      "severity": "critical",
+      "category": "sql-injection",
+      "mitre_attack": [
+        "T1078",
+        "T1190",
+        "T1110"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = ConsoleLogin) && ($.responseElements.ConsoleLogin = Success) && ($.sourceIPAddress != 10.*) }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE-2026-76461\u2014SecureEmailGatewayExploitation",
+        "threshold": 5,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        },
+        {
+          "type": "Lambda",
+          "description": "Trigger automated remediation Lambda function"
+        }
+      ],
+      "tags": [
+        "sql-injection",
+        "cve",
+        "cve-2026-76461",
+        "exploited"
+      ],
+      "response_workflow": {
+        "description": "Active exploitation of known CVE \u2014 immediate response required",
+        "triage": [
+          "Identify the affected system and verify the CVE applies (check version, patch level)",
+          "Check if the exploit attempt succeeded (review logs for follow-on activity)",
+          "Identify the source IP and check for other activity from that IP"
+        ],
+        "containment": [
+          "Isolate the affected system from the network if exploitation confirmed",
+          "Block the source IP at the firewall/WAF",
+          "Apply the vendor patch or mitigation if available",
+          "If no patch available, apply virtual patch at WAF/IPS"
+        ],
+        "eradication": [
+          "Scan the affected system for persistence mechanisms (scheduled tasks, services, webshells)",
+          "Review all changes made since the exploitation attempt",
+          "Remove any implanted backdoors or malware"
+        ],
+        "recovery": [
+          "Restore the system from a known-good backup if compromised",
+          "Verify system integrity (file hashes, service configurations)",
+          "Reconnect to network only after verification"
+        ],
+        "lessons_learned": [
+          "Document the timeline: detection \u2192 response \u2192 resolution",
+          "Assess if detection latency meets SLA",
+          "Update IOC feeds with source IP, user-agent, and payload signatures",
+          "Review if similar systems are vulnerable to the same CVE"
+        ]
+      }
     }
   ]
 }

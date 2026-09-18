@@ -124,5 +124,60 @@
       "cve-2026-20079",
       "exploited"
     ]
+  },
+  {
+    "rule_id": "SUR-NETWORK-INFRASTRUCTURE-014",
+    "sid": 4000014,
+    "name": "CVE-2026-20079 \u2014 Secure Firewall Management Center (FMC) and Security Cloud Control (SCC) Firewall Management Exploitation",
+    "description": "Detects exploitation attempts targeting CVE-2026-20079: Cisco Secure Firewall Management Center (FMC) Software and Cisco Security Cloud Control (SCC) Firewall Management contain an authentication Bypass using an alternate path or channel vulnerability that could allow an unauthenticated, remote attacker to bypass authentication and execute script files on an affected device to obtain root access to the underlying operating system.. Product: Secure Firewall Management Center (FMC) and Security Cloud Control (SCC) Firewall Management",
+    "severity": "critical",
+    "category": "network-infrastructure",
+    "mitre_attack": [
+      "T1078",
+      "T1548",
+      "T1110"
+    ],
+    "compliance": [
+      "PCI-DSS-6.5",
+      "NIST-800-53-SI-4",
+      "GDPR-32A"
+    ],
+    "suricata_rule": "alert http $EXTERNAL_NET any -> $HOME_NET any (msg:\"SIEM NETWORK-INFRASTRUCTURE-014: CVE-2026-20079 \u2014 Secure Firewall Management Center (FMC) and Security Cloud Control (SCC) Firewall Management Exploitation\"; flow:established,to_server; content:\"login|auth|admin|root\"; pcre:\"/login|auth|admin|root/i\"; sid:4000014; rev:1;)",
+    "tags": [
+      "network-infrastructure",
+      "cve",
+      "cve-2026-20079",
+      "exploited"
+    ],
+    "response_workflow": {
+      "description": "Active exploitation of known CVE \u2014 immediate response required",
+      "triage": [
+        "Identify the affected system and verify the CVE applies (check version, patch level)",
+        "Check if the exploit attempt succeeded (review logs for follow-on activity)",
+        "Identify the source IP and check for other activity from that IP"
+      ],
+      "containment": [
+        "Isolate the affected system from the network if exploitation confirmed",
+        "Block the source IP at the firewall/WAF",
+        "Apply the vendor patch or mitigation if available",
+        "If no patch available, apply virtual patch at WAF/IPS"
+      ],
+      "eradication": [
+        "Scan the affected system for persistence mechanisms (scheduled tasks, services, webshells)",
+        "Review all changes made since the exploitation attempt",
+        "Remove any implanted backdoors or malware"
+      ],
+      "recovery": [
+        "Restore the system from a known-good backup if compromised",
+        "Verify system integrity (file hashes, service configurations)",
+        "Reconnect to network only after verification"
+      ],
+      "lessons_learned": [
+        "Document the timeline: detection \u2192 response \u2192 resolution",
+        "Assess if detection latency meets SLA",
+        "Update IOC feeds with source IP, user-agent, and payload signatures",
+        "Review if similar systems are vulnerable to the same CVE"
+      ]
+    }
   }
 ]
