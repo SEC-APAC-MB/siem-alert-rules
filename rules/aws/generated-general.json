@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-general (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-16T04:05:28.757098Z",
-  "total_rules": 18,
+  "converted": "2026-09-19T04:05:04.898115Z",
+  "total_rules": 19,
   "rules": [
     {
       "rule_id": "AWS-GENERAL-002",
@@ -1085,6 +1085,66 @@
         "general",
         "cve",
         "cve-2026-19490",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-GENERAL-015",
+      "name": "CVE-2025-25249 \u2014 Multiple Products Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2025-25249: Fortinet FortiOS, FortiSwitchManager, and FortiSASE contain a heap-based buffer overflow vulnerability that allows an attacker to execute unauthorized code or commands via specially crafted packets.. Product: Multiple Products",
+      "severity": "critical",
+      "category": "general",
+      "mitre_attack": [
+        "T1078",
+        "T1110"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2025-25249\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202525249MultipleProductsExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2025-25249 \u2014 Multiple Products Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "general",
+        "cve",
+        "cve-2025-25249",
         "exploited"
       ]
     }

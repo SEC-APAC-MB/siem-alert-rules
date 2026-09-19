@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-privilege-escalation (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-16T04:05:28.939057Z",
-  "total_rules": 8,
+  "converted": "2026-09-19T04:05:04.968601Z",
+  "total_rules": 9,
   "rules": [
     {
       "rule_id": "AWS-PRIVILEGE-ESCALATION-002",
@@ -475,6 +475,67 @@
         "privilege-escalation",
         "cve",
         "cve-2026-86060",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-PRIVILEGE-ESCALATION-009",
+      "name": "CVE-2026-42016 \u2014 Artifactory Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-42016: JFrog Artifactory contains an incorrect authorization vulnerability that leads to a privilege escalation attack due to a validation check of the token signature/issuer and not the token\u2019s scope.. Product: Artifactory",
+      "severity": "critical",
+      "category": "privilege-escalation",
+      "mitre_attack": [
+        "T1548",
+        "T1078",
+        "T1110"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-42016\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202642016ArtifactoryExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-42016 \u2014 Artifactory Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-42016",
         "exploited"
       ]
     }

@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-sql-injection (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-16T04:05:26.074545Z",
-  "total_rules": 2,
+  "converted": "2026-09-19T04:05:04.146984Z",
+  "total_rules": 3,
   "rules": [
     {
       "rule_id": "AZ-SQL-INJECTION-013",
@@ -40,15 +40,41 @@
       "queryPeriod": "10m",
       "triggerOperator": "gt",
       "triggerThreshold": 5,
+      "tactics": [],
+      "techniques": [],
+      "references": [],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "tags": [
+        "sql-injection",
+        "cve",
+        "cve-2026-76461",
+        "exploited"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AZ-SQL-INJECTION-007",
+      "name": "CVE-2026-76461 \u2014 Secure Email Gateway Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-76461: Cisco AsyncOS software for Cisco Secure Email Gateway (SEG) contains a SQL injection vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary commands with root privileges on the underlying operating system.. Product: Secure Email Gateway",
+      "severity": "Medium",
+      "query": "SecurityEvent | where EventID == 4624 and (Account contains \"admin\" or Account contains \"root\") and SourceIP !startswith \"10.\" and SourceIP !startswith \"172.16.\" | summarize count() by Account, SourceIP, bin(TimeGenerated, 5m)",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "gt",
+      "triggerThreshold": 5,
       "tactics": [
-        "InitialAccess",
         "CredentialAccess",
+        "InitialAccess",
         "DefenseEvasion"
       ],
       "techniques": [
-        "T1110",
+        "T1078",
         "T1190",
-        "T1078"
+        "T1110"
       ],
       "references": [],
       "compliance": [

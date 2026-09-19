@@ -1,34 +1,37 @@
 {
-  "version": "1.0.0",
-  "generated": "2026-08-17",
-  "description": "OCI Alarm and Event rules — database-security",
+  "description": "SIEM alert rules — database-security (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-19T04:05:04.258621Z",
   "total_rules": 30,
   "rules": [
     {
       "rule_id": "OCI-DB-PG-001",
       "name": "PostgreSQL — Privilege Escalation via SET ROLE",
       "description": "Detects PostgreSQL SET ROLE attempts for privilege escalation",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1548"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_pg_001\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%postgresql%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
+          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "postgresql",
+        "metric": "siem_general_db_pg_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-8.5"
-      ],
-      "mitre": [
-        "T1548"
       ],
       "tags": [
         "database",
@@ -41,27 +44,30 @@
       "rule_id": "OCI-DB-PG-002",
       "name": "PostgreSQL — pg_dump Data Exfiltration",
       "description": "Detects PostgreSQL pg_dump commands indicating potential data exfiltration",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1213"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_pg_002\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%postgresql%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
+          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "postgresql",
+        "metric": "siem_general_db_pg_002",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "GDPR-25-008"
-      ],
-      "mitre": [
-        "T1213"
       ],
       "tags": [
         "database",
@@ -74,28 +80,29 @@
       "rule_id": "OCI-DB-PG-003",
       "name": "PostgreSQL — Row-Level Security Bypass",
       "description": "Detects PostgreSQL queries bypassing row-level security policies",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1078"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_pg_003\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%postgresql%' OR \"data__json.message\" LIKE '%row%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "postgresql",
+        "metric": "siem_general_db_pg_003",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-8.5",
-        "GDPR-25-003"
-      ],
-      "mitre": [
-        "T1078"
       ],
       "tags": [
         "database",
@@ -108,27 +115,29 @@
       "rule_id": "OCI-DB-MY-001",
       "name": "MySQL — UNION-Based SQL Injection",
       "description": "Detects UNION-based SQL injection attacks against MySQL databases",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1190"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_my_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%mysql%' OR \"data__json.message\" LIKE '%union%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "mysql",
+        "metric": "siem_general_db_my_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5"
-      ],
-      "mitre": [
-        "T1190"
       ],
       "tags": [
         "database",
@@ -141,27 +150,29 @@
       "rule_id": "OCI-DB-MY-002",
       "name": "MySQL — Root Account Remote Login",
       "description": "Detects remote login attempts to MySQL root account from non-localhost",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1078.001"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_my_002\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%mysql%' OR \"data__json.message\" LIKE '%root%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "mysql",
+        "metric": "siem_general_db_my_002",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-2.1"
-      ],
-      "mitre": [
-        "T1078.001"
       ],
       "tags": [
         "database",
@@ -174,27 +185,29 @@
       "rule_id": "OCI-DB-MSS-001",
       "name": "SQL Server — xp_cmdshell Execution",
       "description": "Detects execution of xp_cmdshell stored procedure enabling OS command execution",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1059"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_mss_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%sql%' OR \"data__json.message\" LIKE '%server%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "sqlserver",
+        "metric": "siem_general_db_mss_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5"
-      ],
-      "mitre": [
-        "T1059"
       ],
       "tags": [
         "database",
@@ -208,26 +221,28 @@
       "name": "SQL Server — SUSPENDED Login State Anomaly",
       "description": "Detects SQL Server logins in SUSPENDED state indicating potential credential abuse",
       "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1078"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_mss_002\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%sql%' OR \"data__json.message\" LIKE '%server%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "sqlserver",
+        "metric": "siem_general_db_mss_002",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-8.5"
-      ],
-      "mitre": [
-        "T1078"
       ],
       "tags": [
         "database",
@@ -240,27 +255,30 @@
       "rule_id": "OCI-DB-ORA-001",
       "name": "Oracle — DBA Privilege Escalation",
       "description": "Detects Oracle DBA privilege escalation attempts via GRANT DBA or ALTER USER",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1548"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_ora_001\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%oracle%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
+          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "oracle",
+        "metric": "siem_general_db_ora_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-8.5"
-      ],
-      "mitre": [
-        "T1548"
       ],
       "tags": [
         "database",
@@ -273,27 +291,29 @@
       "rule_id": "OCI-DB-SQLITE-001",
       "name": "SQLite — Direct File Access from Web",
       "description": "Detects direct SQLite database file access from web applications",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1083"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_sqlite_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%sqlite%' OR \"data__json.message\" LIKE '%direct%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "sqlite",
+        "metric": "siem_general_db_sqlite_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5"
-      ],
-      "mitre": [
-        "T1083"
       ],
       "tags": [
         "database",
@@ -306,27 +326,29 @@
       "rule_id": "OCI-DB-MONGO-001",
       "name": "MongoDB — NoSQL Injection via $where",
       "description": "Detects MongoDB $where operator injection for JavaScript execution",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1190"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_mongo_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%mongodb%' OR \"data__json.message\" LIKE '%nosql%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "mongodb",
+        "metric": "siem_general_db_mongo_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5"
-      ],
-      "mitre": [
-        "T1190"
       ],
       "tags": [
         "database",
@@ -339,27 +361,29 @@
       "rule_id": "OCI-DB-MONGO-002",
       "name": "MongoDB — admin Database Unauthorized Access",
       "description": "Detects unauthorized access to MongoDB admin database",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1078.001"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_mongo_002\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%mongodb%' OR \"data__json.message\" LIKE '%admin%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "mongodb",
+        "metric": "siem_general_db_mongo_002",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-2.1"
-      ],
-      "mitre": [
-        "T1078.001"
       ],
       "tags": [
         "database",
@@ -372,27 +396,30 @@
       "rule_id": "OCI-DB-DYNAMO-001",
       "name": "DynamoDB — Excessive Scan Operations",
       "description": "Detects excessive DynamoDB Scan operations indicating potential data exfiltration",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1213"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_dynamo_001\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%dynamodb%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
+          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "dynamodb",
+        "metric": "siem_general_db_dynamo_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "GDPR-25-008"
-      ],
-      "mitre": [
-        "T1213"
       ],
       "tags": [
         "database",
@@ -405,27 +432,30 @@
       "rule_id": "OCI-DB-CASS-001",
       "name": "Cassandra — Unauthorized CQL Command Execution",
       "description": "Detects unauthorized CQL commands including ALTER, DROP, and GRANT operations",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1548"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_cass_001\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%cassandra%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
+          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "cassandra",
+        "metric": "siem_general_db_cass_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-8.5"
-      ],
-      "mitre": [
-        "T1548"
       ],
       "tags": [
         "database",
@@ -438,27 +468,29 @@
       "rule_id": "OCI-DB-COUCH-001",
       "name": "CouchDB — Admin Party Mode",
       "description": "Detects CouchDB admin party mode or unauthorized admin access",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1078.001"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_couch_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%couchdb%' OR \"data__json.message\" LIKE '%admin%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "couchdb",
+        "metric": "siem_general_db_couch_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-2.1"
-      ],
-      "mitre": [
-        "T1078.001"
       ],
       "tags": [
         "database",
@@ -471,27 +503,29 @@
       "rule_id": "OCI-DB-FIRE-001",
       "name": "Firestore — Overly Permissive Security Rules",
       "description": "Detects Firestore security rules allowing unauthenticated read/write access",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1190"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_fire_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%firestore%' OR \"data__json.message\" LIKE '%overly%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "firestore",
+        "metric": "siem_general_db_fire_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5"
-      ],
-      "mitre": [
-        "T1190"
       ],
       "tags": [
         "database",
@@ -504,27 +538,29 @@
       "rule_id": "OCI-DB-NEO4J-001",
       "name": "Neo4j — Cypher Injection Attack",
       "description": "Detects Cypher injection attacks in Neo4j graph database queries",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1190"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_neo4j_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%neo4j%' OR \"data__json.message\" LIKE '%cypher%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "neo4j",
+        "metric": "siem_general_db_neo4j_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5"
-      ],
-      "mitre": [
-        "T1190"
       ],
       "tags": [
         "database",
@@ -537,27 +573,29 @@
       "rule_id": "OCI-DB-ARANGO-001",
       "name": "ArangoDB — AQL Injection Detection",
       "description": "Detects AQL injection attacks in ArangoDB queries",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1190"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_arango_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%arangodb%' OR \"data__json.message\" LIKE '%aql%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "arangodb",
+        "metric": "siem_general_db_arango_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5"
-      ],
-      "mitre": [
-        "T1190"
       ],
       "tags": [
         "database",
@@ -570,27 +608,29 @@
       "rule_id": "OCI-DB-NEPTUNE-001",
       "name": "Neptune — Gremlin/SPARQL Injection",
       "description": "Detects Gremlin or SPARQL injection attacks against Amazon Neptune",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1190"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_neptune_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%neptune%' OR \"data__json.message\" LIKE '%gremlin%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "neptune",
+        "metric": "siem_general_db_neptune_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5"
-      ],
-      "mitre": [
-        "T1190"
       ],
       "tags": [
         "database",
@@ -603,27 +643,30 @@
       "rule_id": "OCI-DB-INFLUX-001",
       "name": "InfluxDB — Unauthorized Data Deletion",
       "description": "Detects DROP DATABASE or DELETE SERIES commands in InfluxDB",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1485"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_influx_001\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%influxdb%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
+          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "influxdb",
+        "metric": "siem_general_db_influx_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-3.4"
-      ],
-      "mitre": [
-        "T1485"
       ],
       "tags": [
         "database",
@@ -636,27 +679,30 @@
       "rule_id": "OCI-DB-TSCALE-001",
       "name": "TimescaleDB — Hypertable Data Exfiltration",
       "description": "Detects bulk data extraction from TimescaleDB hypertables",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1213"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_tscale_001\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%timescaledb%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
+          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "timescaledb",
+        "metric": "siem_general_db_tscale_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "GDPR-25-008"
-      ],
-      "mitre": [
-        "T1213"
       ],
       "tags": [
         "database",
@@ -670,26 +716,28 @@
       "name": "Prometheus — Unauthorized Metric Scraping",
       "description": "Detects unauthorized metric scraping from Prometheus endpoints revealing infrastructure details",
       "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1592"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_prom_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%prometheus%' OR \"data__json.message\" LIKE '%unauthorized%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "prometheus",
+        "metric": "siem_general_db_prom_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "NIST-CM-7"
-      ],
-      "mitre": [
-        "T1592"
       ],
       "tags": [
         "database",
@@ -702,27 +750,29 @@
       "rule_id": "OCI-DB-PINE-001",
       "name": "Pinecone — Namespace Isolation Bypass",
       "description": "Detects cross-namespace data access in Pinecone vector database",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1078"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_pine_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%pinecone%' OR \"data__json.message\" LIKE '%namespace%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "pinecone",
+        "metric": "siem_general_db_pine_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "GDPR-25-003"
-      ],
-      "mitre": [
-        "T1078"
       ],
       "tags": [
         "database",
@@ -735,27 +785,29 @@
       "rule_id": "OCI-DB-WEAV-001",
       "name": "Weaviate — Tenant Data Isolation Failure",
       "description": "Detects cross-tenant data access in Weaviate vector database",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1078"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_weav_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%weaviate%' OR \"data__json.message\" LIKE '%tenant%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "weaviate",
+        "metric": "siem_general_db_weav_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "GDPR-25-003"
-      ],
-      "mitre": [
-        "T1078"
       ],
       "tags": [
         "database",
@@ -768,27 +820,29 @@
       "rule_id": "OCI-DB-MILV-001",
       "name": "Milvus — Collection-Level Access Bypass",
       "description": "Detects unauthorized collection access in Milvus vector database",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1078"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_milv_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%milvus%' OR \"data__json.message\" LIKE '%collection%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "milvus",
+        "metric": "siem_general_db_milv_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-8.5"
-      ],
-      "mitre": [
-        "T1078"
       ],
       "tags": [
         "database",
@@ -801,27 +855,29 @@
       "rule_id": "OCI-DB-CHROMA-001",
       "name": "ChromaDB — Embedding Poisoning Detection",
       "description": "Detects adversarial embedding vectors inserted into ChromaDB collections",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1190"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_chroma_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%chromadb%' OR \"data__json.message\" LIKE '%embedding%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "chromadb",
+        "metric": "siem_general_db_chroma_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "AI-ACT-15"
-      ],
-      "mitre": [
-        "T1190"
       ],
       "tags": [
         "database",
@@ -834,27 +890,29 @@
       "rule_id": "OCI-DB-QDRANT-001",
       "name": "Qdrant — Payload Filter Injection",
       "description": "Detects filter injection attacks in Qdrant vector search payloads",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1190"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_qdrant_001\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%qdrant%' OR \"data__json.message\" LIKE '%payload%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "qdrant",
+        "metric": "siem_general_db_qdrant_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5"
-      ],
-      "mitre": [
-        "T1190"
       ],
       "tags": [
         "database",
@@ -867,27 +925,30 @@
       "rule_id": "OCI-DB-REDIS-001",
       "name": "Redis — CONFIG GET Credential Exposure",
       "description": "Detects Redis CONFIG commands targeting credentials or authentication configuration",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1552"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_redis_001\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%redis%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
+          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "redis",
+        "metric": "siem_general_db_redis_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-3.4"
-      ],
-      "mitre": [
-        "T1552"
       ],
       "tags": [
         "database",
@@ -900,27 +961,30 @@
       "rule_id": "OCI-DB-REDIS-002",
       "name": "Redis — FLUSHALL/FLUSHDB Data Destruction",
       "description": "Detects Redis FLUSHALL or FLUSHDB commands indicating potential data destruction",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1485"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_redis_002\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%redis%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
+          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "redis",
+        "metric": "siem_general_db_redis_002",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-3.4"
-      ],
-      "mitre": [
-        "T1485"
       ],
       "tags": [
         "database",
@@ -933,27 +997,29 @@
       "rule_id": "OCI-DB-MEMC-001",
       "name": "Memcached — Amplification Attack",
       "description": "Detects Memcached amplification attacks via stats or get requests from external IPs",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1498"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_memc_001\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "memcached",
+        "metric": "siem_general_db_memc_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "NIST-SC-5"
-      ],
-      "mitre": [
-        "T1498"
       ],
       "tags": [
         "database",
@@ -966,27 +1032,30 @@
       "rule_id": "OCI-DB-HBASE-001",
       "name": "HBase — Unauthorized ACL Modification",
       "description": "Detects unauthorized ACL modifications in HBase including grant and revoke operations",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1548"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_db_hbase_001\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%hbase%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
+          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "hbase",
+        "metric": "siem_general_db_hbase_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-8.5"
-      ],
-      "mitre": [
-        "T1548"
       ],
       "tags": [
         "database",
