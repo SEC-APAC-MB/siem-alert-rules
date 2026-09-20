@@ -1,25 +1,21 @@
 {
-  "version": "1.0.0",
-  "generated": "2026-08-17",
-  "description": "Microsoft Sentinel analytics rules — mitre-attack",
+  "description": "SIEM alert rules \u2014 mitre-attack (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-20T04:05:05.716812Z",
   "total_rules": 15,
   "rules": [
     {
       "rule_id": "MS-MITRE-T1190",
       "name": "Exploit Public-Facing Application",
       "description": "Detects exploitation of public-facing web applications, APIs, and services",
-      "severity": "High",
-      "query": "let threshold = 5;\ninitial_access_events\n| where initial_access has_any(\"mitre\", \"initial-access\", \"exploit\", \"web-application\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"initial-access\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "InitialAccess"
-      ],
-      "techniques": [
-        "T1190"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1190"
       ],
@@ -33,24 +29,20 @@
         "exploit",
         "web-application"
       ],
-      "risk_score": 90
+      "risk_score": 50
     },
     {
       "rule_id": "MS-MITRE-T1078",
       "name": "Valid Accounts Usage",
       "description": "Detects use of legitimate credentials for unauthorized access including default, compromised, and stolen accounts",
       "severity": "Medium",
-      "query": "let threshold = 5;\ndefense_evasion_events\n| where defense_evasion has_any(\"mitre\", \"defense-evasion\", \"valid-accounts\", \"credential-abuse\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"defense-evasion\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "DefenseEvasion"
-      ],
-      "techniques": [
-        "T1078"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1078"
       ],
@@ -64,24 +56,20 @@
         "valid-accounts",
         "credential-abuse"
       ],
-      "risk_score": 70
+      "risk_score": 50
     },
     {
       "rule_id": "MS-MITRE-T1110",
       "name": "Brute Force Authentication",
       "description": "Detects brute force authentication attempts including password spraying and credential stuffing",
       "severity": "Medium",
-      "query": "let threshold = 5;\ncredential_access_events\n| where credential_access has_any(\"mitre\", \"credential-access\", \"brute-force\", \"authentication\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"credential-access\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "CredentialAccess"
-      ],
-      "techniques": [
-        "T1110"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1110"
       ],
@@ -95,24 +83,20 @@
         "brute-force",
         "authentication"
       ],
-      "risk_score": 70
+      "risk_score": 50
     },
     {
       "rule_id": "MS-MITRE-T1059",
       "name": "Command and Scripting Interpreter",
       "description": "Detects malicious command/script execution including PowerShell, Bash, Python, and JavaScript",
       "severity": "Medium",
-      "query": "let threshold = 5;\nexecution_events\n| where execution has_any(\"mitre\", \"execution\", \"command-scripting\", \"rce\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"execution\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "Execution"
-      ],
-      "techniques": [
-        "T1059"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1059"
       ],
@@ -126,24 +110,20 @@
         "command-scripting",
         "rce"
       ],
-      "risk_score": 70
+      "risk_score": 50
     },
     {
       "rule_id": "MS-MITRE-T1486",
       "name": "Data Encrypted for Impact (Ransomware)",
       "description": "Detects mass file encryption activity consistent with ransomware operations",
-      "severity": "High",
-      "query": "let threshold = 5;\nimpact_events\n| where impact has_any(\"mitre\", \"impact\", \"ransomware\", \"encryption\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"impact\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "Impact"
-      ],
-      "techniques": [
-        "T1486"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1486"
       ],
@@ -157,24 +137,20 @@
         "ransomware",
         "encryption"
       ],
-      "risk_score": 90
+      "risk_score": 50
     },
     {
       "rule_id": "MS-MITRE-T1566",
       "name": "Phishing Link Click Detection",
       "description": "Detects clicks on known phishing URLs or suspicious links in email and messaging",
       "severity": "Medium",
-      "query": "let threshold = 5;\ninitial_access_events\n| where initial_access has_any(\"mitre\", \"initial-access\", \"phishing\", \"social-engineering\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"initial-access\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "InitialAccess"
-      ],
-      "techniques": [
-        "T1566"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1566"
       ],
@@ -188,24 +164,20 @@
         "phishing",
         "social-engineering"
       ],
-      "risk_score": 70
+      "risk_score": 50
     },
     {
       "rule_id": "MS-MITRE-T1053",
       "name": "Scheduled Task/Job Creation",
       "description": "Detects suspicious scheduled task or cron job creation for persistence or execution",
-      "severity": "Low",
-      "query": "let threshold = 5;\npersistence_events\n| where persistence has_any(\"mitre\", \"persistence\", \"scheduled-task\", \"cron\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"persistence\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "Persistence"
-      ],
-      "techniques": [
-        "T1053"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1053"
       ],
@@ -225,17 +197,13 @@
       "name": "Application Layer Protocol Abuse (C2)",
       "description": "Detects suspicious use of HTTP, DNS, or other application protocols for C2 communication",
       "severity": "Medium",
-      "query": "let threshold = 5;\ncommand_and_control_events\n| where command_and_control has_any(\"mitre\", \"command-and-control\", \"protocol-abuse\", \"c2\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"command-and-control\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "CommandAndControl"
-      ],
-      "techniques": [
-        "T1071"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1071"
       ],
@@ -248,24 +216,20 @@
         "protocol-abuse",
         "c2"
       ],
-      "risk_score": 70
+      "risk_score": 50
     },
     {
       "rule_id": "MS-MITRE-T1562",
-      "name": "Impair Defenses — Security Tool Disable",
+      "name": "Impair Defenses \u2014 Security Tool Disable",
       "description": "Detects attempts to disable or impair security tools including AV, EDR, and logging",
-      "severity": "High",
-      "query": "let threshold = 5;\ndefense_evasion_events\n| where defense_evasion has_any(\"mitre\", \"defense-evasion\", \"impair-defenses\", \"security-tool\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"defense-evasion\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "DefenseEvasion"
-      ],
-      "techniques": [
-        "T1562"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1562"
       ],
@@ -279,24 +243,20 @@
         "impair-defenses",
         "security-tool"
       ],
-      "risk_score": 90
+      "risk_score": 50
     },
     {
       "rule_id": "MS-MITRE-T1087",
       "name": "Account Discovery",
       "description": "Detects account enumeration and discovery activity on domain controllers and directory services",
-      "severity": "Low",
-      "query": "let threshold = 5;\ndiscovery_events\n| where discovery has_any(\"mitre\", \"discovery\", \"account-discovery\", \"enumeration\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"discovery\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "Discovery"
-      ],
-      "techniques": [
-        "T1087"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1087"
       ],
@@ -315,18 +275,14 @@
       "rule_id": "MS-MITRE-T1210",
       "name": "Exploitation of Remote Services",
       "description": "Detects exploitation of remote services including RDP, SSH, SMB, and database services",
-      "severity": "High",
-      "query": "let threshold = 5;\nlateral_movement_events\n| where lateral_movement has_any(\"mitre\", \"lateral-movement\", \"remote-exploit\", \"exploitation\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"lateral-movement\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "LateralMovement"
-      ],
-      "techniques": [
-        "T1210"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1210"
       ],
@@ -340,24 +296,20 @@
         "remote-exploit",
         "exploitation"
       ],
-      "risk_score": 90
+      "risk_score": 50
     },
     {
       "rule_id": "MS-MITRE-T1055",
       "name": "Process Injection",
       "description": "Detects process injection techniques including DLL injection, process hollowing, and thread injection",
       "severity": "Medium",
-      "query": "let threshold = 5;\ndefense_evasion_events\n| where defense_evasion has_any(\"mitre\", \"defense-evasion\", \"process-injection\", \"evasion\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"defense-evasion\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "DefenseEvasion"
-      ],
-      "techniques": [
-        "T1055"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1055"
       ],
@@ -371,24 +323,20 @@
         "process-injection",
         "evasion"
       ],
-      "risk_score": 70
+      "risk_score": 50
     },
     {
       "rule_id": "MS-MITRE-T1003",
       "name": "OS Credential Dumping",
       "description": "Detects credential dumping tools and techniques including Mimikatz, LSASS access, and /proc/*/mem",
-      "severity": "High",
-      "query": "let threshold = 5;\ncredential_access_events\n| where credential_access has_any(\"mitre\", \"credential-access\", \"credential-dumping\", \"mimikatz\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"credential-access\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "CredentialAccess"
-      ],
-      "techniques": [
-        "T1003"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1003"
       ],
@@ -402,24 +350,20 @@
         "credential-dumping",
         "mimikatz"
       ],
-      "risk_score": 90
+      "risk_score": 50
     },
     {
       "rule_id": "MS-MITRE-T1046",
       "name": "Network Service Discovery",
       "description": "Detects network scanning and service enumeration including port scans and banner grabbing",
-      "severity": "Low",
-      "query": "let threshold = 5;\ndiscovery_events\n| where discovery has_any(\"mitre\", \"discovery\", \"network-scan\", \"enumeration\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"discovery\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "Discovery"
-      ],
-      "techniques": [
-        "T1046"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1046"
       ],
@@ -440,17 +384,13 @@
       "name": "Exfiltration Over Alternative Protocol",
       "description": "Detects data exfiltration over non-standard protocols including DNS, ICMP, and HTTPS to unknown destinations",
       "severity": "Medium",
-      "query": "let threshold = 5;\nexfiltration_events\n| where exfiltration has_any(\"mitre\", \"exfiltration\", \"alternative-protocol\", \"data-theft\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"mitre\" or Message contains \"exfiltration\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "Exfiltration"
-      ],
-      "techniques": [
-        "T1048"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "MITRE-T1048"
       ],
@@ -464,7 +404,7 @@
         "alternative-protocol",
         "data-theft"
       ],
-      "risk_score": 70
+      "risk_score": 50
     }
   ]
 }
