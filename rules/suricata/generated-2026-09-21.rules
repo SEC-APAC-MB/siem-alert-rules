@@ -1,0 +1,238 @@
+# Suricata Detection Rules - Generated 2026-09-21
+# Based on GitHub Advisory Database CVEs (2026-08-27 onwards)
+# MITRE ATT&CK techniques not yet covered
+# Current threat landscape coverage
+# Total rules: 100 | SID range: 5204001-5204100
+
+# ============================================================
+# CVE-2026-94097 | Netcore NBR200V2 Critical Command Injection (CVSS 10.0)
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Netcore NBR200V2 Critical Command Injection CVE-2026-94097 - restore.cgi QUERY_STRING"; flow:to_server,established; http.uri; content:"/restore.cgi"; nocase; content:"QUERY_STRING"; http.header; classtype:attempted-admin; sid:5204001; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Netcore NBR200V2 Command Injection via routerd CVE-2026-94097 - vlan_load_form_uci"; flow:to_server,established; http.uri; content:"/usr/bin/routerd"; nocase; content:"wan_num"; http.client_body; classtype:attempted-admin; sid:5204002; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Netcore NBR200V2 Buffer Overflow CVE-2026-94097 - ping.cgi"; flow:to_server,established; http.uri; content:"/ping.cgi"; nocase; pcre:"/[&?]ipaddr=[^&]*[;|`]/Pi"; classtype:attempted-admin; sid:5204003; rev:1;)
+
+# ============================================================
+# CVE-2026-94089 | D-Link DIR-868L Critical Buffer Overflow (CVSS 10.0)
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT D-Link DIR-868L Critical Buffer Overflow CVE-2026-94089 - strcpy Handler"; flow:to_server,established; http.header; content:"User-Agent"; content:"DIR-868L"; nocase; http.uri; content:"/cgi-bin/"; nocase; classtype:attempted-admin; sid:5204004; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT D-Link DIR-868L Authentication Bypass CVE-2026-94089"; flow:to_server,established; http.uri; content:"/cgi-bin/login.cgi"; nocase; content:"Authorization"; http.header; content:"Basic"; classtype:attempted-admin; sid:5204005; rev:1;)
+
+# ============================================================
+# CVE-2026-90817 | Survey Passthrough Unauthenticated RCE (CVSS 9.8)
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Survey Passthrough Unauthenticated RCE CVE-2026-90817"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/survey"; nocase; content:"passthrough"; http.client_body; nocase; pcre:"/(?:exec|system|popen|proc_open|shell_exec|passthru|eval)\s*\(/Ri"; classtype:attempted-admin; sid:5204006; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Survey Passthrough RCE CVE-2026-90817 - Command Execution Pattern"; flow:to_server,established; http.uri; content:"/survey/passthrough"; nocase; content:"cmd="; http.client_body; pcre:"/(?:;|%7C|`|%60|\||%26|&&|%26%26)/Pi"; classtype:attempted-admin; sid:5204007; rev:1;)
+
+# ============================================================
+# CVE-2026-88857 / CVE-2026-88856 | Joomla OrdaSoft Authenticated RCE
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Joomla OrdaSoft Authenticated RCE CVE-2026-88857"; flow:to_server,established; http.uri; content:"/administrator/index.php"; nocase; content:"ordasoft"; nocase; content:"com_"; pcre:"/(?:exec|system|passthru|eval|shell_exec)\s*\(/Ri"; classtype:attempted-user; sid:5204008; rev:1;)
+
+# ============================================================
+# CVE-2026-88854 | Joomla OrdaSoft Unauthenticated SQL Injection
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET WEB Joomla OrdaSoft Unauthenticated SQL Injection CVE-2026-88854"; flow:to_server,established; http.uri; content:"/index.php"; content:"option=com_"; nocase; content:"ordasoft"; nocase; pcre:"/(?:union\s+select|(?:and|or)\s+\d+\s*=\s*\d+|1\s*=\s*1|'\s*(?:or|and)\s*'|(?:--|\/\*|#))/Pi"; classtype:web-application-attack; sid:5204009; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB Joomla OrdaSoft SQL Injection CVE-2026-88854 - Union Select"; flow:to_server,established; http.uri; content:"option=com_"; nocase; content:"ordasoft"; nocase; pcre:"/union\s+(?:all\s+)?select\s+/Pi"; classtype:web-application-attack; sid:5204010; rev:1;)
+
+# ============================================================
+# CVE-2026-94099 / CVE-2026-94101 / CVE-2026-94100 / CVE-2026-94098 / CVE-2026-94096 / CVE-2026-94095
+# Netcore NBR200V2 Multiple Critical/High Vulnerabilities
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Netcore NBR200V2 Command Injection via QUERY_STRING CVE-2026-94099"; flow:to_server,established; http.uri; content:"/restore.cgi"; nocase; pcre:"/[?&](?:cmd|exec|command|action)=/Pi"; classtype:attempted-admin; sid:5204011; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Netcore NBR200V2 Buffer Overflow via vlan_load_form_uci CVE-2026-94101"; flow:to_server,established; http.uri; content:"vlan_load_form_uci"; nocase; content:"wan_num"; http.client_body; pcre:"/wan_num=[^&]{50,}/Pi"; classtype:attempted-admin; sid:5204012; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Netcore NBR200V2 Buffer Overflow via ping.cgi CVE-2026-94100"; flow:to_server,established; http.uri; content:"/ping.cgi"; nocase; content:"ipaddr="; http.client_body; pcre:"/ipaddr=[^&]{100,}/Pi"; classtype:attempted-admin; sid:5204013; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Netcore NBR200V2 Command Injection CVE-2026-94098 - Multiple Endpoints"; flow:to_server,established; http.uri; pcre:"/(?:ping|traceroute|restore|upgrade|diag)\.cgi/i"; pcre:"/[?&](?:ipaddr|host|cmd|command|action)=[^&]*(?:[;|`&]|%3B|%7C|%60)/Pi"; classtype:attempted-admin; sid:5204014; rev:1;)
+
+# ============================================================
+# CVE-2026-94128 / CVE-2026-94129 | BioStar IOCTL Write-What-Where (CVSS 8.8)
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT BioStar VIVID LED DJ IOCTL Write-What-Where CVE-2026-94128"; flow:to_server,established; http.uri; content:"BS_LED64"; nocase; classtype:attempted-admin; sid:5204015; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT BioStar VALKYRIE AURORA IOCTL Write-What-Where CVE-2026-94129"; flow:to_server,established; http.uri; content:"BS_RVSIO64"; nocase; classtype:attempted-admin; sid:5204016; rev:1;)
+
+# ============================================================
+# CVE-2026-94110 | QCMS SQL Injection (CVSS 7.3)
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET WEB QCMS SQL Injection CVE-2026-94110 - Content Detail Page"; flow:to_server,established; http.uri; content:"/index.php"; nocase; content:"m=content"; nocase; content:"ID="; pcre:"/ID=\d+\s*(?:union|or|and)\s+/Pi"; classtype:web-application-attack; sid:5204017; rev:1;)
+
+# ============================================================
+# CVE-2026-94102 | WuzhiCMS Open Redirect
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET WEB WuzhiCMS Open Redirect CVE-2026-94102 - Login forward Parameter"; flow:to_server,established; http.uri; content:"/index.php"; content:"m=member"; nocase; content:"v=Login"; nocase; content:"forward="; pcre:"/forward=https?:\/\/(?![\w.-]*example\.com)/Pi"; classtype:web-application-attack; sid:5204018; rev:1;)
+
+# ============================================================
+# CVE-2026-94103 | RooCMS Code Injection via eval()
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET WEB RooCMS Code Injection via eval CVE-2026-94103"; flow:to_server,established; http.uri; content:"site_pagePHP.php"; nocase; content:"content="; http.client_body; pcre:"/content=[^&]*(?:eval|system|exec|passthru|shell_exec)\s*\(/Pi"; classtype:web-application-attack; sid:5204019; rev:1;)
+
+# ============================================================
+# CVE-2026-94036 | D-Link DIR-X1860 Command Injection (CVSS 8.8)
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT D-Link DIR-X1860 Command Injection CVE-2026-94036"; flow:to_server,established; http.uri; content:"/cgi-bin/"; nocase; pcre:"/(?:ssid|wan|dns|ping|traceroute)\.cgi/i"; pcre:"/[?&](?:cmd|exec|command|ip)=[^&]*(?:[;|`&]|%3B|%7C|%60)/Pi"; classtype:attempted-admin; sid:5204020; rev:1;)
+
+# ============================================================
+# CVE-2026-92254 | Missing Authorization in wsdkd.sys IOCTL
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Windows Kernel Driver Missing Authorization CVE-2026-92254 - wsdkd.sys IOCTL"; flow:to_server,established; http.uri; content:"wsdkd"; nocase; classtype:attempted-admin; sid:5204021; rev:1;)
+
+# ============================================================
+# CVE-2026-94015 | SourceCodester Drug Recommendation System SQL Injection
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET WEB Drug Recommendation System SQL Injection CVE-2026-94015"; flow:to_server,established; http.uri; content:"/drug"; nocase; pcre:"/(?:'|\")\s*(?:or|and)\s+\d+\s*=\s*\d+/Pi"; classtype:web-application-attack; sid:5204022; rev:1;)
+
+# ============================================================
+# CVE-2026-94043 | Free5GC Vulnerability
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Free5GC Vulnerability CVE-2026-94043 - 5G Core Exploit"; flow:to_server,established; http.uri; content:"/nrf/"; nocase; content:"/nf-instance"; nocase; pcre:"/(?:union|select|insert|delete|update)\s+/Pi"; classtype:attempted-admin; sid:5204023; rev:1;)
+
+# ============================================================
+# CVE-2026-94044 | MCP SQL Injection
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET WEB MCP Platform SQL Injection CVE-2026-94044"; flow:to_server,established; http.uri; content:"mcp"; nocase; pcre:"/(?:union\s+select|and\s+1\s*=\s*1|'\s*or\s*')/Pi"; classtype:web-application-attack; sid:5204024; rev:1;)
+
+# ============================================================
+# CVE-2026-94038 | dim-sum-app Vulnerability
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET WEB NonceGeek dim-sum-app RCE CVE-2026-94038"; flow:to_server,established; http.uri; content:"dim-sum"; nocase; pcre:"/(?:exec|system|passthru|eval|shell_exec)\s*\(/Pi"; classtype:web-application-attack; sid:5204025; rev:1;)
+
+# ============================================================
+# CVE-2026-94039 | TaxHacker Vulnerability
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET WEB TaxHacker SQL Injection CVE-2026-94039"; flow:to_server,established; http.uri; content:"taxhacker"; nocase; pcre:"/(?:union\s+select|'\s*or\s*'|1\s*=\s*1)/Pi"; classtype:web-application-attack; sid:5204026; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK Coverage - Tactic: Initial Access
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET TROJAN Possible Drive-by Download - Executable Content-Type from Suspicious Referrer"; flow:to_server,established; http.header; content:"Referer"; content:"|3a|//"; pcre:"/\.(?:exe|dll|bat|ps1|vbs|js|msi)/Ri"; http.header; content:"Content-Type"; content:"application/octet-stream"; classtype:trojan-activity; sid:5204027; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Possible Exploit Kit Landing - Multiple Redirect Chain"; flow:to_server,established; http.uri; content:".php"; pcre:"/[?&](?:id|sid|camp|cmp|ref)=[a-f0-9]{8,}/Pi"; classtype:trojan-activity; sid:5204028; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Spear-Phishing Attachment Download - Macro-enabled Document"; flow:to_server,established; http.header; content:"Content-Disposition"; content:"filename="; pcre:"/\.(?:docm|xlsm|pptm|dotm|potm|xltm)/Pi"; classtype:trojan-activity; sid:5204029; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Possible Supply Chain Compromise - NPM/PyPI Malicious Package Fetch"; flow:to_server,established; http.uri; content:"/registry.npmjs.org/"; nocase; content:"/latest"; pcre:"/\b(?:node-pty-prebuilt|temp-add|selenium-chrome|chrome-remote-interface|electron-builder|discord.js-)[a-z_-]*(?:hack|steal|crypto|miner|keylog)/Pi"; classtype:trojan-activity; sid:5204030; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK Coverage - Tactic: Execution
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT PowerShell Download and Execute Pattern"; flow:to_server,established; http.uri; pcre:"/(?:powershell|pwsh)\s+(?:-[a-z]*\s+)*(?:IEX|Invoke-Expression|Invoke-WebRequest|Net\.WebClient|DownloadString|Start-Process)/Pi"; classtype:trojan-activity; sid:5204031; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT WMI Remote Command Execution via WinRM"; flow:to_server,established; http.uri; content:"/wsman"; nocase; content:"Create"; http.client_body; classtype:attempted-admin; sid:5204032; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Scheduled Task Creation via Remote COM"; flow:to_server,established; http.uri; content:"/schtasks"; nocase; content:"/create"; nocase; pcre:"/(?:cmd|powershell|wscript|cscript)\./Pi"; classtype:attempted-admin; sid:5204033; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Bash Reverse Shell Pattern - Common Payload"; flow:established; content:"bash"; content:"-i"; content:">&"; content:"/dev/tcp/"; classtype:trojan-activity; sid:5204034; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Python Reverse Shell Pattern"; flow:established; content:"import socket"; content:"subprocess"; content:"call"; pcre:"/socket\s*\(\s*AF_INET\s*,\s*SOCK_STREAM\s*\)/R"; classtype:trojan-activity; sid:5204035; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK Coverage - Tactic: Persistence
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Registry Run Key Persistence via Remote Access"; flow:to_server,established; http.uri; content:"/registry/"; nocase; content:"CurrentVersion"; nocase; content:"Run"; nocase; classtype:attempted-admin; sid:5204036; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Crontab Persistence via Web Application"; flow:to_server,established; http.uri; pcre:"/(?:crontab|cron\s+-e|\/etc\/cron\.)/Pi"; pcre:"/(?:wget|curl)\s+.*\s*\|\s*(?:ba)?sh/Pi"; classtype:attempted-admin; sid:5204037; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Web Shell Persistence - Suspicious PHP eval with Base64"; flow:to_server,established; http.client_body; content:"eval"; content:"base64_decode"; pcre:"/eval\s*\(\s*(?:gzinflate|base64_decode|str_rot13)\s*\(/Pi"; classtype:web-application-attack; sid:5204038; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Systemd Service Persistence via Remote Upload"; flow:to_server,established; http.uri; content:"/etc/systemd/system/"; pcre:"/\.(?:service|timer)$/Pi"; classtype:attempted-admin; sid:5204039; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK Coverage - Tactic: Privilege Escalation
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Possible SUID Binary Exploitation"; flow:established; content:"find"; content:"-perm"; content:"4000"; pcre:"/(?:find\s+-perm\s+-4000|find\s+-perm\s+u\+s)/R"; classtype:attempted-admin; sid:5204040; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Docker Escape via Privileged Container"; flow:established; content:"docker"; content:"run"; content:"--privileged"; classtype:attempted-admin; sid:5204041; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Kubernetes RBAC Privilege Escalation - Bind Cluster-Admin"; flow:to_server,established; http.uri; content:"/apis/rbac.authorization.k8s.io/"; content:"clusterrolebindings"; nocase; content:"cluster-admin"; nocase; classtype:attempted-admin; sid:5204042; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Possible Linux Kernel Exploit - DirtyPipe/DirtyCOW Pattern"; flow:established; content:"/proc/self/mem"; pcre:"/(?:pipe|mmap|splice|write)\s*\(.*(?:O_RDWR|PROT_WRITE)/Pi"; classtype:attempted-admin; sid:5204043; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Windows Token Privilege Escalation - SeImpersonatePrivilege"; flow:to_server,established; http.client_body; content:"SeImpersonatePrivilege"; nocase; classtype:attempted-admin; sid:5204044; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK Coverage - Tactic: Defense Evasion
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET TROJAN Possible Log Tampering via syslog Injection"; flow:to_server,established; http.uri; content:"/var/log/"; pcre:"/(?:syslog|auth\.log|secure|messages)\s*$/Pi"; classtype:attempted-admin; sid:5204045; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Process Hollowing - Suspicious Parent-Child Mismatch"; flow:established; content:"CreateProcess"; content:"PROCESS_VM_WRITE"; classtype:trojan-activity; sid:5204046; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT AMSI Bypass - .NET Reflection Disable"; flow:to_server,established; http.client_body; content:"amsiInitFailed"; nocase; content:"System.Management.Automation.AmsiUtils"; nocase; classtype:trojan-activity; sid:5204047; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT ETW Disable via Patching - Defense Evasion"; flow:to_server,established; http.client_body; content:"EtwEventWrite"; nocase; content:"ntdll"; content:"EtwEvent"; classtype:trojan-activity; sid:5204048; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK Coverage - Tactic: Credential Access
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Possible LSA Secrets Dumping - SAM Database Access"; flow:to_server,established; http.uri; content:"/SAM"; content:"SAM"; http.client_body; nocase; classtype:attempted-admin; sid:5204049; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT NTDS.dit Extraction via Remote Access"; flow:to_server,established; http.uri; content:"ntds.dit"; nocase; classtype:attempted-admin; sid:5204050; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Kerberoasting - Suspicious Kerberos Ticket Request"; flow:to_server,established; http.client_body; content:"kerberos"; nocase; content:"TGS"; content:"REQ"; classtype:attempted-admin; sid:5204051; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Password Spraying Detection - Multiple Failed Logins from Same Source"; flow:to_server,established; http.uri; content:"/login"; nocase; content:"401"; content:"Unauthorized"; classtype:attempted-admin; sid:5204052; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Mimikatz Command Pattern Detected"; flow:established; content:"sekurlsa"; content:"logonpasswords"; classtype:attempted-admin; sid:5204053; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK Coverage - Tactic: Lateral Movement
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT WMI Lateral Movement - Remote Process Creation"; flow:to_server,established; http.uri; content:"/wmic"; nocase; content:"process"; content:"call"; content:"create"; classtype:attempted-admin; sid:5204054; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT SMB Lateral Movement - PSEXEC Pattern"; flow:to_server,established; content:"\\ADMIN$"; content:"psexec"; nocase; classtype:attempted-admin; sid:5204055; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT SSH Tunneling for Lateral Movement"; flow:to_server,established; content:"ssh"; content:"-R"; content:"-L"; classtype:attempted-admin; sid:5204056; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT RDP Lateral Movement via Restricted Admin Mode"; flow:to_server,established; http.header; content:"Cookie"; content:"mstshash="; classtype:attempted-admin; sid:5204057; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT DCOM Lateral Movement - ShellWindows Activation"; flow:to_server,established; http.uri; content:"/IActivation"; content:"ShellWindows"; nocase; classtype:attempted-admin; sid:5204058; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK Coverage - Tactic: Collection
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET TROJAN Data Staging - Suspicious Archive Creation"; flow:to_server,established; http.uri; pcre:"/(?:tar|zip|rar|7z)\s+(?:-czf|-cf|a)\s+(?:\/tmp|\/var\/tmp|C:\\\\Users)/Pi"; classtype:trojan-activity; sid:5204059; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET TROJAN Browser Credential Harvesting - Chrome Login Data Access"; flow:to_server,established; http.uri; content:"Login Data"; content:"Chrome"; nocase; classtype:trojan-activity; sid:5204060; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK Coverage - Tactic: Exfiltration
+# ============================================================
+alert http $HOME_NET any -> any any (msg:"ET TROJAN DNS Exfiltration via Large TXT Record Queries"; flow:to_server,established; content:"|00 10|"; pcre:"/[a-z0-9]{40,}\.(?:example\.com|domain\.(?:local|net|org|com))/Pi"; classtype:trojan-activity; sid:5204061; rev:1;)
+alert http $HOME_NET any -> any any (msg:"ET TROJAN HTTPS Exfiltration - Large POST to Unknown Domain"; flow:to_server,established; http.method; content:"POST"; http.header; content:"Content-Length"; pcre:"/Content-Length:\s*[0-9]{7,}/Pi"; classtype:trojan-activity; sid:5204062; rev:1;)
+alert http $HOME_NET any -> any any (msg:"ET TROJAN Cloud Storage Exfiltration - Suspicious Upload to File Sharing Service"; flow:to_server,established; http.host; pcre:"/(?:transfer\.sh|file\.io|gofile\.io|anonfiles\.com|mega\.nz)/Pi"; http.method; content:"POST"; classtype:trojan-activity; sid:5204063; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET TROJAN Steganography Exfiltration - PNG with Embedded Payload"; flow:to_client,established; http.header; content:"Content-Type"; content:"image/png"; file.data; content:"|89 50 4E 47|"; within:4; file.size; pcre:"/(?:zlib|deflate|7z|RAR)/R"; classtype:trojan-activity; sid:5204064; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK Coverage - Tactic: Command and Control
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET TROJAN Beacon Activity - Periodic HTTPS Connection to Suspicious Domain"; flow:to_server,established; http.host; pcre:"/[a-z]{8,}\.(?:xyz|top|click|buzz|work|loan|trade|date|loan|men)\b/Pi"; classtype:trojan-activity; sid:5204065; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET TROJAN Cobalt Strike Beacon Pattern - Jitter and sleeptime"; flow:to_server,established; http.client_body; content:"jitter="; content:"sleeptime="; classtype:trojan-activity; sid:5204066; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET TROJAN Sliver C2 Framework Indicator"; flow:to_server,established; http.uri; pcre:"/\/[a-zA-Z0-9]{8,}\/(?:ws|pipe|poll|r\.)\??/Pi"; http.header; content:"Accept-Encoding"; content:"gzip"; classtype:trojan-activity; sid:5204067; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET TROJAN DNS-over-HTTPS C2 Tunnel - Suspicious DoH Provider"; flow:to_server,established; http.host; pcre:"/(?:dns\.google|cloudflare-dns\.com|dns\.quad9\.net)/Pi"; http.uri; pcre:"/dns-query\?.*[a-f0-9]{32,}/Pi"; classtype:trojan-activity; sid:5204068; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET TROJAN Possible Web Shell C2 - Suspicious PHP Parameter"; flow:to_server,established; http.uri; pcre:"/[?&](?:cmd|exec|command|action|q|c|e|run|execute|shell|ping|query)=[^&]*(?:whoami|id|uname|hostname|ipconfig|net\s+user|systeminfo)/Pi"; classtype:trojan-activity; sid:5204069; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK Coverage - Tactic: Impact
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Ransomware - Volume Shadow Copy Deletion via vssadmin"; flow:to_server,established; content:"vssadmin"; content:"delete"; content:"shadows"; classtype:attempted-admin; sid:5204070; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Ransomware - bcdedit Safe Mode Boot"; flow:to_server,established; content:"bcdedit"; content:"/set"; content:"safeboot"; classtype:attempted-admin; sid:5204071; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Ransomware - wbadmin Delete Catalog"; flow:to_server,established; content:"wbadmin"; content:"delete"; content:"catalog"; classtype:attempted-admin; sid:5204072; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Disk Wiper - dd Command with Large Block Size"; flow:to_server,established; content:"dd"; content:"if=/dev/zero"; content:"bs="; classtype:attempted-admin; sid:5204073; rev:1;)
+
+# ============================================================
+# Cloud & Container Security
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT AWS IAM Credential Exposure - AssumeRole with Excessive Privileges"; flow:to_server,established; http.uri; content:"/sts/"; content:"AssumeRole"; content:"Action"; content:"*"; classtype:attempted-admin; sid:5204074; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Azure AD OAuth Token Theft - Suspicious Refresh Token Usage"; flow:to_server,established; http.uri; content:"/oauth2/token"; content:"refresh_token"; http.client_body; pcre:"/grant_type\s*=\s*refresh_token/Pi"; classtype:attempted-admin; sid:5204075; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Kubernetes API Server Unauthenticated Access"; flow:to_server,established; http.uri; content:"/api/v1/"; content:"pods"; nocase; http.header; content:"Authorization"; pcre:"/Bearer\s+\./Pi"; classtype:attempted-admin; sid:5204076; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Container Escape via cgroups - release_agent"; flow:to_server,established; http.uri; content:"release_agent"; content:"cgroup"; nocase; classtype:attempted-admin; sid:5204077; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Serverless Function Injection - Lambda/Azure Function"; flow:to_server,established; http.uri; pcre:"/(?:\.lambda|\.azurewebsites|\.cloudfunctions)\./Pi"; http.client_body; pcre:"/(?:eval|exec|system|subprocess)\s*\(/Pi"; classtype:web-application-attack; sid:5204078; rev:1;)
+
+# ============================================================
+# Web Application Attack Patterns (OWASP Top 10 2025)
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET WEB SSRF via URL Parameter - Internal Network Scan"; flow:to_server,established; http.uri; pcre:"/[?&](?:url|redirect|return|next|dest|target|rurl|img|source|path|feed|callback)=https?:\/\/(?:10\.\d+\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+|127\.\d+\.\d+\.\d+|0\.0\.0\.0)/Pi"; classtype:web-application-attack; sid:5204079; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB Server-Side Template Injection - Jinja2/Python"; flow:to_server,established; http.uri; pcre:"/\{\{(?:config|request|self|lipsum|cycler|joiner|namespace|range|dict|lipsum|url_for|get_flashed_messages)/Pi"; classtype:web-application-attack; sid:5204080; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB Server-Side Template Injection - Java Freemarker"; flow:to_server,established; http.uri; pcre:"/<#(?:if|assign|include|list|macro|function|import|compress|noparse)/Pi"; classtype:web-application-attack; sid:5204081; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB GraphQL Injection - Introspection Query Abuse"; flow:to_server,established; http.uri; content:"/graphql"; nocase; http.client_body; content:"__schema"; content:"__type"; classtype:web-application-attack; sid:5204082; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB JWT Algorithm Confusion Attack - None Algorithm"; flow:to_server,established; http.header; content:"Authorization"; content:"Bearer"; pcre:"/eyJ(?:hbGci|0eXAi)\s*:\s*\"none\"/Pi"; classtype:web-application-attack; sid:5204083; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB HTTP Request Smuggling - CL.TE Conflict"; flow:to_server,established; http.header; content:"Content-Length"; content:"Transfer-Encoding"; pcre:"/Content-Length:\s*0.*Transfer-Encoding:\s*chunked/Pis"; classtype:web-application-attack; sid:5204084; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB Mass Assignment via API - Sensitive Field Injection"; flow:to_server,established; http.client_body; pcre:"/\"(?:role|is_admin|is_superuser|permissions|password|secret|token|api_key|private_key)\"\s*:/Pi"; classtype:web-application-attack; sid:5204085; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB Prototype Pollution via API Request"; flow:to_server,established; http.client_body; pcre:"/\"__proto__\"\s*:/Pi"; classtype:web-application-attack; sid:5204086; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB XXE Injection - External Entity Declaration"; flow:to_server,established; http.client_body; content:"<!DOCTYPE"; content:"ENTITY"; pcre:"/<!ENTITY\s+\S+\s+SYSTEM\s+/Pi"; classtype:web-application-attack; sid:5204087; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB NoSQL Injection - MongoDB Operator Injection"; flow:to_server,established; http.client_body; pcre:"/\"\$(?:where|gt|lt|gte|lte|ne|in|nin|regex|exists|not)\"\s*:/Pi"; classtype:web-application-attack; sid:5204088; rev:1;)
+
+# ============================================================
+# API Security
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET WEB API Abuse - Excessive Rate Limiting Bypass Attempt"; flow:to_server,established; http.uri; content:"/api/"; http.header; content:"X-Forwarded-For"; pcre:"/X-Forwarded-For:\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3},\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/Pi"; classtype:web-application-attack; sid:5204089; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB API Key Exposure in URL Parameter"; flow:to_server,established; http.uri; pcre:"/[?&](?:api_key|apikey|access_key|secret_key|private_key|token)=[a-zA-Z0-9]{20,}/Pi"; classtype:web-application-attack; sid:5204090; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB Broken Access Control - IDOR via Predictable Resource ID"; flow:to_server,established; http.uri; pcre:"/(?:user|account|order|profile|transaction|invoice|payment)\s*[=/]\d{4,}/Pi"; classtype:web-application-attack; sid:5204091; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB BOLA/BFLC Attack - Bulk Enumerate Resources"; flow:to_server,established; http.uri; content:"/api/v"; pcre:"/\/api\/v\d+\/(?:users|accounts|orders|transactions)\/\d+/Pi"; threshold:type both, track by_src, count 10, seconds 60; classtype:web-application-attack; sid:5204092; rev:1;)
+
+# ============================================================
+# IoT/Embedded Device Attacks (Current Landscape)
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT IoT Device Default Credentials - Admin Login Attempt"; flow:to_server,established; http.uri; content:"/login"; nocase; http.client_body; content:"admin"; pcre:"/(?:admin|root|user)\s*[=:]\s*(?:admin|root|password|1234|12345|default)/Pi"; classtype:attempted-admin; sid:5204093; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Router Management Interface - Unauthenticated Access via Path Traversal"; flow:to_server,established; http.uri; pcre:"/(?:\.\.\/){3,}(?:etc\/passwd|etc\/shadow|var\/log)/Pi"; classtype:attempted-admin; sid:5204094; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT IP Camera Firmware Upload - Unauthenticated"; flow:to_server,established; http.uri; content:"/upgrade"; nocase; content:"firmware"; http.client_body; nocase; http.method; content:"POST"; classtype:attempted-admin; sid:5204095; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT NAS Device RCE via Diagnostic Endpoint"; flow:to_server,established; http.uri; content:"/diagnostic"; nocase; content:"ping"; nocase; pcre:"/[?&]host=[^&]*(?:[;|`&]|%3B|%7C|%60)/Pi"; classtype:attempted-admin; sid:5204096; rev:1;)
+
+# ============================================================
+# AI/LLM Security (Current Landscape)
+# ============================================================
+alert http any any -> $HOME_NET any (msg:"ET WEB LLM Prompt Injection - System Override Attempt"; flow:to_server,established; http.client_body; pcre:"/(?:ignore\s+(?:previous|above|all)\s+(?:instructions|rules|directives|prompts)|you\s+are\s+(?:now|no\s+longer)|disregard\s+(?:all|your|safety)|forget\s+(?:everything|all|your))/Pi"; classtype:web-application-attack; sid:5204097; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB LLM Data Exfiltration via Model Output"; flow:to_client,established; http.client_body; pcre:"/(?:internal\s+documentation|confidential|classified|proprietary|secret\s+key|password|api[_\s]?key)/Pi"; classtype:web-application-attack; sid:5204098; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB LLM SSRF via Tool/Plugin Invocation"; flow:to_server,established; http.client_body; pcre:"/(?:browse|fetch|retrieve|search|visit|access|navigate)\s+(?:https?:\/\/(?:169\.254|10\.\d+|172\.(?:1[6-9]|2\d|3[01])|192\.168|0\.0\.0\.0|metadata\.google|metadata\.azure))/Pi"; classtype:web-application-attack; sid:5204099; rev:1;)
+alert http any any -> $HOME_NET any (msg:"ET WEB LLM Jailbreak - DAN Mode Activation"; flow:to_server,established; http.client_body; pcre:"/(?:DAN\s*Mode|Developer\s*Mode|Jailbreak|bypass\s+(?:filter|restriction|guardrail|safety|moderation|content\s*policy)|do\s+anything\s+now)/Pi"; classtype:web-application-attack; sid:5204100; rev:1;)
