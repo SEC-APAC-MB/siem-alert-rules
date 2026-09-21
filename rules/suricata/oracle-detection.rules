@@ -1,4 +1,3 @@
-# DEPRECATED-CVE: Contains references to stale CVEs (CVE-2012-1675, CVE-2017-10271, CVE-2019-2725, CVE-2020-2551, CVE-2023-21839). Review before deployment.
 # ==============================================================================
 # Oracle Detection Rules — Suricata
 # Covers: Oracle Database (TNS/1521), Oracle Cloud Infrastructure (OCI),
@@ -43,10 +42,7 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - Credential Harvesti
 # --- Oracle WebLogic (Port 7001/7002) ---
 
 alert tcp $EXTERNAL_NET any -> $HOME_NET 7001 (msg:"ORACLE - WebLogic Console Access from External"; flow:established,to_server; content:"/console"; http_uri; content:"GET"; http_method; classtype:attempted-recon; sid:2400050; rev:1; metadata:created_at 2026_09_13, mitre_t1046, oracle_weblogic_console;)
-alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - WebLogic Deserialization Attack - CVE-2017-10271"; flow:established,to_server; content:"/wls-wsat/CoordinatorPortType"; http_uri; pcre:"/<java.*class.*serial/i"; http_client_body; classtype:web-application-attack; sid:2400051; rev:1; metadata:created_at 2026_09_13, cve CVE-2017-10271, mitre_t1190, oracle_weblogic_deser;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - WebLogic SSRF - /uddiexplorer"; flow:established,to_server; content:"/uddiexplorer"; http_uri; content:"http"; http_uri; classtype:web-application-attack; sid:2400052; rev:1; metadata:created_at 2026_09_13, mitre_t1190, oracle_weblogic_ssrf;)
-alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - WebLogic AsyncResponseService Deserialization"; flow:established,to_server; content:"/_async/asyncResponseService"; http_uri; content:"POST"; http_method; classtype:web-application-attack; sid:2400053; rev:1; metadata:created_at 2026_09_13, cve CVE-2019-2725, mitre_t1190, oracle_weblogic_async_deser;)
-alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ORACLE - WebLogic IIOP T3 Protocol Exploit"; flow:established,to_server; content:"t3"; http_header; content:"POST"; http_method; classtype:web-application-attack; sid:2400054; rev:1; metadata:created_at 2026_09_13, cve CVE-2020-2551, mitre_t1190, oracle_weblogic_iiop;)
 
 # --- Oracle EBS (Port 8000/8080) ---
 
@@ -76,11 +72,6 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - Audit Table Truncat
 
 alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - DBMS_XMLGEN SQL Injection to OS Command"; flow:established,to_server; content:"DBMS_XMLGEN"; nocase:true; distance:0; pcre:"/DBMS_XMLGEN.*GETXML.*SELECT/i"; classtype:web-application-attack; sid:2400100; rev:1; metadata:created_at 2026_09_13, mitre_t1190, oracle_dbms_xmlgen;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - DBMS_SQL Dynamic SQL Execution"; flow:established,to_server; content:"DBMS_SQL"; nocase:true; distance:0; content:"EXECUTE"; nocase:true; distance:0; within:50; classtype:web-application-attack; sid:2400101; rev:1; metadata:created_at 2026_09_13, mitre_t1059, oracle_dbms_sql;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - CTXSYS.DRITHSX.SYN RCE - CVE-2023-21839"; flow:established,to_server; content:"CTXSYS"; nocase:true; distance:0; content:"DRITHSX"; nocase:true; distance:0; within:50; classtype:web-application-attack; sid:2400102; rev:1; metadata:created_at 2026_09_13, cve CVE-2023-21839, mitre_t1190, oracle_ctxsys_rce;)
-
-# --- Oracle Net Services / TNS Poison (CVE-2012-1675) ---
-
-alert tcp $EXTERNAL_NET any -> $HOME_NET 1521 (msg:"ORACLE - TNS Listener Poison - CVE-2012-1675"; flow:established,to_server; pcre:"/\x00.{4}\x00\x00\x00\x00.{4}(?:SERVICE_REGISTER|NSPTCN)/s"; classtype:web-application-attack; sid:2400110; rev:1; metadata:created_at 2026_09_13, cve CVE-2012-1675, mitre_t1190, oracle_tns_poison;)
 
 # --- Oracle Listener Enumeration ---
 
