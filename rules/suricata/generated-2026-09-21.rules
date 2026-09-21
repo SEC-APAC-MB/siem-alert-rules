@@ -1,0 +1,309 @@
+# Suricata Detection Rules - Generated 2026-09-21
+# Based on: GitHub Advisory Database CVEs (2026-08-27 to 2026-09-21), MITRE ATT&CK, Current Threat Landscape
+# Total Rules: 100 | SID Range: 5210301-5210400
+
+# --- CVE-Based Rules (from GitHub Advisory fetch) ---
+
+# CVE-2026-94089 - D-Link DIR-868L Stack Buffer Overflow (CRITICAL)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT D-Link DIR-868L Stack Buffer Overflow in Authentication Handler"; flow:to_server,established; http.uri; content:"/webfa_authentication.cgi"; nocase; content:"id="; distance:0; pcre:"/id=[^&]{256,}/Pi"; reference:cve,CVE-2026-94089; reference:ghsa,GHSA-pc7v-4cmj-hg88; classtype:attempted-admin; sid:5210301; rev:1;)
+
+# CVE-2026-88857 - Joomla OrdaSoft RCE (CRITICAL)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Joomla OrdaSoft Extension Authenticated RCE"; flow:to_server,established; http.uri; content:"/index.php"; nocase; http.header; content:"option="; content:"com_"; distance:0; pcre:"/(com_vehicles|com_realty|com_vehicle)/Pi"; reference:cve,CVE-2026-88857; reference:ghsa,GHSA-7jj4-5xhm-pp7r; classtype:attempted-admin; sid:5210302; rev:1;)
+
+# CVE-2026-88856 - Joomla OrdaSoft RCE via Vehicle Manager (CRITICAL)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Joomla OrdaSoft Vehicle Manager Authenticated RCE"; flow:to_server,established; http.uri; content:"/index.php"; nocase; content:"option=com_vehicles"; distance:0; content:"task="; distance:0; pcre:"/task=(rent|buy|edit)/Pi"; reference:cve,CVE-2026-88856; reference:ghsa,GHSA-c6pf-wcwh-mw6r; classtype:attempted-admin; sid:5210303; rev:1;)
+
+# CVE-2026-88854 - Joomla OrdaSoft Unauthenticated SQL Injection (CRITICAL)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Joomla OrdaSoft Gallery Unauthenticated SQL Injection"; flow:to_server,established; http.uri; content:"/index.php"; nocase; content:"option=com_"; distance:0; pcre:"/option=com_(gallery|photo)\b.*[^\w](union|select|insert|update|delete)/Pi"; reference:cve,CVE-2026-88854; reference:ghsa,GHSA-w2hx-m888-mfj4; classtype:attempted-user; sid:5210304; rev:1;)
+
+# CVE-2026-90817 - Survey Passthrough Unauthenticated RCE (CRITICAL)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Unauthenticated RCE via Survey Passthrough Endpoint"; flow:to_server,established; http.uri; content:"/survey"; nocase; content:"passthrough"; distance:0; pcre:"/(\.\.\/|exec|system|passthru|cmd|popen)\b/Pi"; reference:cve,CVE-2026-90817; reference:ghsa,GHSA-hg88-qg2r-c8mx; classtype:attempted-admin; sid:5210305; rev:1;)
+
+# CVE-2026-94107 - NivoCart Predictable Password Reset (CRITICAL)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT NivoCart Predictable Password Reset Token Brute Force"; flow:to_server,established; http.uri; content:"/index.php"; nocase; content:"route=account/forgotten"; distance:0; http.client_body; content:"email="; pcre:"/token=[0-9a-f]{4,8}[^0-9a-f]/Pi"; reference:cve,CVE-2026-94107; reference:ghsa,GHSA-g4x6-pg76-867r; classtype:attempted-admin; sid:5210306; rev:1;)
+
+# CVE-2026-94003 - Comfast CF-N1-S Stack Buffer Overflow (CRITICAL)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Comfast CF-N1-S Stack Buffer Overflow in get_css_path_from_uri"; flow:to_server,established; http.uri; content:"/cgi-bin/mbox-config"; nocase; content:"get_css_path_from_uri"; distance:0; reference:cve,CVE-2026-94003; reference:ghsa,GHSA-w3j5-9v4x-w7pw; classtype:attempted-admin; sid:5210307; rev:1;)
+
+# CVE-2026-94036 - D-Link DIR-X1860 Auth Bypass (HIGH)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT D-Link DIR-X1860 Authentication Bypass via ubus Interface"; flow:to_server,established; http.uri; content:"/ubus"; nocase; content:"call="; distance:0; pcre:"/call=(session|system|router)\./Pi"; reference:cve,CVE-2026-94036; reference:ghsa,GHSA-35x4-pwx2-h4wj; classtype:attempted-admin; sid:5210308; rev:1;)
+
+# CVE-2026-88855 - Joomla OrdaSoft Authenticated SQL Injection (HIGH)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Joomla OrdaSoft Authenticated SQL Injection"; flow:to_server,established; http.uri; content:"/index.php"; nocase; content:"option=com_"; distance:0; pcre:"/option=com_(vehicles|realty|gallery).*[^\w](union|select|concat)/Pi"; reference:cve,CVE-2026-88855; reference:ghsa,GHSA-qjf3-rwvw-jv5p; classtype:attempted-user; sid:5210309; rev:1;)
+
+# CVE-2026-94113 - Frappe ERPNext Info Disclosure (HIGH)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Frappe ERPNext Information Disclosure via API Endpoint"; flow:to_server,established; http.uri; content:"/api/"; nocase; pcre:"!/api/method/(login|logout)/Pi"; http.header; content:"Cookie"; distance:0; threshold:type both, track by_src, count 10, seconds 60; reference:cve,CVE-2026-94113; reference:ghsa,GHSA-m9g7-gc6x-55x7; classtype:attempted-recon; sid:5210310; rev:1;)
+
+# CVE-2026-94112 - ezBookkeeping TOTP Replay (HIGH)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT ezBookkeeping TOTP Passcode Replay Attack"; flow:to_server,established; http.uri; content:"/api/"; nocase; content:"totp"; distance:0; http.client_body; content:"passcode="; pcre:"/passcode=[0-9]{6}/Pi"; threshold:type both, track by_src, count 3, seconds 30; reference:cve,CVE-2026-94112; reference:ghsa,GHSA-j95g-6g2h-3f33; classtype:attempted-user; sid:5210311; rev:1;)
+
+# CVE-2026-94106 - getID3 OS Command Injection (HIGH)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT getID3 OS Command Injection via Shell-Out Handlers"; flow:to_server,established; http.client_body; content:"filename="; pcre:"/filename=.*[|;&`$]/Pi"; reference:cve,CVE-2026-94106; reference:ghsa,GHSA-7c6f-jc48-6hfq; classtype:attempted-admin; sid:5210312; rev:1;)
+
+# CVE-2026-94108 - getID3 XXE Injection (HIGH)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT getID3 XXE Injection via XML2array Parser"; flow:to_server,established; http.client_body; content:"<!DOCTYPE"; nocase; content:"<!ENTITY"; distance:0; pcre:"/<!ENTITY\s+\w+\s+SYSTEM/Pi"; reference:cve,CVE-2026-94108; reference:ghsa,GHSA-gmhw-pxmg-j22w; classtype:attempted-admin; sid:5210313; rev:1;)
+
+# CVE-2026-94109 - openEQUELLA FreeMarker RCE (HIGH)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT openEQUELLA FreeMarker Template RCE"; flow:to_server,established; http.uri; content:"/freemarker"; nocase; pcre:"/<#assign|<#if|<#exec/Pi"; reference:cve,CVE-2026-94109; reference:ghsa,GHSA-w599-5qgp-f3cf; classtype:attempted-admin; sid:5210314; rev:1;)
+
+# CVE-2026-94104 - NivoCart Arbitrary File Upload (HIGH)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT NivoCart Arbitrary File Upload via File Manager"; flow:to_server,established; http.uri; content:"/admin/"; nocase; content:"filemanager"; distance:0; http.request_body; content:"filename="; pcre:"/filename=.*\.(php|phtml|jsp|jspx|asp|aspx)/Pi"; reference:cve,CVE-2026-94104; reference:ghsa,GHSA-m76p-p4wh-76x9; classtype:attempted-admin; sid:5210315; rev:1;)
+
+# CVE-2026-94111 - Tencent BrowserSkill Auth Bypass (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Tencent BrowserSkill Authentication Bypass via Local Service"; flow:to_server,established; http.uri; content:"/browserskill"; nocase; content:"token="; distance:0; pcre:"/token=[^&]{0,10}$/Pi"; reference:cve,CVE-2026-94111; reference:ghsa,GHSA-x6f2-qp26-2xrh; classtype:attempted-admin; sid:5210316; rev:1;)
+
+# CVE-2026-94050 - D-Link DIR-X1860Z Info Disclosure (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT D-Link DIR-X1860Z Information Disclosure via ubus JSON-RPC"; flow:to_server,established; http.uri; content:"/ubus"; nocase; http.client_body; content:"wificfg_get"; distance:0; reference:cve,CVE-2026-94050; reference:ghsa,GHSA-p6p3-fj5h-8g7w; classtype:attempted-recon; sid:5210317; rev:1;)
+
+# CVE-2026-94044 - MCP Path Traversal (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT MCP Server Path Traversal via filePath Parameter"; flow:to_server,established; http.uri; content:"/mcp"; nocase; pcre:"/(filePath|path)=.*(\.\.\/|\.\.\\\\)/Pi"; reference:cve,CVE-2026-94044; reference:ghsa,GHSA-wvg2-xpp5-j725; classtype:attempted-user; sid:5210318; rev:1;)
+
+# CVE-2026-94043 - Free5GC DoS (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Free5GC Denial of Service via Malformed Request"; flow:to_server,established; http.uri; content:"/nrf/"; nocase; pcre:"/\/nrf\/(nf-instances|subscriptions)/Pi"; threshold:type both, track by_src, count 50, seconds 10; reference:cve,CVE-2026-94043; reference:ghsa,GHSA-xw42-gh9m-wv36; classtype:attempted-dos; sid:5210319; rev:1;)
+
+# CVE-2026-94038 - dim-sum-app SSRF (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT dim-sum-app SSRF via External URL Parameter"; flow:to_server,established; http.uri; content:"/api/"; nocase; pcre:"/url=https?:\/\/(?!10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/Pi"; reference:cve,CVE-2026-94038; reference:ghsa,GHSA-wx3w-fghf-hgf7; classtype:attempted-recon; sid:5210320; rev:1;)
+
+# CVE-2026-94105 - NivoCart Destructive Config Write (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT NivoCart Destructive Configuration Write via Admin Panel"; flow:to_server,established; http.uri; content:"/admin/"; nocase; content:"config"; distance:0; http.request_body; content:"write"; pcre:"/(write|save|update).*config/Pi"; reference:cve,CVE-2026-94105; reference:ghsa,GHSA-6h55-m3v5-vrcr; classtype:attempted-admin; sid:5210321; rev:1;)
+
+# CVE-2026-94004 - DedeCMS Vulnerability (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT DedeCMS Unknown Function Vulnerability"; flow:to_server,established; http.uri; content:"/plus/"; nocase; pcre:"/plus\/(mytag|feedback|count|search)\.php/Pi"; reference:cve,CVE-2026-94004; reference:ghsa,GHSA-m575-xcmx-5jj5; classtype:attempted-user; sid:5210322; rev:1;)
+
+# CVE-2026-92254 - WatchDog Anti-Virus IOCTL Missing Auth (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT WatchDog Anti-Virus wsdkd.sys IOCTL Handler Missing Authorization"; flow:to_server,established; http.uri; content:"/watchdog"; nocase; content:"ioctl"; distance:0; reference:cve,CVE-2026-92254; reference:ghsa,GHSA-g5cw-xv36-rr58; classtype:attempted-admin; sid:5210323; rev:1;)
+
+# CVE-2026-92253 - WatchDog Anti-Virus Symlink Attack (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT WatchDog Anti-Virus Quarantine Restoration Symlink Attack"; flow:to_server,established; http.uri; content:"/watchdog"; nocase; content:"restore"; distance:0; pcre:"/\.\.[\/\\]/Pi"; reference:cve,CVE-2026-92253; reference:ghsa,GHSA-mhp8-fvh4-c285; classtype:attempted-user; sid:5210324; rev:1;)
+
+# CVE-2026-92252 - WatchDog Anti-Virus Default Permissions (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT WatchDog Anti-Virus Incorrect Default Permissions Directory Access"; flow:to_server,established; http.uri; content:"/watchdog"; nocase; pcre:"/ProgramData\\\\Watchdog/Pi"; reference:cve,CVE-2026-92252; reference:ghsa,GHSA-gg55-9v9r-g4r9; classtype:attempted-recon; sid:5210325; rev:1;)
+
+# CVE-2026-93979 - Internship Management System SQLi (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Internship Management System SQL Injection"; flow:to_server,established; http.uri; content:"/internship"; nocase; pcre:"/[^\w](union|select|insert|delete|update).*(from|into|where)/Pi"; reference:cve,CVE-2026-93979; reference:ghsa,GHSA-f492-8v38-j2rc; classtype:attempted-user; sid:5210326; rev:1;)
+
+# CVE-2026-93980 - Internship Management System XSS (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Internship Management System Cross-Site Scripting"; flow:to_server,established; http.uri; content:"/internship"; nocase; pcre:"/<script|javascript:|onerror\s*=/Pi"; reference:cve,CVE-2026-93980; reference:ghsa,GHSA-3rvf-ff9w-xrcr; classtype:attempted-user; sid:5210327; rev:1;)
+
+# CVE-2026-94040 - TaxHacker Vulnerability (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT TaxHacker SSRF via External URL Parameter"; flow:to_server,established; http.uri; content:"/tax"; nocase; pcre:"/url=https?:\/\/(?!10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/Pi"; reference:cve,CVE-2026-94040; reference:ghsa,GHSA-q426-w6qm-jw5g; classtype:attempted-recon; sid:5210328; rev:1;)
+
+# CVE-2026-93997 - Drug Recommendation System XSS (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Drug Recommendation System Reflected XSS"; flow:to_server,established; http.uri; content:"/drug"; nocase; pcre:"/[?&]\w+=.*<script/Pi"; reference:cve,CVE-2026-93997; reference:ghsa,GHSA-vr26-64j9-w3jh; classtype:attempted-user; sid:5210329; rev:1;)
+
+# CVE-2026-94015 - Drug Recommendation System SQLi (MEDIUM)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Drug Recommendation System SQL Injection via Search"; flow:to_server,established; http.uri; content:"/drug"; nocase; content:"search"; distance:0; pcre:"/search=.*[^\w](union|select)/Pi"; reference:cve,CVE-2026-94015; reference:ghsa,GHSA-5f6c-rqhv-4943; classtype:attempted-user; sid:5210330; rev:1;)
+
+# CVE-2026-94051 - cowork_bench SSRF (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT cowork_bench SSRF via pdf_file_path Parameter"; flow:to_server,established; http.uri; content:"/pdf-tools-mcp"; nocase; pcre:"/pdf_file_path=https?:\/\/(?!10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/Pi"; reference:cve,CVE-2026-94051; reference:ghsa,GHSA-6j48-ggfg-8xw2; classtype:attempted-recon; sid:5210331; rev:1;)
+
+# CVE-2026-94049 - slideshot Path Traversal (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT slideshot Path Traversal via htmlPath Parameter"; flow:to_server,established; http.uri; content:"/render"; nocase; pcre:"/htmlPath=.*(\.\.\/|\.\.\\\\)/Pi"; reference:cve,CVE-2026-94049; reference:ghsa,GHSA-j3p4-767v-v66w; classtype:attempted-user; sid:5210332; rev:1;)
+
+# CVE-2026-94048 - QR Code Attendance Privilege Escalation (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT QR Code Attendance System Privilege Escalation via role_id"; flow:to_server,established; http.client_body; content:"role_id="; pcre:"/role_id=(1|admin|superuser)/Pi"; reference:cve,CVE-2026-94048; reference:ghsa,GHSA-hjqg-qj3w-x2h2; classtype:attempted-user; sid:5210333; rev:1;)
+
+# CVE-2026-94047 - MCPHub Privilege Management Bypass (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT MCPHub Privilege Management Bypass via Template Import"; flow:to_server,established; http.uri; content:"/template"; nocase; content:"import"; distance:0; reference:cve,CVE-2026-94047; reference:ghsa,GHSA-2xcr-p42x-hfx6; classtype:attempted-user; sid:5210334; rev:1;)
+
+# CVE-2026-94046 - ACE-MCP Path Traversal (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT ACE-MCP Path Traversal via projectRootPath Parameter"; flow:to_server,established; http.uri; content:"/snippet"; nocase; pcre:"/(projectRootPath|filePath)=.*\/etc\//Pi"; reference:cve,CVE-2026-94046; reference:ghsa,GHSA-8wj2-8g8v-vcxr; classtype:attempted-user; sid:5210335; rev:1;)
+
+# CVE-2026-94045 - newbee-mall SQL Injection (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT newbee-mall SQL Injection via Search Parameter"; flow:to_server,established; http.uri; content:"/search"; nocase; pcre:"/keyword=.*[^\w](union|select|concat)/Pi"; reference:cve,CVE-2026-94045; reference:ghsa,GHSA-92hr-qfch-w4h7; classtype:attempted-user; sid:5210336; rev:1;)
+
+# CVE-2026-94041 - Restaurant Management System SQLi (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Restaurant Management System SQL Injection"; flow:to_server,established; http.uri; content:"/restaurant"; nocase; pcre:"/[^\w](union|select|insert).*(from|into)/Pi"; reference:cve,CVE-2026-94041; reference:ghsa,GHSA-f8mv-9j7h-cv45; classtype:attempted-user; sid:5210337; rev:1;)
+
+# CVE-2026-94042 - Restaurant Management System XSS (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Restaurant Management System Cross-Site Scripting"; flow:to_server,established; http.uri; content:"/restaurant"; nocase; pcre:"/[?&]\w+=.*<script|onerror\s*=/Pi"; reference:cve,CVE-2026-94042; reference:ghsa,GHSA-p5m2-qq7j-qvhm; classtype:attempted-user; sid:5210338; rev:1;)
+
+# CVE-2026-94037 - mcp-file-analyzer Path Traversal (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT mcp-file-analyzer Path Traversal"; flow:to_server,established; http.uri; content:"/mcp"; nocase; pcre:"/file_path=.*(\.\.\/|\.\.\\\\)/Pi"; reference:cve,CVE-2026-94037; reference:ghsa,GHSA-882h-38q7-cgpc; classtype:attempted-user; sid:5210339; rev:1;)
+
+# CVE-2026-94035 - Drug Recommendation System File Inclusion (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Drug Recommendation System Local File Inclusion"; flow:to_server,established; http.uri; content:"/drug"; nocase; pcre:"/page=.*(\.\.\/|\.\.\\\\|%00)/Pi"; reference:cve,CVE-2026-94035; reference:ghsa,GHSA-9r76-496v-3crr; classtype:attempted-user; sid:5210340; rev:1;)
+
+# CVE-2026-94034 - Drug Recommendation System XSS (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Drug Recommendation System Stored XSS via Comment"; flow:to_server,established; http.uri; content:"/drug"; nocase; content:"comment"; distance:0; pcre:"/<script|onerror\s*=/Pi"; reference:cve,CVE-2026-94034; reference:ghsa,GHSA-f43f-mqc9-9693; classtype:attempted-user; sid:5210341; rev:1;)
+
+# CVE-2026-94033 - Drug Recommendation System Unrestricted Upload (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Drug Recommendation System Unrestricted File Upload"; flow:to_server,established; http.uri; content:"/drug"; nocase; content:"upload"; distance:0; http.request_body; pcre:"/filename=.*\.(php|phtml|jsp|asp)/Pi"; reference:cve,CVE-2026-94033; reference:ghsa,GHSA-p798-gw99-hgcp; classtype:attempted-user; sid:5210342; rev:1;)
+
+# CVE-2026-94032 - Leave Management System SQLi (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Leave Management System SQL Injection"; flow:to_server,established; http.uri; content:"/leave"; nocase; pcre:"/[^\w](union|select|concat)\s/Pi"; reference:cve,CVE-2026-94032; reference:ghsa,GHSA-899w-qgwj-c7v9; classtype:attempted-user; sid:5210343; rev:1;)
+
+# CVE-2026-94031 - nexus-mcp Vulnerability (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT nexus-mcp Path Traversal Attack"; flow:to_server,established; http.uri; content:"/nexus-mcp"; nocase; pcre:"/path=.*(\.\.\/|\.\.\\\\)/Pi"; reference:cve,CVE-2026-94031; reference:ghsa,GHSA-c2f2-x95m-p9vw; classtype:attempted-user; sid:5210344; rev:1;)
+
+# CVE-2026-94028 - Mealie SSRF (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Mealie SSRF via External URL Parameter"; flow:to_server,established; http.uri; content:"/api/"; nocase; content:"url="; distance:0; pcre:"/url=https?:\/\/(?!10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/Pi"; reference:cve,CVE-2026-94028; reference:ghsa,GHSA-2g3w-vrh2-xg2p; classtype:attempted-recon; sid:5210345; rev:1;)
+
+# CVE-2026-94030 - SerenityOS DoS (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT SerenityOS Denial of Service via Crafted Request"; flow:to_server,established; threshold:type both, track by_src, count 100, seconds 10; reference:cve,CVE-2026-94030; reference:ghsa,GHSA-w7rq-j77x-pqp7; classtype:attempted-dos; sid:5210346; rev:1;)
+
+# CVE-2026-94016 - Drug Recommendation System Open Redirect (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Drug Recommendation System Open Redirect"; flow:to_server,established; http.uri; content:"/drug"; nocase; pcre:"/redirect=https?:\/\/[^\/]*\.(?!localhost|internal)/Pi"; reference:cve,CVE-2026-94016; reference:ghsa,GHSA-j97g-6cp9-956m; classtype:attempted-recon; sid:5210347; rev:1;)
+
+# CVE-2026-93976 - Assessment Management System SQLi (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Assessment Management System SQL Injection"; flow:to_server,established; http.uri; content:"/assessment"; nocase; pcre:"/[^\w](union|select)\s.*\s(from|where)/Pi"; reference:cve,CVE-2026-93976; reference:ghsa,GHSA-cg87-hqq8-vvcp; classtype:attempted-user; sid:5210348; rev:1;)
+
+# CVE-2026-93977 - Assessment Management System XSS (LOW)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Assessment Management System Stored XSS"; flow:to_server,established; http.uri; content:"/assessment"; nocase; http.client_body; pcre:"/<script|onerror\s*=/Pi"; reference:cve,CVE-2026-93977; reference:ghsa,GHSA-v838-q3gv-vjp2; classtype:attempted-user; sid:5210349; rev:1;)
+
+# --- MITRE ATT&CK Technique-Based Rules ---
+
+# T1595.001 - Active Scanning (Reconnaissance)
+alert http any any -> $HOME_NET any (msg:"ET RECON Aggressive Web Application Scanner Detected"; flow:to_server,established; http.user_agent; pcre:"/(Nikto|DirBuster|Gobuster|Feroxbuster|WFuzz|Arjun|ffuf|httpx|nuclei)/si"; threshold:type both, track by_src, count 3, seconds 30; reference:mitre,T1595.001; classtype:attempted-recon; sid:5210350; rev:1;)
+
+# T1595.002 - Vulnerability Scanning
+alert http any any -> $HOME_NET any (msg:"ET RECON Vulnerability Scanner Fingerprinting Activity"; flow:to_server,established; http.user_agent; pcre:"/(Nessus|OpenVAS|Qualys|Rapid7|Acunetix|BurpSuite|ZAP|w3af)/si"; reference:mitre,T1595.002; classtype:attempted-recon; sid:5210351; rev:1;)
+
+# T1190 - Exploit Public-Facing Application
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Common Web Exploit Kit URI Patterns"; flow:to_server,established; http.uri; pcre:"/(wp-admin|phpmyadmin|/manager/html|/actuator|/console|/solr/|/debug)/Pi"; threshold:type both, track by_src, count 10, seconds 60; reference:mitre,T1190; classtype:attempted-admin; sid:5210352; rev:1;)
+
+# T1133 - External Remote Services
+alert http any any -> $HOME_NET any (msg:"ET TROJAN Suspicious External VPN/Proxy Service Connection"; flow:to_server,established; http.host; pcre:"/(nordvpn|expressvpn|surfshark|protonvpn|mullvad|hide\.)\w+\.\w+/si"; reference:mitre,T1133; classtype:trojan-activity; sid:5210353; rev:1;)
+
+# T1078.002 - Domain Accounts
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Suspicious Domain Admin Account Usage from Unusual Source"; flow:to_server,established; http.header; content:"Authorization"; pcre:"/(admin|root|administrator|sa)/i"; threshold:type both, track by_src, count 5, seconds 300; reference:mitre,T1078.002; classtype:attempted-admin; sid:5210354; rev:1;)
+
+# T1059.001 - PowerShell
+alert http any any -> $EXTERNAL_NET any (msg:"ET EXPLOIT PowerShell Download Cradle Execution"; flow:to_server,established; http.client_body; content:"IEX"; content:"New-Object"; distance:0; content:"Net.WebClient"; distance:0; reference:mitre,T1059.001; classtype:attempted-admin; sid:5210355; rev:1;)
+
+# T1059.003 - Windows Command Shell
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Suspicious cmd.exe Execution via Web"; flow:to_server,established; http.client_body; pcre:"/(cmd\.exe|cmd\.bat|command\.com).*\/c\s/Pi"; reference:mitre,T1059.003; classtype:attempted-admin; sid:5210356; rev:1;)
+
+# T1059.004 - Unix Shell
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Suspicious Unix Shell Command Injection via Web"; flow:to_server,established; http.client_body; pcre:"/[;|`]\s*(bash|sh|nc|ncat|wget|curl)\s/Pi"; reference:mitre,T1059.004; classtype:attempted-admin; sid:5210357; rev:1;)
+
+# T1071.001 - Web Protocols C2
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Suspicious Beaconing to Unknown Domain with Short Intervals"; flow:to_server,established; http.uri; content:"/api/beacon"; nocase; threshold:type both, track by_src, count 20, seconds 60; reference:mitre,T1071.001; classtype:trojan-activity; sid:5210358; rev:1;)
+
+# T1566.001 - Spearphishing Attachment
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Malicious Document Download with Macro Execution Pattern"; flow:to_server,established; http.uri; pcre:"/\.(docm|xlsm|pptm|doc|xlsx?)\??(utm_source|ref)=/Pi"; http.header; content:"Content-Type"; content:"application/msword"; distance:0; reference:mitre,T1566.001; classtype:attempted-user; sid:5210359; rev:1;)
+
+# T1053.005 - Scheduled Task/Job
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Web-Based Scheduled Task Creation via at/schtasks"; flow:to_server,established; http.client_body; pcre:"/(schtasks|at\s+\d)/Pi"; reference:mitre,T1053.005; classtype:attempted-admin; sid:5210360; rev:1;)
+
+# T1082 - System Information Discovery
+alert http any any -> $EXTERNAL_NET any (msg:"ET EXPLOIT System Information Exfiltration via HTTP"; flow:to_server,established; http.client_body; pcre:"/(hostname|uname|systeminfo|whoami|ipconfig|ifconfig)/Pi"; reference:mitre,T1082; classtype:attempted-recon; sid:5210361; rev:1;)
+
+# T1003.001 - OS Credential Dumping: LSASS Memory
+alert http any any -> $EXTERNAL_NET any (msg:"ET EXPLOIT LSASS Memory Dump Exfiltration Attempt"; flow:to_server,established; http.uri; pcre:"/(lsass|procdump|comsvcs)\.(dmp|dll|exe)/Pi"; reference:mitre,T1003.001; classtype:attempted-admin; sid:5210362; rev:1;)
+
+# T1048.003 - Exfiltration Over Unencrypted Protocol
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Data Exfiltration via Unencrypted HTTP POST"; flow:to_server,established; http.request_body; content:"password="; pcre:"/password=[^&]{20,}/Pi"; threshold:type both, track by_src, count 3, seconds 60; reference:mitre,T1048.003; classtype:attempted-admin; sid:5210363; rev:1;)
+
+# T1021.001 - Remote Services: Remote Desktop Protocol
+alert tcp any any -> $HOME_NET 3389 (msg:"ET EXPLOIT RDP Brute Force Attempt"; threshold:type both, track by_src, count 10, seconds 60; reference:mitre,T1021.001; classtype:attempted-admin; sid:5210364; rev:1;)
+
+# T1110.001 - Brute Force: Password Guessing
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Web Login Brute Force Attempt Detected"; flow:to_server,established; http.uri; content:"/login"; nocase; http.status_line; content:"401"; threshold:type both, track by_src, count 20, seconds 120; reference:mitre,T1110.001; classtype:attempted-admin; sid:5210365; rev:1;)
+
+# T1110.003 - Brute Force: Password Spraying
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Password Spraying Attack Detected"; flow:to_server,established; http.uri; content:"/login"; nocase; threshold:type both, track by_src, count 50, seconds 300; reference:mitre,T1110.003; classtype:attempted-admin; sid:5210366; rev:1;)
+
+# T1070.001 - Indicator Removal: Clear Windows Event Logs
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Windows Event Log Clearing via Web Shell"; flow:to_server,established; http.client_body; pcre:"/(wevtutil|Clear-EventLog|Remove-EventLog)/Pi"; reference:mitre,T1070.001; classtype:attempted-admin; sid:5210367; rev:1;)
+
+# T1070.004 - Indicator Removal: File Deletion
+alert http any any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Mass File Deletion Command via HTTP"; flow:to_server,established; http.client_body; pcre:"/(rm\s+-rf|del\s+\/[sfq]|rd\s+\/[sfq]|Remove-Item.*-Recurse)/Pi"; reference:mitre,T1070.004; classtype:attempted-admin; sid:5210368; rev:1;)
+
+# T1562.001 - Impair Defenses: Disable or Modify Tools
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Security Tool Disabling via Web Interface"; flow:to_server,established; http.client_body; pcre:"/(netsh\s+advfirewall|iptables\s+-F|Set-MpPreference.*-Disable)/Pi"; reference:mitre,T1562.001; classtype:attempted-admin; sid:5210369; rev:1;)
+
+# T1055 - Process Injection
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Process Injection Command via Web"; flow:to_server,established; http.client_body; pcre:"/(inject|CreateRemoteThread|WriteProcessMemory|NtWriteVirtualMemory)/Pi"; reference:mitre,T1055; classtype:attempted-admin; sid:5210370; rev:1;)
+
+# --- Current Threat Landscape / Emerging Techniques ---
+
+# AI/LLM Prompt Injection
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT AI/LLM Prompt Injection Attack Attempt"; flow:to_server,established; http.client_body; pcre:"/(ignore\s+(previous|above|all)|disregard\s+(instructions|rules)|you\s+are\s+now|act\s+as\s+(admin|root|DAN))/Pi"; classtype:attempted-user; sid:5210371; rev:1;)
+
+# AI/LLM Data Exfiltration
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT AI/LLM Sensitive Data Exfiltration via Prompt"; flow:to_server,established; http.client_body; pcre:"/(system|api[_-]?key|secret|password|token|credential|private[_-]?key).*(extract|reveal|output|print|display|return)/Pi"; classtype:attempted-admin; sid:5210372; rev:1;)
+
+# Supply Chain - npm/PyPI Package Confusion
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Supply Chain Package Confusion Attack - Suspicious Internal Registry"; flow:to_server,established; http.uri; pcre:"/(npm|pip|gem|cargo)\+(install|publish)/Pi"; http.host; pcre:"/(internal|private|corp|vpn)\./Pi"; reference:mitre,T1195.001; classtype:attempted-user; sid:5210373; rev:1;)
+
+# API Mass Enumeration
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT API Mass Enumeration Attempt Detected"; flow:to_server,established; http.uri; pcre:"/\/api\/v\d+\/(users|accounts|orders|records)\/\d+/Pi"; threshold:type both, track by_src, count 100, seconds 60; reference:mitre,T1592; classtype:attempted-recon; sid:5210374; rev:1;)
+
+# OAuth Token Theft
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT OAuth Token Theft via Phishing Redirect"; flow:to_server,established; http.uri; pcre:"/\/oauth\/(authorize|callback|token).*redirect_uri=https?:\/\/[^\/]*\.(xyz|top|click|tk|ml|ga)/Pi"; classtype:attempted-user; sid:5210375; rev:1;)
+
+# Server-Side Request Forgery (Generic)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Server-Side Request Forgery via URL Parameter"; flow:to_server,established; http.uri; pcre:"/(url|uri|path|dest|redirect|next|return|continue|callback|feed|img|fetch|load|source|data)=https?:\/\/(169\.254|10\.\d+|172\.(1[6-9]|2\d|3[01])|192\.168|127\.\d+|metadata\.google|169\.254\.169\.254)/Pi"; reference:mitre,T1190; classtype:attempted-recon; sid:5210376; rev:1;)
+
+# Log4Shell Variants
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Log4Shell/JNDI Injection Variant Detected"; flow:to_server,established; http.header; pcre:"/\$\{jndi:(ldap|rmi|dns|nis|iiop|corba|nds|ldaps):\/\//Pi"; reference:mitre,T1190; classtype:attempted-admin; sid:5210377; rev:1;)
+
+# Spring4Shell Variant
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Spring4Shell Class Loader Manipulation Attempt"; flow:to_server,established; http.uri; pcre:"/class\.module\.classLoader\.resources\.context\.parent\.pipeline/Pi"; reference:mitre,T1190; classtype:attempted-admin; sid:5210378; rev:1;)
+
+# Confluence RCE (CVE-2023-22527 variant)
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Confluence Template Injection OGNL RCE"; flow:to_server,established; http.client_body; pcre:"/\$\{.*request|.*T\(java|.*Runtime\.getRuntime/Pi"; reference:mitre,T1190; classtype:attempted-admin; sid:5210379; rev:1;)
+
+# GraphQL Introspection Abuse
+alert http any any -> $HOME_NET any (msg:"ET RECON GraphQL Schema Introspection Query Detected"; flow:to_server,established; http.client_body; content:"__schema"; distance:0; content:"queryType"; distance:0; classtype:attempted-recon; sid:5210380; rev:1;)
+
+# JWT Algorithm Confusion Attack
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT JWT Algorithm Confusion/None Algorithm Attack"; flow:to_server,established; http.header; content:"Authorization"; content:"Bearer"; distance:0; pcre:"/eyJ[^.]+\.eyJ[^.]+\./"; http.client_body; pcre:"/"alg"\s*:\s*"none"/Pi"; reference:mitre,T1190; classtype:attempted-user; sid:5210381; rev:1;)
+
+# Deserialization Attack - Java
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Java Deserialization Attack Detected"; flow:to_server,established; http.header; content:"Content-Type"; content:"application/x-java-serialized-object"; distance:0; reference:mitre,T1190; classtype:attempted-admin; sid:5210382; rev:1;)
+
+# Deserialization Attack - PHP
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT PHP Object Injection/Deserialization Attack"; flow:to_server,established; http.client_body; pcre:"/[Oo]:\d+:\"[^\"]+\":\d+:\{/Pi"; reference:mitre,T1190; classtype:attempted-user; sid:5210383; rev:1;)
+
+# CORS Misconfiguration Exploitation
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT CORS Misconfiguration Origin Reflection Abuse"; flow:to_server,established; http.header; content:"Origin"; pcre:"/Origin:\s*https?:\/\/evil\.(com|xyz|io|top)/Pi"; reference:mitre,T1190; classtype:attempted-user; sid:5210384; rev:1;)
+
+# Prototype Pollution
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT JavaScript Prototype Pollution Attack"; flow:to_server,established; http.client_body; pcre:"/__proto__|constructor\[|prototype\[.*\]\s*=/Pi"; reference:mitre,T1190; classtype:attempted-user; sid:5210385; rev:1;)
+
+# HTTP Request Smuggling
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT HTTP Request Smuggling CL.TE Attack"; flow:to_server,established; http.header; content:"Content-Length"; distance:0; content:"Transfer-Encoding"; distance:0; pcre:"/Content-Length:\s*\d+.*Transfer-Encoding:\s*chunked/Pis"; reference:mitre,T1190; classtype:attempted-admin; sid:5210386; rev:1;)
+
+# HTTP/2 Rapid Reset Attack
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT HTTP/2 Rapid Reset DoS Attack Pattern"; flow:to_server,established; threshold:type both, track by_src, count 100, seconds 5; reference:mitre,T1498; classtype:attempted-dos; sid:5210387; rev:1;)
+
+# Cloud Metadata SSRF
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Cloud Instance Metadata SSRF Access Attempt"; flow:to_server,established; http.uri; pcre:"/(169\.254\.169\.254|metadata\.google|100\.100\.100\.200|metadata\.azure)/Pi"; reference:mitre,T1190; classtype:attempted-recon; sid:5210388; rev:1;)
+
+# Container Escape via Host Mount
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Container Escape via Host Filesystem Mount"; flow:to_server,established; http.client_body; pcre:"/(docker|containerd|kubectl).*mount.*\/var\/run|volume.*hostPath.*\/var\/run/Pi"; reference:mitre,T1611; classtype:attempted-admin; sid:5210389; rev:1;)
+
+# Kubernetes API Server Abuse
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Kubernetes API Server Unauthorized Access Attempt"; flow:to_server,established; http.uri; content:"/api/v1/"; nocase; content:"pods"; distance:0; http.header; pcre:"/Authorization:\s*(?:Bearer\s+(?:kubernetes|serviceaccount))/Pi"; reference:mitre,T1078; classtype:attempted-admin; sid:5210390; rev:1;)
+
+# Redis Unauthorized Access
+alert tcp any any -> $HOME_NET 6379 (msg:"ET EXPLOIT Redis Unauthorized Command Execution"; flow:to_server,established; content:"CONFIG"; content:"SET"; distance:0; content:"dir"; distance:0; reference:mitre,T1190; classtype:attempted-admin; sid:5210391; rev:1;)
+
+# MongoDB Unauthorized Access
+alert tcp any any -> $HOME_NET 27017 (msg:"ET EXPLOIT MongoDB Unauthorized Access Attempt"; flow:to_server,established; content:"admin"; content:"$cmd"; distance:0; reference:mitre,T1078; classtype:attempted-admin; sid:5210392; rev:1;)
+
+# Elasticsearch RCE
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Elasticsearch RCE via _search Script Injection"; flow:to_server,established; http.uri; content:"/_search"; nocase; http.client_body; pcre:"/\"script\".*\"inline\".*Runtime\.getRuntime/Pi"; reference:mitre,T1190; classtype:attempted-admin; sid:5210393; rev:1;)
+
+# Apache Struts RCE
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Apache Struts RCE via OGNL Injection"; flow:to_server,established; http.uri; content:".action"; nocase; http.header; pcre:"/Content-Type:.*%\{.*\}/Pi"; reference:mitre,T1190; classtype:attempted-admin; sid:5210394; rev:1;)
+
+# Web Shell Upload Detection
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Web Shell Upload via Suspicious Extension"; flow:to_server,established; http.request_body; pcre:"/filename=.*\.(php[34567]?|phtml|phar|jsp|jspx|asp|aspx|cfm|cgi)\.(txt|jpg|png|gif|zip)/Pi"; reference:mitre,T1105; classtype:attempted-admin; sid:5210395; rev:1;)
+
+# Reverse Shell via HTTP
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Reverse Shell Connection via HTTP"; flow:to_server,established; http.client_body; pcre:"/(bash\s+-i|nc\s+-e|\/bin\/sh|powershell.*-enc|python.*socket.*connect)/Pi"; reference:mitre,T1059; classtype:trojan-activity; sid:5210396; rev:1;)
+
+# DNS Tunneling
+alert dns any any -> any any (msg:"ET TROJAN DNS Tunneling via Excessive Subdomain Length"; dns.query; pcre:"/[a-zA-Z0-9]{40,}\.[a-z]{2,}/i"; threshold:type both, track by_src, count 10, seconds 60; reference:mitre,T1071.004; classtype:trojan-activity; sid:5210397; rev:1;)
+
+# DNS TXT Record Data Exfiltration
+alert dns any any -> any any (msg:"ET EXPLOIT DNS TXT Record Data Exfiltration"; dns.query; pcre:"/[a-f0-9]{32,}\./i"; dns.queries; threshold:type both, track by_src, count 5, seconds 60; reference:mitre,T1048; classtype:attempted-admin; sid:5210398; rev:1;)
+
+# ICMP Tunneling
+alert icmp any any -> any any (msg:"ET TROJAN ICMP Tunneling Detection via Large Payload"; dsize:>200; threshold:type both, track by_src, count 10, seconds 60; reference:mitre,T1095; classtype:trojan-activity; sid:5210399; rev:1;)
+
+# SQL Injection - Time-Based Blind
+alert http any any -> $HOME_NET any (msg:"ET EXPLOIT Time-Based Blind SQL Injection Attempt"; flow:to_server,established; http.uri; pcre:"/(SLEEP|WAITFOR|DELAY|BENCHMARK)\s*\(\s*\d+/Pi"; reference:mitre,T1190; classtype:attempted-user; sid:5210400; rev:1;)
