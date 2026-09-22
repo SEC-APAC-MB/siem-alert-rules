@@ -1,7 +1,7 @@
 {
-  "version": "1.0.0",
-  "generated": "2026-08-17",
-  "description": "AWS CloudWatch, EventBridge, and GuardDuty rules — mitre-attack",
+  "description": "SIEM alert rules \u2014 mitre-attack (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-22T04:05:06.546805Z",
   "total_rules": 15,
   "rules": [
     {
@@ -9,822 +9,825 @@
       "name": "Exploit Public-Facing Application",
       "description": "Detects exploitation of public-facing web applications, APIs, and services",
       "severity": "critical",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "initial_access",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1190"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "initial_access"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 9,
-        "type": "INITIAL_ACCESS"
-      },
-      "references": [
-        "PCI-DSS-6.5",
-        "NIST-SI-10"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1190"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"mitre\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ExploitPublicFacingApplication",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Exploit Public-Facing Application"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "initial-access",
         "exploit",
         "web-application"
-      ],
-      "risk_score": 90
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1078",
       "name": "Valid Accounts Usage",
       "description": "Detects use of legitimate credentials for unauthorized access including default, compromised, and stolen accounts",
       "severity": "high",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "defense_evasion",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1078"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "defense_evasion"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 7,
-        "type": "DEFENSE_EVASION"
-      },
-      "references": [
-        "PCI-DSS-8.5",
-        "NIST-AC-3"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1078"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"ConsoleLogin\") && ($.responseElements.ConsoleLogin = \"Success\") && ($.sourceIPAddress != \"10.*\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ValidAccountsUsage",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Valid Accounts Usage"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "defense-evasion",
         "valid-accounts",
         "credential-abuse"
-      ],
-      "risk_score": 70
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1110",
       "name": "Brute Force Authentication",
       "description": "Detects brute force authentication attempts including password spraying and credential stuffing",
       "severity": "high",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "credential_access",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1110"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "credential_access"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 7,
-        "type": "CREDENTIAL_ACCESS"
-      },
-      "references": [
-        "PCI-DSS-8.5",
-        "NIST-AC-7"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1110"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"ConsoleLogin\") && ($.responseElements.ConsoleLogin = \"Failure\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "BruteForceAuthentication",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Brute Force Authentication"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "credential-access",
         "brute-force",
         "authentication"
-      ],
-      "risk_score": 70
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1059",
       "name": "Command and Scripting Interpreter",
       "description": "Detects malicious command/script execution including PowerShell, Bash, Python, and JavaScript",
       "severity": "high",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "execution",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1059"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "execution"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 7,
-        "type": "EXECUTION"
-      },
-      "references": [
-        "PCI-DSS-6.5",
-        "NIST-SI-10"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1059"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"mitre\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CommandandScriptingInterpreter",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Command and Scripting Interpreter"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "execution",
         "command-scripting",
         "rce"
-      ],
-      "risk_score": 70
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1486",
       "name": "Data Encrypted for Impact (Ransomware)",
       "description": "Detects mass file encryption activity consistent with ransomware operations",
       "severity": "critical",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "impact",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1486"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "impact"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 9,
-        "type": "IMPACT"
-      },
-      "references": [
-        "PCI-DSS-3.4",
-        "NIST-SC-28"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1486"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"mitre\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "DataEncryptedforImpactRansomware",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Data Encrypted for Impact (Ransomware)"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "impact",
         "ransomware",
         "encryption"
-      ],
-      "risk_score": 90
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1566",
       "name": "Phishing Link Click Detection",
       "description": "Detects clicks on known phishing URLs or suspicious links in email and messaging",
       "severity": "high",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "initial_access",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1566"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "initial_access"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 7,
-        "type": "INITIAL_ACCESS"
-      },
-      "references": [
-        "PCI-DSS-5.3",
-        "NIST-AT-2"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1566"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"mitre\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "PhishingLinkClickDetection",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Phishing Link Click Detection"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "initial-access",
         "phishing",
         "social-engineering"
-      ],
-      "risk_score": 70
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1053",
       "name": "Scheduled Task/Job Creation",
       "description": "Detects suspicious scheduled task or cron job creation for persistence or execution",
       "severity": "medium",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "persistence",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1053"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "persistence"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 5,
-        "type": "PERSISTENCE"
-      },
-      "references": [
-        "NIST-CM-7"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1053"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"mitre\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ScheduledTaskJobCreation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Scheduled Task/Job Creation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "persistence",
         "scheduled-task",
         "cron"
-      ],
-      "risk_score": 50
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1071",
       "name": "Application Layer Protocol Abuse (C2)",
       "description": "Detects suspicious use of HTTP, DNS, or other application protocols for C2 communication",
       "severity": "high",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "command_and_control",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1071"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "command_and_control"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 7,
-        "type": "COMMAND_AND_CONTROL"
-      },
-      "references": [
-        "PCI-DSS-1.3"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1071"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"mitre\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ApplicationLayerProtocolAbuseC2",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Application Layer Protocol Abuse (C2)"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "command-and-control",
         "protocol-abuse",
         "c2"
-      ],
-      "risk_score": 70
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1562",
-      "name": "Impair Defenses — Security Tool Disable",
+      "name": "Impair Defenses \u2014 Security Tool Disable",
       "description": "Detects attempts to disable or impair security tools including AV, EDR, and logging",
       "severity": "critical",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "defense_evasion",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1562"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "defense_evasion"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 9,
-        "type": "DEFENSE_EVASION"
-      },
-      "references": [
-        "PCI-DSS-5.3",
-        "NIST-SI-4"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1562"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"mitre\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ImpairDefensesSecurityToolDisable",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Impair Defenses \u2014 Security Tool Disable"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "defense-evasion",
         "impair-defenses",
         "security-tool"
-      ],
-      "risk_score": 90
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1087",
       "name": "Account Discovery",
       "description": "Detects account enumeration and discovery activity on domain controllers and directory services",
       "severity": "medium",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "discovery",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1087"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "discovery"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 5,
-        "type": "DISCOVERY"
-      },
-      "references": [
-        "NIST-AC-2"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1087"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"mitre\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "AccountDiscovery",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Account Discovery"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "discovery",
         "account-discovery",
         "enumeration"
-      ],
-      "risk_score": 50
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1210",
       "name": "Exploitation of Remote Services",
       "description": "Detects exploitation of remote services including RDP, SSH, SMB, and database services",
       "severity": "critical",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "lateral_movement",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1210"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "lateral_movement"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 9,
-        "type": "LATERAL_MOVEMENT"
-      },
-      "references": [
-        "PCI-DSS-1.3",
-        "NIST-CM-7"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1210"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"mitre\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ExploitationofRemoteServices",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Exploitation of Remote Services"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "lateral-movement",
         "remote-exploit",
         "exploitation"
-      ],
-      "risk_score": 90
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1055",
       "name": "Process Injection",
       "description": "Detects process injection techniques including DLL injection, process hollowing, and thread injection",
       "severity": "high",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "defense_evasion",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1055"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "defense_evasion"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 7,
-        "type": "DEFENSE_EVASION"
-      },
-      "references": [
-        "PCI-DSS-5.3",
-        "NIST-SI-4"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1055"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"mitre\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ProcessInjection",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Process Injection"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "defense-evasion",
         "process-injection",
         "evasion"
-      ],
-      "risk_score": 70
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1003",
       "name": "OS Credential Dumping",
       "description": "Detects credential dumping tools and techniques including Mimikatz, LSASS access, and /proc/*/mem",
       "severity": "critical",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "credential_access",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1003"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "credential_access"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 9,
-        "type": "CREDENTIAL_ACCESS"
-      },
-      "references": [
-        "PCI-DSS-8.5",
-        "NIST-IA-5"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1003"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"mitre\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "OSCredentialDumping",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "OS Credential Dumping"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "credential-access",
         "credential-dumping",
         "mimikatz"
-      ],
-      "risk_score": 90
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1046",
       "name": "Network Service Discovery",
       "description": "Detects network scanning and service enumeration including port scans and banner grabbing",
       "severity": "medium",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "discovery",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1046"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "discovery"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 5,
-        "type": "DISCOVERY"
-      },
-      "references": [
-        "PCI-DSS-1.3",
-        "NIST-CM-7"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1046"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"mitre\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "NetworkServiceDiscovery",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Network Service Discovery"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "discovery",
         "network-scan",
         "enumeration"
-      ],
-      "risk_score": 50
+      ]
     },
     {
       "rule_id": "AWS-MITRE-T1048",
       "name": "Exfiltration Over Alternative Protocol",
       "description": "Detects data exfiltration over non-standard protocols including DNS, ICMP, and HTTPS to unknown destinations",
       "severity": "high",
-      "cloudwatch_metric": {
-        "namespace": "SIEM/Security",
-        "metricName": "exfiltration",
-        "dimensions": {
-          "RuleId": "AWS-MITRE-T1048"
-        },
-        "statistic": "Sum",
-        "period": 300,
-        "evaluationPeriods": 1,
-        "threshold": 5,
-        "comparisonOperator": "GreaterThanThreshold"
-      },
-      "eventbridge_pattern": {
-        "source": [
-          "aws.security",
-          "aws.guardduty",
-          "aws.cloudtrail"
-        ],
-        "detail-type": [
-          "AWS API Call via CloudTrail",
-          "GuardDuty Finding"
-        ],
-        "detail": {
-          "eventSource": [
-            "cloudtrail.amazonaws.com"
-          ],
-          "eventName": [
-            "exfiltration"
-          ]
-        }
-      },
-      "guardduty_finding": {
-        "severity": 7,
-        "type": "EXFILTRATION"
-      },
-      "references": [
-        "PCI-DSS-1.3",
-        "GDPR-25-008"
-      ],
-      "mitre": [
+      "category": "general",
+      "mitre_attack": [
         "T1048"
+      ],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"mitre\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ExfiltrationOverAlternativeProtocol",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Exfiltration Over Alternative Protocol"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
       ],
       "tags": [
         "mitre",
         "exfiltration",
         "alternative-protocol",
         "data-theft"
-      ],
-      "risk_score": 70
+      ]
     }
   ]
 }

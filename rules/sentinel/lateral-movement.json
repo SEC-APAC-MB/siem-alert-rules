@@ -1,25 +1,21 @@
 {
-  "version": "1.0.0",
-  "generated": "2026-08-17",
-  "description": "Microsoft Sentinel analytics rules — lateral-movement",
+  "description": "SIEM alert rules \u2014 lateral-movement (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-22T04:05:06.323232Z",
   "total_rules": 10,
   "rules": [
     {
       "rule_id": "MS-LM-001",
       "name": "Pass-the-Hash Detection",
       "description": "Detects NTLM pass-the-hash attacks where an adversary uses a password hash instead of plaintext password",
-      "severity": "High",
-      "query": "let threshold = 5;\npass_the_hash_events\n| where pass_the_hash has_any(\"lateral-movement\", \"pass-the-hash\", \"windows\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"lateral-movement\" or Message contains \"pass-the-hash\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "LateralMovement"
-      ],
-      "techniques": [
-        "T1550.002"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "LM-001"
       ],
@@ -32,24 +28,20 @@
         "pass-the-hash",
         "windows"
       ],
-      "risk_score": 90
+      "risk_score": 50
     },
     {
       "rule_id": "MS-LM-002",
       "name": "Pass-the-Ticket (Kerberos)",
       "description": "Detects Kerberos ticket reuse across systems indicating pass-the-ticket attacks",
-      "severity": "High",
-      "query": "let threshold = 5;\npass_the_ticket_events\n| where pass_the_ticket has_any(\"lateral-movement\", \"pass-the-ticket\", \"kerberos\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"lateral-movement\" or Message contains \"pass-the-ticket\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "LateralMovement"
-      ],
-      "techniques": [
-        "T1550.003"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "LM-002"
       ],
@@ -61,24 +53,20 @@
         "pass-the-ticket",
         "kerberos"
       ],
-      "risk_score": 90
+      "risk_score": 50
     },
     {
       "rule_id": "MS-LM-003",
       "name": "RDP Anomalous Connection",
       "description": "Detects anomalous RDP connections including unusual source IPs, off-hours access, or lateral movement patterns",
       "severity": "Medium",
-      "query": "let threshold = 5;\nrdp_events\n| where rdp has_any(\"lateral-movement\", \"rdp\", \"remote-desktop\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"lateral-movement\" or Message contains \"rdp\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "LateralMovement"
-      ],
-      "techniques": [
-        "T1021.001"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "LM-003"
       ],
@@ -90,24 +78,20 @@
         "rdp",
         "remote-desktop"
       ],
-      "risk_score": 70
+      "risk_score": 50
     },
     {
       "rule_id": "MS-LM-004",
       "name": "SSH Lateral Movement",
       "description": "Detects SSH connections from compromised hosts to internal systems indicating lateral movement",
       "severity": "Medium",
-      "query": "let threshold = 5;\nssh_events\n| where ssh has_any(\"lateral-movement\", \"ssh\", \"remote-access\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"lateral-movement\" or Message contains \"ssh\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "LateralMovement"
-      ],
-      "techniques": [
-        "T1021.004"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "LM-004"
       ],
@@ -119,26 +103,20 @@
         "ssh",
         "remote-access"
       ],
-      "risk_score": 70
+      "risk_score": 50
     },
     {
       "rule_id": "MS-LM-005",
       "name": "WMI/PSExec Remote Execution",
       "description": "Detects remote execution via WMI, PSExec, or similar tools indicating lateral movement",
-      "severity": "High",
-      "query": "let threshold = 5;\nwmi_events\n| where wmi has_any(\"lateral-movement\", \"wmi\", \"psexec\", \"remote-execution\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"lateral-movement\" or Message contains \"wmi\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "Execution",
-        "LateralMovement"
-      ],
-      "techniques": [
-        "T1047",
-        "T1021.002"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "LM-005"
       ],
@@ -151,24 +129,20 @@
         "psexec",
         "remote-execution"
       ],
-      "risk_score": 90
+      "risk_score": 50
     },
     {
       "rule_id": "MS-LM-006",
       "name": "SMB Lateral Movement via Admin Shares",
       "description": "Detects lateral movement through SMB admin shares (C$, ADMIN$) for remote execution",
-      "severity": "High",
-      "query": "let threshold = 5;\nsmb_events\n| where smb has_any(\"lateral-movement\", \"smb\", \"admin-shares\", \"windows\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"lateral-movement\" or Message contains \"smb\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "LateralMovement"
-      ],
-      "techniques": [
-        "T1021.002"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "LM-006"
       ],
@@ -181,24 +155,20 @@
         "admin-shares",
         "windows"
       ],
-      "risk_score": 90
+      "risk_score": 50
     },
     {
       "rule_id": "MS-LM-007",
       "name": "DCOM Lateral Movement",
       "description": "Detects DCOM-based lateral movement through distributed COM object activation",
       "severity": "Medium",
-      "query": "let threshold = 5;\ndcom_events\n| where dcom has_any(\"lateral-movement\", \"dcom\", \"distributed-com\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"lateral-movement\" or Message contains \"dcom\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "LateralMovement"
-      ],
-      "techniques": [
-        "T1021.003"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "LM-007"
       ],
@@ -210,24 +180,20 @@
         "dcom",
         "distributed-com"
       ],
-      "risk_score": 70
+      "risk_score": 50
     },
     {
       "rule_id": "MS-LM-008",
       "name": "WinRM Remote Shell Access",
       "description": "Detects Windows Remote Management shell access for lateral movement and remote execution",
       "severity": "Medium",
-      "query": "let threshold = 5;\nwinrm_events\n| where winrm has_any(\"lateral-movement\", \"winrm\", \"remote-shell\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"lateral-movement\" or Message contains \"winrm\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "LateralMovement"
-      ],
-      "techniques": [
-        "T1021.006"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "LM-008"
       ],
@@ -239,24 +205,20 @@
         "winrm",
         "remote-shell"
       ],
-      "risk_score": 70
+      "risk_score": 50
     },
     {
       "rule_id": "MS-LM-009",
       "name": "Golden Ticket Attack (Kerberos)",
       "description": "Detects Kerberos Golden Ticket attacks where forged TGTs grant persistent domain access",
-      "severity": "High",
-      "query": "let threshold = 5;\ngolden_ticket_events\n| where golden_ticket has_any(\"lateral-movement\", \"golden-ticket\", \"kerberos\", \"persistence\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"lateral-movement\" or Message contains \"golden-ticket\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "CredentialAccess"
-      ],
-      "techniques": [
-        "T1558.001"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "LM-009"
       ],
@@ -270,24 +232,20 @@
         "kerberos",
         "persistence"
       ],
-      "risk_score": 90
+      "risk_score": 50
     },
     {
       "rule_id": "MS-LM-010",
       "name": "Silver Ticket Attack (Kerberos)",
       "description": "Detects Kerberos Silver Ticket attacks using forged service tickets for targeted service access",
-      "severity": "High",
-      "query": "let threshold = 5;\nsilver_ticket_events\n| where silver_ticket has_any(\"lateral-movement\", \"silver-ticket\", \"kerberos\", \"privilege-escalation\")\n| summarize count() by SourceIP, bin(TimeGenerated, 5m)\n| where count_ > threshold",
+      "severity": "Medium",
+      "query": "union CommonSecurityLog, SecurityEvent, AzureDiagnostics | where Message contains \"lateral-movement\" or Message contains \"silver-ticket\" | summarize count(), make_set(SourceIP) by bin(TimeGenerated, 5m), ActivityDisplayName | where count_ > 3",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "CredentialAccess"
-      ],
-      "techniques": [
-        "T1558.002"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [
         "LM-010"
       ],
@@ -301,7 +259,7 @@
         "kerberos",
         "privilege-escalation"
       ],
-      "risk_score": 90
+      "risk_score": 50
     }
   ]
 }

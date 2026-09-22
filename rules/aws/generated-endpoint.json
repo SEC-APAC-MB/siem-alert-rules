@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-endpoint (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-16T04:05:28.682491Z",
-  "total_rules": 11,
+  "converted": "2026-09-22T04:05:06.525093Z",
+  "total_rules": 12,
   "rules": [
     {
       "rule_id": "AWS-ENDPOINT-006",
@@ -640,6 +640,63 @@
         "endpoint",
         "cve",
         "cve-2026-85880",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-ENDPOINT-020",
+      "name": "CVE-2026-81963 \u2014 Windows Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-81963: Microsoft Windows Update Stack contains a link following vulnerability that allows a local attacker to escalate privileges locally up to SYSTEM.. Product: Windows",
+      "severity": "critical",
+      "category": "endpoint",
+      "mitre_attack": [],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-81963\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202681963WindowsExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-81963 \u2014 Windows Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "endpoint",
+        "cve",
+        "cve-2026-81963",
         "exploited"
       ]
     }

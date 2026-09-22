@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-remote-code-execution (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-16T04:05:28.993382Z",
-  "total_rules": 16,
+  "converted": "2026-09-22T04:05:06.538976Z",
+  "total_rules": 18,
   "rules": [
     {
       "rule_id": "AWS-REMOTE-CODE-EXECUTION-003",
@@ -983,6 +983,126 @@
         "remote-code-execution",
         "cve",
         "cve-2026-86218",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-REMOTE-CODE-EXECUTION-017",
+      "name": "CVE-2026-87491 \u2014 Chromium V8 Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-87491: Google Chromium V8 contains an out of bounds write vulnerability that allows a remote attacker to execute arbitrary code inside the sandbox via a crafted HTML page. This vulnerability could affect multiple web browsers that utilize Chromium, including, but not limited to, Google Chrome, Microsoft Edge, and Opera.. Product: Chromium V8",
+      "severity": "critical",
+      "category": "remote-code-execution",
+      "mitre_attack": [
+        "T1059",
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-87491\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202687491ChromiumV8Exploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-87491 \u2014 Chromium V8 Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "remote-code-execution",
+        "cve",
+        "cve-2026-87491",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-REMOTE-CODE-EXECUTION-019",
+      "name": "CVE-2026-75650 \u2014 Commerce and Magento Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-75650: Adobe Commerce and Magento Open Source contain an improper neutralization of special elements used in a template engine vulnerability that could allow an attacker to execute arbitrary code.. Product: Commerce and Magento",
+      "severity": "critical",
+      "category": "remote-code-execution",
+      "mitre_attack": [
+        "T1059",
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-75650\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202675650CommerceandMagentoExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-75650 \u2014 Commerce and Magento Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "remote-code-execution",
+        "cve",
+        "cve-2026-75650",
         "exploited"
       ]
     }

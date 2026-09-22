@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-network-infrastructure (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-16T04:05:28.908160Z",
-  "total_rules": 5,
+  "converted": "2026-09-22T04:05:06.534382Z",
+  "total_rules": 6,
   "rules": [
     {
       "rule_id": "AWS-NETWORK-INFRASTRUCTURE-011",
@@ -259,6 +259,67 @@
         "T1548",
         "T1078",
         "T1110"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-20079\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202620079SecureFirewallManagementCenterFMCandSecurityCloudControlSCCFirewallManagementExploitatio",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-20079 \u2014 Secure Firewall Management Center"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "network-infrastructure",
+        "cve",
+        "cve-2026-20079",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-NETWORK-INFRASTRUCTURE-018",
+      "name": "CVE-2026-20079 \u2014 Secure Firewall Management Center (FMC) and Security Cloud Control (SCC) Firewall Management Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-20079: Cisco Secure Firewall Management Center (FMC) Software and Cisco Security Cloud Control (SCC) Firewall Management contain an authentication Bypass using an alternate path or channel vulnerability that could allow an unauthenticated, remote attacker to bypass authentication and execute script files on an affected device to obtain root access to the underlying operating system.. Product: Secure Firewall Management Center (FMC) and Security Cloud Control (SCC) Firewall Management",
+      "severity": "critical",
+      "category": "network-infrastructure",
+      "mitre_attack": [
+        "T1078",
+        "T1110",
+        "T1548"
       ],
       "compliance": [
         "PCI-DSS-6.5",

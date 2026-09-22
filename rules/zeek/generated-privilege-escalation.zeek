@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-privilege-escalation
-# Auto-generated: 2026-09-16T04:05:26.808867Z
+# Auto-generated: 2026-09-22T04:05:06.411416Z
 # Load in local.zeek: @load ./generated-privilege-escalation
 
 signature ZK-PRIVILEGE-ESCALATION-002 {
@@ -52,6 +52,27 @@ signature ZK-PRIVILEGE-ESCALATION-003 {
 }
 
 signature ZK-PRIVILEGE-ESCALATION-006 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((sudo|runas|setuid|chmod)).*/ regex
+	event "CVE-2026-86060 — RouterOS Exploitation"
+}
+
+signature ZK-PRIVILEGE-ESCALATION-007 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((sudo|runas|setuid|chmod)).*/ regex
+	event "CVE-2026-87886 — Backup Exploitation"
+}
+
+signature ZK-PRIVILEGE-ESCALATION-010 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((login|auth|admin|root)).*/ regex
+	event "CVE-2026-42016 — Artifactory Exploitation"
+}
+
+signature ZK-PRIVILEGE-ESCALATION-013 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*((sudo|runas|setuid|chmod)).*/ regex

@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-privilege-escalation (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-16T04:05:26.071008Z",
-  "total_rules": 8,
+  "converted": "2026-09-22T04:05:06.314125Z",
+  "total_rules": 11,
   "rules": [
     {
       "rule_id": "AZ-PRIVILEGE-ESCALATION-002",
@@ -170,16 +170,8 @@
       "queryPeriod": "10m",
       "triggerOperator": "gt",
       "triggerThreshold": 5,
-      "tactics": [
-        "PrivilegeEscalation",
-        "CredentialAccess",
-        "DefenseEvasion"
-      ],
-      "techniques": [
-        "T1548",
-        "T1078",
-        "T1110"
-      ],
+      "tactics": [],
+      "techniques": [],
       "references": [],
       "compliance": [
         "PCI-DSS-6.5",
@@ -198,6 +190,96 @@
       "rule_id": "AZ-PRIVILEGE-ESCALATION-006",
       "name": "CVE-2026-86060 \u2014 RouterOS Exploitation",
       "description": "Detects exploitation attempts targeting CVE-2026-86060: MikroTik RouterOS contains an improper neutralization of argument delimiters in a command vulnerability which allows an attacked to change the trusted RouterOS policy mask, leading to privilege escalation.. Product: RouterOS",
+      "severity": "Medium",
+      "query": "SecurityEvent | where EventID in (4672, 4688) and (CommandLine contains \"sudo\" or CommandLine contains \"runas\") | summarize count() by Account, bin(TimeGenerated, 5m)",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "gt",
+      "triggerThreshold": 5,
+      "tactics": [],
+      "techniques": [],
+      "references": [],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-86060",
+        "exploited"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AZ-PRIVILEGE-ESCALATION-007",
+      "name": "CVE-2026-87886 \u2014 Backup Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-87886: Acronis Backup plugin for cPanel & WHM and extension for Plesk contains an incorrect default permissions vulnerability that could allow for privilege escalation.. Product: Backup",
+      "severity": "Medium",
+      "query": "SecurityEvent | where EventID in (4672, 4688) and (CommandLine contains \"sudo\" or CommandLine contains \"runas\") | summarize count() by Account, bin(TimeGenerated, 5m)",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "gt",
+      "triggerThreshold": 5,
+      "tactics": [
+        "PrivilegeEscalation"
+      ],
+      "techniques": [
+        "T1548"
+      ],
+      "references": [],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-87886",
+        "exploited"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AZ-PRIVILEGE-ESCALATION-010",
+      "name": "CVE-2026-42016 \u2014 Artifactory Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-42016: JFrog Artifactory contains an incorrect authorization vulnerability that leads to a privilege escalation attack due to a validation check of the token signature/issuer and not the token\u2019s scope.. Product: Artifactory",
+      "severity": "Medium",
+      "query": "SecurityEvent | where EventID == 4624 and (Account contains \"admin\" or Account contains \"root\") and SourceIP !startswith \"10.\" and SourceIP !startswith \"172.16.\" | summarize count() by Account, SourceIP, bin(TimeGenerated, 5m)",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "gt",
+      "triggerThreshold": 5,
+      "tactics": [
+        "PrivilegeEscalation",
+        "DefenseEvasion",
+        "CredentialAccess"
+      ],
+      "techniques": [
+        "T1078",
+        "T1110",
+        "T1548"
+      ],
+      "references": [],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-42016",
+        "exploited"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AZ-PRIVILEGE-ESCALATION-013",
+      "name": "CVE-2026-86060 \u2014 RouterOS Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-86060: MikroTik RouterOS contains an improper neutralization of argument delimiters in a command vulnerability which allows an attacker to change the trusted RouterOS policy mask, leading to privilege escalation.. Product: RouterOS",
       "severity": "Medium",
       "query": "SecurityEvent | where EventID in (4672, 4688) and (CommandLine contains \"sudo\" or CommandLine contains \"runas\") | summarize count() by Account, bin(TimeGenerated, 5m)",
       "queryFrequency": "5m",

@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-network-infrastructure
-# Auto-generated: 2026-09-16T04:05:26.808656Z
+# Auto-generated: 2026-09-22T04:05:06.411082Z
 # Load in local.zeek: @load ./generated-network-infrastructure
 
 signature ZK-NETWORK-INFRASTRUCTURE-011 {
@@ -34,5 +34,12 @@ signature ZK-NETWORK-INFRASTRUCTURE-010 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*(cve\-2026\-20079).*/ regex
+	event "CVE-2026-20079 — Secure Firewall Management Center (FMC) and Security Cloud Control (SCC) Firewall Management Exploitation"
+}
+
+signature ZK-NETWORK-INFRASTRUCTURE-018 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((login|auth|admin|root)).*/ regex
 	event "CVE-2026-20079 — Secure Firewall Management Center (FMC) and Security Cloud Control (SCC) Firewall Management Exploitation"
 }

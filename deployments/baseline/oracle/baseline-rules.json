@@ -2,8 +2,8 @@
   "description": "Minimum Baseline SIEM Rules — ORACLE",
   "version": "1.0.0",
   "type": "minimum-baseline",
-  "generated": "2026-09-16T04:05:30.222666+00:00",
-  "total_rules": 141,
+  "generated": "2026-09-22T04:05:06.911238+00:00",
+  "total_rules": 135,
   "domains_covered": 13,
   "domains": [
     {
@@ -30,7 +30,7 @@
       "category": "privilege_escalation",
       "weight": "critical",
       "description": "Admin role changes, policy modifications, unauthorized elevation",
-      "rule_count": 13,
+      "rule_count": 16,
       "rule_ids": [
         "OCI-PRIVILEGE-ESCALATION-002",
         "OCI-PRIVILEGE-ESCALATION-004",
@@ -40,8 +40,8 @@
         "OCI-PRIVILEGE-ESCALATION-005",
         "OCI-PRIVILEGE-ESCALATION-003",
         "OCI-PRIVILEGE-ESCALATION-006",
-        "GHADV-1056",
-        "GHADV-2197"
+        "OCI-PRIVILEGE-ESCALATION-007",
+        "OCI-PRIVILEGE-ESCALATION-010"
       ]
     },
     {
@@ -49,7 +49,7 @@
       "category": "lateral_movement",
       "weight": "high",
       "description": "Internal SSH/RDP, process execution across hosts",
-      "rule_count": 20,
+      "rule_count": 10,
       "rule_ids": [
         "OCI-LATERAL_MOVEMENT-167",
         "OCI-LATERAL_MOVEMENT-168",
@@ -195,10 +195,11 @@
       "category": "sql_injection",
       "weight": "high",
       "description": "Injection patterns, union selects, OR 1=1 attempts",
-      "rule_count": 6,
+      "rule_count": 7,
       "rule_ids": [
         "OCI-SQL-INJECTION-013",
         "OCI-SQL-INJECTION-001",
+        "OCI-SQL-INJECTION-008",
         "GHADV-1336",
         "GHADV-2220",
         "GHADV-4503",
@@ -2230,6 +2231,125 @@
       ]
     },
     {
+      "rule_id": "OCI-PRIVILEGE-ESCALATION-007",
+      "name": "CVE-2026-87886 — Backup Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-87886: Acronis Backup plugin for cPanel & WHM and extension for Plesk contains an incorrect default permissions vulnerability that could allow for privilege escalation.. Product: Backup",
+      "severity": "MEDIUM",
+      "category": "privilege-escalation",
+      "mitre_attack": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SELECT \"siem_privilege_escalation_privilege_escalation_007\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_privilege_escalation_privilege_escalation_007",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-87886",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "OCI-PRIVILEGE-ESCALATION-010",
+      "name": "CVE-2026-42016 — Artifactory Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-42016: JFrog Artifactory contains an incorrect authorization vulnerability that leads to a privilege escalation attack due to a validation check of the token signature/issuer and not the token’s scope.. Product: Artifactory",
+      "severity": "MEDIUM",
+      "category": "privilege-escalation",
+      "mitre_attack": [
+        "T1078",
+        "T1110",
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SELECT \"siem_privilege_escalation_privilege_escalation_010\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_privilege_escalation_privilege_escalation_010",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-42016",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "OCI-PRIVILEGE-ESCALATION-013",
+      "name": "CVE-2026-86060 — RouterOS Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-86060: MikroTik RouterOS contains an improper neutralization of argument delimiters in a command vulnerability which allows an attacker to change the trusted RouterOS policy mask, leading to privilege escalation.. Product: RouterOS",
+      "severity": "MEDIUM",
+      "category": "privilege-escalation",
+      "mitre_attack": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SELECT \"siem_privilege_escalation_privilege_escalation_013\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_privilege_escalation_privilege_escalation_013",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-86060",
+        "exploited"
+      ]
+    },
+    {
       "rule_id": "OCI-RANSOMWARE-077",
       "name": "Mass File Encryption Pattern",
       "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
@@ -2895,6 +3015,47 @@
         ],
         "compartmentId": "$COMPARTMENT_ID",
         "metric": "siem_sql_injection_sql_injection_001",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "sql-injection",
+        "cve",
+        "cve-2026-76461",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "OCI-SQL-INJECTION-008",
+      "name": "CVE-2026-76461 — Secure Email Gateway Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-76461: Cisco AsyncOS software for Cisco Secure Email Gateway (SEG) contains a SQL injection vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary commands with root privileges on the underlying operating system.. Product: Secure Email Gateway",
+      "severity": "MEDIUM",
+      "category": "sql-injection",
+      "mitre_attack": [
+        "T1110",
+        "T1078",
+        "T1190"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SELECT \"siem_sql_injection_sql_injection_008\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2026%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_sql_injection_sql_injection_008",
         "operator": "GT",
         "threshold": 3
       },
@@ -4496,367 +4657,6 @@
         "maven",
         "oracle"
       ]
-    },
-    {
-      "rule_id": "OCI-LAT-0700",
-      "name": "Lateral Movement: RDP Followed by Credential Access",
-      "description": "Correlation rule detecting rdp followed by credential access",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1021.001",
-        "T1555"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0700\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0700",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0701",
-      "name": "Lateral Movement: SSH Followed by Privilege Escalation",
-      "description": "Correlation rule detecting ssh followed by privilege escalation",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1021.006",
-        "T1548"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0701\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0701",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0702",
-      "name": "Lateral Movement: SMB Share Access Followed by File Encryption",
-      "description": "Correlation rule detecting smb share access followed by file encryption",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1021.002",
-        "T1486"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0702\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0702",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0703",
-      "name": "Lateral Movement: WMI Remote Execution Followed by Persistence",
-      "description": "Correlation rule detecting wmi remote execution followed by persistence",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1546.003",
-        "T1547.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0703\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%lateral%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.audit",
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0703",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0704",
-      "name": "Lateral Movement: PsExec Followed by Discovery",
-      "description": "Correlation rule detecting psexec followed by discovery",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1021.002",
-        "T1082"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0704\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0704",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0705",
-      "name": "Lateral Movement: PowerShell Remoting Followed by Credential Dumping",
-      "description": "Correlation rule detecting powershell remoting followed by credential dumping",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1059.001",
-        "T1003.001"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0705\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%lateral%' OR \"data__json.message\" LIKE '%movement%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0705",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0706",
-      "name": "Lateral Movement: WinRM Followed by Defense Evasion",
-      "description": "Correlation rule detecting winrm followed by defense evasion",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1021.001",
-        "T1027"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0706\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0706",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0707",
-      "name": "Lateral Movement: Kerberoasting Followed by Lateral Movement",
-      "description": "Correlation rule detecting kerberoasting followed by lateral movement",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1558.001",
-        "T1021"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0707\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%lateral%' OR \"data__json.message\" LIKE '%movement%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0707",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0708",
-      "name": "Lateral Movement: DCSync Attack Chain",
-      "description": "Correlation rule detecting dcsync attack chain",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1003.006",
-        "T1558"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0708\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%lateral%' AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.audit",
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0708",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
-    },
-    {
-      "rule_id": "OCI-LAT-0709",
-      "name": "Lateral Movement: Pass-the-Hash Detection",
-      "description": "Correlation rule detecting pass-the-hash detection",
-      "severity": "MEDIUM",
-      "category": "lateral-movement",
-      "mitre_attack": [
-        "T1550.002"
-      ],
-      "compliance": [
-        "NIST-800-53-SI-4",
-        "PCI-DSS-10.2",
-        "NIS2-Art.15",
-        "DORA-Art.8"
-      ],
-      "query": "SELECT \"siem_lateral_movement_lat_0709\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%lateral%' OR \"data__json.message\" LIKE '%movement%') AND \"value\" > 0",
-      "rule_type": "query",
-      "interval": "5m",
-      "condition": {
-        "eventType": [
-          "com.oracle.cloud.monitoring"
-        ],
-        "compartmentId": "$COMPARTMENT_ID",
-        "metric": "siem_lateral_movement_lat_0709",
-        "operator": "GT",
-        "threshold": 3
-      },
-      "actions": [
-        {
-          "actionType": "ONS",
-          "description": "Send alert notification"
-        }
-      ],
-      "tags": []
     }
   ]
 }

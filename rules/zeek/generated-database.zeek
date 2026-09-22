@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-database
-# Auto-generated: 2026-09-16T04:05:26.806298Z
+# Auto-generated: 2026-09-22T04:05:06.409691Z
 # Load in local.zeek: @load ./generated-database
 
 signature ZK-DATABASE-001 {

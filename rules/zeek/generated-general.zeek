@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-general
-# Auto-generated: 2026-09-16T04:05:26.807574Z
+# Auto-generated: 2026-09-22T04:05:06.410245Z
 # Load in local.zeek: @load ./generated-general
 
 signature ZK-GENERAL-002 {
@@ -125,5 +125,12 @@ signature ZK-GENERAL-007 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*((login|auth|password|passwd)).*/ regex
+	event "CVE-2026-19490 — NetScaler Exploitation"
+}
+
+signature ZK-GENERAL-015 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((login|auth|admin|root)).*/ regex
 	event "CVE-2026-19490 — NetScaler Exploitation"
 }
