@@ -1,231 +1,311 @@
-# Generated Suricata Detection Rules - 2026-09-22
-# Based on latest CVEs, MITRE ATT&CK, and threat landscape
-# Total: 100 rules | SID range: 5204101-5204200
+# Suricata Detection Rules - Generated 2026-09-22
+# Based on latest CVEs from GitHub Advisory Database and current threat landscape
+# Total rules: 100 | SID range: 5204601-5204700
 
-# === CVE-2026-61628: nginx-ignition Unauthenticated Admin Creation (Race Condition) ===
-alert http any any -> any any (msg:"ET EXPLOIT nginx-ignition Unauthenticated Admin Account Creation Onboarding Race Condition CVE-2026-61628"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/users/onboarding/finish"; nocase; http.header; content:"Content-Type"; content:"application/json"; classtype:attempted-admin; sid:5204101; rev:1;)
-alert http any any -> any any (msg:"ET EXPLOIT nginx-ignition Onboarding Finish Multiple Rapid Requests Race Condition CVE-2026-61628"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/users/onboarding/finish"; threshold:type threshold, track by_src, count 5, seconds 2; classtype:attempted-admin; sid:5204102; rev:1;)
-alert http any any -> any any (msg:"ET EXPLOIT nginx-ignition Onboarding Admin JWT Token Response CVE-2026-61628"; flow:established,to_client; http.status_code; content:"200"; http.header; content:"Bearer"; classtype:successful-admin; sid:5204103; rev:1;)
+# --- CRITICAL severity CVEs ---
 
-# === CVE-2026-61629: nginx-ignition Accept-Language CPU Amplification DoS ===
-alert http any any -> any any (msg:"ET DOS nginx-ignition Accept-Language CPU Amplification Attack CVE-2026-61629"; flow:established,to_server; http.header; content:"Accept-Language"; pcre:"/Accept-Language\x3a[^\r\n]{500,}/Hi"; classtype:attempted-dos; sid:5204104; rev:1;)
-alert http any any -> any any (msg:"ET DOS nginx-ignition Accept-Language Underscore Separator Amplification CVE-2026-61629"; flow:established,to_server; http.header; content:"Accept-Language"; content:"_"; within:50; pcre:"/Accept-Language\x3a[^\r\n]*_[^\r\n]{100,}/Hi"; classtype:attempted-dos; sid:5204105; rev:1;)
-alert http any any -> any any (msg:"ET DOS nginx-ignition Accept-Language Excessive Length Header CVE-2026-61629"; flow:established,to_server; http.header; content:"Accept-Language"; pcre:"/Accept-Language\x3a[^\r\n]{10000,}/Hi"; classtype:attempted-dos; sid:5204106; rev:1;)
+# CVE-2026-74849: ManageEngine ADSelfService Plus RCE via GINA client
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT ManageEngine ADSelfService Plus GINA Client Remote Code Execution CVE-2026-74849"; flow:established,to_server; content:"POST"; http_method; content:"/ginas"; nocase; http_uri; content:"cmd="; http_client_body; reference:cve,2026-74849; classtype:attempted-admin; sid:5204601; rev:1;)
 
-# === CVE-2026-61630: nginx-ignition TOTP Reuse ===
-alert http any any -> any any (msg:"ET WEB_AUTH nginx-ignition TOTP Reuse Attempt CVE-2026-61630"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/auth/login"; nocase; http.header; content:"application/json"; classtype:attempted-admin; sid:5204107; rev:1;)
+# CVE-2026-25254: Qualcomm SocketIO RCE via improper authorization
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Qualcomm SocketIO Interface Improper Authorization RCE CVE-2026-25254"; flow:established,to_server; content:"socket.io"; nocase; http_uri; content:"upgrade"; nocase; http_header; reference:cve,2026-25254; classtype:attempted-admin; sid:5204602; rev:1;)
 
-# === CVE-2026-94572 & CVE-2026-94571: OpenStack Octavia HAProxy Config Injection ===
-alert http any any -> any any (msg:"ET EXPLOIT OpenStack Octavia HAProxy Configuration Injection via TLS Ciphers CVE-2026-94572"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/v2/lbaas/listeners"; nocase; http.json_body; content:"tls_ciphers"; pcre:"/tls_ciphers[^\x22]*[\x0a\x0d]/"; classtype:attempted-admin; sid:5204108; rev:1;)
-alert http any any -> any any (msg:"ET EXPLOIT OpenStack Octavia HAProxy Config Injection via L7 Redirect CVE-2026-94571"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/v2/lbaas/l7policies"; nocase; http.json_body; content:"redirect_url"; pcre:"/redirect_url[^\x22]*[\x0a\x0d]/"; classtype:attempted-admin; sid:5204109; rev:1;)
-alert http any any -> any any (msg:"ET EXPLOIT OpenStack Octavia HAProxy Config Injection Newline in Listener CVE-2026-94572"; flow:established,to_server; http.method; content:"PATCH"; http.uri; content:"/v2/lbaas/listeners"; nocase; http.json_body; content:"tls_ciphers"; pcre:"/[\x0a\x0d]/R"; classtype:attempted-admin; sid:5204110; rev:1;)
+# CVE-2026-93556: Tankuam Kompini Password Reset IDOR to Account Takeover
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Tankuam Kompini IDOR Password Reset Account Takeover CVE-2026-93556"; flow:established,to_server; content:"POST"; http_method; content:"/password/guardarClau/recover"; nocase; http_uri; content:"usuariId="; http_client_body; reference:cve,2026-93556; classtype:attempted-admin; sid:5204603; rev:1;)
 
-# === CVE-2026-88409: FalkorDB Buffer Overflow ===
-alert tcp any any -> any 6379 (msg:"ET EXPLOIT FalkorDB Buffer Overflow in Query Processing CVE-2026-88409"; flow:established,to_server; content:"GRAPH.QUERY"; nocase; content:"\r\n"; within:200; pcre:"/GRAPH\.\w+\s+[^\r\n]{5000,}/"; classtype:attempted-admin; sid:5204111; rev:1;)
+# CVE-2026-93952: VeloCloud Orchestrator On-Prem Remote Auth Bypass
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT VeloCloud Orchestrator On-Prem Remote Authentication Bypass CVE-2026-93952"; flow:established,to_server; content:"POST"; http_method; content:"/login/"; nocase; http_uri; content:"velocloud"; nocase; http_header; reference:cve,2026-93952; classtype:attempted-admin; sid:5204604; rev:1;)
 
-# === CVE-2026-88410: FalkorDB graph.UDF Write Command Bypass ===
-alert tcp any any -> any 6379 (msg:"ET EXPLOIT FalkorDB UDF Write Command Registration Bypass CVE-2026-88410"; flow:established,to_server; content:"GRAPH.UDF"; nocase; classtype:attempted-admin; sid:5204112; rev:1;)
+# --- HIGH severity CVEs ---
 
-# === CVE-2026-88411: FalkorDB GRAPH.EFFECT DoS ===
-alert tcp any any -> any 6379 (msg:"ET DOS FalkorDB GRAPH.EFFECT Improper Error Handling DoS CVE-2026-88411"; flow:established,to_server; content:"GRAPH.EFFECT"; nocase; classtype:attempted-dos; sid:5204113; rev:1;)
+# CVE-2026-89420: ZenHive MPP Voucher Replay Resource Theft
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT ZenHive MPP Voucher Replay Unlimited Resource Access CVE-2026-89420"; flow:established,to_server; content:"POST"; http_method; content:"/mpp/"; nocase; http_uri; content:"voucher"; nocase; http_client_body; reference:cve,2026-89420; classtype:attempted-user; sid:5204605; rev:1;)
 
-# === CVE-2026-88412: FalkorDB Integer Overflow Bulk Insert ===
-alert tcp any any -> any 6379 (msg:"ET EXPLOIT FalkorDB Integer Overflow Bulk Insert CVE-2026-88412"; flow:established,to_server; content:"GRAPH.BULK"; nocase; pcre:"/GRAPH\.BULK\x20[^\r\n]{1000,}/"; classtype:attempted-dos; sid:5204114; rev:1;)
+# CVE-2026-87119: ZenHive MPP Capture-Replay Auth Bypass
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT ZenHive MPP KeyAuthorization Capture Replay Authentication Bypass CVE-2026-87119"; flow:established,to_server; content:"POST"; http_method; content:"/subscription/activate"; nocase; http_uri; content:"keyAuthorization"; nocase; http_client_body; reference:cve,2026-87119; classtype:attempted-user; sid:5204606; rev:1;)
 
-# === CVE-2026-88406: FalkorDB Stack Overflow ===
-alert tcp any any -> any 6379 (msg:"ET EXPLOIT FalkorDB Stack Overflow in Query Execution CVE-2026-88406"; flow:established,to_server; content:"GRAPH.QUERY"; nocase; pcre:"/GRAPH\.QUERY\s+[^\r\n]{10000,}/"; classtype:attempted-dos; sid:5204115; rev:1;)
+# CVE-2026-90882: Open VSX CORS Origin Reflection Credential Theft
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Open VSX CORS Origin Reflection Credential Exfiltration CVE-2026-90882"; flow:established,to_server; content:"GET"; http_method; content:"/user/tokens"; nocase; http_uri; content:"open-vsx.org"; nocase; http_header; reference:cve,2026-90882; classtype:attempted-recon; sid:5204607; rev:1;)
 
-# === CVE-2026-88407: FalkorDB Out-of-Bounds Read ===
-alert tcp any any -> any 6379 (msg:"ET EXPLOIT FalkorDB Out-of-Bounds Read in Token Count CVE-2026-88407"; flow:established,to_server; content:"GRAPH.QUERY"; nocase; pcre:"/node_token_count|relation_token_count/"; classtype:attempted-admin; sid:5204116; rev:1;)
+# CVE-2026-94117: HashBar WordPress Plugin SQL Injection
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress HashBar Notification Bar Plugin SQL Injection CVE-2026-94117"; flow:established,to_server; content:"hashbar"; nocase; http_uri; pcre:"/(?:UNION|SELECT|INSERT|UPDATE|DELETE|DROP)\s/i"; reference:cve,2026-94117; classtype:web-application-attack; sid:5204608; rev:1;)
 
-# === CVE-2026-94424: Moore Threads MTT S80 Driver ===
-alert tcp any any -> any any (msg:"ET EXPLOIT Moore Threads MTT S80 Driver Local Privilege Escalation CVE-2026-94424"; flow:established,to_server; content:"mtt"; nocase; classtype:attempted-admin; sid:5204117; rev:1;)
+# CVE-2026-9231: WP Travel Engine LFI via wte_get_template
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress WP Travel Engine Local File Inclusion CVE-2026-9231"; flow:established,to_server; content:"wte_get_template"; nocase; http_uri; pcre:"/(\.\.\/|\.\.%2f|%2e%2e%2f)/i"; reference:cve,2026-9231; classtype:web-application-attack; sid:5204609; rev:1;)
 
-# === CVE-2026-81469: Dell Inventory Collector Unquoted Service Path ===
-alert file any any -> any any (msg:"ET EXPLOIT Dell Inventory Collector Unquoted Service Path Privilege Escalation CVE-2026-81469"; file.data; content:"Dell"; nocase; content:"Inventory"; nocase; classtype:attempted-admin; sid:5204118; rev:1;)
+# CVE-2026-92969: HUSKY WooCommerce Filter LFI via shortcode parameter
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress HUSKY Products Filter Local File Inclusion CVE-2026-92969"; flow:established,to_server; content:"woof"; nocase; http_uri; content:"shortcode="; http_client_body; pcre:"/(\.\.\/|\.\.%2f)/i"; reference:cve,2026-92969; classtype:web-application-attack; sid:5204610; rev:1;)
 
-# === CVE-2026-49811: Dell Command Monitor Incorrect Permission ===
-alert file any any -> any any (msg:"ET EXPLOIT Dell Command Monitor Incorrect Permission Privilege Escalation CVE-2026-49811"; file.data; content:"DCM"; nocase; classtype:attempted-admin; sid:5204119; rev:1;)
+# CVE-2026-93836: WPC Product Bundles WooCommerce Stored XSS
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress WPC Product Bundles Stored XSS via qty Parameter CVE-2026-93836"; flow:established,to_server; content:"woosb_ids"; nocase; http_client_body; content:"<img"; nocase; http_client_body; content:"onerror"; nocase; http_client_body; reference:cve,2026-93836; classtype:web-application-attack; sid:5204611; rev:1;)
 
-# === CVE-2026-49810: Dell Command PowerShell Provider DLL Hijacking ===
-alert file any any -> any any (msg:"ET EXPLOIT Dell Command PowerShell Provider DLL Hijacking CVE-2026-49810"; file.data; content:"DCPP"; nocase; classtype:attempted-admin; sid:5204120; rev:1;)
+# CVE-2026-93778: WP Yelp Review Slider Stored XSS
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress WP Yelp Review Slider Stored XSS CVE-2026-93778"; flow:established,to_server; content:"wpyelp"; nocase; http_uri; content:"<script"; nocase; http_client_body; reference:cve,2026-93778; classtype:web-application-attack; sid:5204612; rev:1;)
 
-# === CVE-2026-94501: jshERP Authorization Bypass userBusiness CRUD ===
-alert http any any -> any any (msg:"ET WEB_APP jshERP Authorization Bypass userBusiness CRUD CVE-2026-94501"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/userBusiness/"; nocase; classtype:attempted-admin; sid:5204121; rev:1;)
+# CVE-2026-92235: WP Ultimate Review Arbitrary Shortcode Execution
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress WP Ultimate Review Arbitrary Shortcode Execution CVE-2026-92235"; flow:established,to_server; content:"wp_ultimate_review"; nocase; http_uri; content:"[shortcode"; nocase; http_client_body; reference:cve,2026-92235; classtype:web-application-attack; sid:5204613; rev:1;)
 
-# === CVE-2026-94412: jshERP Reset Password Auth Bypass ===
-alert http any any -> any any (msg:"ET WEB_APP jshERP Password Reset Authorization Bypass CVE-2026-94412"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/user/resetPwd"; nocase; classtype:attempted-admin; sid:5204122; rev:1;)
+# CVE-2026-6922: WP Table Builder Incorrect Authorization
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress WP Table Builder Incorrect Authorization CVE-2026-6922"; flow:established,to_server; content:"wp-table-builder"; nocase; http_uri; content:"admin"; nocase; http_uri; reference:cve,2026-6922; classtype:web-application-attack; sid:5204614; rev:1;)
 
-# === CVE-2026-94413: jshERP Password Hash Disclosure ===
-alert http any any -> any any (msg:"ET WEB_APP jshERP Password Hash Disclosure via User Info Endpoint CVE-2026-94413"; flow:established,to_client; http.status_code; content:"200"; file.data; content:"password"; nocase; content:"hash"; nocase; classtype:informational; sid:5204123; rev:1;)
+# CVE-2026-93928: Taxi Bookings Auth Bypass
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Magepeople Taxi Bookings Authentication Bypass CVE-2026-93928"; flow:established,to_server; content:"taxi"; nocase; http_uri; content:"booking"; nocase; http_uri; content:"password"; nocase; http_client_body; reference:cve,2026-93928; classtype:web-application-attack; sid:5204615; rev:1;)
 
-# === CVE-2026-94414: jshERP Missing Authorization updateBtnStr ===
-alert http any any -> any any (msg:"ET WEB_APP jshERP Missing Authorization updateBtnStr CVE-2026-94414"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/userBusiness/updateBtnStr"; nocase; classtype:attempted-admin; sid:5204124; rev:1;)
+# CVE-2026-95508: libslirp DHCPv6/TFTP Heap Buffer Overflow
+alert ip $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT libslirp DHCPv6 Heap Buffer Overflow CVE-2026-95508"; content:"|01|"; offset:0; depth:1; content:"|82 00|"; within:4; reference:cve,2026-95508; classtype:attempted-admin; sid:5204616; rev:1;)
 
-# === CVE-2026-94495: jshERP SystemConfigService Privilege Escalation ===
-alert http any any -> any any (msg:"ET WEB_APP jshERP SystemConfigService Privilege Escalation CVE-2026-94495"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/systemConfig/"; nocase; classtype:attempted-admin; sid:5204125; rev:1;)
+# CVE-2026-95511: CUPS cups-filters Serial Backend Privilege Escalation
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET LOCAL CUPS Serial Backend Privilege Escalation CVE-2026-95511"; flow:established,to_server; content:"ipp://"; nocase; http_uri; content:"serial"; nocase; http_uri; reference:cve,2026-95511; classtype:attempted-user; sid:5204617; rev:1;)
 
-# === CVE-2026-94496: jshERP Role Management Auth Bypass ===
-alert http any any -> any any (msg:"ET WEB_APP jshERP Role Management Authorization Bypass CVE-2026-94496"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/role/"; nocase; classtype:attempted-admin; sid:5204126; rev:1;)
+# CVE-2026-25265: Qualcomm Temporary File Insecure Permissions Privilege Escalation
+alert file any any -> $HOME_NET any (msg:"ET EXPLOIT Qualcomm Insecure Temporary File Permissions Privilege Escalation CVE-2026-25265"; filesha256:""; reference:cve,2026-25265; classtype:attempted-user; sid:5204618; rev:1;)
 
-# === CVE-2026-94497: jshERP Object Ownership Validation Bypass ===
-alert http any any -> any any (msg:"ET WEB_APP jshERP Object Ownership Validation Bypass CVE-2026-94497"; flow:established,to_server; http.uri; content:"/info/"; http.method; content:"GET"; classtype:attempted-admin; sid:5204127; rev:1;)
+# CVE-2026-25264: Qualcomm Package Extraction Search Path Privilege Escalation
+alert file any any -> $HOME_NET any (msg:"ET EXPLOIT Qualcomm Package Extraction Uncontrolled Search Path Privilege Escalation CVE-2026-25264"; filesha256:""; reference:cve,2026-25264; classtype:attempted-user; sid:5204619; rev:1;)
 
-# === CVE-2026-94411: jshERP Privilege Escalation updateOneValue ===
-alert http any any -> any any (msg:"ET WEB_APP jshERP Privilege Escalation via updateOneValueByKeyIdAndType CVE-2026-94411"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"updateOneValueByKeyIdAndType"; nocase; classtype:attempted-admin; sid:5204128; rev:1;)
+# CVE-2026-25255: Qualcomm gRPC Server Exposed Dangerous Function Privilege Escalation
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Qualcomm gRPC Exposed Dangerous Function Privilege Escalation CVE-2026-25255"; flow:established,to_server; content:"grpc"; nocase; reference:cve,2026-25255; classtype:attempted-user; sid:5204620; rev:1;)
 
-# === CVE-2026-94494: jshERP Tenant Isolation Bypass ===
-alert http any any -> any any (msg:"ET WEB_APP jshERP Tenant Isolation Bypass CVE-2026-94494"; flow:established,to_server; http.uri; content:"/tenant/"; nocase; classtype:attempted-admin; sid:5204129; rev:1;)
+# --- MEDIUM severity CVEs ---
 
-# === CVE-2026-94403: ColorFul iGameCenter DLL Hijacking ===
-alert dns any any -> any any (msg:"ET TROJAN ColorFul iGameCenter DLL Hijacking CVE-2026-94403"; dns.query; content:"iGameCenter"; nocase; classtype:trojan-activity; sid:5204130; rev:1;)
+# CVE-2026-63279: LibreOffice PICT Palette OOB Read
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT LibreOffice PICT Image Palette Out-of-Bounds Read CVE-2026-63279"; flow:established,to_server; content:"Content-Type: image/x-pict"; nocase; http_header; reference:cve,2026-63279; classtype:attempted-user; sid:5204621; rev:1;)
 
-# === CVE-2026-94488: Telegram Desktop XSS ===
-alert http any any -> any any (msg:"ET WEB_CLIENT Telegram Desktop Export XSS CVE-2026-94488"; flow:established,to_client; file.data; content:"telegram"; nocase; content:"<script"; nocase; classtype:web-application-attack; sid:5204131; rev:1;)
+# CVE-2026-63275: LibreOffice CFF Font Stack Buffer Overflow
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT LibreOffice CFF Font Stack Buffer Overflow CVE-2026-63275"; flow:established,to_server; content:"Content-Type: application/font-cff"; nocase; http_header; reference:cve,2026-63275; classtype:attempted-user; sid:5204622; rev:1;)
 
-# === CVE-2026-94449: SmallRye Fault Tolerance DoS ===
-alert http any any -> any any (msg:"ET DOS SmallRye Fault Tolerance Library DoS CVE-2026-94449"; flow:established,to_server; http.uri; content:"/fault-tolerance"; nocase; classtype:attempted-dos; sid:5204132; rev:1;)
+# CVE-2026-63276: LibreOffice CFF to Type1 Conversion Buffer Overflow
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT LibreOffice CFF to Type1 Conversion Stack Buffer Overflow CVE-2026-63276"; flow:established,to_server; content:".odt"; nocase; http_uri; reference:cve,2026-63276; classtype:attempted-user; sid:5204623; rev:1;)
 
-# === CVE-2026-94588: Proxmox pmg-api Argument Injection ===
-alert http any any -> any any (msg:"ET EXPLOIT Proxmox pmg-api Package Changelog Argument Injection CVE-2026-94588"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"changelog"; nocase; content:"apt-get"; nocase; pcre:"/[;&|`$]/"; classtype:attempted-admin; sid:5204133; rev:1;)
+# CVE-2026-63278: LibreOffice URL Environment Variable Exfiltration
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT LibreOffice URL Environment Variable Exfiltration CVE-2026-63278"; flow:established,to_client; content:"GET"; http_method; pcre:"/(\$\{|%ENV%|\.ini)/i"; reference:cve,2026-63278; classtype:trojan-activity; sid:5204624; rev:1;)
 
-# === CVE-2026-88404: Uniscript Remote Code Execution ===
-alert http any any -> any any (msg:"ET EXPLOIT Uniscript Remote Code Execution via UniscriptExecutionService CVE-2026-88404"; flow:established,to_server; http.uri; content:"execute"; nocase; content:"UniscriptExecutionService"; nocase; classtype:attempted-admin; sid:5204134; rev:1;)
+# CVE-2026-63273: LibreOffice PDF Encryption Key Heap Overflow
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT LibreOffice PDF Encryption Key Heap Buffer Overflow CVE-2026-63273"; flow:established,to_server; content:"Content-Type: application/pdf"; nocase; http_header; reference:cve,2026-63273; classtype:attempted-user; sid:5204625; rev:1;)
 
-# === CVE-2026-88405: RemoteRegisterFunctionService RCE ===
-alert http any any -> any any (msg:"ET EXPLOIT RemoteRegisterFunctionService RCE CVE-2026-88405"; flow:established,to_server; http.uri; content:"RemoteRegisterFunction"; nocase; classtype:attempted-admin; sid:5204135; rev:1;)
+# CVE-2026-63274: LibreOffice PDF Stream Object Heap Overflow
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT LibreOffice PDF Stream Object Heap Buffer Overflow CVE-2026-63274"; flow:established,to_server; content:"Content-Type: application/pdf"; nocase; http_header; content:"/Length"; nocase; reference:cve,2026-63274; classtype:attempted-user; sid:5204626; rev:1;)
 
-# === CVE-2026-88402: NocoBase SQL Injection ===
-alert http any any -> any any (msg:"ET WEB_SQL NocoBase SQL Injection via checkSQL CVE-2026-88402"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"checkSQL"; nocase; pcre:"/UNION\s+SELECT|OR\s+1\s*=\s*1|;\s*DROP\s/i"; classtype:web-application-attack; sid:5204136; rev:1;)
+# CVE-2026-63272: LibreOffice WMF Text Record Heap Overflow
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT LibreOffice WMF Text Record Heap Buffer Overflow CVE-2026-63272"; flow:established,to_server; content:"Content-Type: image/x-wmf"; nocase; http_header; reference:cve,2026-63272; classtype:attempted-user; sid:5204627; rev:1;)
 
-# === CVE-2026-88403: NocoBase SSRF ===
-alert http any any -> any any (msg:"ET WEB_SERVER NocoBase SSRF via serverRequest CVE-2026-88403"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"serverRequest"; nocase; http.json_body; content:"url"; pcre:"/url.*[&=\?]/i"; classtype:attempted-admin; sid:5204137; rev:1;)
+# CVE-2026-95623: Tauri HTTP Plugin SSRF via Open Redirect
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Tauri HTTP Plugin SSRF via Redirect Bypass CVE-2026-95623"; flow:established,to_server; content:"GET"; http_method; content:"169.254."; nocase; http_uri; reference:cve,2026-95623; classtype:attempted-recon; sid:5204628; rev:1;)
 
-# === CVE-2026-93433: libstoragemgmt Local Privilege Escalation ===
-alert tcp any any -> any any (msg:"ET EXPLOIT libstoragemgmt Local Privilege Escalation CVE-2026-93433"; flow:established,to_server; content:"libstoragemgmt"; nocase; classtype:attempted-admin; sid:5204138; rev:1;)
+# CVE-2026-92882: Checkmk REST API Credential Disclosure
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET WEB Checkmk REST API Credential Cleartext Disclosure CVE-2026-92882"; flow:established,to_client; content:"200"; http_stat_code; content:"community"; nocase; http_server_body; content:"snmp"; nocase; http_server_body; reference:cve,2026-92882; classtype:informational; sid:5204629; rev:1;)
 
-# === CVE-2026-67827: ZLMediaKit Access Control Bypass ===
-alert http any any -> any any (msg:"ET WEB_SERVER ZLMediaKit Incorrect Access Control CVE-2026-67827"; flow:established,to_server; http.uri; content:"/index/api/"; nocase; content:"secret"; nocase; classtype:attempted-admin; sid:5204139; rev:1;)
+# CVE-2026-90990: Checkmk Livestatus CRLF Injection
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Checkmk Livestatus CRLF Injection Filter Bypass CVE-2026-90990"; flow:established,to_server; content:"/check_mk/"; nocase; http_uri; pcre:"/%0d%0a/i"; reference:cve,2026-90990; classtype:web-application-attack; sid:5204630; rev:1;)
 
-# === CVE-2026-79316: x-ui Improper Access Control ===
-alert http any any -> any any (msg:"ET WEB_SERVER x-ui Panel Improper Access Control CVE-2026-79316"; flow:established,to_server; http.uri; content:"/panel/"; nocase; content:"x-ui"; nocase; classtype:attempted-admin; sid:5204140; rev:1;)
+# CVE-2026-15095: CTX Feed WooCommerce Directory Traversal
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB WordPress CTX Feed Plugin Directory Traversal CVE-2026-15095"; flow:established,to_server; content:"/ctxfeed/v1/make_feed"; nocase; http_uri; pcre:"/provider.*\.\./i"; reference:cve,2026-15095; classtype:web-application-attack; sid:5204631; rev:1;)
 
-# === CVE-2026-79317: x-ui Session Invalidation Bypass ===
-alert http any any -> any any (msg:"ET WEB_SERVER x-ui Session Invalidation Bypass CVE-2026-79317"; flow:established,to_client; http.status_code; content:"200"; http.header; content:"session"; nocase; classtype:attempted-admin; sid:5204141; rev:1;)
+# CVE-2026-74766: Net::IDN::Punycode Heap Use-After-Free
+alert dns $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Perl Net IDN Punycode Heap Use-After-Free CVE-2026-74766"; dns.query; content:"xn--"; nocase; reference:cve,2026-74766; classtype:attempted-user; sid:5204632; rev:1;)
 
-# === CVE-2026-79320: Stencil Core DOM XSS ===
-alert http any any -> any any (msg:"ET WEB_CLIENT Stencil Core DOM-Based XSS CVE-2026-79320"; flow:established,to_client; file.data; content:"stencil"; nocase; content:"innerHTML"; classtype:web-application-attack; sid:5204142; rev:1;)
+# CVE-2026-25262: Qualcomm ELF Memory Corruption in Primary Bootloader
+alert file any any -> $HOME_NET any (msg:"ET EXPLOIT Qualcomm Primary Bootloader ELF Memory Corruption CVE-2026-25262"; fileext:"elf"; reference:cve,2026-25262; classtype:attempted-admin; sid:5204633; rev:1;)
 
-# === CVE-2026-79319: Stencil Core Incorrect Access Control ===
-alert http any any -> any any (msg:"ET WEB_SERVER Stencil Core Incorrect Access Control CVE-2026-79319"; flow:established,to_server; http.uri; content:"stencil"; nocase; classtype:attempted-admin; sid:5204143; rev:1;)
+# --- MITRE ATT&CK Detection Rules ---
 
-# === CVE-2026-79318: web2py Directory Traversal ===
-alert http any any -> any any (msg:"ET WEB_SERVER web2py Directory Traversal CVE-2026-79318"; flow:established,to_server; http.uri; content:".."; content:".."; within:20; classtype:web-application-attack; sid:5204144; rev:1;)
+# T1059.001: Command and Scripting Interpreter - PowerShell
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE PowerShell Download Cradle Execution"; flow:established,to_server; content:"GET"; http_method; content:"IEX"; nocase; http_uri; content:"New-Object"; nocase; http_client_body; classtype:trojan-activity; sid:5204634; rev:1;)
 
-# === MITRE ATT&CK - Reconnaissance (T1595,T1592) ===
-alert http any any -> any any (msg:"ET RECON Active Scanning Vulnerability Scanner Detection"; flow:established,to_server; http.header; content:"User-Agent"; pcre:"/Nikto|Nessus|OpenVAS|w3af|Acunetix|BurpSuite|DirBuster|sqlmap/i"; classtype:network-recon; sid:5204145; rev:1;)
-alert http any any -> any any (msg:"ET RECON Mass HTTP Path Enumeration Activity"; flow:established,to_server; threshold:type threshold, track by_src, count 50, seconds 10; http.method; content:"GET"; classtype:network-recon; sid:5204146; rev:1;)
-alert tcp any any -> any any (msg:"ET RECON SSH Version Banner Harvesting"; flow:established,to_server; content:"SSH-2.0-"; within:20; classtype:network-recon; sid:5204147; rev:1;)
+# T1059.003: Command and Scripting Interpreter - Windows Command Shell
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Windows Command Shell Reverse Shell via CMD Pipe"; flow:established,to_server; content:"cmd.exe"; nocase; content:"/c"; nocase; content:"&"; within:50; classtype:trojan-activity; sid:5204635; rev:1;)
 
-# === MITRE ATT&CK - Initial Access (T1190,T1133) ===
-alert http any any -> any any (msg:"ET EXPLOIT Possible Exploit Kit Landing Page"; flow:established,to_client; http.status_code; content:"200"; file.data; content:"<iframe"; content:"<script"; within:500; classtype:exploit-kit; sid:5204148; rev:1;)
-alert http any any -> any any (msg:"ET TROJAN Possible VPN Client Phishing Portal"; flow:established,to_server; http.uri; content:"/vpn"; nocase; http.header; content:"Host"; pcre:"/vpn[^\r\n]*\.xyz\./Hi"; classtype:trojan-activity; sid:5204149; rev:1;)
+# T1078.002: Valid Accounts - Domain Accounts
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET COMPROMISED Possible Credential Stuffing Multiple Failed Logins"; flow:established,to_server; content:"401"; within:4; threshold:type both, track by_src, count 10, seconds 60; classtype:attempted-admin; sid:5204636; rev:1;)
 
-# === MITRE ATT&CK - Execution (T1059,T1203) ===
-alert http any any -> any any (msg:"ET EXPLOIT PowerShell Download Cradle Execution"; flow:established,to_server; http.header; content:"User-Agent"; pcre:"/powershell/i"; classtype:command-and-control; sid:5204150; rev:1;)
-alert http any any -> any any (msg:"ET EXPLOIT Suspicious cmd.exe or bash Command Injection"; flow:established,to_server; http.uri; pcre:"/[;&|`]\s*(cmd|bash|sh|powershell|wget|curl)\s/i"; classtype:web-application-attack; sid:5204151; rev:1;)
+# T1190: Exploit Public-Facing Application
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Possible SQL Injection UNION SELECT Probe"; flow:established,to_server; content:"UNION"; nocase; http_uri; content:"SELECT"; nocase; http_uri; content:"FROM"; nocase; http_uri; classtype:web-application-attack; sid:5204637; rev:1;)
 
-# === MITRE ATT&CK - Persistence (T1136,T1547) ===
-alert http any any -> any any (msg:"ET EXPLOIT New User Account Creation via Web API"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/user"; nocase; http.json_body; content:"username"; nocase; content:"password"; nocase; classtype:attempted-admin; sid:5204152; rev:1;)
-alert http any any -> any any (msg:"ET EXPLOIT Scheduled Task/CRON Creation via Web Interface"; flow:established,to_server; http.uri; pcre:"/cron|schedule|task/i"; http.method; content:"POST"; classtype:attempted-admin; sid:5204153; rev:1;)
+# T1133: External Remote Services - VPN Exploitation
+alert tcp $EXTERNAL_NET any -> $HOME_NET [443,1194,4433] (msg:"ET EXPLOIT Possible VPN Service Brute Force"; flow:established,to_server; threshold:type both, track by_src, count 20, seconds 60; classtype:attempted-admin; sid:5204638; rev:1;)
 
-# === MITRE ATT&CK - Privilege Escalation (T1068,T1548) ===
-alert http any any -> any any (msg:"ET EXPLOIT sudo/setuid Binary Exploitation Attempt"; flow:established,to_server; http.uri; pcre:"/sudo|setuid|chmod\s+[47]00|chown\s+root/i"; classtype:attempted-admin; sid:5204154; rev:1;)
-alert http any any -> any any (msg:"ET EXPLOIT Container Escape via Privileged Mount"; flow:established,to_server; http.uri; pcre:"/\/proc\/|\/sys\/|docker\.sock/i"; http.method; content:"GET"; classtype:attempted-admin; sid:5204155; rev:1;)
+# T1053.005: Scheduled Task/Job - Windows
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Suspicious Scheduled Task Creation via PowerShell"; flow:established,to_server; content:"schtasks"; nocase; content:"/create"; nocase; content:"/sc"; nocase; classtype:trojan-activity; sid:5204639; rev:1;)
 
-# === MITRE ATT&CK - Defense Evasion (T1070,T1027) ===
-alert http any any -> any any (msg:"ET DEFENSE_EVASION Log Manipulation via Web API"; flow:established,to_server; http.method; content:"DELETE"; http.uri; pcre:"/log|audit|event/i"; classtype:attempted-admin; sid:5204156; rev:1;)
-alert http any any -> any any (msg:"ET DEFENSE_EVASION Obfuscated JavaScript Execution"; flow:established,to_client; file.data; pcre:"/eval\s*\(\s*(atob|String\.fromCharCode|unescape|decodeURI)/i"; classtype:web-application-attack; sid:5204157; rev:1;)
-alert http any any -> any any (msg:"ET DEFENSE_EVASION Base64 Encoded Command in HTTP Header"; flow:established,to_server; http.header; pcre:"/[A-Za-z0-9+\/]{100,}={0,2}/"; classtype:command-and-control; sid:5204158; rev:1;)
+# T1048: Exfiltration Over Alternative Protocol
+alert tcp $HOME_NET any -> $EXTERNAL_NET [53,5353] (msg:"ET TROJAN Possible DNS Tunneling Exfiltration Large TXT Record"; flow:established,to_server; content:"|00 10|"; within:2; threshold:type both, track by_src, count 5, seconds 30; classtype:trojan-activity; sid:5204640; rev:1;)
 
-# === MITRE ATT&CK - Credential Access (T1110,T1552) ===
-alert http any any -> any any (msg:"ET CREDENTIAL Brute Force Login Attempts Threshold"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/login"; nocase; threshold:type threshold, track by_src, count 10, seconds 60; classtype:attempted-admin; sid:5204159; rev:1;)
-alert http any any -> any any (msg:"ET CREDENTIAL Hardcoded Credentials in HTTP Request"; flow:established,to_server; http.uri; pcre:"/password\s*=\s*(admin|root|12345|password|test)/i"; classtype:credential-access; sid:5204160; rev:1;)
-alert http any any -> any any (msg:"ET CREDENTIAL JWT Token with Excessive Privileges"; flow:established,to_client; http.header; content:"Bearer"; pcre:"/eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/"; classtype:credential-access; sid:5204161; rev:1;)
+# T1071.001: Application Layer Protocol - Web Protocols
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Possible C2 Beacon via HTTPS Regular Interval"; flow:established,to_server; content:"GET"; http_method; threshold:type both, track by_src, count 50, seconds 300; classtype:trojan-activity; sid:5204641; rev:1;)
 
-# === MITRE ATT&CK - Lateral Movement (T1021,T1570) ===
-alert tcp any any -> any 3389 (msg:"ET LATERAL_MOVEMENT RDP Brute Force Attempt"; flow:established,to_server; threshold:type threshold, track by_src, count 10, seconds 120; classtype:attempted-admin; sid:5204162; rev:1;)
-alert tcp any any -> any 22 (msg:"ET LATERAL_MOVEMENT SSH Brute Force Attempt"; flow:established,to_server; threshold:type threshold, track by_src, count 10, seconds 120; classtype:attempted-admin; sid:5204163; rev:1;)
+# T1566.001: Phishing - Spearphishing Attachment
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET PHISHING Possible Malicious Document Download with Macro"; flow:established,to_client; content:"200"; http_stat_code; content:"Content-Disposition"; http_header; content:".docm"; nocase; http_header; classtype:trojan-activity; sid:5204642; rev:1;)
 
-# === MITRE ATT&CK - Collection (T1005,T1560) ===
-alert http any any -> any any (msg:"ET EXFIL Large Archive Transfer via HTTP"; flow:established,to_server; http.method; content:"PUT"; http.content_type; content:"application/"; pcre:"/zip|tar|gzip|7z/i"; dsize:>5242880; classtype:data-theft; sid:5204164; rev:1;)
-alert http any any -> any any (msg:"ET EXFIL Database Dump Transfer via HTTP"; flow:established,to_server; http.method; content:"POST"; http.content_type; content:"application/sql"; nocase; classtype:data-theft; sid:5204165; rev:1;)
+# T1566.002: Phishing - Spearphishing Link
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET PHISHING Suspicious URL Shortener Redirect Chain"; flow:established,to_server; content:"GET"; http_method; pcre:"/(bit\.ly|t\.co|tinyurl|shorte|clk\.im)/i"; http_uri; content:"login"; nocase; http_uri; classtype:phishing-activity; sid:5204643; rev:1;)
 
-# === MITRE ATT&CK - Command and Control (T1071,T1573) ===
-alert tls any any -> any any (msg:"ET C2 Suspicious TLS Certificate - Self-Signed with Long Validity"; tls.cert_subject; content:"CN="; tls.cert_issuer; content:"CN="; pcre:"/CN=[^\x22]*\x22/"; classtype:command-and-control; sid:5204166; rev:1;)
-alert dns any any -> any any (msg:"ET C2 DNS Beaconing Pattern High Entropy Subdomain"; dns.query; pcre:"/[a-z0-9]{16,}\.[a-z0-9\-]+\.[a-z]{2,6}/i"; classtype:command-and-control; sid:5204167; rev:1;)
-alert http any any -> any any (msg:"ET C2 Suspicious HTTP Header Anomaly"; flow:established,to_server; http.header; content:"X-Forwarded-For"; pcre:"/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3},\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3},\s*\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/"; classtype:command-and-control; sid:5204168; rev:1;)
+# T1021.001: Remote Services - Remote Desktop Protocol
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"ET EXPLOIT Possible RDP Brute Force"; flow:established,to_server; threshold:type both, track by_src, count 10, seconds 120; classtype:attempted-admin; sid:5204644; rev:1;)
 
-# === MITRE ATT&CK - Impact (T1486,T1489) ===
-alert http any any -> any any (msg:"ET IMPACT Ransomware File Extension Pattern in Response"; flow:established,to_client; http.status_code; content:"200"; file.data; pcre:"/\.(locked|encrypted|crypt|crypto|lock|enc|cry|cryp)\b/i"; classtype:ransomware; sid:5204169; rev:1;)
-alert http any any -> any any (msg:"ET IMPACT Ransom Note Detection in HTTP Response"; flow:established,to_client; file.data; content:"decrypt"; nocase; content:"bitcoin"; nocase; content:"payment"; nocase; classtype:ransomware; sid:5204170; rev:1;)
+# T1021.002: Remote Services - SMB
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"ET EXPLOIT SMB Admin Share Access Attempt"; flow:established,to_server; content:"|FF|SMB"; within:4; content:"ADMIN$"; nocase; within:100; classtype:attempted-admin; sid:5204645; rev:1;)
 
-# === OWASP - Injection (A03:2021) ===
-alert http any any -> any any (msg:"ET WEB_SQL SQL Injection UNION SELECT Attempt"; flow:established,to_server; http.uri; pcre:"/union\s+(all\s+)?select/i"; classtype:web-application-attack; sid:5204171; rev:1;)
-alert http any any -> any any (msg:"ET WEB_SQL SQL Injection Time-Based Blind"; flow:established,to_server; http.uri; pcre:"/sleep\s*\(|benchmark\s*\(|waitfor\s+delay/i"; classtype:web-application-attack; sid:5204172; rev:1;)
-alert http any any -> any any (msg:"ET WEB_SQL SQL Injection Error-Based Detection"; flow:established,to_client; http.status_code; content:"500"; file.data; pcre:"/SQL\s+syntax|mysql_fetch|ORA-\d{5}|PostgreSQL.*error/i"; classtype:web-application-attack; sid:5204173; rev:1;)
+# T1068: Exploitation for Privilege Escalation
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Potential Kernel Exploit Privilege Escalation Attempt"; flow:established,to_server; content:"GET"; http_method; content:"/proc/sys/kernel/"; nocase; http_uri; classtype:attempted-admin; sid:5204646; rev:1;)
 
-# === OWASP - Broken Access Control (A01:2021) ===
-alert http any any -> any any (msg:"ET WEB_SERVER IDOR Path Traversal Numeric ID Enumeration"; flow:established,to_server; http.uri; pcre:"/[?&](id|user_id|uid|account)=\d{1,10}(&|$)/i"; threshold:type threshold, track by_src, count 20, seconds 30; classtype:attempted-admin; sid:5204174; rev:1;)
-alert http any any -> any any (msg:"ET WEB_SERVER Forceful Browsing Admin Panel Access"; flow:established,to_server; http.uri; pcre:"/\/(admin|administrator|manager|root)\/?(index\.(php|html|asp|jsp))?$/i"; classtype:attempted-admin; sid:5204175; rev:1;)
+# T1003.001: OS Credential Dumping - LSASS Memory
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE LSASS Memory Access via Procdump or Mimikatz"; flow:established,to_server; content:"lsass.exe"; nocase; content:"procdump"; distance:0; nocase; classtype:trojan-activity; sid:5204647; rev:1;)
 
-# === OWASP - Cryptographic Failures (A02:2021) ===
-alert http any any -> any any (msg:"ET WEB_SERVER Sensitive Data Over HTTP - Credit Card Pattern"; flow:established,to_client; file.data; pcre:"/\b4\d{12}\d{3}\b|\b5[1-5]\d{14}\b/"; classtype:data-theft; sid:5204176; rev:1;)
-alert http any any -> any any (msg:"ET WEB_SERVER Sensitive Data Over HTTP - SSN Pattern"; flow:established,to_client; file.data; pcre:"/\b\d{3}-\d{2}-\d{4}\b/"; classtype:data-theft; sid:5204177; rev:1;)
+# T1003.003: OS Credential Dumping - NTDS
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE NTDS.dit Credential Dump Exfiltration"; flow:established,to_server; content:"NTDS"; nocase; content:".dit"; nocase; classtype:trojan-activity; sid:5204648; rev:1;)
 
-# === OWASP - Security Misconfiguration (A05:2021) ===
-alert http any any -> any any (msg:"ET WEB_SERVER Default Credentials Attempt"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/login"; nocase; http.json_body; pcre:"/(admin|root)[\":,\s]+(admin|root|password|1234)/i"; classtype:attempted-admin; sid:5204178; rev:1;)
-alert http any any -> any any (msg:"ET WEB_SERVER Debug Mode Exposure"; flow:established,to_client; file.data; content:"debug"; nocase; content:"stack"; nocase; content:"trace"; nocase; classtype:informational; sid:5204179; rev:1;)
+# T1070.001: Indicator Removal - Clear Windows Event Logs
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Suspicious Event Log Clearing via wevtutil"; flow:established,to_server; content:"wevtutil"; nocase; content:"cl"; within:20; classtype:attempted-hide-trails; sid:5204649; rev:1;)
 
-# === OWASP - SSRF (A10:2021 variant) ===
-alert http any any -> any any (msg:"ET WEB_SERVER SSRF Internal Network Access Attempt"; flow:established,to_server; http.uri; pcre:"/(url|uri|path|dest|redirect|return|next|target|out|link|rurl|src|fetch|source)=(https?:\/\/)?(10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+|127\.\d+\.\d+\.\d+)/i"; classtype:web-application-attack; sid:5204180; rev:1;)
-alert http any any -> any any (msg:"ET WEB_SERVER SSRF Cloud Metadata Endpoint Access"; flow:established,to_server; http.uri; pcre:"/(url|uri|path|dest|redirect|return)=(https?:\/\/)?(169\.254\.169\.254|metadata\.google\.internal)/i"; classtype:web-application-attack; sid:5204181; rev:1;)
+# T1070.002: Indicator Removal - Clear Linux Logs
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Suspicious Linux Log Clearing Command"; flow:established,to_server; content:"> /var/log/"; nocase; classtype:attempted-hide-trails; sid:5204650; rev:1;)
 
-# === OWASP - XSS (A03:2021 variant) ===
-alert http any any -> any any (msg:"ET WEB_CLIENT Reflected XSS Attempt - Script Tag Injection"; flow:established,to_server; http.uri; pcre:"/<script[\s>]|javascript\s*:|on(error|load|click|mouseover)\s*=/i"; classtype:web-application-attack; sid:5204182; rev:1;)
-alert http any any -> any any (msg:"ET WEB_CLIENT Stored XSS via Rich Content Upload"; flow:established,to_server; http.method; content:"POST"; http.content_type; content:"multipart/form-data"; file.data; content:"<script"; nocase; classtype:web-application-attack; sid:5204183; rev:1;)
+# T1486: Data Encrypted for Impact - Ransomware
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Possible Ransomware Encryption Activity Large File Writes"; flow:established,to_server; content:"POST"; http_method; content:"Content-Type: application/octet-stream"; nocase; http_header; threshold:type both, track by_src, count 100, seconds 60; classtype:trojan-activity; sid:5204651; rev:1;)
 
-# === OWASP - XML External Entity (A05 variant) ===
-alert http any any -> any any (msg:"ET WEB_SERVER XXE Injection Attempt"; flow:established,to_server; http.method; content:"POST"; http.content_type; content:"xml"; nocase; file.data; pcre:"/<!ENTITY\s+\w+\s+SYSTEM\s+[\"']/i"; classtype:web-application-attack; sid:5204184; rev:1;)
+# T1498: Network Denial of Service
+alert icmp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET DOS Possible ICMP Flood Attack"; ttl:<128; threshold:type both, track by_src, count 500, seconds 10; classtype:attempted-dos; sid:5204652; rev:1;)
 
-# === Cloud Security - AWS/IAM ===
-alert http any any -> any any (msg:"ET CLOUD AWS IAM AssumeRole Privilege Escalation Pattern"; flow:established,to_server; http.uri; content:"/sts/"; nocase; content:"AssumeRole"; nocase; classtype:attempted-admin; sid:5204185; rev:1;)
-alert http any any -> any any (msg:"ET CLOUD AWS S3 Bucket Enumeration"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/list"; nocase; http.header; content:"s3"; nocase; threshold:type threshold, track by_src, count 20, seconds 30; classtype:network-recon; sid:5204186; rev:1;)
+# T1110.001: Brute Force - Password Guessing
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Possible Brute Force Login Attempt"; flow:established,to_server; content:"POST"; http_method; content:"password="; nocase; http_client_body; content:"login"; nocase; http_uri; threshold:type both, track by_src, count 10, seconds 60; classtype:attempted-admin; sid:5204653; rev:1;)
 
-# === Container Security ===
-alert http any any -> any any (msg:"ET CLOUD Docker API Unauthenticated Access"; flow:established,to_server; http.uri; content:"/containers/json"; nocase; http.method; content:"GET"; classtype:attempted-admin; sid:5204187; rev:1;)
-alert http any any -> any any (msg:"ET CLOUD Kubernetes API Server Unauthenticated Access"; flow:established,to_server; http.uri; content:"/api/v1/"; nocase; http.method; content:"GET"; classtype:attempted-admin; sid:5204188; rev:1;)
+# T1110.003: Brute Force - Password Spraying
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET WEB Password Spraying Multiple Usernames Single Password"; flow:established,to_server; content:"401"; http_stat_code; threshold:type both, track by_src, count 15, seconds 300; classtype:attempted-admin; sid:5204654; rev:1;)
 
-# === API Security ===
-alert http any any -> any any (msg:"ET WEB_SERVER API Mass Data Enumeration - High Request Rate"; flow:established,to_server; http.method; content:"GET"; http.uri; pcre:"/\/api\/v\d+\//i"; threshold:type threshold, track by_src, count 100, seconds 60; classtype:network-recon; sid:5204189; rev:1;)
-alert http any any -> any any (msg:"ET WEB_SERVER API Broken Authentication Token Reuse"; flow:established,to_server; http.header; content:"Authorization"; content:"Bearer"; threshold:type threshold, track by_src, count 50, seconds 300; classtype:credential-access; sid:5204190; rev:1;)
-alert http any any -> any any (msg:"ET WEB_SERVER API GraphQL Introspection Query"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"graphql"; nocase; http.json_body; content:"__schema"; nocase; classtype:network-recon; sid:5204191; rev:1;)
+# T1210: Exploitation of Remote Services
+alert tcp $EXTERNAL_NET any -> $HOME_NET [22,23,3389,5900,5901] (msg:"ET EXPLOIT Remote Service Exploitation Attempt Port Scan"; flow:established,to_server; threshold:type both, track by_src, count 5, seconds 30; classtype:attempted-admin; sid:5204655; rev:1;)
 
-# === Supply Chain / Dependency Confusion ===
-alert dns any any -> any any (msg:"ET C2 Dependency Confusion - Internal Package Query to External Registry"; dns.query; pcre:"/^[a-z0-9\-]+\.internal\./i"; classtype:command-and-control; sid:5204192; rev:1;)
+# T1055: Process Injection
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Suspicious Process Injection via DLL Loading"; flow:established,to_server; content:"rundll32"; nocase; content:"LoadLibrary"; nocase; classtype:trojan-activity; sid:5204656; rev:1;)
 
-# === Authentication Attacks ===
-alert http any any -> any any (msg:"ET WEB_SERVER OAuth Token Theft via Redirect URI Manipulation"; flow:established,to_server; http.uri; content:"redirect_uri"; nocase; pcre:"/redirect_uri=[^&]*%(25)*3[a-fA-F0-9]{2}/i"; classtype:credential-access; sid:5204193; rev:1;)
-alert http any any -> any any (msg:"ET WEB_SERVER MFA Bypass via OTP Replay"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/mfa"; nocase; threshold:type threshold, track by_src, count 3, seconds 30; classtype:credential-access; sid:5204194; rev:1;)
+# T1547.001: Boot or Logon Autostart Execution - Registry Run Keys
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Suspicious Registry Run Key Modification"; flow:established,to_server; content:"reg"; nocase; content:"add"; within:10; content:"Software\\Microsoft\\Windows\\CurrentVersion\\Run"; nocase; classtype:trojan-activity; sid:5204657; rev:1;)
 
-# === HTTP Anomaly Detection ===
-alert http any any -> any any (msg:"ET WEB_SERVER HTTP Request Smuggling - CL.TE Variant"; flow:established,to_server; http.header; content:"Content-Length"; http.header; content:"Transfer-Encoding"; content:"chunked"; classtype:web-application-attack; sid:5204195; rev:1;)
-alert http any any -> any any (msg:"ET WEB_SERVER HTTP Request Smuggling - TE.CL Variant"; flow:established,to_server; http.header; content:"Transfer-Encoding"; content:"chunked"; pcre:"/Transfer-Encoding\s*:\s*[\x20\x09]*chunked/i"; classtype:web-application-attack; sid:5204196; rev:1;)
+# T1046: Network Service Discovery
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET RECON Possible Nmap Service Version Detection Probe"; flow:established,to_server; content:"Nmap"; nocase; content:"NSE"; nocase; classtype:attempted-recon; sid:5204658; rev:1;)
 
-# === Web Shell Detection ===
-alert http any any -> any any (msg:"ET WEB_SERVER Web Shell Upload via Multipart POST"; flow:established,to_server; http.method; content:"POST"; http.content_type; content:"multipart/form-data"; file.data; pcre:"/<\?php\s+(eval|system|exec|shell_exec|passthru|base64_decode|assert)\s*\(/i"; classtype:trojan-activity; sid:5204197; rev:1;)
-alert http any any -> any any (msg:"ET WEB_SERVER Web Shell Access - Common Shell Filenames"; flow:established,to_server; http.uri; pcre:"/(cmd|shell|c99|r57|webshell|b374k|wso|alfa)\.(php|jsp|asp|aspx)/i"; classtype:trojan-activity; sid:5204198; rev:1;)
+# T1033: System Owner/User Discovery
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Suspicious User Enumeration via WHOAMI"; flow:established,to_server; content:"whoami"; nocase; content:"/all"; within:10; classtype:attempted-recon; sid:5204659; rev:1;)
 
-# === Data Exfiltration Patterns ===
-alert http any any -> any any (msg:"ET EXFIL DNS-over-HTTPS Tunneling via Public Resolvers"; flow:established,to_server; http.uri; pcre:"/\/dns-query\?dns=/i"; http.header; content:"Host"; pcre:"/dns\.google|cloudflare-dns\.com|dns\.quad9\.net/i"; classtype:command-and-control; sid:5204199; rev:1;)
-alert http any any -> any any (msg:"ET EXFIL Large Outbound Data Transfer via HTTP POST"; flow:established,to_server; http.method; content:"POST"; dsize:>10485760; classtype:data-theft; sid:5204200; rev:1;)
+# T1087.001: Account Discovery - Local Account
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Local Account Enumeration Command Execution"; flow:established,to_server; content:"net"; nocase; content:"user"; within:10; classtype:attempted-recon; sid:5204660; rev:1;)
+
+# T1083: File and Directory Discovery
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Suspicious Recursive File Discovery via Tree CMD"; flow:established,to_server; content:"tree"; nocase; content:"/F"; within:5; content:"/A"; within:5; classtype:attempted-recon; sid:5204661; rev:1;)
+
+# T1071.004: Application Layer Protocol - DNS
+alert dns $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Possible DNS C2 Tunneling via TXT Record Queries"; dns.query; content:"txt"; nocase; threshold:type both, track by_src, count 20, seconds 60; classtype:trojan-activity; sid:5204662; rev:1;)
+
+# T1573.001: Encrypted Channel - Symmetric Cryptography
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Possible Encrypted C2 Channel Non-Standard TLS Port"; flow:established,to_server; content:"|16 03 01|"; within:3; threshold:type both, track by_src, count 5, seconds 300; classtype:trojan-activity; sid:5204663; rev:1;)
+
+# T1562.001: Impair Defenses - Disable or Modify Tools
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Antivirus or Security Tool Disabling Command"; flow:established,to_server; content:"netsh"; nocase; content:"advfirewall"; within:20; content:"off"; within:30; classtype:attempted-hide-trails; sid:5204664; rev:1;)
+
+# T1562.002: Impair Defenses - Disable Windows Event Logging
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Windows Event Log Service Stop Command"; flow:established,to_server; content:"net"; nocase; content:"stop"; within:5; content:"EventLog"; within:20; classtype:attempted-hide-trails; sid:5204665; rev:1;)
+
+# T1480: Execution Guardrails - Environmental Keying
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET MALWARE Suspicious Environment Keying Beacon with System Info"; flow:established,to_server; content:"POST"; http_method; content:"hostname="; nocase; http_client_body; content:"os="; nocase; http_client_body; classtype:trojan-activity; sid:5204666; rev:1;)
+
+# T1105: Ingress Tool Transfer
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET MALWARE Suspicious File Download via PowerShell Invoke-WebRequest"; flow:established,to_client; content:"200"; http_stat_code; content:"Invoke-WebRequest"; nocase; http_server_body; classtype:trojan-activity; sid:5204667; rev:1;)
+
+# T1027: Obfuscated Files or Information
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET MALWARE Suspicious Base64 Encoded PowerShell Command"; flow:established,to_server; content:"powershell"; nocase; content:"-enc"; within:20; classtype:trojan-activity; sid:5204668; rev:1;)
+
+# T1036.005: Masquerading - Match Legitimate Name
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET MALWARE Masquerading as Legitimate System Process"; flow:established,to_server; content:"svchost.exe"; nocase; pcre:"/GET\s+[^\s]*(?:\.tmp|\.dat)/i"; classtype:trojan-activity; sid:5204669; rev:1;)
+
+# T1571: Non-Application Layer Protocol
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Possible Non-Standard Protocol C2 Communication"; flow:established,to_server; content:"|00 00 00|"; within:4; threshold:type both, track by_src, count 10, seconds 60; classtype:trojan-activity; sid:5204670; rev:1;)
+
+# T1213.001: Data from Local System
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXFIL Possible Data Staging via Archive Upload"; flow:established,to_server; content:"PUT"; http_method; content:"Content-Type: application/zip"; nocase; http_header; classtype:trojan-activity; sid:5204671; rev:1;)
+
+# T1041: Exfiltration Over C2 Channel
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXFIL Large Data Upload to Suspicious Destination"; flow:established,to_server; content:"POST"; http_method; threshold:type both, track by_src, count 5, seconds 60; classtype:trojan-activity; sid:5204672; rev:1;)
+
+# T1567.001: Exfiltration Over Web Service - Code Repository
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXFIL Possible Data Exfiltration via GitHub"; flow:established,to_server; content:"api.github.com"; nocase; http_header; content:"repos"; nocase; http_uri; content:"content="; nocase; http_client_body; classtype:trojan-activity; sid:5204673; rev:1;)
+
+# T1098.001: Account Manipulation - Additional Cloud Credentials
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Suspicious Cloud API Key Creation"; flow:established,to_server; content:"POST"; http_method; content:"/apikeys"; nocase; http_uri; content:"Authorization: Bearer"; nocase; http_header; classtype:attempted-admin; sid:5204674; rev:1;)
+
+# T1548.001: Abuse Elevation Control Mechanism - Setuid/Setgid
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Suspicious SUID Binary Execution"; flow:established,to_server; content:"find"; nocase; content:"-perm"; within:10; content:"4000"; within:20; classtype:attempted-admin; sid:5204675; rev:1;)
+
+# T1069.001: Permission Groups Discovery - Local Groups
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Local Group Enumeration Command"; flow:established,to_server; content:"net"; nocase; content:"localgroup"; within:10; classtype:attempted-recon; sid:5204676; rev:1;)
+
+# T1082: System Information Discovery
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE System Profiling via Systeminfo Command"; flow:established,to_server; content:"systeminfo"; nocase; classtype:attempted-recon; sid:5204677; rev:1;)
+
+# T1018: Remote System Discovery
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Network Scanning via ARP Sweep"; flow:established,to_server; content:"arp-scan"; nocase; classtype:attempted-recon; sid:5204678; rev:1;)
+
+# T1120: Peripheral Device Discovery
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE USB Device Enumeration via PowerShell"; flow:established,to_server; content:"Win32_USBControllerDevice"; nocase; classtype:attempted-recon; sid:5204679; rev:1;)
+
+# T1622: Debugger Evasion
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Anti-Debugging Technique Detected"; flow:established,to_server; content:"IsDebuggerPresent"; nocase; classtype:trojan-activity; sid:5204680; rev:1;)
+
+# T1056.001: Credential Access - Keylogging
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET MALWARE Keylogger Data Exfiltration POST"; flow:established,to_client; content:"200"; http_stat_code; content:"keystroke"; nocase; http_server_body; classtype:trojan-activity; sid:5204681; rev:1;)
+
+# T1119: Automated Collection
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXFIL Automated Data Collection Script Exfiltration"; flow:established,to_server; content:"POST"; http_method; content:".csv"; nocase; http_client_body; content:".xlsx"; nocase; http_client_body; classtype:trojan-activity; sid:5204682; rev:1;)
+
+# T1530: Data from Cloud Storage
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXFIL Mass Cloud Storage Data Download"; flow:established,to_server; content:"GET"; http_method; content:"s3.amazonaws.com"; nocase; http_header; content:"?list-type=2"; nocase; http_uri; classtype:trojan-activity; sid:5204683; rev:1;)
+
+# T1557: Adversary-in-the-Middle
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Possible ARP Spoofing Man-in-the-Middle"; flow:established,to_server; content:"arp"; nocase; threshold:type both, track by_src, count 5, seconds 10; classtype:attempted-man-in-the-middle; sid:5204684; rev:1;)
+
+# T1552.001: Unsecured Credentials - Credentials In Files
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXFIL Credentials File Access Exfiltration"; flow:established,to_server; content:"POST"; http_method; content:".env"; nocase; http_client_body; content:"DB_PASSWORD"; nocase; http_client_body; classtype:trojan-activity; sid:5204685; rev:1;)
+
+# T1552.004: Unsecured Credentials - Private Keys
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXFIL Private Key File Exfiltration"; flow:established,to_server; content:"PRIVATE KEY"; nocase; content:"BEGIN"; within:20; classtype:trojan-activity; sid:5204686; rev:1;)
+
+# T1199: Trusted Relationships
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Possible Supply Chain Compromise via Update Service"; flow:established,to_server; content:"GET"; http_method; content:"/update"; nocase; http_uri; content:"Content-Type: application/json"; nocase; http_header; threshold:type both, track by_src, count 5, seconds 300; classtype:trojan-activity; sid:5204687; rev:1;)
+
+# T1136.001: Create Account - Local Account
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Suspicious Local Account Creation"; flow:established,to_server; content:"net"; nocase; content:"user"; within:10; content:"/add"; within:20; classtype:attempted-admin; sid:5204688; rev:1;)
+
+# T1546.003: Event Triggered Execution - Windows Management Instrumentation
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE WMI Event Subscription Persistence"; flow:established,to_server; content:"__EventToConsumerBinding"; nocase; classtype:trojan-activity; sid:5204689; rev:1;)
+
+# T1134.001: Access Token Manipulation - Token Impersonation
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Access Token Impersonation via Runas"; flow:established,to_server; content:"runas"; nocase; content:"/user:"; within:20; classtype:attempted-admin; sid:5204690; rev:1;)
+
+# T1070.004: File Deletion
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Suspicious Mass File Deletion"; flow:established,to_server; content:"rm"; nocase; content:"-rf"; within:5; content:"/"; within:5; classtype:attempted-hide-trails; sid:5204691; rev:1;)
+
+# T1140: Deobfuscate/Decode Files or Information
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET MALWARE Suspicious Base64 Decoding in Process Command Line"; flow:established,to_server; content:"base64"; nocase; content:"-d"; within:10; content:"|"; within:5; classtype:trojan-activity; sid:5204692; rev:1;)
+
+# T1601.001: Modify System Image - Patch System
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Suspicious System Binary Patching"; flow:established,to_server; content:"patch"; nocase; content:"/usr/bin"; within:30; classtype:attempted-admin; sid:5204693; rev:1;)
+
+# T1001.001: Data Obfuscation - Junk Data
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXFIL Possible Data Obfuscation via Random Padding"; flow:established,to_server; dsize:>1400; threshold:type both, track by_src, count 50, seconds 60; classtype:trojan-activity; sid:5204694; rev:1;)
+
+# T1095: Non-Application Layer Protocol
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Suspicious Raw TCP Data Transfer to Unusual Port"; flow:established,to_server; threshold:type both, track by_src, count 10, seconds 60; classtype:trojan-activity; sid:5204695; rev:1;)
+
+# T1572: Protocol Tunneling
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Possible SSH Tunneling via HTTPS"; flow:established,to_server; content:"CONNECT"; http_method; content:":22"; http_uri; classtype:trojan-activity; sid:5204696; rev:1;)
+
+# T1102.001: Web Service - Dead Drop Resolver
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET TROJAN Possible Dead Drop Resolver via Social Media API"; flow:established,to_server; content:"api.twitter.com"; nocase; http_header; content:"statuses/user_timeline"; nocase; http_uri; classtype:trojan-activity; sid:5204697; rev:1;)
+
+# T1550.002: Use Alternate Authentication Material - Pass the Hash
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Possible Pass the Hash Authentication SMB"; flow:established,to_server; content:"|FF|SMB"; within:4; content:"NTLM"; nocase; within:100; classtype:attempted-admin; sid:5204698; rev:1;)
+
+# T1550.003: Use Alternate Authentication Material - Pass the Ticket
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Possible Kerberos Ticket Theft via Mimikatz"; flow:established,to_server; content:"kerberos::ptt"; nocase; classtype:attempted-admin; sid:5204699; rev:1;)
+
+# T1484.001: Domain Policy Modification - Group Policy
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Suspicious Group Policy Modification"; flow:established,to_server; content:"gpmc"; nocase; content:"/dc"; within:30; classtype:attempted-admin; sid:5204700; rev:1;)
