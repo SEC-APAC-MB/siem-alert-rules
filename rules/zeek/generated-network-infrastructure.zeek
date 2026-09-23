@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-network-infrastructure
-# Auto-generated: 2026-09-16T04:05:26.808656Z
+# Auto-generated: 2026-09-23T04:05:05.327566Z
 # Load in local.zeek: @load ./generated-network-infrastructure
 
 signature ZK-NETWORK-INFRASTRUCTURE-011 {

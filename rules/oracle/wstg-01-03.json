@@ -1,37 +1,37 @@
 {
-  "version": "1.0.0",
-  "generated": "2026-08-17",
-  "description": "OCI Alarm and Event rules — wstg-01-03",
+  "description": "SIEM alert rules — wstg-01-03 (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-23T04:05:05.388568Z",
   "total_rules": 20,
   "rules": [
     {
       "rule_id": "OCI-WSTG01-001",
       "name": "Search Engine Discovery of Sensitive Content",
       "description": "Detects search engine crawlers accessing sensitive paths like /admin, /.env, /.git, /wp-admin, /backup, /config",
-      "severity": "LOW",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1595",
+        "T1592"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_001\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "information_gathering",
+        "metric": "siem_general_wstg01_001",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-11.3",
-        "NIST-RA-5",
-        "GDPR-32A-001"
-      ],
-      "mitre": [
-        "T1595",
-        "T1592"
       ],
       "tags": [
         "wstg",
@@ -44,28 +44,29 @@
       "rule_id": "OCI-WSTG01-002",
       "name": "Web Server Fingerprinting via Headers",
       "description": "Detects verbose server headers disclosing technology stack versions enabling targeted attacks",
-      "severity": "INFO",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1592.001"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_002\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%web%' OR \"data__json.message\" LIKE '%server%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "information_gathering",
+        "metric": "siem_general_wstg01_002",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5",
-        "NIST-CM-7"
-      ],
-      "mitre": [
-        "T1592.001"
       ],
       "tags": [
         "wstg",
@@ -78,28 +79,29 @@
       "rule_id": "OCI-WSTG01-003",
       "name": "Application Architecture Fingerprinting",
       "description": "Detects reconnaissance of application architecture through technology-specific error pages and headers",
-      "severity": "INFO",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1592.001"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_003\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%application%' OR \"data__json.message\" LIKE '%architecture%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "information_gathering",
+        "metric": "siem_general_wstg01_003",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5",
-        "NIST-CM-7"
-      ],
-      "mitre": [
-        "T1592.001"
       ],
       "tags": [
         "wstg",
@@ -113,27 +115,28 @@
       "name": "Directory Listing Exposure",
       "description": "Detects directory listing responses exposing file structure and sensitive files",
       "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1083"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_004\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%directory%' OR \"data__json.message\" LIKE '%listing%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "information_gathering",
+        "metric": "siem_general_wstg01_004",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5",
-        "GDPR-32A-007"
-      ],
-      "mitre": [
-        "T1083"
       ],
       "tags": [
         "wstg",
@@ -147,27 +150,28 @@
       "name": "Metadata and Source Code Exposure",
       "description": "Detects access to metadata files and source code repositories exposing implementation details",
       "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1592.001"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_005\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%metadata%' OR \"data__json.message\" LIKE '%source%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "information_gathering",
+        "metric": "siem_general_wstg01_005",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5",
-        "NIST-CM-7"
-      ],
-      "mitre": [
-        "T1592.001"
       ],
       "tags": [
         "wstg",
@@ -181,27 +185,28 @@
       "name": "Error Message Information Disclosure",
       "description": "Detects verbose error messages leaking stack traces, database details, or internal paths",
       "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1592.001"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_006\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%error%' OR \"data__json.message\" LIKE '%message%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "information_gathering",
+        "metric": "siem_general_wstg01_006",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5",
-        "GDPR-32A-007"
-      ],
-      "mitre": [
-        "T1592.001"
       ],
       "tags": [
         "wstg",
@@ -214,28 +219,29 @@
       "rule_id": "OCI-WSTG01-007",
       "name": "Sensitive Data in URL Parameters",
       "description": "Detects sensitive data such as tokens, passwords, and PII transmitted in URL query parameters",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1187"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_007\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "information_gathering",
+        "metric": "siem_general_wstg01_007",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-3.4",
-        "GDPR-32A-014"
-      ],
-      "mitre": [
-        "T1187"
       ],
       "tags": [
         "wstg",
@@ -249,27 +255,28 @@
       "name": "HTTP Methods Allowed — Verbose OPTIONS Response",
       "description": "Detects HTTP OPTIONS responses revealing dangerous methods like PUT, DELETE, TRACE, or DEBUG",
       "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1190"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_008\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%http%' OR \"data__json.message\" LIKE '%methods%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "configuration",
+        "metric": "siem_general_wstg01_008",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5",
-        "NIST-CM-7"
-      ],
-      "mitre": [
-        "T1190"
       ],
       "tags": [
         "wstg",
@@ -282,28 +289,29 @@
       "rule_id": "OCI-WSTG01-009",
       "name": "CORS Wildcard Origin Misconfiguration",
       "description": "Detects CORS headers with wildcard origins or origin reflection enabling cross-origin data theft",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1189"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_009\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cors%' OR \"data__json.message\" LIKE '%wildcard%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "configuration",
+        "metric": "siem_general_wstg01_009",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5",
-        "NIST-AC-4"
-      ],
-      "mitre": [
-        "T1189"
       ],
       "tags": [
         "wstg",
@@ -317,27 +325,28 @@
       "name": "Content Security Policy Missing or Weak",
       "description": "Detects responses missing Content-Security-Policy headers or with overly permissive CSP directives",
       "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1059.007"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_010\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%content%' OR \"data__json.message\" LIKE '%security%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "configuration",
+        "metric": "siem_general_wstg01_010",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5",
-        "NIST-CM-7"
-      ],
-      "mitre": [
-        "T1059.007"
       ],
       "tags": [
         "wstg",
@@ -351,28 +360,29 @@
       "name": "Security Headers Missing (HSTS, X-Frame-Options, X-Content-Type-Options)",
       "description": "Detects responses missing critical security headers like Strict-Transport-Security, X-Frame-Options, X-Content-Type-Options",
       "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1187",
+        "T1059.007"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_011\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "configuration",
+        "metric": "siem_general_wstg01_011",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-4.1",
-        "NIST-CM-7"
-      ],
-      "mitre": [
-        "T1187",
-        "T1059.007"
       ],
       "tags": [
         "wstg",
@@ -385,28 +395,29 @@
       "rule_id": "OCI-WSTG01-012",
       "name": "Subdomain Takeover via CNAME",
       "description": "Detects dangling CNAME records pointing to unclaimed external services enabling subdomain takeover",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1584.001"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_012\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%subdomain%' OR \"data__json.message\" LIKE '%takeover%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "information_gathering",
+        "metric": "siem_general_wstg01_012",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-1.3",
-        "NIST-CM-7"
-      ],
-      "mitre": [
-        "T1584.001"
       ],
       "tags": [
         "wstg",
@@ -419,29 +430,30 @@
       "rule_id": "OCI-WSTG01-013",
       "name": "Cloud Storage Bucket Enumeration",
       "description": "Detects enumeration of cloud storage buckets (S3, GCS, Azure Blob) for data exposure",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1580",
+        "T1537"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_013\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cloud%' OR \"data__json.message\" LIKE '%storage%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "information_gathering",
+        "metric": "siem_general_wstg01_013",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-1.3",
-        "NIST-CM-7"
-      ],
-      "mitre": [
-        "T1580",
-        "T1537"
       ],
       "tags": [
         "wstg",
@@ -455,27 +467,28 @@
       "name": "API Documentation Exposure (Swagger/OpenAPI)",
       "description": "Detects unauthorized access to API documentation endpoints like /swagger, /api-docs, /openapi.json",
       "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1592.001"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_014\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%api%' OR \"data__json.message\" LIKE '%documentation%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "information_gathering",
+        "metric": "siem_general_wstg01_014",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5",
-        "NIST-CM-7"
-      ],
-      "mitre": [
-        "T1592.001"
       ],
       "tags": [
         "wstg",
@@ -488,28 +501,29 @@
       "rule_id": "OCI-WSTG01-015",
       "name": "Debug Mode and Test Endpoints Exposed",
       "description": "Detects access to debug endpoints, test pages, or development tools left in production",
-      "severity": "HIGH",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1190"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_015\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%debug%' OR \"data__json.message\" LIKE '%mode%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "configuration",
+        "metric": "siem_general_wstg01_015",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-6.5",
-        "NIST-CM-7"
-      ],
-      "mitre": [
-        "T1190"
       ],
       "tags": [
         "wstg",
@@ -522,28 +536,29 @@
       "rule_id": "OCI-WSTG01-016",
       "name": "Default Credentials on Network Devices",
       "description": "Detects login attempts using default credentials on network devices, firewalls, and routers",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1078.001"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_016\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%default%' OR \"data__json.message\" LIKE '%credentials%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "identity_management",
+        "metric": "siem_general_wstg01_016",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-2.1",
-        "HIPAA-ADM-006"
-      ],
-      "mitre": [
-        "T1078.001"
       ],
       "tags": [
         "wstg",
@@ -557,27 +572,28 @@
       "name": "User Enumeration via Login Error Messages",
       "description": "Detects login error messages that differentiate between invalid username and invalid password",
       "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1110.001"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_017\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%enumeration%' OR \"data__json.message\" LIKE '%login%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "identity_management",
+        "metric": "siem_general_wstg01_017",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-8.5",
-        "NIST-AC-7"
-      ],
-      "mitre": [
-        "T1110.001"
       ],
       "tags": [
         "wstg",
@@ -591,27 +607,29 @@
       "name": "Account Provisioning Without Approval",
       "description": "Detects account creation events bypassing approval workflows",
       "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1136"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_018\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" IN ('ProvisionAutonomousDatabase', 'AdvanceAutonomousDatabase') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
+          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "identity_management",
+        "metric": "siem_general_wstg01_018",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-8.1",
-        "NIST-AC-2"
-      ],
-      "mitre": [
-        "T1136"
       ],
       "tags": [
         "wstg",
@@ -624,28 +642,30 @@
       "rule_id": "OCI-WSTG01-019",
       "name": "Privilege Escalation via Role Assignment",
       "description": "Detects unauthorized role elevation during account modification including admin role grants",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1548"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_019\", \"data__json.rEventName\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'AuditEvents' AND \"data__json.rEventName\" LIKE '%privilege%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
+          "com.oracle.cloud.audit",
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "identity_management",
+        "metric": "siem_general_wstg01_019",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-8.5",
-        "NIST-AC-6"
-      ],
-      "mitre": [
-        "T1548"
       ],
       "tags": [
         "wstg",
@@ -658,28 +678,29 @@
       "rule_id": "OCI-WSTG01-020",
       "name": "SSO Token Replay Attack",
       "description": "Detects replay of SAML or OAuth tokens from different source IPs or outside expected time windows",
-      "severity": "CRITICAL",
+      "severity": "MEDIUM",
+      "category": "general",
+      "mitre_attack": [
+        "T1606"
+      ],
+      "compliance": [],
+      "query": "SELECT \"siem_general_wstg01_020\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%sso%' OR \"data__json.message\" LIKE '%token%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
       "condition": {
         "eventType": [
           "com.oracle.cloud.monitoring"
         ],
         "compartmentId": "$COMPARTMENT_ID",
-        "metric": "identity_management",
+        "metric": "siem_general_wstg01_020",
         "operator": "GT",
-        "threshold": 5
+        "threshold": 3
       },
       "actions": [
         {
           "actionType": "ONS",
           "description": "Send alert notification"
         }
-      ],
-      "references": [
-        "PCI-DSS-8.5",
-        "NIST-IA-9"
-      ],
-      "mitre": [
-        "T1606"
       ],
       "tags": [
         "wstg",

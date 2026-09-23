@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-web-application
-# Auto-generated: 2026-09-16T04:05:26.836485Z
+# Auto-generated: 2026-09-23T04:05:05.329894Z
 # Load in local.zeek: @load ./generated-web-application
 
 signature ZK-WEB-APPLICATION-017 {
