@@ -1,0 +1,377 @@
+# Generated Suricata Detection Rules - 2026-09-24
+# Based on: GitHub Advisory Database CVEs, MITRE ATT&CK, current threat landscape
+# Total: 100 rules | Starting SID: 5206001
+
+# ============================================================
+# CVE-2026-56669 - Elysia DoS via quadratic form data (GHSA-9643-4qgh-g8mx)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-56669 Elysia multipart/form-data DoS - excessive key-value pairs"; flow:established,to_server; content:"Content-Type|3a| multipart/form-data"; http_header; content:"boundary="; http_header; file_data; pcre:"/(\r\nContent-Disposition: form-data; name=\"[^\"]+\"){100,}/"; classtype:attempted-dos; sid:5206001; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-56669 Elysia form data normalization DoS - high key count"; flow:established,to_server; content:"Content-Type|3a| multipart/form-data"; http_header; content:"name="; pcre:"/name=\"[^\"]+\"/"; dsize:>500000; classtype:attempted-dos; sid:5206002; rev:1;)
+
+# ============================================================
+# CVE-2026-61685 - ReactPress SQL Injection (GHSA-wmw4-mw6x-6vfm)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-61685 ReactPress SQL injection via dynamic column names"; flow:established,to_server; content:"GET"; http_method; content:"/api/article"; http_uri; content:"`"; http_uri; pcre:"/[&?][\w]+=\w+%60/"; classtype:web-application-attack; sid:5206003; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-61685 ReactPress SQL injection - comment endpoint"; flow:established,to_server; content:"GET"; http_method; content:"/api/comment"; http_uri; pcre:"/[&?][\w%60;--]+/"; classtype:web-application-attack; sid:5206004; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-61685 ReactPress SQL injection - knowledge endpoint filter injection"; flow:established,to_server; content:"GET"; http_method; content:"/api/Knowledge"; http_uri; content:"SELECT"; nocase; http_uri; classtype:web-application-attack; sid:5206005; rev:1;)
+
+# ============================================================
+# CVE-2026-82369 - Brocade SANnav CLI shell metachar injection (GHSA-gv2c-6mj6-2mr9)
+# ============================================================
+alert tcp any any -> any any (msg:"CVE-2026-82369 Brocade SANnav CLI command injection - shell metacharacters"; flow:established,to_server; content:"|3b|"; content:"|60|"; pcre:"/[;&`$|]/"; classtype:attempted-admin; sid:5206006; rev:1;)
+
+alert tcp any any -> any any (msg:"CVE-2026-82369 Brocade SANnav CLI scripting command bypass - backtick execution"; flow:established,to_server; content:"sannav"; nocase; content:"`"; classtype:attempted-admin; sid:5206007; rev:1;)
+
+# ============================================================
+# CVE-2026-80425 - IBM DataStage OS command injection (GHSA-q4hp-9mh8-jxrw)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-80425 IBM DataStage Cloud Pak for Data OS command injection"; flow:established,to_server; content:"/datastage"; nocase; http_uri; content:"|3b|"; http_uri; pcre:"/[\;|`\$\(]/"; classtype:attempted-admin; sid:5206008; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-80412 IBM DataStage OSH script generation code injection"; flow:established,to_server; content:"datastage"; nocase; http_uri; content:"connector"; nocase; http_uri; content:"|24|"; http_uri; classtype:attempted-admin; sid:5206009; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-80379 IBM DataStage OS command injection - second variant"; flow:established,to_server; content:"/ibm/"; http_uri; content:"datastage"; nocase; pcre:"/[\;|`\$\(\{\}]/"; classtype:attempted-admin; sid:5206010; rev:1;)
+
+# ============================================================
+# CVE-2026-6928 - IBM Concert use-after-free (GHSA-7h6c-6c8f-m5jg) CRITICAL
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-6928 IBM Concert use-after-free memory corruption attempt"; flow:established,to_server; content:"concert"; nocase; http_uri; pcre:"/[\x00-\x1f]{20,}/"; classtype:attempted-admin; sid:5206011; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-6928 IBM Concert heap corruption exploit - oversized payload"; flow:established,to_server; content:"concert"; nocase; http_uri; dsize:>1000000; classtype:attempted-admin; sid:5206012; rev:1;)
+
+# ============================================================
+# CVE-2026-75886 - OpenShift console CatalogdHandler auth bypass (GHSA-f8rq-4f8p-cmww)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-75886 OpenShift console CatalogdHandler unauthenticated access"; flow:established,to_server; content:"GET"; http_method; content:"/api/catalogd"; http_uri; content:"openshift-session-token"; http_cookie; classtype:web-application-attack; sid:5206013; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-75886 OpenShift console catalogd namespace relay - token forwarding"; flow:established,to_server; content:"catalogd"; nocase; http_uri; content:"openshift-catalogd"; nocase; http_uri; classtype:web-application-attack; sid:5206014; rev:1;)
+
+# ============================================================
+# CVE-2026-6721 - IBM Concert unauthenticated RCE (GHSA-v72j-hv4w-mxvh) CRITICAL
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-6721 IBM Concert unauthenticated remote code execution"; flow:established,to_server; content:"/concert"; nocase; http_uri; content:"|3b|"; http_raw_uri; pcre:"/[;&`|\$\(\)]/"; classtype:attempted-admin; sid:5206015; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-6721 IBM Concert command injection via crafted input"; flow:established,to_server; content:"concert"; nocase; http_uri; pcre:"/(?:;|%60|\$\(|\|)(?:cat|id|whoami|uname|ls|wget|curl)/i"; classtype:attempted-admin; sid:5206016; rev:1;)
+
+# ============================================================
+# CVE-2026-6730 - IBM Concert buffer overflow (GHSA-9rqq-756h-2hmp) CRITICAL
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-6730 IBM Concert buffer overflow exploit"; flow:established,to_server; content:"concert"; nocase; http_uri; content:"AAAA"; nocase; pcre:"/[A]{256,}/"; classtype:attempted-admin; sid:5206017; rev:1;)
+
+# ============================================================
+# CVE-2026-6935 - IBM Concert uncontrolled search path (GHSA-x46m-wmgm-cfvg)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-6935 IBM Concert DLL search order hijacking attempt"; flow:established,to_server; content:"concert"; nocase; http_uri; pcre:"/[\.\.\/\\\]{3,}/"; classtype:attempted-admin; sid:5206018; rev:1;)
+
+# ============================================================
+# CVE-2026-6794 - IBM Concert double free (GHSA-2vvc-x872-gvjq)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-6794 IBM Concert double-free heap corruption"; flow:established,to_server; content:"concert"; nocase; http_uri; pcre:"/[\x00-\x08]{50,}/"; classtype:attempted-admin; sid:5206019; rev:1;)
+
+# ============================================================
+# CVE-2026-6925 - IBM Concert path traversal (GHSA-fv32-xhg6-3q2m)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-6925 IBM Concert directory traversal - dot-dot sequences"; flow:established,to_server; content:"concert"; nocase; http_uri; pcre:"/(?:\.\.\/|\.\.\\)/"; classtype:web-application-attack; sid:5206020; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-6925 IBM Concert path traversal - etc/passwd access"; flow:established,to_server; content:"/etc/passwd"; http_uri; classtype:web-application-attack; sid:5206021; rev:1;)
+
+# ============================================================
+# CVE-2026-6718 - IBM Concert improper access control (GHSA-j9v6-hchx-c83p)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-6718 IBM Concert unauthorized file modification"; flow:established,to_server; content:"PUT"; http_method; content:"concert"; nocase; http_uri; content:"application/json"; http_header; classtype:web-application-attack; sid:5206022; rev:1;)
+
+# ============================================================
+# CVE-2026-87900 - cPanel WP Toolkit argument injection (GHSA-3vmc-c4p8-fp6x) CRITICAL
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-87900 cPanel WP Toolkit argument injection - file read"; flow:established,to_server; content:"/wp-toolkit"; nocase; http_uri; content:"@"; http_uri; pcre:"/[@\-](?:etc|passwd|shadow|proc)/i"; classtype:attempted-admin; sid:5206023; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-87900 cPanel WP Toolkit argument injection - cross-account code exec"; flow:established,to_server; content:"wp-toolkit"; nocase; http_uri; content:"-"; http_uri; pcre:"/[\-]{2}(?:exec|command|eval)/i"; classtype:attempted-admin; sid:5206024; rev:1;)
+
+# ============================================================
+# CVE-2026-87899 - cPanel root privilege escalation (GHSA-9m4j-95hw-qv52) CRITICAL
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-87899 cPanel execution with unnecessary privileges - root code exec"; flow:established,to_server; content:"/cpanel"; nocase; http_uri; content:"/execute"; nocase; http_uri; pcre:"/(?:;|%60|\$\(|\|)(?:whoami|id|root)/i"; classtype:attempted-admin; sid:5206025; rev:1;)
+
+# ============================================================
+# CVE-2026-87898 - Plesk OS command injection (GHSA-q589-mpmp-9796) CRITICAL
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-87898 Plesk OS command injection - authenticated RCE"; flow:established,to_server; content:"/plesk"; nocase; http_uri; pcre:"/[;&`|\$\(\)]/"; classtype:attempted-admin; sid:5206026; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-87898 Plesk command injection - subdomain/exec"; flow:established,to_server; content:"/plesk/"; http_uri; content:"exec"; nocase; http_uri; content:"|3b|"; http_raw_uri; classtype:attempted-admin; sid:5206027; rev:1;)
+
+# ============================================================
+# CVE-2026-94183 - Arc Search Android fullscreen UI spoofing (GHSA-ccw9-37r6-r7rx)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-94183 Arc Search Android fullscreen notification bypass - UI spoofing"; flow:established,to_client; content:"200"; http_stat_code; content:"fullscreen"; nocase; file_data; pcre:"/requestFullscreen|webkitRequestFullscreen/i"; classtype:attempted-user; sid:5206028; rev:1;)
+
+# ============================================================
+# CVE-2026-96826 - W4 Post List SQL injection (GHSA-vxxw-p436-qh27)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-96826 WordPress W4 Post List plugin blind SQL injection"; flow:established,to_server; content:"GET"; http_method; content:"w4-post-list"; nocase; http_uri; content:"SLEEP"; nocase; http_uri; classtype:web-application-attack; sid:5206029; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-96826 W4 Post List SQL injection - time-based blind"; flow:established,to_server; content:"w4-post-list"; nocase; http_uri; pcre:"/(?:BENCHMARK|SLEEP|WAITFOR\s+DELAY)/i"; classtype:web-application-attack; sid:5206030; rev:1;)
+
+# ============================================================
+# CVE-2026-96770 - s2s-proxy SSRF (GHSA-fhc4-rg5x-86fx) CRITICAL
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-96770 s2s-proxy SSRF - server-side request forgery to metadata"; flow:established,to_server; content:"/proxy"; http_uri; content:"http://169.254.169.254"; nocase; http_uri; classtype:web-application-attack; sid:5206031; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-96770 s2s-proxy SSRF - internal network access"; flow:established,to_server; content:"/proxy"; http_uri; pcre:"/https?:\/\/(?:10\.\d+\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+)/"; classtype:web-application-attack; sid:5206032; rev:1;)
+
+# ============================================================
+# CVE-2026-85475 - Ansible Automation Platform auth bypass (GHSA-wpwh-486h-5v3j)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-85475 Ansible Automation Platform authentication bypass"; flow:established,to_server; content:"/api/"; http_uri; content:"ansible"; nocase; http_uri; content:"Authorization"; http_header; pcre:"/Bearer\s+(?:null|undefined|none)/i"; classtype:web-application-attack; sid:5206033; rev:1;)
+
+# ============================================================
+# CVE-2026-84719 - Ansible Automation Platform RCE (GHSA-9fg4-x49f-5hhc) CRITICAL
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-84719 Ansible Automation Platform RCE - playbook injection"; flow:established,to_server; content:"/api/v2/job_templates/"; http_uri; content:"POST"; http_method; pcre:"/(?:;|%60|\$\(|\|)(?:bash|sh|python|perl)/i"; classtype:attempted-admin; sid:5206034; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-84719 Ansible Automation Platform - unsandboxed code execution"; flow:established,to_server; content:"ansible"; nocase; http_uri; content:"exec"; nocase; pcre:"/(?:exec|eval|system|popen|subprocess)/i"; classtype:attempted-admin; sid:5206035; rev:1;)
+
+# ============================================================
+# CVE-2026-84706 - Ansible Automation Platform CSRF (GHSA-5vrq-6q93-m3rf)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-84706 Ansible Automation Platform CSRF - missing origin validation"; flow:established,to_server; content:"POST"; http_method; content:"/api/v2/"; http_uri; content:"ansible"; nocase; http_header; content:"Origin"; http_header; classtype:web-application-attack; sid:5206036; rev:1;)
+
+# ============================================================
+# CVE-2026-84683 - Ansible Automation Platform input validation (GHSA-3p43-vjq9-4h46)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-84683 Ansible Automation Platform input validation bypass"; flow:established,to_server; content:"/api/v2/"; http_uri; content:"ansible"; nocase; pcre:"/(?:<script|javascript:|onerror\s*=|onload\s*=)/i"; classtype:web-application-attack; sid:5206037; rev:1;)
+
+# ============================================================
+# CVE-2026-84714 - Ansible Automation Platform input validation (GHSA-8ghh-482v-94qp)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-84714 Ansible Automation Platform automation-controller input validation"; flow:established,to_server; content:"/api/v2/"; http_uri; content:"controller"; nocase; pcre:"/(?:\.\.\/|%2e%2e)/i"; classtype:web-application-attack; sid:5206038; rev:1;)
+
+# ============================================================
+# CVE-2026-84691 - Ansible Automation Platform privilege escalation (GHSA-xrjh-rfcr-rxj7)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-84691 Ansible Automation Platform privilege escalation via RBAC bypass"; flow:established,to_server; content:"/api/v2/"; http_uri; content:"admin"; nocase; http_uri; pcre:"/(?:role|permission|elevate|sudo)/i"; classtype:attempted-admin; sid:5206039; rev:1;)
+
+# ============================================================
+# CVE-2026-75884 - AWX container group pod_spec_override RCE (GHSA-fwqq-57j2-8r7g) CRITICAL
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-75884 AWX container group pod_spec_override RCE - YAML injection"; flow:established,to_server; content:"/api/v2/"; http_uri; content:"pod_spec_override"; http_uri; content:"POST"; http_method; pcre:"/(?:command|args|exec|lifecycle)(?:.*(?:wget|curl|bash))/i"; classtype:attempted-admin; sid:5206040; rev:1;)
+
+# ============================================================
+# CVE-2026-68490 - Nextcloud CalDAV/CardDAV permission issue (GHSA-3mfr-vp2j-wj65)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-68490 Nextcloud CalDAV/CardDAV sensitive data exposure via incorrect permissions"; flow:established,to_server; content:"PROPFIND"; http_method; content:"/.well-known/carddav"; http_uri; content:"Authorization"; http_header; classtype:web-application-attack; sid:5206041; rev:1;)
+
+# ============================================================
+# CVE-2026-68492 - Plesk untrusted search path (GHSA-9584-9pgw-4m7q)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-68492 Plesk untrusted search path - DLL hijacking"; flow:established,to_server; content:"/plesk/"; http_uri; pcre:"/(?:\.dll|\.so)[?&]/i"; classtype:attempted-admin; sid:5206042; rev:1;)
+
+# ============================================================
+# CVE-2026-96556 - CafeManagement improper authorization (GHSA-85q8-f6qc-gf9v)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026-96556 CafeManagement improper authorization - unauthenticated account creation"; flow:established,to_server; content:"POST"; http_method; content:"/addcashier"; nocase; http_uri; content:"uname"; http_client_body; content:"role"; http_client_body; classtype:web-application-attack; sid:5206043; rev:1;)
+
+# ============================================================
+# Plone DoS advisories (GHSA-8pcw-h6w9-h46g, GHSA-5426-92w4-wvhv)
+# ============================================================
+alert http any any -> any any (msg:"CVE-2026 Plone DoS - excessive filename length upload"; flow:established,to_server; content:"POST"; http_method; content:"Content-Type|3a| multipart/form-data"; http_header; content:"filename="; pcre:"/filename=\"[^\"]{500,}\"/i"; classtype:attempted-dos; sid:5206044; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026 Plone DoS - excessive title/description field length"; flow:established,to_server; content:"POST"; http_method; content:"title"; http_client_body; content:"description"; http_client_body; pcre:"/(?:title|description)=[^&]{10000,}/i"; classtype:attempted-dos; sid:5206045; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1059 Command & Scripting Interpreter
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1059 - PowerShell download cradle via HTTP"; flow:established,to_server; content:"GET"; http_method; content:"powershell"; nocase; http_uri; pcre:"/(?:IEX|Invoke-Expression|Net\.WebClient|DownloadString|DownloadFile)/i"; classtype:trojan-activity; sid:5206046; rev:1;)
+
+alert http any any -> any any (msg:"ET MITRE T1059.001 - PowerShell encoded command download"; flow:established,to_server; content:"GET"; http_method; pcre:"/powershell.*(?:-enc|-encodedcommand)/i"; classtype:trojan-activity; sid:5206047; rev:1;)
+
+alert http any any -> any any (msg:"ET MITRE T1059.003 - Windows command shell execution via web"; flow:established,to_server; content:"POST"; http_method; pcre:"/(?:cmd\.exe|cmd \/c|cmd\.bat|\.cmd)/i"; classtype:trojan-activity; sid:5206048; rev:1;)
+
+alert http any any -> any any (msg:"ET MITRE T1059.005 - Python reverse shell via web"; flow:established,to_server; content:"python"; nocase; http_client_body; pcre:"/(?:socket|subprocess|os\.system|pty\.spawn)/i"; classtype:trojan-activity; sid:5206049; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1190 Exploit Public-Facing Application
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1190 - Apache Struts OGNL injection"; flow:established,to_server; content:"GET"; http_method; pcre:"/%{(?:#_memberAccess|#context|#cmd|#res)/"; classtype:web-application-attack; sid:5206050; rev:1;)
+
+alert http any any -> any any (msg:"ET MITRE T1190 - Log4Shell JNDI exploitation attempt"; flow:established,to_server; content:"${jndi:"; nocase; pcre:"/\$\{jndi:(?:ldap|rmi|dns|iiop|nis|nds|corba):\/\//i"; classtype:attempted-admin; sid:5206051; rev:1;)
+
+alert http any any -> any any (msg:"ET MITRE T1190 - Spring4Shell exploitation attempt"; flow:established,to_server; content:"class.module.classLoader"; http_uri; classtype:web-application-attack; sid:5206052; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1133 External Remote Services
+# ============================================================
+alert tcp any any -> any 443 (msg:"ET MITRE T1133 - Suspicious TLS to hidden service domain"; flow:established,to_server; tls.sni; content:".onion"; end; classtype:policy-violation; sid:5206053; rev:1;)
+
+alert dns any any -> any any (msg:"ET MITRE T1133 - DNS query to VPN evasion domain"; content:"nordvpn"; nocase; content:".com"; end; classtype:policy-violation; sid:5206054; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1566 Phishing
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1566.001 - Spearphishing attachment - macro-enabled doc"; flow:established,to_client; content:"200"; http_stat_code; content:"Content-Disposition"; http_header; content:".docm"; nocase; http_header; classtype:trojan-activity; sid:5206055; rev:1;)
+
+alert http any any -> any any (msg:"ET MITRE T1566.002 - Spearphishing link - credential harvesting form"; flow:established,to_server; content:"POST"; http_method; content:"password"; http_client_body; content:"email"; http_client_body; pcre:"/(?:login|signin|verify|account)/iU"; http_uri; classtype:trojan-activity; sid:5206056; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1078 Valid Accounts
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1078.004 - Cloud account brute force - multiple failed logins"; flow:established,to_server; content:"POST"; http_method; content:"login"; nocase; http_uri; content:"401"; http_stat_code; threshold:type both, track by_src, count 10, seconds 60; classtype:unsuccessful-user; sid:5206057; rev:1;)
+
+alert http any any -> any any (msg:"ET MITRE T1078 - Suspicious login pattern - multiple rapid sessions"; flow:established,to_server; content:"login"; nocase; http_uri; threshold:type both, track by_src, count 5, seconds 300; classtype:suspicious-login; sid:5206058; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1486 Data Encrypted for Impact (Ransomware)
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1486 - Ransomware note delivery - known ransomware extension"; flow:established,to_client; content:"200"; http_stat_code; file_data; content:".encrypted"; nocase; classtype:trojan-activity; sid:5206059; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1048 Exfiltration Over Alternative Protocol
+# ============================================================
+alert dns any any -> any any (msg:"ET MITRE T1048.001 - DNS data exfiltration - excessive subdomain length"; dns.query; pcre:"/^[a-zA-Z0-9]{50,}\./"; classtype:trojan-activity; sid:5206060; rev:1;)
+
+alert dns any any -> any any (msg:"ET MITRE T1048 - DNS TXT record exfiltration - high entropy queries"; dns.query; content:"txt"; nocase; pcre:"/[a-zA-Z0-9]{30,}/"; classtype:trojan-activity; sid:5206061; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1071 Application Layer Protocol (C2)
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1071.001 - HTTP C2 beaconing pattern - regular interval requests"; flow:established,to_server; content:"GET"; http_method; threshold:type both, track by_src, count 30, seconds 300; classtype:trojan-activity; sid:5206062; rev:1;)
+
+alert http any any -> any any (msg:"ET MITRE T1071.001 - Suspicious HTTP POST with binary payload to unknown API"; flow:established,to_server; content:"POST"; http_method; content:"Content-Type|3a| application/octet-stream"; http_header; dsize:>5000; classtype:trojan-activity; sid:5206063; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1053 Scheduled Task/Job
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1053.005 - Scheduled task creation via web shell"; flow:established,to_server; content:"POST"; http_method; pcre:"/schtasks\.exe|at\s+\d|crontab|\/etc\/cron/i"; classtype:trojan-activity; sid:5206064; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1546 Event Triggered Execution
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1546 - Web shell persistence - bashrc/profile modification"; flow:established,to_server; content:".bashrc"; nocase; http_uri; pcre:"/(?:alias|export|source|exec)/i"; classtype:trojan-activity; sid:5206065; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1003 OS Credential Dumping
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1003.001 - LSASS memory dump exfiltration"; flow:established,to_client; content:"200"; http_stat_code; content:"lsass"; nocase; file_data; content:"MDMP"; classtype:trojan-activity; sid:5206066; rev:1;)
+
+alert http any any -> any any (msg:"ET MITRE T1003.002 - SAM database access via web"; flow:established,to_server; content:"sam"; nocase; http_uri; content:"system"; nocase; http_uri; pcre:"/\/(?:SAM|SYSTEM|SECURITY)$/i"; classtype:trojan-activity; sid:5206067; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1070 Indicator Removal
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1070.002 - Log file clearing via web request"; flow:established,to_server; pcre:"/(?:rm\s+\/var\/log|> \/var\/log|truncate|logrotate.*force)/i"; classtype:attempted-hide; sid:5206068; rev:1;)
+
+alert http any any -> any any (msg:"ET MITRE T1070.004 - File system timestomping via web"; flow:established,to_server; content:"touch"; nocase; pcre:"/touch\s+(?:\-t|\-r|-d)\s/i"; classtype:attempted-hide; sid:5206069; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1082 System Information Discovery
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1082 - System info discovery via web shell - uname/systeminfo"; flow:established,to_server; pcre:"/(?:uname\s+-a|systeminfo|cat\s+\/etc\/os-release|cat\s+\/proc\/version)/i"; classtype:attempted-recon; sid:5206070; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1083 File and Directory Discovery
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1083 - Directory listing attempt via web shell"; flow:established,to_server; pcre:"/(?:ls\s+-la|dir\s+\/s|find\s+\/|tree\s+\/)/i"; classtype:attempted-recon; sid:5206071; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1068 Exploitation for Privilege Escalation
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1068 - Privilege escalation exploit download"; flow:established,to_client; content:"200"; http_stat_code; content:"Content-Disposition"; http_header; content:"exploit"; nocase; pcre:"/(?:dirtycow|cve-202\d|priv-esc|local-root)/i"; classtype:attempted-admin; sid:5206072; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1069 Permission Groups Discovery
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1069 - Domain group enumeration via web"; flow:established,to_server; pcre:"/(?:net\s+(?:group|localgroup|user)|ldapsearch|Get-ADGroup|Get-NetGroup)/i"; classtype:attempted-recon; sid:5206073; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1021 Remote Services
+# ============================================================
+alert tcp any any -> any 3389 (msg:"ET MITRE T1021.001 - RDP brute force attempt"; flow:established,to_server; threshold:type both, track by_src, count 10, seconds 60; classtype:unsuccessful-user; sid:5206074; rev:1;)
+
+alert tcp any any -> any 22 (msg:"ET MITRE T1021.004 - SSH brute force attempt"; flow:established,to_server; threshold:type both, track by_src, count 10, seconds 60; classtype:unsuccessful-user; sid:5206075; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1562 Impair Defenses
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1562.001 - Firewall rule modification via web"; flow:established,to_server; pcre:"/(?:iptables\s+-F|iptables\s+-D|ufw\s+disable|firewall-cmd\s+--remove|netsh\s+advfirewall\s+delete)/i"; classtype:attempted-admin; sid:5206076; rev:1;)
+
+alert http any any -> any any (msg:"ET MITRE T1562.004 - Disable security tool via web"; flow:established,to_server; pcre:"/(?:kill\s+-9|taskkill|pkill\s+-f)\s+(?:antimalware|defender|crowdstrike|sentinel)/i"; classtype:attempted-admin; sid:5206077; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1036 Masquerading
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1036.005 - Masquerading as legitimate binary via web download"; flow:established,to_client; content:"200"; http_stat_code; content:"svchost"; nocase; file_data; content:"Content-Type"; http_header; content:"application/x-msdownload"; classtype:trojan-activity; sid:5206078; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1573 Encrypted Channel
+# ============================================================
+alert tls any any -> any any (msg:"ET MITRE T1573 - Suspicious self-signed TLS certificate for C2"; tls.subject; content:"CN="; pcre:"/CN=(?:localhost|test|unknown|self-signed)/i"; classtype:trojan-activity; sid:5206079; rev:1;)
+
+# ============================================================
+# MITRE ATT&CK - T1567 Exfiltration Over Web Service
+# ============================================================
+alert http any any -> any any (msg:"ET MITRE T1567.001 - Data exfiltration via code repository"; flow:established,to_server; content:"POST"; http_method; content:"github.com"; nocase; http_header; dsize:>500000; classtype:trojan-activity; sid:5206080; rev:1;)
+
+alert http any any -> any any (msg:"ET MITRE T1567.002 - Data exfiltration to cloud storage"; flow:established,to_server; content:"PUT"; http_method; pcre:"/(?:drive\.google|dropbox\.com|onedrive|mega\.nz)/i"; dsize:>1000000; classtype:trojan-activity; sid:5206081; rev:1;)
+
+# ============================================================
+# OWASP A01 Broken Access Control
+# ============================================================
+alert http any any -> any any (msg:"OWASP A01 - IDOR attempt - sequential user ID enumeration"; flow:established,to_server; content:"GET"; http_method; content:"/api/users/"; http_uri; pcre:"/\/api\/users\/\d+$/"; threshold:type both, track by_src, count 20, seconds 60; classtype:web-application-attack; sid:5206082; rev:1;)
+
+alert http any any -> any any (msg:"OWASP A01 - Forced browsing to admin panel"; flow:established,to_server; content:"GET"; http_method; pcre:"/\/(?:admin|administrator|manager|console)(?:\/|$)/i"; classtype:web-application-attack; sid:5206083; rev:1;)
+
+alert http any any -> any any (msg:"OWASP A01 - Privilege escalation via role parameter manipulation"; flow:established,to_server; content:"POST"; http_method; pcre:"/(?:role|permission|group|is_admin|isAdmin|user_type)=(?:admin|administrator|root|superuser)/i"; classtype:web-application-attack; sid:5206084; rev:1;)
+
+# ============================================================
+# OWASP A02 Cryptographic Failures
+# ============================================================
+alert http any any -> any any (msg:"OWASP A02 - Sensitive credential submission over unencrypted HTTP"; flow:established,to_server; content:"POST"; http_method; content:"password"; http_client_body; classtype:web-application-attack; sid:5206085; rev:1;)
+
+# ============================================================
+# OWASP A03 Injection
+# ============================================================
+alert http any any -> any any (msg:"OWASP A03 - SQL injection UNION SELECT with information_schema"; flow:established,to_server; content:"UNION"; nocase; http_uri; content:"SELECT"; nocase; http_uri; content:"information_schema"; nocase; http_uri; classtype:web-application-attack; sid:5206086; rev:1;)
+
+alert http any any -> any any (msg:"OWASP A03 - NoSQL injection - MongoDB operator injection"; flow:established,to_server; content:"POST"; http_method; pcre:"/(?:\$where|\$ne|\$gt|\$regex|\$or|\$and)\s*:/"; classtype:web-application-attack; sid:5206087; rev:1;)
+
+alert http any any -> any any (msg:"OWASP A03 - LDAP injection attempt"; flow:established,to_server; pcre:"/(?:\*\)\(\|/"; http_uri; classtype:web-application-attack; sid:5206088; rev:1;)
+
+alert http any any -> any any (msg:"OWASP A03 - Command injection - chained OS commands"; flow:established,to_server; pcre:"/(?:;|%3b|%26%26|&&|\|\||\|%7c)(?:cat|id|whoami|ls|dir|uname|ping|wget|curl|nc|bash|sh|python|perl|ruby)\b/i"; classtype:web-application-attack; sid:5206089; rev:1;)
+
+alert http any any -> any any (msg:"OWASP A03 - SSTI - Jinja2/Python template injection"; flow:established,to_server; pcre:"/\{\{(?:__class__|__mro__|__subclasses__|config|request|lipsum|cycler|joiner|namespace)/i"; classtype:web-application-attack; sid:5206090; rev:1;)
+
+alert http any any -> any any (msg:"OWASP A03 - SSTI - Freemarker/Java expression injection"; flow:established,to_server; pcre:"/(?:<#assign|<#if|\$\{(?:T\(|freemarker))/i"; classtype:web-application-attack; sid:5206091; rev:1;)
+
+# ============================================================
+# OWASP A05 Security Misconfiguration
+# ============================================================
+alert http any any -> any any (msg:"OWASP A05 - Default credentials attempt on management interface"; flow:established,to_server; content:"POST"; http_method; content:"/login"; http_uri; content:"admin"; http_client_body; content:"admin"; http_client_body; classtype:web-application-attack; sid:5206092; rev:1;)
+
+alert http any any -> any any (msg:"OWASP A05 - Debug mode exposure in response headers"; flow:established,to_client; content:"200"; http_stat_code; content:"X-Debug"; http_header; classtype:web-application-attack; sid:5206093; rev:1;)
+
+alert http any any -> any any (msg:"OWASP A05 - Stack trace exposure in HTTP response"; flow:established,to_client; content:"200"; http_stat_code; pcre:"/(?:Traceback|Exception|at [\w.]+\([\w.]+\.java:\d+\)|stack trace)/i"; classtype:web-application-attack; sid:5206094; rev:1;)
+
+# ============================================================
+# OWASP A06 Vulnerable Components
+# ============================================================
+alert http any any -> any any (msg:"OWASP A06 - Known vulnerable component - Apache Struts .action endpoint"; flow:established,to_server; content:".action"; http_uri; pcre:"/\.action(?:;|\?|$)/"; classtype:web-application-attack; sid:5206095; rev:1;)
+
+# ============================================================
+# OWASP A07 Identity and Authentication Failures
+# ============================================================
+alert http any any -> any any (msg:"OWASP A07 - JWT algorithm none attack"; flow:established,to_server; content:"eyJ"; http_header; content:"alg"; content:"none"; pcre:"/eyJ[^.]+\.[^.]*none/i"; classtype:web-application-attack; sid:5206096; rev:1;)
+
+alert http any any -> any any (msg:"OWASP A07 - JWT key confusion - algorithm swap attempt"; flow:established,to_server; content:"Authorization"; http_header; content:"Bearer"; content:"eyJ"; pcre:"/eyJhbGciOiJSUzI1NiI/"; classtype:web-application-attack; sid:5206097; rev:1;)
+
+# ============================================================
+# OWASP A08 Software and Data Integrity Failures
+# ============================================================
+alert http any any -> any any (msg:"OWASP A08 - Insecure deserialization - Java serialization magic bytes"; flow:established,to_server; content:"|0a 0b 0c 0d 0e 0f 10|"; pcre:"/\xac\xed\x00\x05/"; classtype:web-application-attack; sid:5206098; rev:1;)
+
+alert http any any -> any any (msg:"OWASP A08 - Insecure deserialization - PHP object injection"; flow:established,to_server; pcre:"/O:\d+:\"(?:stdClass|WP_Object|Exception|SoapClient)/i"; classtype:web-application-attack; sid:5206099; rev:1;)
+
+# ============================================================
+# OWASP A09 Security Logging and Monitoring Failures
+# ============================================================
+alert http any any -> any any (msg:"OWASP A09 - Suspicious user-agent scanning activity"; flow:established,to_server; content:"User-Agent"; http_header; pcre:"/(?:Nikto|Nmap|masscan|ZAP|w3af|dirbuster|gobuster|ffuf)/i"; classtype:attempted-recon; sid:5206100; rev:1;)
