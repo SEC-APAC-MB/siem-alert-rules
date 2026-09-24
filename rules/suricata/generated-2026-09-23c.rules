@@ -1,0 +1,293 @@
+# Suricata Detection Rules — generated 2026-09-23 16:01 CEST
+# Based on latest CVE advisories (2026-08-27 to 2026-09-23) + MITRE ATT&CK + current threat landscape
+# 100 rules — SIDs 5205801–5205900
+
+# --- CVE-2026-54892: Plug/Elixir quadratic-time nested param decoding DoS ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET DOS Elixir Plug nested parameter quadratic decode DoS attempt"; flow:established,to_server; content:"application/x-www-form-urlencoded"; http_header; content:"%5B%5B"; nocase; distance:0; within:200; pcre:"/(\%5B\%5D|\[\])/"; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-dos; sid:5205801; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET DOS Elixir Plug deeply-nested query string abuse"; flow:established,to_server; http.uri; pcre:"/(?:%5B|%5D|\[|\])(?:%5B|%5D|\[|\])(?:%5B|%5D|\[|\])(?:%5B|%5D|\[|\])(?:%5B|%5D|\[|\])/"; threshold:type both, track by_src, count 3, seconds 30; classtype:attempted-dos; sid:5205802; rev:1;)
+
+# --- CVE-2026-61541: Zapros unbounded Content-Encoding decompression chain ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Zapros client unbounded Content-Encoding decompression chain"; flow:established,to_client; http.header; content:"Content-Encoding:"; pcre:"/Content-Encoding\x3a[^\r\n]*(?:gzip|deflate|br|zstd)[,\s]+(?:gzip|deflate|br|zstd)[,\s]+(?:gzip|deflate|br|zstd)/i"; classtype:attempted-dos; sid:5205803; rev:1;)
+
+# --- CVE-2026-61652: Zapros streaming decompression bomb ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Zapros streaming decompression bomb oversized chunk response"; flow:established,to_client; http.header; content:"Content-Encoding:"; content:"gzip"; within:100; http.content_len; content:>5000000; classtype:attempted-dos; sid:5205804; rev:1;)
+
+# --- CVE-2026-57149: Plone TALES injection RCE via Classic portlet ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific Plone Classic portlet TALES injection RCE attempt"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/++portlet++"; content:"classic"; distance:0; pcre:"/(?:python|string|nocall|not)\x3a/"; classtype:web-application-attack; sid:5205805; rev:1;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific Plone portlet TALES expression code injection"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"portlet"; content:"template"; distance:0; pcre:"/(?:python\x3a|string\x3a|nocall\x3a)/"; classtype:web-application-attack; sid:5205806; rev:1;)
+
+# --- CVE-2026-96446: Keycloak PAR request_uri reuse bypass ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific Keycloak PAR request_uri reuse attempt prompt=none"; flow:established,to_server; http.uri; content:"/auth/realms/"; content:"request_uri="; distance:0; content:"prompt=none"; distance:0; classtype:web-application-attack; sid:5205807; rev:1;)
+
+# --- CVE-2026-96445: Keycloak Conditional OTP bypass via crafted header ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific Keycloak Conditional OTP bypass X-Forwarded header injection"; flow:established,to_server; http.header; content:"X-Forwarded-"; pcre:"/^X-Forwarded-(?:For|Proto|Host)/mi"; http.uri; content:"/auth/realms/"; classtype:web-application-attack; sid:5205808; rev:1;)
+
+# --- CVE-2026-86248: Apache Tomcat CLIENT_CERT soft fail bypass ---
+alert tls $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Tomcat CLIENT_CERT soft fail authentication bypass"; flow:established,to_server; tls.cert_subject; content:"CN="; content:"client"; nocase; distance:0; classtype:attempted-admin; sid:5205809; rev:1;)
+
+# --- CVE-2026-87022: Apache Tomcat WebSocket per-message-deflate message smuggling ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Tomcat WebSocket permessage-deflate message smuggling"; flow:established,to_server; http.upgrade; content:"websocket"; nocase; http.header; content:"Sec-WebSocket-Extensions"; content:"permessage-deflate"; classtype:protocol-command-decode; sid:5205810; rev:1;)
+
+# --- CVE-2026-86350: Apache Tomcat HTTP/2 request smuggling (CVE-2026-41293 regression) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Tomcat HTTP/2 request header mix-up regression CVE-2026-86350"; flow:established,to_server; http.header_names; content:"host|0d 0a|host"; classtype:attempted-admin; sid:5205811; rev:1;)
+
+# --- CVE-2026-78253: Qt QXmlStreamReader uncontrolled recursion DoS ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET DOS Qt QXmlStreamReader uncontrolled recursion via deeply nested XML"; flow:established,to_server; http.content_type; content:"text/xml"; file_data; pcre:"/<[^>]+<[^>]+<[^>]+<[^>]+<[^>]+/"; threshold:type both, track by_src, count 3, seconds 30; classtype:attempted-dos; sid:5205812; rev:1;)
+
+# --- CVE-2026-84791: ManageEngine OpManager broken access control Change Management ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific ManageEngine OpManager Change Management schedule unauthorized access"; flow:established,to_server; http.uri; content:"/api/json/changemanager/"; nocase; http.method; content:"POST"; classtype:web-application-attack; sid:5205813; rev:1;)
+
+# --- CVE-2026-84789: ManageEngine OpManager alert notification access control bypass ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific ManageEngine OpManager alert notification creation unauthorized scope"; flow:established,to_server; http.uri; content:"/api/json/alerts/createAlertNotification"; nocase; http.method; content:"POST"; classtype:web-application-attack; sid:5205814; rev:1;)
+
+# --- CVE-2026-84787: ManageEngine OpManager privilege escalation via Report Profile import ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific ManageEngine OpManager privilege escalation via Report Profile import"; flow:established,to_server; http.uri; content:"/api/json/reports/importReportProfile"; nocase; http.method; content:"POST"; classtype:web-application-attack; sid:5205815; rev:1;)
+
+# --- CVE-2026-15358: ManageEngine OpManager/NCM path traversal ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific ManageEngine OpManager NCM path traversal attempt"; flow:established,to_server; http.uri; pcre:"/(?:\.\.\/|\.\.\\|%2e%2e%2f|%2e%2e\/)/i"; content:"OpManager"; nocase; distance:0; classtype:web-application-attack; sid:5205816; rev:1;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific ManageEngine NCM unauthorized path traversal file read"; flow:established,to_server; http.uri; content:"/ncm/"; pcre:"/(?:\.\.\/|%2e%2e)/i"; classtype:web-application-attack; sid:5205817; rev:1;)
+
+# --- CVE-2026-96456: Reachy Mini Bluetooth session auth bypass ---
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Reachy Mini Bluetooth shared auth state session hijack CMD write"; flow:established,to_server; content:"CMD_"; depth:4; classtype:attempted-admin; sid:5205818; rev:1;)
+
+# --- CVE-2026-75973: Apache Tomcat Jakarta Authentication SimpleAuthConfigProvider realm cross-webapp ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Tomcat Jakarta Authentication realm cross-webapp auth bypass"; flow:established,to_server; http.uri; pcre:"/^\/[^/]+\/(?:j_security_check|auth)/"; http.header; content:"Authorization"; classtype:attempted-admin; sid:5205819; rev:1;)
+
+# --- CVE-2026-77756: Apache Tomcat HTTP/1.0 transfer-encoding request smuggling ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Tomcat HTTP/1.0 transfer-encoding request smuggling attempt"; flow:established,to_server; http.protocol; content:"HTTP/1.0"; http.header; content:"Transfer-Encoding:"; nocase; classtype:attempted-admin; sid:5205820; rev:1;)
+
+# --- CVE-2026-78437: Apache Tomcat incomplete cleanup malformed request ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Tomcat incomplete cleanup malformed request cross-user impact"; flow:established,to_server; http.method; pcre:"/^(?:GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS|TRACE|CONNECT)\s+[^\s]*\s+HTTP\//i"; threshold:type both, track by_src, count 10, seconds 60; classtype:attempted-dos; sid:5205821; rev:1;)
+
+# --- CVE-2026-78383: Apache Tomcat AJP thread pinning DoS ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 8009 (msg:"ET DOS Apache Tomcat AJP thread pinning denial of service"; flow:established,to_server; content:"AJP"; depth:3; classtype:attempted-dos; sid:5205822; rev:1;)
+
+# --- CVE-2026-77791: Apache Tomcat WebSocket close message uncontrolled resource consumption ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET DOS Apache Tomcat WebSocket close message resource consumption"; flow:established,to_server; http.upgrade; content:"websocket"; nocase; threshold:type both, track by_src, count 20, seconds 60; classtype:attempted-dos; sid:5205823; rev:1;)
+
+# --- CVE-2026-79677: Apache Tomcat async WebSocket write timeout loss DoS ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET DOS Apache Tomcat async WebSocket write timeout resource leak"; flow:established,to_server; http.upgrade; content:"websocket"; nocase; threshold:type both, track by_src, count 15, seconds 60; classtype:attempted-dos; sid:5205824; rev:1;)
+
+# --- CVE-2026-77762: Apache Tomcat WebSocket concurrent race condition ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Tomcat WebSocket concurrent shared resource race condition"; flow:established,to_server; http.upgrade; content:"websocket"; nocase; threshold:type both, track by_src, count 30, seconds 30; classtype:attempted-dos; sid:5205825; rev:1;)
+
+# --- CVE-2026-95626: Tauri CSP nonce bypass via data:/blob: script-src ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific Tauri CSP nonce bypass via data or blob script-src directive"; flow:established,to_client; http.header; content:"Content-Security-Policy"; content:"script-src"; content:"'nonce-"; distance:0; content:"data:"; distance:0; classtype:web-application-attack; sid:5205826; rev:1;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific Tauri CSP nonce bypass blob script-src injection"; flow:established,to_client; http.header; content:"Content-Security-Policy"; content:"script-src"; content:"'nonce-"; distance:0; content:"blob:"; distance:0; classtype:web-application-attack; sid:5205827; rev:1;)
+
+# --- CVE-2026-84791/84789/84787: ManageEngine OpManager general low-privilege escalation ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific ManageEngine OpManager low-privilege user admin action attempt"; flow:established,to_server; http.uri; content:"/api/json/"; content:"Admin"; nocase; distance:0; http.method; content:"POST"; classtype:web-application-attack; sid:5205828; rev:1;)
+
+# --- CVE-2026-96442: Emacs Flymake code execution ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Emacs Flymake code execution via crafted source"; flow:established,to_server; http.content_type; content:"application/json"; file_data; content:"flymake"; nocase; classtype:attempted-user; sid:5205829; rev:1;)
+
+# --- CVE-2026-95627: Tauri dialog plugin file picker path traversal ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Tauri dialog plugin file picker path traversal attempt"; flow:established,to_server; http.uri; pcre:"/(?:\.\.\/|%2e%2e)/i"; http.header; content:"tauri"; nocase; classtype:attempted-user; sid:5205830; rev:1;)
+
+# --- CVE-2026-96454: Pake/Tauri application arbitrary code execution ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Pake Tauri desktop app arbitrary code execution attempt"; flow:established,to_server; http.header; content:"tauri"; nocase; http.uri; content:"/__tauri/"; classtype:attempted-user; sid:5205831; rev:1;)
+
+# --- CVE-2026-73581: Apache Tomcat improper certificate revocation check ---
+alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Apache Tomcat improper certificate revocation bypass"; flow:established,to_server; tls.cert_subject; content:"CN="; threshold:type both, track by_src, count 1, seconds 300; classtype:attempted-admin; sid:5205832; rev:1;)
+
+# --- CVE-2026-76183: Apache Tomcat authentication bypass by alternate name ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Tomcat authentication bypass by alternate name"; flow:established,to_server; http.header; content:"Authorization"; pcre:"/CN=[^,]+,/i"; classtype:attempted-admin; sid:5205833; rev:1;)
+
+# --- CVE-2026-14913: ManageEngine OpManager/FA access control bypass ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific ManageEngine OpManager Firewall Analyzer unauthorized report access"; flow:established,to_server; http.uri; content:"/api/json/"; content:"report"; nocase; distance:0; http.method; content:"POST"; classtype:web-application-attack; sid:5205834; rev:1;)
+
+# --- CVE-2026-12370: ManageEngine OpManager/NetFlow/NCM SQL injection ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific ManageEngine OpManager NetFlow Analyzer NCM SQL injection attempt"; flow:established,to_server; http.uri; content:"/api/json/"; pcre:"/(?:\x27|\x22|%27|%22).*(?:SELECT|UNION|INSERT|UPDATE|DELETE|DROP)/i"; classtype:web-application-attack; sid:5205835; rev:1;)
+
+# --- CVE-2026-94243: Apache Sling ReferrerFilter weaker-than-origin bypass ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific Apache Sling ReferrerFilter origin bypass attempt"; flow:established,to_server; http.header; content:"Referer:"; pcre:"/^Referer\x3a\s*https?:\/\/[^\/]*\.(?:example\.com|localhost)/mi"; classtype:web-application-attack; sid:5205836; rev:1;)
+
+# --- CVE-2026-94251: Apache Sling ContentDispositionFilter incomplete mediation ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific Apache Sling ContentDispositionFilter bypass file download"; flow:established,to_client; http.header; content:"Content-Disposition"; content:"attachment"; distance:0; nocase; http.status_code; content:"200"; classtype:web-application-attack; sid:5205837; rev:1;)
+
+# --- CVE-2026-96443: Apache Doris JDBC driver URL validation bypass ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Doris JDBC driver URL validation bypass"; flow:established,to_server; http.content_type; content:"application/json"; file_data; content:"jdbc"; nocase; content:"url"; nocase; distance:0; pcre:"/(?:jdbc\x3a[^\"']*[\x3b&])/i"; classtype:web-application-attack; sid:5205838; rev:1;)
+
+# --- CVE-2026-5695: Microweber arbitrary file upload ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific Microweber arbitrary file upload vulnerability"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/upload"; nocase; content:"php"; distance:0; classtype:web-application-attack; sid:5205839; rev:1;)
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific Microweber unrestricted upload form abuse"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"microweber"; nocase; file_data; content:"<?php"; classtype:web-application-attack; sid:5205840; rev:1;)
+
+# --- CVE-2026-5696: Microweber reflected XSS ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific Microweber reflected XSS via group parameter"; flow:established,to_server; http.uri; content:"group="; pcre:"/group=[^&]*[<\"']/i"; classtype:web-application-attack; sid:5205841; rev:1;)
+
+# --- CVE-2026-90950: Paid Membership Subscriptions WordPress reCAPTCHA bypass ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific WordPress Paid Membership Subscriptions reCAPTCHA bypass"; flow:established,to_server; http.uri; content:"/wp-admin/admin-ajax.php"; content:"action=pms_"; distance:0; http.method; content:"POST"; classtype:web-application-attack; sid:5205842; rev:1;)
+
+# --- CVE-2026-87848: MPCX Lightbox WordPress plugin no authorization ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific WordPress MPCX Lightbox plugin unauthenticated access"; flow:established,to_server; http.uri; content:"/wp-admin/admin-ajax.php"; content:"mpcx"; nocase; distance:0; http.method; content:"POST"; classtype:web-application-attack; sid:5205843; rev:1;)
+
+# --- CVE-2026-86604: GTranslate WordPress plugin shortcode XSS ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific WordPress GTranslate shortcode XSS injection"; flow:established,to_server; http.uri; content:"/wp-json/"; content:"gtranslate"; nocase; distance:0; pcre:"/(?:<script|onerror|onload|javascript\x3a)/i"; classtype:web-application-attack; sid:5205844; rev:1;)
+
+# --- CVE-2026-87978: Paymob WooCommerce request signature bypass ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific WooCommerce Paymob payment request signature bypass"; flow:established,to_server; http.uri; content:"/wc-api/paymob"; http.method; content:"POST"; classtype:web-application-attack; sid:5205845; rev:1;)
+
+# --- CVE-2026-87071: Forminator Forms WordPress metadata key manipulation ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific WordPress Forminator Forms metadata key manipulation"; flow:established,to_server; http.uri; content:"/wp-admin/admin-ajax.php"; content:"forminator"; nocase; distance:0; http.method; content:"POST"; classtype:web-application-attack; sid:5205846; rev:1;)
+
+# --- CVE-2026-86612: Ninja Tables WordPress shortcode expansion ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific WordPress Ninja Tables unauthorized shortcode expansion"; flow:established,to_server; http.uri; content:"ninja_tables"; nocase; pcre:"/\[ninja_tables[^\]]*\]/i"; classtype:web-application-attack; sid:5205847; rev:1;)
+
+# --- CVE-2026-87070: Forminator Forms WordPress CSRF ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific WordPress Forminator Forms CSRF exploit attempt"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"forminator"; nocase; http.header; content:"Referer"; pcre:"/forminator/i"; classtype:web-application-attack; sid:5205848; rev:1;)
+
+# --- CVE-2026-86601: WP Recipe Maker WordPress shortcode stored XSS in comments ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific WordPress WP Recipe Maker comment shortcode XSS"; flow:established,to_server; http.uri; content:"/wp-comments-post.php"; http.method; content:"POST"; file_data; content:"wp-recipe-maker"; nocase; classtype:web-application-attack; sid:5205849; rev:1;)
+
+# --- CVE-2026-80444: Abis Technology URL redirect ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific Abis Technology open redirect vulnerability"; flow:established,to_server; http.uri; pcre:"/redirect(?:=|%3D)(?:https?%3A|https?:\/\/)[^&\s]+/i"; classtype:web-application-attack; sid:5205850; rev:1;)
+
+# --- CVE-2026-92001: XML entity expansion DoS (billion laughs variant) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET DOS XML entity expansion billion laughs variant"; flow:established,to_server; http.content_type; content:"text/xml"; file_data; pcre:"/<!ENTITY\s+\S+\s+SYSTEM/"; classtype:attempted-dos; sid:5205851; rev:1;)
+
+# --- CVE-2026-91999: XSS in web application ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Server reflected XSS generic detection script injection"; flow:established,to_client; http.status_code; content:"200"; file_data; pcre:"/<script[^>]+src\s*=\s*[\"'](?:https?:\/\/)[^\"']*[\"']/i"; classtype:web-application-attack; sid:5205852; rev:1;)
+
+# --- CVE-2026-91928: XSS in web application ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Server XSS DOM-based injection in response"; flow:established,to_client; http.status_code; content:"200"; file_data; pcre:"/document\.(?:write|location|cookie|domain)\s*=/"; classtype:web-application-attack; sid:5205853; rev:1;)
+
+# --- CVE-2026-91852: XSS in web application ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Server stored XSS detection via event handler injection"; flow:established,to_client; http.status_code; content:"200"; file_data; pcre:"/on(?:error|load|click|mouseover|focus|blur)\s*=\s*[\"']/i"; classtype:web-application-attack; sid:5205854; rev:1;)
+
+# --- MITRE ATT&CK: T1059.001 - PowerShell execution detection ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK T1059.001 PowerShell download cradle via HTTP"; flow:established,to_server; http.method; content:"GET"; http.uri; content:".ps1"; distance:0; http.header; content:"User-Agent:"; content:"PowerShell"; distance:0; nocase; classtype:trojan-activity; sid:5205855; rev:1;)
+
+# --- MITRE ATT&CK: T1059.003 - Windows Command Shell ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK T1059.003 suspicious cmd.exe command download"; flow:established,to_server; http.uri; content:"cmd.exe"; nocase; http.uri; content:"/c"; distance:0; pcre:"/(?:curl|wget|bitsadmin|certutil)\s/i"; classtype:trojan-activity; sid:5205856; rev:1;)
+
+# --- MITRE ATT&CK: T1071.001 - Web Protocols: C2 via HTTP ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK T1071.001 HTTP beaconing pattern C2 detection"; flow:established,to_server; http.method; content:"GET"; threshold:type both, track by_src, count 30, seconds 120; classtype:trojan-activity; sid:5205857; rev:1;)
+
+# --- MITRE ATT&CK: T1566.001 - Phishing: Spearphishing Attachment ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK T1566.001 macro-enabled document download from suspicious domain"; flow:established,to_server; http.uri; content:".docm"; nocase; http.header; content:"Host:"; pcre:"/(?:\.ru|\.cn|\.top|\.xyz|\.club)/i"; classtype:trojan-activity; sid:5205858; rev:1;)
+
+# --- MITRE ATT&CK: T1190 - Exploit Public-Facing Application ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATTACK T1190 Apache Tomcat exploit attempt CVE-2026 cluster"; flow:established,to_server; http.uri; content:"/manager/"; nocase; http.method; content:"POST"; classtype:web-application-attack; sid:5205859; rev:1;)
+
+# --- MITRE ATT&CK: T1133 - External Remote Services ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET [3389,22,5900] (msg:"ET ATTACK T1133 brute force external remote service"; flow:established,to_server; threshold:type both, track by_src, count 20, seconds 120; classtype:attempted-admin; sid:5205860; rev:1;)
+
+# --- MITRE ATT&CK: T1053.005 - Scheduled Task/Job ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1053.005 scheduled task creation via HTTP API"; flow:established,to_server; http.uri; content:"/api/"; content:"task"; nocase; distance:0; content:"schedule"; nocase; distance:0; http.method; content:"POST"; classtype:attempted-admin; sid:5205861; rev:1;)
+
+# --- MITRE ATT&CK: T1048 - Exfiltration Over Alternative Protocol ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET [53,443,80] (msg:"ET ATTACK T1048 DNS exfiltration detection high volume"; flow:established,to_server; threshold:type both, track by_src, count 50, seconds 60; classtype:trojan-activity; sid:5205862; rev:1;)
+
+# --- MITRE ATT&CK: T1070.004 - Indicator Removal: File Deletion ---
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1070.004 suspicious mass file deletion command"; flow:established,to_server; content:"rm"; content:"-rf"; distance:0; content:"/var/log"; distance:0; classtype:attempted-admin; sid:5205863; rev:1;)
+
+# --- MITRE ATT&CK: T1003.001 - OS Credential Dumping ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1003.001 LSASS memory dump via procdump"; flow:established,to_server; http.uri; content:"procdump"; nocase; content:"lsass"; nocase; distance:0; classtype:attempted-admin; sid:5205864; rev:1;)
+
+# --- MITRE ATT&CK: T1486 - Data Encrypted for Impact ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1486 ransomware encryption detection mass file rename"; flow:established,to_server; http.method; content:"POST"; file_data; pcre:"/(?:\.encrypted|\.locked|\.crypt|\.crypto)/i"; threshold:type both, track by_src, count 20, seconds 30; classtype:trojan-activity; sid:5205865; rev:1;)
+
+# --- MITRE ATT&CK: T1110.001 - Brute Force: Password Guessing ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATTACK T1110.001 HTTP brute force login attempt"; flow:established,to_server; http.uri; content:"/login"; http.method; content:"POST"; threshold:type both, track by_src, count 10, seconds 30; classtype:attempted-admin; sid:5205866; rev:1;)
+
+# --- MITRE ATT&CK: T1027 - Obfuscated Files/Information ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK T1027 base64 encoded PowerShell command download"; flow:established,to_server; http.uri; pcre:"/[A-Za-z0-9+\/]{40,}={0,2}/"; http.header; content:"User-Agent:"; content:"PowerShell"; distance:0; nocase; classtype:trojan-activity; sid:5205867; rev:1;)
+
+# --- MITRE ATT&CK: T1078.002 - Valid Accounts: Domain Accounts ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1078.002 suspicious privileged account login outside business hours"; flow:established,to_server; http.uri; content:"/login"; http.method; content:"POST"; http.header; content:"admin"; nocase; classtype:attempted-admin; sid:5205868; rev:1;)
+
+# --- MITRE ATT&CK: T1562.001 - Impair Defenses: Disable Security Tools ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1562.001 attempt to disable security tool via API"; flow:established,to_server; http.uri; content:"/api/"; content:"security"; nocase; distance:0; http.method; content:"DELETE"; classtype:attempted-admin; sid:5205869; rev:1;)
+
+# --- MITRE ATT&CK: T1036 - Masquerading ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK T1036 masquerading as legitimate system binary"; flow:established,to_server; http.uri; content:"/download/"; pcre:"/(?:svchost|lsass|csrss|smss|wininit)\.exe/i"; classtype:trojan-activity; sid:5205870; rev:1;)
+
+# --- MITRE ATT&CK: T1059.006 - Python execution ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK T1059.006 Python-based C2 download and execute"; flow:established,to_server; http.uri; content:".py"; distance:0; http.header; content:"User-Agent:"; content:"python"; distance:0; nocase; pcre:"/(?:urllib|requests|http\.client)/i"; classtype:trojan-activity; sid:5205871; rev:1;)
+
+# --- MITRE ATT&CK: T1071.004 - DNS C2 ---
+alert dns $HOME_NET any -> $EXTERNAL_NET 53 (msg:"ET ATTACK T1071.004 DNS C2 tunneling via TXT record queries"; dns.query; content:""; nocase; dns.query; pcre:"/[a-zA-Z0-9]{30,}\.[a-z]{2,4}/i"; threshold:type both, track by_src, count 15, seconds 60; classtype:trojan-activity; sid:5205872; rev:1;)
+
+# --- MITRE ATT&CK: T1098 - Account Manipulation ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1098 account privilege escalation via group membership change"; flow:established,to_server; http.uri; content:"/api/"; content:"group"; nocase; distance:0; content:"admin"; nocase; distance:0; http.method; content:"PUT"; classtype:attempted-admin; sid:5205873; rev:1;)
+
+# --- MITRE ATT&CK: T1087 - Account Discovery ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1087 suspicious user enumeration via API"; flow:established,to_server; http.uri; content:"/api/users"; http.method; content:"GET"; threshold:type both, track by_src, count 50, seconds 120; classtype:attempted-recon; sid:5205874; rev:1;)
+
+# --- MITRE ATT&CK: T1046 - Network Service Scanning ---
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1046 port scan detection SYN flood pattern"; flow:to_server; flags:S,12; threshold:type both, track by_src, count 50, seconds 10; classtype:attempted-recon; sid:5205875; rev:1;)
+
+# --- MITRE ATT&CK: T1068 - Exploitation for Privilege Escalation ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1068 SUID binary exploitation attempt"; flow:established,to_server; http.uri; content:"/exec"; content:"chmod"; distance:0; content:"+s"; distance:0; classtype:attempted-admin; sid:5205876; rev:1;)
+
+# --- MITRE ATT&CK: T1083 - File and Directory Discovery ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1083 suspicious directory traversal enumeration"; flow:established,to_server; http.uri; pcre:"/(?:\.\.\/|\.\.\\|%2e%2e%2f|%2e%2e\\){3,}/i"; classtype:attempted-recon; sid:5205877; rev:1;)
+
+# --- MITRE ATT&CK: T1573 - Encrypted Channel ---
+alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK T1573 suspicious TLS to rare TLD with high entropy SNI"; flow:established,to_server; tls.sni; pcre:"/[a-z0-9]{20,}\.(?:xyz|top|club|click|monster|buzz)/i"; classtype:trojan-activity; sid:5205878; rev:1;)
+
+# --- MITRE ATT&CK: T1567 - Exfiltration Over Web Service ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK T1567 data exfiltration to cloud storage"; flow:established,to_server; http.uri; pcre:"/(?:drive\.google|dropbox|onedrive|mega\.nz|wetransfer)/i"; http.method; content:"PUT"; http.content_len; content:>10000000; classtype:trojan-activity; sid:5205879; rev:1;)
+
+# --- MITRE ATT&CK: T1055 - Process Injection ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1055 DLL injection via process hollowing command"; flow:established,to_server; http.content_type; content:"application/json"; file_data; content:"inject"; nocase; content:"process"; nocase; distance:0; classtype:trojan-activity; sid:5205880; rev:1;)
+
+# --- MITRE ATT&CK: T1562.004 - Disable or Modify System Firewall ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1562.004 firewall rule modification via API"; flow:established,to_server; http.uri; content:"/api/firewall/"; content:"rule"; distance:0; http.method; content:"DELETE"; classtype:attempted-admin; sid:5205881; rev:1;)
+
+# --- MITRE ATT&CK: T1498 - Network DoS ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET [80,443] (msg:"ET ATTACK T1498 HTTP slowloris style DoS"; flow:established,to_server; threshold:type both, track by_src, count 100, seconds 60; classtype:attempted-dos; sid:5205882; rev:1;)
+
+# --- MITRE ATT&CK: T1136 - Create Account ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1136 suspicious service account creation"; flow:established,to_server; http.uri; content:"/api/"; content:"user"; nocase; distance:0; content:"create"; nocase; distance:0; http.method; content:"POST"; classtype:attempted-admin; sid:5205883; rev:1;)
+
+# --- MITRE ATT&CK: T1547 - Boot or Logon Autostart Execution ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1547 registry autostart key modification via remote"; flow:established,to_server; http.content_type; content:"application/json"; file_data; content:"CurrentVersion\\Run"; classtype:attempted-admin; sid:5205884; rev:1;)
+
+# --- MITRE ATT&CK: T1001 - Data Obfuscation ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK T1001 data exfiltration via steganographic content type"; flow:established,to_server; http.content_type; content:"image/png"; http.method; content:"POST"; http.content_len; content:>5000000; classtype:trojan-activity; sid:5205885; rev:1;)
+
+# --- MITRE ATT&CK: T1189 - Drive-by Compromise ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATTACK T1189 drive-by compromise via malicious iframe injection"; flow:established,to_client; http.status_code; content:"200"; file_data; content:"<iframe"; content:"style=\"display:none"; distance:0; classtype:web-application-attack; sid:5205886; rev:1;)
+
+# --- MITRE ATT&CK: T1210 - Exploitation of Remote Services ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET [445,3389,5985] (msg:"ET ATTACK T1210 exploitation of remote services unusual port connection"; flow:established,to_server; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:5205887; rev:1;)
+
+# --- MITRE ATT&CK: T1555 - Credentials from Password Stores ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1555 credential store access attempt"; flow:established,to_server; http.uri; content:"/api/credentials"; content:"secrets"; distance:0; http.method; content:"GET"; classtype:attempted-admin; sid:5205888; rev:1;)
+
+# --- MITRE ATT&CK: T1119 - Automated Collection ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1119 automated data collection via bulk API query"; flow:established,to_server; http.uri; content:"/api/"; content:"export"; nocase; distance:0; content:"bulk"; nocase; distance:0; http.method; content:"GET"; classtype:attempted-recon; sid:5205889; rev:1;)
+
+# --- MITRE ATT&CK: T1569 - System Services ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK T1569 system service creation via HTTP API"; flow:established,to_server; http.uri; content:"/api/services"; http.method; content:"POST"; file_data; content:"start"; nocase; classtype:attempted-admin; sid:5205890; rev:1;)
+
+# --- CVE-2026-80444: Abis Technology open redirect (expanded) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific open redirect via URL parameter manipulation"; flow:established,to_server; http.uri; pcre:"/(?:next|redirect|return|url|goto|continue|target)=(?:https?%3A%2F%2F|https?:\/\/)[^&\s]+/i"; classtype:web-application-attack; sid:5205891; rev:1;)
+
+# --- CVE-2026-92001: XML entity expansion (expanded detection) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET DOS recursive XML internal entity expansion attempt"; flow:established,to_server; http.content_type; content:"text/xml"; file_data; pcre:"/<!ENTITY\s+\w+\s+%\w+\s*>/"; classtype:attempted-dos; sid:5205892; rev:1;)
+
+# --- CVE-2026-77762: Apache Tomcat race condition (expanded) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Tomcat concurrent WebSocket connection race exploitation"; flow:established,to_server; http.upgrade; content:"websocket"; nocase; threshold:type both, track by_src, count 50, seconds 10; classtype:attempted-dos; sid:5205893; rev:1;)
+
+# --- CVE-2026-87022: Tomcat WebSocket message smuggling (expanded) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT WebSocket permessage-deflate extension negotiation with suspicious payload length"; flow:established,to_server; http.upgrade; content:"websocket"; nocase; http.header; content:"Sec-WebSocket-Extensions"; content:"permessage-deflate"; http.content_len; content:>100000; classtype:protocol-command-decode; sid:5205894; rev:1;)
+
+# --- CVE-2026-78383: Apache Tomcat AJP DoS (expanded) ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 8009 (msg:"ET DOS Apache Tomcat AJP connection flood denial of service"; flow:established,to_server; threshold:type both, track by_src, count 20, seconds 10; classtype:attempted-dos; sid:5205895; rev:1;)
+
+# --- CVE-2026-54892: Plug nested param abuse (expanded for Phoenix) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET DOS Phoenix/Elixir Plug deeply nested form data DoS attack"; flow:established,to_server; http.content_type; content:"application/x-www-form-urlencoded"; http.content_len; content:>500000; classtype:attempted-dos; sid:5205896; rev:1;)
+
+# --- CVE-2026-57149: Plone TALES injection (expanded for web shell) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET WEB Specific Plone TALES python expression injection attempt"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/portlet"; pcre:"/(?:python\s*:\s*(?:exec|eval|__import__|open|compile)|string\s*:\s*\$)/i"; classtype:web-application-attack; sid:5205897; rev:1;)
+
+# --- CVE-2026-86248: Tomcat CLIENT_CERT bypass (expanded) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Tomcat CLIENT_CERT authentication soft fail bypass attempt"; flow:established,to_server; http.header; content:"Authorization"; pcre:"/^Authorization\x3a\s+Basic\s+/i"; http.uri; content:"/auth/"; classtype:attempted-admin; sid:5205898; rev:1;)
+
+# --- CVE-2026-75973: Tomcat Jakarta Authentication cross-realm (expanded) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Tomcat SimpleAuthConfig cross-realm authentication bypass"; flow:established,to_server; http.uri; pcre:"/^\/[^\/]+\/(?:j_security_check|login)/"; http.header; content:"Authorization"; classtype:attempted-admin; sid:5205899; rev:1;)
+
+# --- CVE-2026-77756: Tomcat HTTP/1.0 transfer-encoding smuggling (expanded) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Apache Tomcat HTTP/1.0 transfer-encoding chunked smuggling"; flow:established,to_server; http.protocol; content:"1.0"; http.header; content:"Transfer-Encoding"; content:"chunked"; distance:0; nocase; classtype:attempted-admin; sid:5205900; rev:1;)
