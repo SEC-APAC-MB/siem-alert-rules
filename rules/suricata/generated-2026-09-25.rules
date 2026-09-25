@@ -1,0 +1,297 @@
+# Generated Suricata Detection Rules - 2026-09-25
+# Based on GitHub Advisory Database CVEs published after 2026-08-27
+# MITRE ATT&CK coverage and current threat landscape
+# Total rules: 100 | Starting SID: 5206401
+
+# --- CVE-2026-81630: Botslab G980H Firmware Inadequate Verification (CRITICAL, CVSS 8.1/9.2) ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Botslab G980H Dash Cam - Untrusted Firmware Update Download"; flow:established,to_server; content:"GET"; http_method; content:".bin"; http_uri; content:"firmware"; http_uri; nocase; reference:cve,CVE-2026-81630; reference:ghsa,GHSA-wm83-9wvp-2x5v; classtype:trojan-activity; sid:5206401; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H Dash Cam - Firmware Update Response Without Signature Verification"; flow:established,to_client; content:"200"; http_stat_code; content:"application/octet-stream"; http_header; content:"Content-Disposition"; http_header; content:"firmware"; nocase; reference:cve,CVE-2026-81630; reference:ghsa,GHSA-wm83-9wvp-2x5v; classtype:trojan-activity; sid:5206402; rev:1;)
+
+# --- CVE-2026-93289: Unauthenticated Command Injection during pairing (CRITICAL, CVSS 7.5/9.0) ---
+alert dns $HOME_NET any -> any any (msg:"ET EXPLOIT IoT Device Pairing Command Injection Attempt - DNS Recon"; dns.query; content:"pair"; nocase; reference:cve,CVE-2026-93289; reference:ghsa,GHSA-9vx9-rfcq-648m; classtype:attempted-admin; sid:5206403; rev:1;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT IoT Pairing Command Injection - OS Command Patterns in HTTP"; flow:established,to_server; content:"POST"; http_method; content:"pair"; http_uri; nocase; pcre:"/(\;|\||\x60|%26%26|%7C%7C)/U"; reference:cve,CVE-2026-93289; reference:ghsa,GHSA-9vx9-rfcq-648m; classtype:attempted-admin; sid:5206404; rev:1;)
+
+# --- CVE-2026-93291: Omni C20 MITM via Improper Certificate Validation (CRITICAL) ---
+alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Omni C20 Missing Certificate Validation - Suspicious TLS to IoT Device"; tls.sni; content:"omni"; nocase; reference:cve,CVE-2026-93291; reference:ghsa,GHSA-mg87-pcwf-2hcm; classtype:trojan-activity; sid:5206405; rev:1;)
+
+# --- CVE-2026-86860: ServiceNow Missing Authorization (CRITICAL) ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT ServiceNow Missing Authorization Bypass Attempt"; flow:established,to_server; content:"GET"; http_method; content:"/api/now/"; http_uri; content:"sysparm_query"; http_uri; reference:cve,CVE-2026-86860; reference:ghsa,GHSA-hm4f-jpr2-fpx4; classtype:attempted-admin; sid:5206406; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT ServiceNow Authorization Bypass - Unauthorized Data Access Response"; flow:established,to_client; content:"200"; http_stat_code; content:"result"; http_body; nocase; content:"sys_id"; http_body; nocase; reference:cve,CVE-2026-86860; reference:ghsa,GHSA-hm4f-jpr2-fpx4; classtype:attempted-admin; sid:5206407; rev:1;)
+
+# --- CVE-2026-95699: iSteamX MQTT Wildcard Topic Access (HIGH, CVSS 9.6) ---
+alert tcp $HOME_NET any -> any 1883 (msg:"ET EXPLOIT iSteamX MQTT Wildcard Topic Subscription - Unauthorized Device Access"; flow:established,to_server; content:"\x82"; depth:1; content:"#"; distance:0; reference:cve,CVE-2026-95699; reference:ghsa,GHSA-pjrx-22r5-wchr; classtype:attempted-recon; sid:5206408; rev:1;)
+
+alert tcp $HOME_NET any -> any 8883 (msg:"ET EXPLOIT iSteamX MQTT Wildcard Topic Subscription over TLS"; flow:established,to_server; content:"\x82"; depth:1; content:"#"; distance:0; reference:cve,CVE-2026-95699; reference:ghsa,GHSA-pjrx-22r5-wchr; classtype:attempted-recon; sid:5206409; rev:1;)
+
+# --- CVE-2026-82708: Botslab G980H Path Traversal (HIGH, CVSS 6.5) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H Path Traversal in HTTP Server"; flow:established,to_server; content:"GET"; http_method; content:"../"; http_uri; content:"/DCIM/"; http_uri; nocase; reference:cve,CVE-2026-82708; reference:ghsa,GHSA-9372-p39g-vqhj; classtype:attempted-recon; sid:5206410; rev:1;)
+
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H Path Traversal - Encoded Traversal Sequence"; flow:established,to_server; content:"GET"; http_method; content:"%2e%2e%2f"; http_uri; nocase; reference:cve,CVE-2026-82708; reference:ghsa,GHSA-9372-p39g-vqhj; classtype:attempted-recon; sid:5206411; rev:1;)
+
+# --- CVE-2026-93354: Taskview Community Missing Auth OAuth Client Registration (HIGH, CVSS 8.1) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Taskview Community OAuth Dynamic Client Registration - Unauthenticated"; flow:established,to_server; content:"POST"; http_method; content:"/oauth/register"; http_uri; content:"redirect_uris"; http_client_body; nocase; reference:cve,CVE-2026-93354; reference:ghsa,GHSA-2hxj-r43h-qh98; classtype:attempted-admin; sid:5206412; rev:1;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Taskview Community OAuth Client Registration Success Response"; flow:established,to_client; content:"201"; http_stat_code; content:"client_id"; http_body; content:"client_secret"; http_body; reference:cve,CVE-2026-93354; reference:ghsa,GHSA-2hxj-r43h-qh98; classtype:successful-admin; sid:5206413; rev:1;)
+
+# --- CVE-2026-82164: Dell Trusted Device Client Permission Escalation (HIGH) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Dell Trusted Device Client - Privilege Escalation via Local Permission Manipulation"; flow:established,to_server; content:"PUT"; http_method; content:"Dell"; http_header; nocase; content:"TrustedDevice"; http_header; nocase; reference:cve,CVE-2026-82164; reference:ghsa,GHSA-9xwc-2w5g-qwf2; classtype:attempted-admin; sid:5206414; rev:1;)
+
+# --- CVE-2026-79959: Hard-coded Root Password in Botslab G980H (HIGH) ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H Hard-coded Root Credential Attempt via UART/Telnet"; flow:established,to_server; content:"root"; depth:30; content:"Login"; distance:0; nocase; reference:cve,CVE-2026-79959; reference:ghsa,GHSA-f3h4-c3cq-ch4g; classtype:attempted-admin; sid:5206415; rev:1;)
+
+# --- CVE-2026-14443: Brocade SANnav IPsec Key Exposure in Logs (HIGH) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Brocade SANnav IPsec Pre-shared Key Exposure in Logs - Data Exfiltration"; flow:established,to_server; content:"GET"; http_method; content:"log"; http_uri; content:"sannav"; http_uri; nocase; reference:cve,CVE-2026-14443; reference:ghsa,GHSA-985r-r2fq-jh5w; classtype:successful-recon-limited; sid:5206416; rev:1;)
+
+# --- CVE-2026-14442: Brocade SANnav Credential Exposure in Job Logs (MEDIUM) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Brocade SANnav Job Log - Plaintext Credentials Exposure"; flow:established,to_server; content:"POST"; http_method; content:"job"; http_uri; content:"sannav"; http_uri; nocase; content:"password"; http_client_body; nocase; reference:cve,CVE-2026-14442; reference:ghsa,GHSA-678q-3q5m-3p8x; classtype:successful-recon-limited; sid:5206417; rev:1;)
+
+# --- CVE-2026-86858: ServiceNow Improper Access Control (HIGH) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT ServiceNow Improper Access Control - Unauthorized API Access"; flow:established,to_server; content:"GET"; http_method; content:"/api/now/"; http_uri; content:"sysparm_display_value"; http_uri; reference:cve,CVE-2026-86858; reference:ghsa,GHSA-g4fh-c3m5-g3pg; classtype:attempted-admin; sid:5206418; rev:1;)
+
+# --- CVE-2026-86857: ServiceNow Authorization Bypass (HIGH) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT ServiceNow Authorization Bypass - Privilege Escalation via ACL Manipulation"; flow:established,to_server; content:"PUT"; http_method; content:"/api/now/"; http_uri; content:"sysparm_query"; http_uri; content:"sys_class_name"; http_uri; reference:cve,CVE-2026-86857; reference:ghsa,GHSA-3g9f-q9vc-qffh; classtype:attempted-admin; sid:5206419; rev:1;)
+
+# --- CVE-2026-86859: ServiceNow Authorization Bypass Variant (HIGH) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT ServiceNow Authorization Bypass - Cross-Scope Access Attempt"; flow:established,to_server; content:"POST"; http_method; content:"/api/now/"; http_uri; content:"sysparm_exclude_reference_link"; http_uri; reference:cve,CVE-2026-86859; reference:ghsa,GHSA-hv69-7jxx-r484; classtype:attempted-admin; sid:5206420; rev:1;)
+
+# --- CVE-2026-81473: Dell RCC Improper Authorization Privilege Escalation (HIGH) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Dell Rugged Control Center - Privilege Escalation via Improper Authorization"; flow:established,to_server; content:"POST"; http_method; content:"RCC"; http_header; content:"dell"; http_header; nocase; content:"privilege"; http_client_body; nocase; reference:cve,CVE-2026-81473; reference:ghsa,GHSA-rpjr-64ph-wqh3; classtype:attempted-admin; sid:5206421; rev:1;)
+
+# --- CVE-2026-82157: Dell ThinOS Improper Certificate Validation (HIGH) ---
+alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Dell ThinOS Certificate Validation Bypass - Suspicious TLS"; tls.sni; content:"dell"; nocase; reference:cve,CVE-2026-82157; reference:ghsa,GHSA-hxc4-7759-8jq5; classtype:trojan-activity; sid:5206422; rev:1;)
+
+# --- CVE-2026-82585: Botslab G980H Cleartext HTTP/RTSP Data Exfiltration (HIGH) ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Botslab G980H Cleartext Sensitive Data Over HTTP"; flow:established,to_server; content:"GET"; http_method; content:"/DCIM/"; http_uri; nocase; content:"recording"; http_uri; nocase; reference:cve,CVE-2026-82585; reference:ghsa,GHSA-mrfq-pqvw-wjqq; classtype:successful-recon-limited; sid:5206423; rev:1;)
+
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Botslab G980H RTSP Cleartext Stream Access"; flow:established,to_server; content:"DESCRIBE"; depth:10; content:"rtsp://"; nocase; reference:cve,CVE-2026-82585; reference:ghsa,GHSA-mrfq-pqvw-wjqq; classtype:successful-recon-limited; sid:5206424; rev:1;)
+
+# --- CVE-2026-97326: Chat Server SSRF (MEDIUM, CVSS 7.3) ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Chat Server SSRF - Server-Side Request Forgery"; flow:established,to_server; content:"POST"; http_method; content:"url"; http_client_body; content:"http://"; http_client_body; nocase; pcre:"/url.*(?:127\.0\.0\.|10\.|172\.(?:1[6-9]|2[0-9]|3[01])\.|192\.168\.)/i"; reference:cve,CVE-2026-97326; reference:ghsa,GHSA-8f9p-xx8m-68xp; classtype:attempted-recon; sid:5206425; rev:1;)
+
+# --- CVE-2026-97368: SpringBlade Authorization Bypass (LOW, CVSS 6.3) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT SpringBlade Authorization Bypass - UserInfo Endpoint Access"; flow:established,to_server; content:"GET"; http_method; content:"/user/info"; http_uri; content:"userId"; http_uri; reference:cve,CVE-2026-97368; reference:ghsa,GHSA-jqj9-fcwr-6f5x; classtype:attempted-admin; sid:5206426; rev:1;)
+
+# --- CVE-2026-97325: ruoyi-vue-pro Open Redirect (LOW) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT ruoyi-vue-pro OAuth Open Redirect"; flow:established,to_server; content:"GET"; http_method; content:"redirect_uri"; http_uri; content:"http"; http_uri; pcre:"/redirect_uri.*%3a%2f%2f(?!.*\.example\.)/Ui"; reference:cve,CVE-2026-97325; reference:ghsa,GHSA-g4j9-5c7x-m38w; classtype:attempted-admin; sid:5206427; rev:1;)
+
+# --- CVE-2026-97324: ruoyi-vue-pro Improper Authorization (MEDIUM) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT ruoyi-vue-pro Payment Callback Improper Authorization"; flow:established,to_server; content:"POST"; http_method; content:"/pay/demo-order"; http_uri; content:"paid"; http_uri; reference:cve,CVE-2026-97324; reference:ghsa,GHSA-7jr8-533f-pxgg; classtype:attempted-admin; sid:5206428; rev:1;)
+
+# --- CVE-2026-97321: ruoyi-vue-pro SQL Injection (LOW) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT ruoyi-vue-pro GoView SQL Injection"; flow:established,to_server; content:"POST"; http_method; content:"/goview/data"; http_uri; content:"sql"; http_client_body; nocase; content:"SELECT"; http_client_body; nocase; reference:cve,CVE-2026-97321; reference:ghsa,GHSA-286g-p8ff-85fj; classtype:attempted-sqli; sid:5206429; rev:1;)
+
+# --- CVE-2026-93353: copyparty SFTP Volume Restriction Bypass (MEDIUM) ---
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT copyparty SFTP Volume Restriction Bypass - Directory Traversal"; flow:established,to_server; content:"SFTP"; nocase; content:"../"; distance:0; reference:cve,CVE-2026-93353; reference:ghsa,GHSA-3465-46r4-pj75; classtype:attempted-recon; sid:5206430; rev:1;)
+
+# --- CVE-2026-87118: Botslab G980H Out-of-Bounds Write (MEDIUM) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H Out-of-Bounds Write in Command Processing"; flow:established,to_server; content:"POST"; http_method; content:"command"; http_uri; content:"data"; http_client_body; pcre:"/data.{50,}/"; reference:cve,CVE-2026-87118; reference:ghsa,GHSA-cf7c-rf68-qh4g; classtype:attempted-dos; sid:5206431; rev:1;)
+
+# --- CVE-2026-84403: Botslab G980H BLE Unauthenticated Access (MEDIUM) ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H BLE Unauthenticated GATT Access - WiFi Credential Theft"; flow:established,to_server; content:"READ"; depth:4; content:"wifi"; nocase; distance:0; reference:cve,CVE-2026-84403; reference:ghsa,GHSA-3h8g-whmq-fxr3; classtype:attempted-admin; sid:5206432; rev:1;)
+
+# --- CVE-2026-75558: Botslab G980H Hard-coded Crypto Key (MEDIUM) ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H Hard-coded Crypto Key - WiFi Credential Recovery"; flow:established,to_server; content:"AES"; nocase; content:"key"; nocase; content:"WiFi"; nocase; reference:cve,CVE-2026-75558; reference:ghsa,GHSA-26fw-w27q-phjj; classtype:attempted-admin; sid:5206433; rev:1;)
+
+# --- CVE-2026-82716: Botslab G980H Diagnostic Log Exposure (MEDIUM) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H Diagnostic Log Access - WiFi Credential Exposure"; flow:established,to_server; content:"GET"; http_method; content:"log"; http_uri; content:"diagnostic"; http_uri; nocase; reference:cve,CVE-2026-82716; reference:ghsa,GHSA-43w5-g724-88w6; classtype:attempted-recon; sid:5206434; rev:1;)
+
+# --- CVE-2026-88388: Espruino Stack Buffer Overflow (UNKNOWN) ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Espruino JavaScript Stack Buffer Overflow via Error Handler"; flow:established,to_server; content:"Error"; nocase; content:"stack"; nocase; pcre:"/(?:throw|catch).*[\x00-\x1f]{10,}/i"; reference:cve,CVE-2026-88388; reference:ghsa,GHSA-c28p-5mg4-7q2w; classtype:attempted-admin; sid:5206435; rev:1;)
+
+# --- CVE-2026-88387: LibRaw Integer Conversion in TIFF (UNKNOWN) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT LibRaw TIFF NewSubfileType Integer Overflow"; flow:established,to_server; content:"PUT"; http_method; content:".tiff"; http_uri; nocase; content:"II"; depth:2; content:"fe00"; distance:0; reference:cve,CVE-2026-88387; reference:ghsa,GHSA-6cg8-27q5-77wx; classtype:attempted-dos; sid:5206436; rev:1;)
+
+# --- CVE-2026-97366: react-native-debugger OS Command Injection (LOW) ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT React Native Debugger OS Command Injection via openDevTools"; flow:established,to_server; content:"POST"; http_method; content:"devtools"; http_uri; content:"host"; http_client_body; pcre:"/host[\"']?\s*[:=]\s*[\"']?(?:[;`|]|%3B|%60|%7C)/i"; reference:cve,CVE-2026-97366; reference:ghsa,GHSA-fqjr-2wgv-xw6r; classtype:attempted-admin; sid:5206437; rev:1;)
+
+# --- CVE-2026-88386: libsndfile Misaligned Memory Access in WAV (UNKNOWN) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT libsndfile Misaligned Memory Access in WAV FMT Chunk"; flow:established,to_server; content:"PUT"; http_method; content:".wav"; http_uri; nocase; content:"RIFF"; depth:4; content:"WAVE"; distance:4; reference:cve,CVE-2026-88386; reference:ghsa,GHSA-x44m-83p2-j4h6; classtype:attempted-dos; sid:5206438; rev:1;)
+
+# --- CVE-2026-97365: littrs Path Traversal (LOW) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT littrs Path Traversal via Sandbox Mount"; flow:established,to_server; content:"POST"; http_method; content:"mount"; http_uri; content:".."; http_client_body; reference:cve,CVE-2026-97365; reference:ghsa,GHSA-pmh4-7cvf-mhhx; classtype:attempted-recon; sid:5206439; rev:1;)
+
+# --- CVE-2026-14441: Java Cache Key Improper Comparison (MEDIUM) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Java Cache Key Logic Flaw - Identity Mismatch Exploitation"; flow:established,to_server; content:"POST"; http_method; content:"cache"; http_uri; content:"equals"; http_client_body; nocase; content:"hashCode"; http_client_body; nocase; reference:cve,CVE-2026-14441; reference:ghsa,GHSA-6r5r-vffw-f5h8; classtype:attempted-admin; sid:5206440; rev:1;)
+
+# --- CVE-2026-85496: Botslab G980H Predictable Session ID (HIGH) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H Predictable Session Identifier - Sequential Session Guessing"; flow:established,to_server; content:"GET"; http_method; content:"session"; http_uri; nocase; pcre:"/session_id[=:]\d{4,6}$/mi"; reference:cve,CVE-2026-85496; reference:ghsa,GHSA-vpm9-3wq4-5rch; classtype:attempted-admin; sid:5206441; rev:1;)
+
+# --- CVE-2026-88956: Botslab G980H Root Authentication Bypass (HIGH) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H Root Authentication Bypass"; flow:established,to_server; content:"GET"; http_method; content:"login"; http_uri; content:"root"; http_uri; nocase; reference:cve,CVE-2026-88956; reference:ghsa,GHSA-6cwf-vr63-mfc3; classtype:attempted-admin; sid:5206442; rev:1;)
+
+# --- CVE-2026-82372: Brocade SANnav IPsec Sensitive Data Exposure (HIGH) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Brocade SANnav IPsec Sensitive Data Exposure - Policy Creation"; flow:established,to_server; content:"POST"; http_method; content:"ipsec"; http_uri; content:"policy"; http_uri; content:"psk"; http_client_body; nocase; reference:cve,CVE-2026-82372; reference:ghsa,GHSA-f78x-x62p-g24f; classtype:successful-recon-limited; sid:5206443; rev:1;)
+
+# --- CVE-2026-82566: Botslab G980H Session Management Vulnerability (HIGH) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H Session Fixation and Management Bypass"; flow:established,to_server; content:"POST"; http_method; content:"session"; http_uri; content:"Set-Cookie"; http_header; reference:cve,CVE-2026-82566; reference:ghsa,GHSA-2p59-278w-33v4; classtype:attempted-admin; sid:5206444; rev:1;)
+
+# --- CVE-2026-77967: Botslab G980H Insufficient Authentication Token Validation (HIGH) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H Reusable Authentication Token Without Expiration"; flow:established,to_server; content:"GET"; http_uri; content:"token="; http_uri; pcre:"/token=[A-Za-z0-9]{8,16}[^&]*$/"; reference:cve,CVE-2026-77967; reference:ghsa,GHSA-vf9h-pg8f-h64m; classtype:attempted-admin; sid:5206445; rev:1;)
+
+# --- CVE-2026-84399: Botslab G980H Session Authorization Vulnerability (HIGH) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H Authorization Bypass via Session Manipulation"; flow:established,to_server; content:"GET"; http_method; content:"api"; http_uri; content:"session"; http_uri; nocase; content:"auth"; http_uri; nocase; reference:cve,CVE-2026-84399; reference:ghsa,GHSA-gf75-9hpg-2f97; classtype:attempted-admin; sid:5206446; rev:1;)
+
+# --- CVE-2026-82371: Brocade SANnav Plaintext Auth Data Exposure (HIGH) ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Brocade SANnav Discovery Plaintext Authentication Data Exposure"; flow:established,to_server; content:"GET"; http_method; content:"discovery"; http_uri; content:"log"; http_uri; content:"password"; http_client_body; nocase; reference:cve,CVE-2026-82371; reference:ghsa,GHSA-xxcx-x8pw-23q4; classtype:successful-recon-limited; sid:5206447; rev:1;)
+
+# --- CVE-2026-89325: Rapid7 Insight Agent Uncontrolled Search Path (HIGH) ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Rapid7 Insight Agent Uncontrolled Search Path - DLL Hijacking"; flow:established,to_server; content:"GET"; http_method; content:".dll"; http_uri; content:"insight"; http_uri; nocase; reference:cve,CVE-2026-89325; reference:ghsa,GHSA-6xgf-5p76-74xj; classtype:attempted-admin; sid:5206448; rev:1;)
+
+# --- CVE-2026-88761: Botslab G980H Predictable WiFi Password Generation (MEDIUM) ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Botslab G980H Predictable WiFi Password Brute Force"; flow:established,to_server; content:"POST"; http_method; content:"wifi"; http_uri; nocase; content:"password"; http_client_body; nocase; reference:cve,CVE-2026-88761; reference:ghsa,GHSA-5x9v-2jcx-698h; classtype:attempted-admin; sid:5206449; rev:1;)
+
+# --- MITRE ATT&CK T1059.001: PowerShell Execution ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE PowerShell Download and Execute Pattern"; flow:established,to_server; content:"GET"; http_method; pcre:"/\/[a-zA-Z0-9_\-]+\.(?:ps1|bat|cmd)/Ui"; content:"powershell"; http_header; nocase; reference:url,attack.mitre.org/techniques/T1059/001; classtype:trojan-activity; sid:5206450; rev:1;)
+
+# --- MITRE ATT&CK T1071.001: Application Layer Protocol - Web ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Beacon Pattern - Repeated HTTP to Suspicious TLD"; flow:established,to_server; content:"GET"; http_method; threshold:type both, track by_src, count 20, seconds 60; reference:url,attack.mitre.org/techniques/T1071/001; classtype:trojan-activity; sid:5206451; rev:1;)
+
+# --- MITRE ATT&CK T1053.005: Scheduled Task ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Remote Scheduled Task Creation via HTTP"; flow:established,to_server; content:"POST"; http_method; content:"/api/tasks"; http_uri; content:"schtasks"; http_client_body; nocase; reference:url,attack.mitre.org/techniques/T1053/005; classtype:attempted-admin; sid:5206452; rev:1;)
+
+# --- MITRE ATT&CK T1021.001: Remote Services - RDP ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"ET ATTACK_RESPONSE RDP Brute Force - Multiple Failed Login Attempts"; flow:established,to_server; threshold:type both, track by_src, count 10, seconds 60; reference:url,attack.mitre.org/techniques/T1021/001; classtype:attempted-admin; sid:5206453; rev:1;)
+
+# --- MITRE ATT&CK T1110.003: Password Spraying ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Password Spraying Attempt - Multiple Users Single Password"; flow:established,to_server; content:"POST"; http_method; content:"login"; http_uri; threshold:type both, track by_src, count 15, seconds 300; reference:url,attack.mitre.org/techniques/T1110/003; classtype:attempted-admin; sid:5206454; rev:1;)
+
+# --- MITRE ATT&CK T1566.001: Phishing Spearphishing Attachment ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET PHISHING Macro-Enabled Document Download from Suspicious Source"; flow:established,to_server; content:"GET"; http_method; content:".docm"; http_uri; reference:url,attack.mitre.org/techniques/T1566/001; classtype:trojan-activity; sid:5206455; rev:1;)
+
+# --- MITRE ATT&CK T1190: Exploit Public-Facing Application ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Public-Facing App Exploit - WebLogic Unauthorized Access"; flow:established,to_server; content:"GET"; http_method; content:"/console"; http_uri; content:"wls"; http_uri; nocase; reference:url,attack.mitre.org/techniques/T1190; classtype:attempted-admin; sid:5206456; rev:1;)
+
+# --- MITRE ATT&CK T1133: External Remote Services ---
+alert tls $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Suspicious VPN Connection from Unusual Region"; tls.sni; content:"vpn"; nocase; reference:url,attack.mitre.org/techniques/T1133; classtype:trojan-activity; sid:5206457; rev:1;)
+
+# --- MITRE ATT&CK T1078: Valid Accounts ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Valid Account Usage from Anomalous Source - Service Account"; flow:established,to_server; content:"POST"; http_method; content:"login"; http_uri; content:"service"; http_client_body; nocase; content:"svc_"; http_client_body; nocase; reference:url,attack.mitre.org/techniques/T1078; classtype:attempted-admin; sid:5206458; rev:1;)
+
+# --- MITRE ATT&CK T1070.004: Indicator Removal - File Deletion ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Mass File Deletion via Web Shell - IOC"; flow:established,to_server; content:"POST"; http_method; content:"rm"; http_client_body; content:"-rf"; http_client_body; reference:url,attack.mitre.org/techniques/T1070/004; classtype:trojan-activity; sid:5206459; rev:1;)
+
+# --- MITRE ATT&CK T1005: Data from Local System ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Data Exfiltration via HTTP - Large Archive Upload"; flow:established,to_server; content:"PUT"; http_method; content:"Content-Type"; http_header; content:"application/zip"; http_header; dsize:>1048576; reference:url,attack.mitre.org/techniques/T1005; classtype:trojan-activity; sid:5206460; rev:1;)
+
+# --- MITRE ATT&CK T1048: Exfiltration Over Alternative Protocol ---
+alert dns $HOME_NET any -> any any (msg:"ET ATTACK_RESPONSE DNS Exfiltration - High Volume TXT Record Queries"; dns.query; content:"txt"; nocase; threshold:type both, track by_src, count 50, seconds 60; reference:url,attack.mitre.org/techniques/T1048; classtype:trojan-activity; sid:5206461; rev:1;)
+
+# --- MITRE ATT&CK T1486: Data Encrypted for Impact ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Ransomware Activity - Mass File Encryption Indicators"; flow:established,to_server; content:"POST"; http_method; content:"encrypt"; http_client_body; nocase; content:".locked"; http_uri; reference:url,attack.mitre.org/techniques/T1486; classtype:trojan-activity; sid:5206462; rev:1;)
+
+# --- MITRE ATT&CK T1562.001: Impair Defenses - Disable Security Tools ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Security Tool Disabling Attempt - Endpoint Protection Bypass"; flow:established,to_server; content:"POST"; http_method; content:"disable"; http_client_body; content:"defender"; http_client_body; nocase; reference:url,attack.mitre.org/techniques/T1562/001; classtype:attempted-admin; sid:5206463; rev:1;)
+
+# --- MITRE ATT&CK T1548: Abuse Elevation Control Mechanism ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Privilege Escalation - Sudo Exploitation via Web Interface"; flow:established,to_server; content:"POST"; http_method; content:"sudo"; http_client_body; nocase; content:"NOPASSWD"; http_client_body; reference:url,attack.mitre.org/techniques/T1548; classtype:attempted-admin; sid:5206464; rev:1;)
+
+# --- MITRE ATT&CK T1087: Account Discovery ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Account Discovery - LDAP Enumeration of Active Directory"; flow:established,to_server; content:"GET"; http_method; content:"/ldap"; http_uri; content:"objectClass"; http_uri; content:"user"; http_uri; reference:url,attack.mitre.org/techniques/T1087; classtype:attempted-recon; sid:5206465; rev:1;)
+
+# --- MITRE ATT&CK T1046: Network Service Discovery ---
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Network Service Scanning - Rapid Connection Attempts"; flags:S; threshold:type both, track by_src, count 30, seconds 10; reference:url,attack.mitre.org/techniques/T1046; classtype:attempted-recon; sid:5206466; rev:1;)
+
+# --- MITRE ATT&CK T1056.001: Keylogging ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Keylogger Data Exfiltration - Keystroke Data Pattern"; flow:established,to_server; content:"POST"; http_method; content:"keylog"; http_uri; nocase; content:"keystroke"; http_client_body; nocase; reference:url,attack.mitre.org/techniques/T1056/001; classtype:trojan-activity; sid:5206467; rev:1;)
+
+# --- MITRE ATT&CK T1071.004: DNS ---
+alert dns $HOME_NET any -> any any (msg:"ET ATTACK_RESPONSE DNS Tunneling - High Volume Subdomain Queries"; dns.query; threshold:type both, track by_src, count 100, seconds 60; reference:url,attack.mitre.org/techniques/T1071/004; classtype:trojan-activity; sid:5206468; rev:1;)
+
+# --- MITRE ATT&CK T1098: Account Manipulation ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Account Manipulation - Privilege Escalation via API"; flow:established,to_server; content:"PATCH"; http_method; content:"/api/users/"; http_uri; content:"role"; http_client_body; content:"admin"; http_client_body; nocase; reference:url,attack.mitre.org/techniques/T1098; classtype:attempted-admin; sid:5206469; rev:1;)
+
+# --- MITRE ATT&CK T1059.003: Windows Command Shell ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Command Shell Execution via Web - cmd.exe Pattern"; flow:established,to_server; content:"POST"; http_method; content:"cmd.exe"; http_client_body; nocase; reference:url,attack.mitre.org/techniques/T1059/003; classtype:attempted-admin; sid:5206470; rev:1;)
+
+# --- MITRE ATT&CK T1105: Ingress Tool Transfer ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Ingress Tool Transfer - Suspicious Binary Download"; flow:established,to_server; content:"GET"; http_method; pcre:"/\.(?:exe|dll|ps1|vbs|bat|sh)\s/i"; reference:url,attack.mitre.org/techniques/T1105; classtype:trojan-activity; sid:5206471; rev:1;)
+
+# --- MITRE ATT&CK T1070.001: Clear Windows Event Logs ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Windows Event Log Clearing via Remote API"; flow:established,to_server; content:"POST"; http_method; content:"cleareventlog"; http_uri; nocase; reference:url,attack.mitre.org/techniques/T1070/001; classtype:attempted-admin; sid:5206472; rev:1;)
+
+# --- MITRE ATT&CK T1036: Masquerading ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Masquerading - System Process Name from Non-Standard Path"; flow:established,to_server; content:"GET"; http_method; content:"svchost"; http_uri; content:"temp"; http_uri; nocase; reference:url,attack.mitre.org/techniques/T1036; classtype:trojan-activity; sid:5206473; rev:1;)
+
+# --- MITRE ATT&CK T1218: System Binary Proxy Execution ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT System Binary Proxy Execution - mshta.exe Downloading Remote Script"; flow:established,to_server; content:"GET"; http_method; content:"mshta"; http_uri; nocase; reference:url,attack.mitre.org/techniques/T1218; classtype:trojan-activity; sid:5206474; rev:1;)
+
+# --- MITRE ATT&CK T1555: Credentials from Password Stores ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Credential Harvesting - Browser Password Extraction Pattern"; flow:established,to_server; content:"POST"; http_method; content:"password"; http_client_body; content:"browser"; http_client_body; content:"cookie"; http_client_body; reference:url,attack.mitre.org/techniques/T1555; classtype:trojan-activity; sid:5206475; rev:1;)
+
+# --- MITRE ATT&CK T1003: OS Credential Dumping ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT LSASS Memory Dump Attempt via Procdump"; flow:established,to_server; content:"POST"; http_method; content:"procdump"; http_client_body; content:"lsass"; http_client_body; nocase; reference:url,attack.mitre.org/techniques/T1003; classtype:attempted-admin; sid:5206476; rev:1;)
+
+# --- MITRE ATT&CK T1134: Access Token Manipulation ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Token Impersonation - RunAs with Stolen Token via Web Interface"; flow:established,to_server; content:"POST"; http_method; content:"runas"; http_client_body; content:"token"; http_client_body; nocase; reference:url,attack.mitre.org/techniques/T1134; classtype:attempted-admin; sid:5206477; rev:1;)
+
+# --- MITRE ATT&CK T1055: Process Injection ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Process Injection via Web Shell - CreateRemoteThread Pattern"; flow:established,to_server; content:"POST"; http_method; content:"VirtualAllocEx"; http_client_body; content:"CreateRemoteThread"; http_client_body; reference:url,attack.mitre.org/techniques/T1055; classtype:attempted-admin; sid:5206478; rev:1;)
+
+# --- MITRE ATT&CK T1574.001: DLL Search Order Hijacking ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT DLL Search Order Hijacking - Malicious DLL Download"; flow:established,to_server; content:"GET"; http_method; content:"version.dll"; http_uri; reference:url,attack.mitre.org/techniques/T1574/001; classtype:trojan-activity; sid:5206479; rev:1;)
+
+# --- MITRE ATT&CK T1552.001: Unsecured Credentials in Files ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Credentials in Configuration File Exfiltration"; flow:established,to_server; content:"GET"; http_method; pcre:"/\.(?:ini|conf|cfg|yaml|yml|env|xml)/i"; content:"password"; http_uri; nocase; reference:url,attack.mitre.org/techniques/T1552/001; classtype:trojan-activity; sid:5206480; rev:1;)
+
+# --- MITRE ATT&CK T1562.004: Disable or Modify System Firewall ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT Firewall Rule Modification via Web API"; flow:established,to_server; content:"PUT"; http_method; content:"firewall"; http_uri; content:"disable"; http_client_body; nocase; reference:url,attack.mitre.org/techniques/T1562/004; classtype:attempted-admin; sid:5206481; rev:1;)
+
+# --- MITRE ATT&CK T1059.004: Bash ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Reverse Shell via Bash - Command Injection Web Payload"; flow:established,to_server; content:"POST"; http_method; pcre:"/bash\s+-i\s+>&\s*\/dev\/tcp/i"; reference:url,attack.mitre.org/techniques/T1059/004; classtype:attempted-admin; sid:5206482; rev:1;)
+
+# --- MITRE ATT&CK T1070.006: Timestomp ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Timestomp Activity - File Modification Time Manipulation via API"; flow:established,to_server; content:"PATCH"; http_method; content:"touch"; http_uri; content:"timestamp"; http_client_body; reference:url,attack.mitre.org/techniques/T1070/006; classtype:trojan-activity; sid:5206483; rev:1;)
+
+# --- MITRE ATT&CK T1069: Permission Groups Discovery ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Permission Groups Discovery - LDAP Group Enumeration"; flow:established,to_server; content:"GET"; http_method; content:"memberOf"; http_uri; content:"group"; http_uri; reference:url,attack.mitre.org/techniques/T1069; classtype:attempted-recon; sid:5206484; rev:1;)
+
+# --- MITRE ATT&CK T1083: File and Directory Discovery ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE File Discovery - Recursive Directory Listing via Web Shell"; flow:established,to_server; content:"GET"; http_method; content:"dir"; http_uri; content:"recursive"; http_uri; reference:url,attack.mitre.org/techniques/T1083; classtype:attempted-recon; sid:5206485; rev:1;)
+
+# --- MITRE ATT&CK T1620: Reflective Code Loading ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Reflective Code Loading - Shellcode Pattern in HTTP"; flow:established,to_server; content:"POST"; http_method; content:"base64"; http_client_body; content:"eval"; http_client_body; content:"ReflectiveLoader"; http_client_body; reference:url,attack.mitre.org/techniques/T1620; classtype:trojan-activity; sid:5206486; rev:1;)
+
+# --- MITRE ATT&CK T1498: Network Denial of Service ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET DOS HTTP Flood Attack - Rapid Repeated Requests"; flow:established,to_server; content:"GET"; http_method; threshold:type both, track by_src, count 100, seconds 10; reference:url,attack.mitre.org/techniques/T1498; classtype:attempted-dos; sid:5206487; rev:1;)
+
+# --- MITRE ATT&CK T1490: Inhibit System Recovery ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE System Recovery Inhibition - VSS Delete via Web Shell"; flow:established,to_server; content:"POST"; http_method; content:"vssadmin"; http_client_body; content:"delete"; http_client_body; content:"shadows"; http_client_body; reference:url,attack.mitre.org/techniques/T1490; classtype:trojan-activity; sid:5206488; rev:1;)
+
+# --- MITRE ATT&CK T1027: Obfuscated Files ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Obfuscated Payload Delivery - Base64 Encoded Executable"; flow:established,to_server; content:"POST"; http_method; content:"Content-Transfer-Encoding"; http_header; content:"base64"; http_header; pcre:"/[A-Za-z0-9+\/]{500,}={0,2}/"; reference:url,attack.mitre.org/techniques/T1027; classtype:trojan-activity; sid:5206489; rev:1;)
+
+# --- MITRE ATT&CK T1078.002: Domain Accounts ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET EXPLOIT Domain Account Abuse - Admin Service Account Login from Unusual IP"; flow:established,to_server; content:"POST"; http_method; content:"login"; http_uri; content:"DOMAIN"; http_client_body; content:"admin$"; http_client_body; reference:url,attack.mitre.org/techniques/T1078/002; classtype:attempted-admin; sid:5206490; rev:1;)
+
+# --- CVE-2026-89325: Rapid7 Insight Agent DLL Search Order (HIGH) ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Rapid7 Insight Agent DLL Search Order Hijacking"; flow:established,to_server; content:"GET"; http_method; content:".dll"; http_uri; content:"Rapid7"; http_header; nocase; reference:cve,CVE-2026-89325; reference:ghsa,GHSA-6xgf-5p76-74xj; classtype:attempted-admin; sid:5206491; rev:1;)
+
+# --- CVE-2026-93353: copyparty SFTP Volume Bypass (MEDIUM) ---
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"ET EXPLOIT copyparty SFTP Path Traversal - SSH_FXP_SETSTAT"; flow:established,to_server; content:"SETSTAT"; distance:0; content:"../"; distance:0; reference:cve,CVE-2026-93353; reference:ghsa,GHSA-3465-46r4-pj75; classtype:attempted-recon; sid:5206492; rev:1;)
+
+# --- MITRE ATT&CK T1569.002: System Services - SMB ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET 445 (msg:"ET ATTACK_RESPONSE SMB Outbound Connection to External Host - Lateral Movement Indicator"; flow:established,to_server; content:"\xffSMB"; reference:url,attack.mitre.org/techniques/T1569/002; classtype:trojan-activity; sid:5206493; rev:1;)
+
+# --- MITRE ATT&CK T1040: Network Sniffing ---
+alert http $HOME_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE Network Sniffing Tool Download - Tcpdump/Wireshark"; flow:established,to_server; content:"GET"; http_method; content:"tcpdump"; http_uri; nocase; reference:url,attack.mitre.org/techniques/T1040; classtype:trojan-activity; sid:5206494; rev:1;)
+
+# --- MITRE ATT&CK T1018: Remote System Discovery ---
+alert dns $HOME_NET any -> any any (msg:"ET ATTACK_RESPONSE Remote System Discovery via DNS - ARP Scan Pattern"; dns.query; content:"local"; nocase; threshold:type both, track by_src, count 50, seconds 30; reference:url,attack.mitre.org/techniques/T1018; classtype:attempted-recon; sid:5206495; rev:1;)
+
+# --- MITRE ATT&CK T1082: System Information Discovery ---
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"ET ATTACK_RESPONSE System Information Discovery via API Endpoint"; flow:established,to_server; content:"GET"; http_method; content:"/api/system"; http_uri; content:"info"; http_uri; reference:url,attack.mitre.org/techniques/T1082; classtype:attempted-recon; sid:5206496; rev:1;)
+
+# --- MITRE ATT&CK T1129: Shared Modules ---
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Malicious Shared Module Download - Rundll32 Loading Remote DLL"; flow:established,to_server; content:"GET"; http_method; content:".dll"; http_uri; content:"rundll32"; http_referer; reference:url,attack.mitre.org/techniques/T1129; classtype:trojan-activity; sid:5206497; rev:1;)
+
+# --- MITRE ATT&CK T1573: Encrypted Channel ---
+alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"ET ATTACK_RESPONSE Encrypted C2 Channel - Suspicious Self-Signed Certificate"; tls.cert_subject; content:"CN="; content:"Self-Signed"; nocase; reference:url,attack.mitre.org/techniques/T1573; classtype:trojan-activity; sid:5206498; rev:1;)
+
+# --- CVE-2026-82157: Dell ThinOS Improper Certificate Validation (HIGH) ---
+alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"ET EXPLOIT Dell ThinOS TLS Certificate Validation Bypass - Expired Cert Accepted"; tls.cert_subject; content:"Dell"; nocase; threshold:type both, track by_src, count 1, seconds 300; reference:cve,CVE-2026-82157; reference:ghsa,GHSA-hxc4-7759-8jq5; classtype:trojan-activity; sid:5206499; rev:1;)
+
+# --- MITRE ATT&CK T1039: Data from Network Shared Drive ---
+alert tcp $HOME_NET any -> $EXTERNAL_NET 445 (msg:"ET ATTACK_RESPONSE SMB Data Exfiltration - Large File Transfer to External Share"; flow:established,to_server; content:"\xffSMB"; dsize:>5242880; reference:url,attack.mitre.org/techniques/T1039; classtype:trojan-activity; sid:5206500; rev:1;)

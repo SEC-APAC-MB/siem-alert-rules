@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-ssrf
-# Auto-generated: 2026-09-16T04:05:26.831397Z
+# Auto-generated: 2026-09-24T04:05:05.700836Z
 # Load in local.zeek: @load ./generated-ssrf
 
 signature ZK-SSRF-005 {
