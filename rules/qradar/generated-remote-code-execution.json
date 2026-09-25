@@ -1,7 +1,7 @@
 {
   "description": "SIEM alert rules \u2014 generated-remote-code-execution (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-16T04:05:25.501794Z",
+  "converted": "2026-09-24T04:05:05.558929Z",
   "total_rules": 17,
   "rules": [
     {
@@ -391,7 +391,7 @@
       "name": "CVE-2026-85706 \u2014 Community Edition and Enterprise Edition Exploitation",
       "description": "Detects exploitation attempts targeting CVE-2026-85706: GitLab Community Edition and Enterprise Edition contains a path traversal vulnerability that allows an unauthenticated user to read arbitrary files due to an improper path confinement and missing authentication enforcement in the repository commits API.. Product: Community Edition and Enterprise Edition",
       "severity": 5,
-      "severity_label": 9,
+      "severity_label": 5,
       "category": "remote-code-execution",
       "aql_query": "SELECT * FROM events WHERE (PAYLOAD LIKE '%powershell%-%enc%' OR PAYLOAD LIKE '%cmd.exe%' OR PAYLOAD LIKE '%bash%eval%') AND (PAYLOAD LIKE '%base64%' OR PAYLOAD LIKE '%-enc%' OR PAYLOAD LIKE '%eval%') LAST 15 MINUTES",
       "mitre_attack": [
@@ -418,8 +418,8 @@
       "rule_id": "QR-REMOTE-CODE-EXECUTION-014",
       "name": "CVE-2026-86218 \u2014 N-central Exploitation",
       "description": "Detects exploitation attempts targeting CVE-2026-86218: N-able N-central contains a static code injection vulnerability that could allow for pre-authentication remote code execution.. Product: N-central",
-      "severity": 9,
-      "severity_label": "critical",
+      "severity": 5,
+      "severity_label": 9,
       "category": "remote-code-execution",
       "aql_query": "SELECT USERNAME, SOURCE_IP, COUNT(*) AS failures FROM events WHERE EVENT_TYPE = 'Authentication' AND OUTCOME = 'FAILURE' GROUP BY USERNAME, SOURCE_IP HAVING COUNT(*) > 10 LAST 15 MINUTES",
       "mitre_attack": [
@@ -434,7 +434,7 @@
         "GDPR-32A"
       ],
       "credibility": 7,
-      "relevance": 9,
+      "relevance": 5,
       "tags": [
         "remote-code-execution",
         "cve",
@@ -446,8 +446,10 @@
       "rule_id": "QR-REMOTE-CODE-EXECUTION-002",
       "name": "CVE-2026-94127 \u2014 BIG-IP APM Exploitation",
       "description": "Detects exploitation attempts targeting CVE-2026-94127: F5 BIG-IP APM contains a heap-based buffer overflow vulnerability when access policy and an OAuth profile are configured on a virtual server. This vulnerability could allow an unauthenticated attacker to perform remote code execution.. Product: BIG-IP APM",
-      "severity": "critical",
+      "severity": 9,
+      "severity_label": "critical",
       "category": "remote-code-execution",
+      "aql_query": "SELECT * FROM events WHERE (PAYLOAD LIKE '%powershell%-%enc%' OR PAYLOAD LIKE '%cmd.exe%' OR PAYLOAD LIKE '%bash%eval%') AND (PAYLOAD LIKE '%base64%' OR PAYLOAD LIKE '%-enc%' OR PAYLOAD LIKE '%eval%') LAST 15 MINUTES",
       "mitre_attack": [
         "T1059",
         "T1190",
@@ -459,43 +461,14 @@
         "NIST-800-53-SI-4",
         "GDPR-32A"
       ],
-      "aql_query": "SELECT * FROM events WHERE (PAYLOAD LIKE '%powershell%-%enc%' OR PAYLOAD LIKE '%cmd.exe%' OR PAYLOAD LIKE '%bash%eval%') AND (PAYLOAD LIKE '%base64%' OR PAYLOAD LIKE '%-enc%' OR PAYLOAD LIKE '%eval%') LAST 15 MINUTES",
+      "credibility": 7,
+      "relevance": 9,
       "tags": [
         "remote-code-execution",
         "cve",
         "cve-2026-94127",
         "exploited"
-      ],
-      "response_workflow": {
-        "description": "Active exploitation of known CVE \u2014 immediate response required",
-        "triage": [
-          "Identify the affected system and verify the CVE applies (check version, patch level)",
-          "Check if the exploit attempt succeeded (review logs for follow-on activity)",
-          "Identify the source IP and check for other activity from that IP"
-        ],
-        "containment": [
-          "Isolate the affected system from the network if exploitation confirmed",
-          "Block the source IP at the firewall/WAF",
-          "Apply the vendor patch or mitigation if available",
-          "If no patch available, apply virtual patch at WAF/IPS"
-        ],
-        "eradication": [
-          "Scan the affected system for persistence mechanisms (scheduled tasks, services, webshells)",
-          "Review all changes made since the exploitation attempt",
-          "Remove any implanted backdoors or malware"
-        ],
-        "recovery": [
-          "Restore the system from a known-good backup if compromised",
-          "Verify system integrity (file hashes, service configurations)",
-          "Reconnect to network only after verification"
-        ],
-        "lessons_learned": [
-          "Document the timeline: detection \u2192 response \u2192 resolution",
-          "Assess if detection latency meets SLA",
-          "Update IOC feeds with source IP, user-agent, and payload signatures",
-          "Review if similar systems are vulnerable to the same CVE"
-        ]
-      }
+      ]
     }
   ]
 }
