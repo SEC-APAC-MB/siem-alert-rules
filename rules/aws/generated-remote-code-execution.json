@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-remote-code-execution (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-24T04:05:05.831307Z",
-  "total_rules": 17,
+  "converted": "2026-09-25T04:05:13.304000Z",
+  "total_rules": 19,
   "rules": [
     {
       "rule_id": "AWS-REMOTE-CODE-EXECUTION-003",
@@ -1045,6 +1045,133 @@
         "remote-code-execution",
         "cve",
         "cve-2026-94127",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-REMOTE-CODE-EXECUTION-006",
+      "name": "CVE-2026-85102 \u2014 Multiple Products Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-85102: Check Point Security Gateway and Check Point Spark Firewall using Site to Site VPN or Remote Access VPN contain an improper certificate validation vulnerability which could allow an unauthenticated remote attacker to execute arbitrary code on the Gateway.. Product: Multiple Products",
+      "severity": "critical",
+      "category": "remote-code-execution",
+      "mitre_attack": [
+        "T1059",
+        "T1190",
+        "T1078",
+        "T1133",
+        "T1110"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-85102\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202685102MultipleProductsExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-85102 \u2014 Multiple Products Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "remote-code-execution",
+        "cve",
+        "cve-2026-85102",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-REMOTE-CODE-EXECUTION-017",
+      "name": "CVE-2026-42018 \u2014 Artifactory Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-42018: JFrog Artifactory contains an improper authentication vulnerability that could return an internal anonymous-user token to an unauthenticated caller when anonymous access is disabled, potentially exposing sensitive resources.. Product: Artifactory",
+      "severity": "critical",
+      "category": "remote-code-execution",
+      "mitre_attack": [
+        "T1592",
+        "T1059",
+        "T1213",
+        "T1190",
+        "T1078",
+        "T1110"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-42018\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202642018ArtifactoryExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-42018 \u2014 Artifactory Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "remote-code-execution",
+        "cve",
+        "cve-2026-42018",
         "exploited"
       ]
     }
