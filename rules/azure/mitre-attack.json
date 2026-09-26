@@ -1,380 +1,410 @@
 {
-  "version": "1.0.0",
-  "generated": "2026-08-17",
-  "description": "Azure Monitor and Policy rules — mitre-attack",
+  "description": "SIEM alert rules — mitre-attack (converted)",
+  "version": "2.0.0",
+  "converted": "2026-09-26T04:05:06.255988Z",
   "total_rules": 15,
   "rules": [
     {
       "rule_id": "AZ-MITRE-T1190",
       "name": "Exploit Public-Facing Application",
       "description": "Detects exploitation of public-facing web applications, APIs, and services",
-      "severity": 0,
-      "query": "AzureDiagnostics | where Category contains 'initial_access' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT5M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 5,
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "general",
       "tactics": [
-        "T1190"
+        "Discovery"
       ],
+      "mitre_attack": [],
       "compliance": [
         "PCI-DSS-6.5",
         "NIST-SI-10"
       ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"exploit\" or Message contains \"public\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-MITRE-T1190",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
       "tags": [
         "mitre",
         "initial-access",
         "exploit",
         "web-application"
-      ],
-      "risk_score": 90
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1078",
       "name": "Valid Accounts Usage",
       "description": "Detects use of legitimate credentials for unauthorized access including default, compromised, and stolen accounts",
-      "severity": 1,
-      "query": "AzureDiagnostics | where Category contains 'defense_evasion' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT5M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 5,
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "general",
       "tactics": [
-        "T1078"
+        "Discovery"
       ],
+      "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5",
         "NIST-AC-3"
       ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"valid\" or Message contains \"accounts\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-MITRE-T1078",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
       "tags": [
         "mitre",
         "defense-evasion",
         "valid-accounts",
         "credential-abuse"
-      ],
-      "risk_score": 70
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1110",
       "name": "Brute Force Authentication",
       "description": "Detects brute force authentication attempts including password spraying and credential stuffing",
-      "severity": 1,
-      "query": "AzureDiagnostics | where Category contains 'credential_access' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT5M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 5,
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "general",
       "tactics": [
-        "T1110"
+        "Discovery"
       ],
+      "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5",
         "NIST-AC-7"
       ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"brute\" or Message contains \"force\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-MITRE-T1110",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
       "tags": [
         "mitre",
         "credential-access",
         "brute-force",
         "authentication"
-      ],
-      "risk_score": 70
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1059",
       "name": "Command and Scripting Interpreter",
       "description": "Detects malicious command/script execution including PowerShell, Bash, Python, and JavaScript",
-      "severity": 1,
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "general",
+      "tactics": [
+        "Discovery"
+      ],
+      "mitre_attack": [],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-SI-10"
+      ],
       "query": "AzureDiagnostics | where Category contains 'execution' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "T1059"
-      ],
-      "compliance": [
-        "PCI-DSS-6.5",
-        "NIST-SI-10"
-      ],
       "tags": [
         "mitre",
         "execution",
         "command-scripting",
         "rce"
-      ],
-      "risk_score": 70
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1486",
       "name": "Data Encrypted for Impact (Ransomware)",
       "description": "Detects mass file encryption activity consistent with ransomware operations",
-      "severity": 0,
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "general",
+      "tactics": [
+        "Discovery"
+      ],
+      "mitre_attack": [],
+      "compliance": [
+        "PCI-DSS-3.4",
+        "NIST-SC-28"
+      ],
       "query": "AzureDiagnostics | where Category contains 'impact' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "T1486"
-      ],
-      "compliance": [
-        "PCI-DSS-3.4",
-        "NIST-SC-28"
-      ],
       "tags": [
         "mitre",
         "impact",
         "ransomware",
         "encryption"
-      ],
-      "risk_score": 90
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1566",
       "name": "Phishing Link Click Detection",
       "description": "Detects clicks on known phishing URLs or suspicious links in email and messaging",
-      "severity": 1,
-      "query": "AzureDiagnostics | where Category contains 'initial_access' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT5M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 5,
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "general",
       "tactics": [
-        "T1566"
+        "Discovery"
       ],
+      "mitre_attack": [],
       "compliance": [
         "PCI-DSS-5.3",
         "NIST-AT-2"
       ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"phishing\" or Message contains \"link\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-MITRE-T1566",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
       "tags": [
         "mitre",
         "initial-access",
         "phishing",
         "social-engineering"
-      ],
-      "risk_score": 70
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1053",
       "name": "Scheduled Task/Job Creation",
       "description": "Detects suspicious scheduled task or cron job creation for persistence or execution",
       "severity": 2,
+      "severity_label": "Medium",
+      "category": "general",
+      "tactics": [
+        "Discovery"
+      ],
+      "mitre_attack": [],
+      "compliance": [
+        "NIST-CM-7"
+      ],
       "query": "AzureDiagnostics | where Category contains 'persistence' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "T1053"
-      ],
-      "compliance": [
-        "NIST-CM-7"
-      ],
       "tags": [
         "mitre",
         "persistence",
         "scheduled-task",
         "cron"
-      ],
-      "risk_score": 50
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1071",
       "name": "Application Layer Protocol Abuse (C2)",
       "description": "Detects suspicious use of HTTP, DNS, or other application protocols for C2 communication",
-      "severity": 1,
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "general",
+      "tactics": [
+        "Discovery"
+      ],
+      "mitre_attack": [],
+      "compliance": [
+        "PCI-DSS-1.3"
+      ],
       "query": "AzureDiagnostics | where Category contains 'command_and_control' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "T1071"
-      ],
-      "compliance": [
-        "PCI-DSS-1.3"
-      ],
       "tags": [
         "mitre",
         "command-and-control",
         "protocol-abuse",
         "c2"
-      ],
-      "risk_score": 70
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1562",
       "name": "Impair Defenses — Security Tool Disable",
       "description": "Detects attempts to disable or impair security tools including AV, EDR, and logging",
-      "severity": 0,
-      "query": "AzureDiagnostics | where Category contains 'defense_evasion' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT5M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 5,
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "general",
       "tactics": [
-        "T1562"
+        "Discovery"
       ],
+      "mitre_attack": [],
       "compliance": [
         "PCI-DSS-5.3",
         "NIST-SI-4"
       ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"impair\" or Message contains \"defenses\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-MITRE-T1562",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
       "tags": [
         "mitre",
         "defense-evasion",
         "impair-defenses",
         "security-tool"
-      ],
-      "risk_score": 90
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1087",
       "name": "Account Discovery",
       "description": "Detects account enumeration and discovery activity on domain controllers and directory services",
       "severity": 2,
-      "query": "AzureDiagnostics | where Category contains 'discovery' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
+      "severity_label": "Medium",
+      "category": "general",
+      "tactics": [
+        "Discovery"
+      ],
+      "mitre_attack": [],
+      "compliance": [
+        "NIST-AC-2"
+      ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"account\" or Message contains \"discovery\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-MITRE-T1087",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "T1087"
-      ],
-      "compliance": [
-        "NIST-AC-2"
-      ],
       "tags": [
         "mitre",
         "discovery",
         "account-discovery",
         "enumeration"
-      ],
-      "risk_score": 50
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1210",
       "name": "Exploitation of Remote Services",
       "description": "Detects exploitation of remote services including RDP, SSH, SMB, and database services",
-      "severity": 0,
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "general",
+      "tactics": [
+        "Discovery"
+      ],
+      "mitre_attack": [],
+      "compliance": [
+        "PCI-DSS-1.3",
+        "NIST-CM-7"
+      ],
       "query": "AzureDiagnostics | where Category contains 'lateral_movement' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "T1210"
-      ],
-      "compliance": [
-        "PCI-DSS-1.3",
-        "NIST-CM-7"
-      ],
       "tags": [
         "mitre",
         "lateral-movement",
         "remote-exploit",
         "exploitation"
-      ],
-      "risk_score": 90
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1055",
       "name": "Process Injection",
       "description": "Detects process injection techniques including DLL injection, process hollowing, and thread injection",
-      "severity": 1,
-      "query": "AzureDiagnostics | where Category contains 'defense_evasion' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT5M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 5,
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "general",
       "tactics": [
-        "T1055"
+        "Discovery"
       ],
+      "mitre_attack": [],
       "compliance": [
         "PCI-DSS-5.3",
         "NIST-SI-4"
       ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"process\" or Message contains \"injection\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-MITRE-T1055",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
       "tags": [
         "mitre",
         "defense-evasion",
         "process-injection",
         "evasion"
-      ],
-      "risk_score": 70
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1003",
       "name": "OS Credential Dumping",
       "description": "Detects credential dumping tools and techniques including Mimikatz, LSASS access, and /proc/*/mem",
-      "severity": 0,
-      "query": "AzureDiagnostics | where Category contains 'credential_access' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT5M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 5,
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "general",
       "tactics": [
-        "T1003"
+        "Discovery"
       ],
+      "mitre_attack": [],
       "compliance": [
         "PCI-DSS-8.5",
         "NIST-IA-5"
       ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"credential\" or Message contains \"dumping\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-MITRE-T1003",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
       "tags": [
         "mitre",
         "credential-access",
         "credential-dumping",
         "mimikatz"
-      ],
-      "risk_score": 90
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1046",
       "name": "Network Service Discovery",
       "description": "Detects network scanning and service enumeration including port scans and banner grabbing",
       "severity": 2,
-      "query": "AzureDiagnostics | where Category contains 'discovery' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
-      "queryFrequency": "PT5M",
-      "queryPeriod": "PT5M",
-      "triggerOperator": "GreaterThan",
-      "triggerThreshold": 5,
+      "severity_label": "Medium",
+      "category": "general",
       "tactics": [
-        "T1046"
+        "Discovery"
       ],
+      "mitre_attack": [],
       "compliance": [
         "PCI-DSS-1.3",
         "NIST-CM-7"
       ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message contains \"network\" or Message contains \"service\" | summarize count() by bin(TimeGenerated, 5m), Computer | where count_ > 5 // AZ-MITRE-T1046",
+      "queryFrequency": "PT5M",
+      "queryPeriod": "PT5M",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
       "tags": [
         "mitre",
         "discovery",
         "network-scan",
         "enumeration"
-      ],
-      "risk_score": 50
+      ]
     },
     {
       "rule_id": "AZ-MITRE-T1048",
       "name": "Exfiltration Over Alternative Protocol",
       "description": "Detects data exfiltration over non-standard protocols including DNS, ICMP, and HTTPS to unknown destinations",
-      "severity": 1,
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "general",
+      "tactics": [
+        "Discovery"
+      ],
+      "mitre_attack": [],
+      "compliance": [
+        "PCI-DSS-1.3",
+        "GDPR-25-008"
+      ],
       "query": "AzureDiagnostics | where Category contains 'exfiltration' | summarize count() by bin(TimeGenerated, 5m), resource_group | where count_ > 5",
       "queryFrequency": "PT5M",
       "queryPeriod": "PT5M",
       "triggerOperator": "GreaterThan",
       "triggerThreshold": 5,
-      "tactics": [
-        "T1048"
-      ],
-      "compliance": [
-        "PCI-DSS-1.3",
-        "GDPR-25-008"
-      ],
       "tags": [
         "mitre",
         "exfiltration",
         "alternative-protocol",
         "data-theft"
-      ],
-      "risk_score": 70
+      ]
     }
   ]
 }

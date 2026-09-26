@@ -84,4 +84,4 @@ deployments/baseline/
     └── deploy.sh                    # Deployment script
 ```
 
-Generated: 2026-09-25T04:05:13.672303+00:00
+Generated: 2026-09-26T04:05:06.664682+00:00
