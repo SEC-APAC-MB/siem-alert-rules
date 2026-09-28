@@ -1,0 +1,304 @@
+# Suricata Detection Rules - Generated 2026-09-28
+# Based on: GitHub Advisory Database CVEs (2026-08-27 to 2026-09-28)
+# MITRE ATT&CK techniques, current threat landscape
+# SIDs: 5208302 - 5208401
+
+# === CVE-2026-101090: Nezha OAuth2 Host Header Injection (CRITICAL, CVSS 9.8) ===
+alert http any any -> any any (msg:"CVE-2026-101090 Nezha OAuth2 Host Header Injection - forged Host header in redirect_uri"; flow:to_server,established; http.method; content:"GET"; http.uri; content:"/api/v1/oauth2/"; startswith; nocase; http.host; content:!"nezha.example.com"; pcre:"/Host:[^\r\n]+/Hi"; reference:cve,2026-101090; reference:url,https://github.com/advisories/GHSA-62gj-x2f3-j2wj; classtype:attempted-admin; sid:5208302; rev:1;)
+
+# === CVE-2026-101084: Obot MCP Connect Authorization Bypass (CRITICAL, CVSS 9.6) ===
+alert http any any -> any any (msg:"CVE-2026-101084 Obot /mcp-connect endpoint access control bypass attempt"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/mcp-connect"; startswith; nocase; http.request_body; content:"server_id"; nocase; reference:cve,2026-101084; reference:url,https://github.com/advisories/GHSA-g524-9c6h-8w7v; classtype:attempted-admin; sid:5208303; rev:1;)
+
+# === CVE-2026-101065: Obot Docker Quickstart Unauthenticated Admin (CRITICAL, CVSS 9.8) ===
+alert http any any -> any any (msg:"CVE-2026-101065 Obot unauthenticated admin access - no auth on 0.0.0.0:8080"; flow:to_server,established; http.uri; content:"/api/"; startswith; nocase; http.authorization; content:!"Bearer"; pcre:"/Host:[^\r\n]*:8080/Hi"; reference:cve,2026-101065; reference:url,https://github.com/advisories/GHSA-m95h-j2gj-xrgq; classtype:attempted-admin; sid:5208304; rev:1;)
+
+# === CVE-2026-88773: Citrix NetScaler HTTP Request Smuggling (CRITICAL) ===
+alert http any any -> any any (msg:"CVE-2026-88773 Citrix NetScaler HTTP Request Smuggling - CL.TE discrepancy"; flow:to_server,established; http.request_header; content:"Transfer-Encoding|3a| chunked"; nocase; http.request_header; content:"Content-Length|3a|"; nocase; pcre:"/Transfer-Encoding\s*:\s*chunked[\r\n]+Content-Length\s*:\s*\d+/Hi"; reference:cve,2026-88773; reference:url,https://github.com/advisories/GHSA-9x87-2c36-ffjf; classtype:attempted-dos; sid:5208305; rev:1;)
+
+# === CVE-2026-88772: Citrix NetScaler ADC Improper Input Validation (CRITICAL) ===
+alert http any any -> any any (msg:"CVE-2026-88772 Citrix NetScaler ADC improper input validation - oversized HTTP header"; flow:to_server,established; dsize:>8192; http.request_header; pcre:"/^[A-Za-z-]+:\s.{500,}/Hm"; reference:cve,2026-88772; reference:url,https://github.com/advisories/GHSA-h5xm-pf48-4c32; classtype:attempted-admin; sid:5208306; rev:1;)
+
+# === CVE-2026-88771: Citrix NetScaler ADC Improper Input Validation (CRITICAL) ===
+alert http any any -> any any (msg:"CVE-2026-88771 Citrix NetScaler ADC input validation bypass - malformed URI encoding"; flow:to_server,established; http.uri; pcre:"/%[0-9a-fA-F]{0,1}[^0-9a-fA-F]|%00/u"; reference:cve,2026-88771; reference:url,https://github.com/advisories/GHSA-mx58-p288-86qp; classtype:attempted-admin; sid:5208307; rev:1;)
+
+# === CVE-2026-101086: Nezha Dashboard Task Type Validation Bypass (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101086 Nezha Dashboard service monitor task type bypass - privileged task submission"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/api/v1/service"; startswith; nocase; http.request_body; content:"task_type"; nocase; pcre:"/task_type[\"']?\s*[:=]\s*[\"']?(command|agent_config)/Pi"; reference:cve,2026-101086; reference:url,https://github.com/advisories/GHSA-99pj-qr9x-4gmp; classtype:attempted-user; sid:5208308; rev:1;)
+
+# === CVE-2026-101085: Nezha Alert Rule DoS (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101085 Nezha alert rule DoS - malformed rule type in POST /api/v1/alert-rule"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/api/v1/alert-rule"; startswith; nocase; http.request_body; content:"rule_type"; nocase; pcre:"/rule_type[\"']?\s*[:=]\s*[\"']?(invalid|null|undefined)/Pi"; reference:cve,2026-101085; reference:url,https://github.com/advisories/GHSA-5j6x-8f94-88gc; classtype:attempted-dos; sid:5208309; rev:1;)
+
+# === CVE-2026-101087: Nezha SSRF via IPv6 Transition Ranges (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-101087 Nezha SSRF via IPv6 6to4 bypass - webhook URL with 2002::/16 prefix"; flow:to_server,established; http.method; content:"POST"; http.request_body; pcre:"/(https?|ftp):\/\/\[?2002:/Pi"; reference:cve,2026-101087; reference:url,https://github.com/advisories/GHSA-qvpf-fj3j-7cw6; classtype:attempted-recon; sid:5208310; rev:1;)
+
+# === CVE-2026-101089: Nezha Profile API Information Disclosure (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-101089 Nezha profile API password hash disclosure - GET /api/v1/profile"; flow:to_server,established; http.method; content:"GET"; http.uri; content:"/api/v1/profile"; startswith; nocase; http.response_body; content:"password"; nocase; pcre:"/password[\"']?\s*[:=]\s*[\"']?\$2[aby]/Pi"; reference:cve,2026-101089; reference:url,https://github.com/advisories/GHSA-q59m-xcw2-hxpc; classtype:successful-recon-limited; sid:5208311; rev:1;)
+
+# === CVE-2026-101064: Obot SSRF via Remote MCP Registration (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101064 Obot SSRF via MCP server registration - internal URL in remote MCP config"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/mcp"; startswith; nocase; http.request_body; pcre:"/(https?:\/\/(127\.0\.0\.1|localhost|169\.254\.169\.254|10\.|192\.168\.|172\.(1[6-9]|2[0-9]|3[01])\.))/Pi"; reference:cve,2026-101064; reference:url,https://github.com/advisories/GHSA-jvrr-x58p-75mm; classtype:attempted-recon; sid:5208312; rev:1;)
+
+# === CVE-2026-101063: Obot MCP Registry Authentication Bypass (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-101063 Obot MCP Registry unauthenticated access - GET /v0.1/servers without auth"; flow:to_server,established; http.method; content:"GET"; http.uri; content:"/v0.1/servers"; startswith; nocase; http.authorization; content:!"Bearer"; reference:cve,2026-101063; reference:url,https://github.com/advisories/GHSA-63cq-34vq-4f48; classtype:attempted-recon; sid:5208313; rev:1;)
+
+# === CVE-2026-101062: Obot OAuth Dynamic Client Registration (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101062 Obot OAuth dynamic client registration without auth - attacker-controlled redirect URI"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/oauth/register"; startswith; nocase; http.request_body; content:"redirect_uris"; nocase; reference:cve,2026-101062; reference:url,https://github.com/advisories/GHSA-cfp9-746c-5jrw; classtype:attempted-admin; sid:5208314; rev:1;)
+
+# === CVE-2026-101060: python-utcp SSRF via HTTP Redirect (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101060 python-utcp SSRF via HTTP 302 redirect to internal service"; flow:to_server,established; http.response_header; content:"302"; http.response_header; content:"Location"; content:!"https"; pcre:"/^Location:\s*https?:\/\/(127\.0\.0\.1|localhost|169\.254\.169\.254)/Hmi"; reference:cve,2026-101060; reference:url,https://github.com/advisories/GHSA-967h-fcmq-3m25; classtype:attempted-recon; sid:5208315; rev:1;)
+
+# === CVE-2026-101059: utcp-http OAuth2 tokenUrl SSRF (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101059 utcp-http OAuth2 tokenUrl credential exfiltration - suspicious token endpoint"; flow:to_server,established; http.method; content:"POST"; http.request_body; content:"client_secret"; nocase; http.uri; pcre:"/tokenUrl|token_url/Pi"; reference:cve,2026-101059; reference:url,https://github.com/advisories/GHSA-r549-qqpm-phj8; classtype:attempted-admin; sid:5208316; rev:1;)
+
+# === CVE-2026-101058: python-utcp SSRF via Remote HTTP Manual (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101058 python-utcp SSRF via remote UTCP manual with loopback tool URL"; flow:to_server,established; http.request_body; pcre:"/(https?:\/\/(127\.0\.0\.1|localhost))[\s\S]*manual/Pi"; reference:cve,2026-101058; reference:url,https://github.com/advisories/GHSA-88pp-fjxx-6p68; classtype:attempted-recon; sid:5208317; rev:1;)
+
+# === CVE-2026-88777: Citrix NetScaler Memory Overflow (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-88777 Citrix NetScaler memory overflow - oversized POST body to Gateway"; flow:to_server,established; http.method; content:"POST"; dsize:>65535; pcre:"/\/vpn|\/cgi-bin\//Ui"; reference:cve,2026-88777; reference:url,https://github.com/advisories/GHSA-wm5f-p8pr-c4v4; classtype:attempted-dos; sid:5208318; rev:1;)
+
+# === CVE-2026-88775: Citrix NetScaler Memory Overflow (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-88775 Citrix NetScaler memory overflow - crafted HTTP request to ADC"; flow:to_server,established; dsize:>32768; pcre:"/\/nitro\/v1\/config|\/api\/Ui"; reference:cve,2026-88775; reference:url,https://github.com/advisories/GHSA-pfp6-v654-4qvc; classtype:attempted-dos; sid:5208319; rev:1;)
+
+# === CVE-2026-88776: Citrix NetScaler Memory Overflow (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-88776 Citrix NetScaler memory overflow - malformed nFactor authentication"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/nfauth"; startswith; nocase; dsize:>16384; reference:cve,2026-88776; reference:url,https://github.com/advisories/GHSA-whfq-j52q-fpq7; classtype:attempted-dos; sid:5208320; rev:1;)
+
+# === CVE-2026-88774: Citrix NetScaler Feature Policy Bypass (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-88774 Citrix NetScaler feature policy bypass via HTTP URL expression"; flow:to_server,established; http.uri; pcre:"/%2f|%5c|\.\.\/|double\x00encoding/u"; reference:cve,2026-88774; reference:url,https://github.com/advisories/GHSA-m373-fcf4-9cxv; classtype:attempted-bypass; sid:5208321; rev:1;)
+
+# === CVE-2026-88778: Citrix NetScaler Predictable Value (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-88778 Citrix NetScaler predictable value - CSRF token entropy analysis"; flow:to_server,established; http.uri; content:"/vpn/index.html"; startswith; nocase; http.cookie; pcre:"/NSC_TASS=([a-f0-9]{8,16})/Ci"; reference:cve,2026-88778; reference:url,https://github.com/advisories/GHSA-mh3h-4j34-54mr; classtype:attempted-bypass; sid:5208322; rev:1;)
+
+# === CVE-2026-101048: Cloudreve SSRF via Admin Node Test (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-101048 Cloudreve SSRF via admin node test endpoint - POST /api/v4/admin/node/test"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/api/v4/admin/node/test"; startswith; nocase; http.request_body; content:"url"; nocase; reference:cve,2026-101048; reference:url,https://github.com/advisories/GHSA-pg9h-w4pm-q3vr; classtype:attempted-recon; sid:5208323; rev:1;)
+
+# === CVE-2026-101056: Cloudreve Share Access Revalidation (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-101056 Cloudreve share access bypass - password-protected share without password"; flow:to_server,established; http.method; content:"GET"; http.uri; pcre:"/\/s\/[a-zA-Z0-9]+/Ui"; http.authorization; content:!"password"; reference:cve,2026-101056; reference:url,https://github.com/advisories/GHSA-qh53-mf6v-496j; classtype:attempted-access; sid:5208324; rev:1;)
+
+# === CVE-2026-101045: Fleet macOS Script Injection (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101045 Fleet macOS app install script injection - shell metacharacters in install script"; flow:to_server,established; http.method; content:"POST"; http.request_body; pcre:"/(install_script|uninstall_script)[\s\S]*[;&|`$()]/Pi"; reference:cve,2026-101045; reference:url,https://github.com/advisories/GHSA-v4vj-w767-q8qv; classtype:attempted-admin; sid:5208325; rev:1;)
+
+# === CVE-2026-101047: Fleet Endpoint Missing Authentication (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-101047 Fleet unauthenticated endpoint access - missing auth on Fleet API"; flow:to_server,established; http.uri; pcre:"/\/api\/v1\/fleet\/(scripts|software)/Ui"; http.authorization; content:!"Bearer"; reference:cve,2026-101047; reference:url,https://github.com/advisories/GHSA-jqp5-cmc9-xwxg; classtype:attempted-recon; sid:5208326; rev:1;)
+
+# === CVE-2026-101046: Fleet SQL Injection (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-101046 Fleet SQL injection - UNION SELECT in query parameter"; flow:to_server,established; http.uri; pcre:"/union.*select|1=1|'.*or.*'1'='1/Ui"; reference:cve,2026-101046; reference:url,https://github.com/advisories/GHSA-qhx2-24jf-9jj9; classtype:attempted-sqli; sid:5208327; rev:1;)
+
+# === CVE-2026-101043: pnpm Environment Variable Expansion RCE (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101043 pnpm env var expansion RCE - ${VAR} in package.json scripts"; flow:to_server,established; http.request_body; pcre:"/\$\{[A-Z_]+\}.*&&|;\s*\$\{/Pi"; reference:cve,2026-101043; reference:url,https://github.com/advisories/GHSA-49pq-2gf3-jw76; classtype:attempted-user; sid:5208328; rev:1;)
+
+# === CVE-2026-101044: pacquet/pnpm RCE via Malicious Package (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101044 pacquet RCE via malicious npm package - postinstall script execution"; flow:to_server,established; http.request_body; content:"postinstall"; nocase; http.request_body; pcre:"/(curl|wget|exec|eval|child_process)/Pi"; reference:cve,2026-101044; reference:url,https://github.com/advisories/GHSA-qj85-gv7w-fqmr; classtype:attempted-admin; sid:5208329; rev:1;)
+
+# === CVE-2026-101042: Parse Server Code Injection (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101042 Parse Server code injection - Cloud Code function abuse"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/functions/"; startswith; nocase; http.request_body; pcre:"/(require|child_process|exec|eval|Function)/Pi"; reference:cve,2026-101042; reference:url,https://github.com/advisories/GHSA-3865-44r7-h828; classtype:attempted-admin; sid:5208330; rev:1;)
+
+# === CVE-2026-101049: Heym Slack Request Signature Bypass (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101049 Heym Slack webhook signature bypass - missing X-Slack-Signature header"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/trigger"; startswith; nocase; http.request_header; content:!"X-Slack-Signature"; reference:cve,2026-101049; reference:url,https://github.com/advisories/GHSA-2m9j-ffq7-cjqc; classtype:attempted-bypass; sid:5208331; rev:1;)
+
+# === CVE-2026-101050: Heym Telegram Bot Secret Token Bypass (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101050 Heym Telegram webhook token bypass - missing or invalid X-Telegram-Bot-Api-Secret-Token"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/trigger"; startswith; nocase; http.request_header; content:!"X-Telegram-Bot-Api-Secret-Token"; reference:cve,2026-101050; reference:url,https://github.com/advisories/GHSA-2x2v-2gpw-j9ff; classtype:attempted-bypass; sid:5208332; rev:1;)
+
+# === CVE-2026-101032: navi Cheatsheet Variable Injection (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-101032 navi cheatsheet variable injection - unescaped variable substitution"; flow:to_server,established; http.request_body; pcre:"/\{\{.*\}\}|<%.*%>|#{.*}/Pi"; reference:cve,2026-101032; reference:url,https://github.com/advisories/GHSA-mvf3-jgvq-79hc; classtype:attempted-user; sid:5208333; rev:1;)
+
+# === CVE-2026-100871: Sylius Admin CSRF (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-100871 Sylius admin CSRF - missing CSRF token on admin actions"; flow:to_server,established; http.method; content:"POST"; http.uri; pcre:"/\/admin\/(products|orders|customers)/Ui"; http.request_body; content:!"_csrf"; reference:cve,2026-100871; reference:url,https://github.com/advisories/GHSA-mxrg-842r-h599; classtype:attempted-csrf; sid:5208334; rev:1;)
+
+# === CVE-2026-100872: Sylius Payment Amount Manipulation (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-100872 Sylius payment amount manipulation - negative or zero payment amount"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/payment"; startswith; nocase; http.request_body; pcre:"/amount[\"']?\s*[:=]\s*[\"']?(-\d+|0\.00)/Pi"; reference:cve,2026-100872; reference:url,https://github.com/advisories/GHSA-2hp7-mfr2-4fg8; classtype:attempted-fraud; sid:5208335; rev:1;)
+
+# === CVE-2026-100870: Sylius Admin Panel Open Redirect (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-100870 Sylius admin open redirect - unvalidated redirect in admin panel"; flow:to_server,established; http.uri; pcre:"/\/admin\/.*\?redirect=(https?:\/\/)/Ui"; reference:cve,2026-100870; reference:url,https://github.com/advisories/GHSA-753f-ggfx-2h8w; classtype:attempted-user; sid:5208336; rev:1;)
+
+# === CVE-2026-100875: CloudClassroom SQLi via updatedetailsfromfaculty (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-100875 CloudClassroom SQL injection - updatedetailsfromfaculty.php myfid parameter"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"updatedetailsfromfaculty.php"; nocase; http.request_body; pcre:"/myfid[\"']?\s*[:=]\s*[\"']?[^\"'\s]*(union|select|1=1|'|--)/Pi"; reference:cve,2026-100875; reference:url,https://github.com/advisories/GHSA-h5r5-fw4h-x265; classtype:attempted-sqli; sid:5208337; rev:1;)
+
+# === CVE-2026-100874: CloudClassroom SQLi via addnewstudent (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-100874 CloudClassroom SQL injection - addnewstudent.php parameter injection"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"addnewstudent.php"; nocase; http.request_body; pcre:"/(union.*select|1=1|'.*or.*'|--)/Pi"; reference:cve,2026-100874; reference:url,https://github.com/advisories/GHSA-cr86-p989-h3gg; classtype:attempted-sqli; sid:5208338; rev:1;)
+
+# === CVE-2026-100876: CloudClassroom Auth Bypass (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-100876 CloudClassroom authentication bypass - loginlinkstudent.php without password"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"loginlinkstudent.php"; nocase; http.request_body; content:"umail"; nocase; http.request_body; content:!"password"; reference:cve,2026-100876; reference:url,https://github.com/advisories/GHSA-3xr8-56j6-mxh4; classtype:attempted-bypass; sid:5208339; rev:1;)
+
+# === CVE-2026-100877: CloudClassroom Stored XSS (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-100877 CloudClassroom stored XSS - registrationform.php script injection"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"registrationform.php"; nocase; http.request_body; pcre:"/(FName|LName|Addrs)[\s\S]*<script/Pi"; reference:cve,2026-100877; reference:url,https://github.com/advisories/GHSA-gfpp-g6x8-2jgj; classtype:attempted-xss; sid:5208340; rev:1;)
+
+# === CVE-2026-100873: CloudClassroom CSRF (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-100873 CloudClassroom CSRF - state-changing request without CSRF token"; flow:to_server,established; http.method; content:"POST"; http.uri; content:".php"; nocase; http.request_body; content:!"csrf"; reference:cve,2026-100873; reference:url,https://github.com/advisories/GHSA-g66m-qgx5-cv7x; classtype:attempted-csrf; sid:5208341; rev:1;)
+
+# === CVE-2026-100878: StarTraining Authorization Bypass (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-100878 StarTraining IDOR auth role privilege escalation - userId/roleIds manipulation"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"authRole"; nocase; http.request_body; pcre:"/(userId|roleIds)[\s\S]*admin/Pi"; reference:cve,2026-100878; reference:url,https://github.com/advisories/GHSA-mfp5-mpmc-79q6; classtype:attempted-admin; sid:5208342; rev:1;)
+
+# === CVE-2026-100879: StarTraining Missing Authorization (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-100879 StarTraining missing authorization - SysRoleServiceImpl dataScope access"; flow:to_server,established; http.uri; content:"/system/role/"; startswith; nocase; http.authorization; content:!"Bearer"; reference:cve,2026-100879; reference:url,https://github.com/advisories/GHSA-jhvq-wcgv-25hr; classtype:attempted-access; sid:5208343; rev:1;)
+
+# === CVE-2026-100880: StarTraining XSS via File Upload (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-100880 StarTraining XSS via HTML file upload - MimeTypeUtils bypass"; flow:to_server,established; http.method; content:"POST"; http.request_header; content:"multipart/form-data"; nocase; http.request_body; pcre:"/filename=[\"']?[^\"'\s]*\.(html|htm|svg)/Pi"; reference:cve,2026-100880; reference:url,https://github.com/advisories/GHSA-vmwc-7v5f-ffp7; classtype:attempted-xss; sid:5208344; rev:1;)
+
+# === CVE-2026-101041: Account Recovery Password Reset Weakness (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-101041 password reset token prediction - sequential or short reset token"; flow:to_server,established; http.method; content:"POST"; http.uri; pcre:"/(reset|recover|forgot).*password/Ui"; http.request_body; pcre:"/token[\"']?\s*[:=]\s*[\"']?[a-f0-9]{1,8}/Pi"; reference:cve,2026-101041; reference:url,https://github.com/advisories/GHSA-j3gx-2q66-wg27; classtype:attempted-access; sid:5208345; rev:1;)
+
+# === CVE-2026-101051: Cloudreve File Path Traversal (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-101051 Cloudreve path traversal - encoded traversal in file path"; flow:to_server,established; http.uri; pcre:"/%2e%2e%2f|\.\.\/|%2e%2e/Ui"; reference:cve,2026-101051; reference:url,https://github.com/advisories/GHSA-wv98-qffc-cvmj; classtype:attempted-recon; sid:5208346; rev:1;)
+
+# === CVE-2026-101057: utcp-mcp No URL Validation SSRF (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-101057 utcp-mcp SSRF - MCP connection to internal service without validation"; flow:to_server,established; http.request_body; pcre:"/(https?:\/\/(127\.0\.0\.1|localhost|169\.254\.169\.254|10\.|192\.168\.)).*mcp/Pi"; reference:cve,2026-101057; reference:url,https://github.com/advisories/GHSA-vr54-j4qq-9vj9; classtype:attempted-recon; sid:5208347; rev:1;)
+
+# === CVE-2026-101061: utcp-gql/utcp-websocket SSRF (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-101061 utcp-gql SSRF bypass - URL prefix check bypass via dotted decimal"; flow:to_server,established; http.request_body; pcre:"/https?:\/\/127\.0\.0\.1\./Pi"; reference:cve,2026-101061; reference:url,https://github.com/advisories/GHSA-gx2c-cr72-v8vv; classtype:attempted-recon; sid:5208348; rev:1;)
+
+# === CVE-2026-101033: KitchenOwl Category ID Verification (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-101033 KitchenOwl IDOR - category ID manipulation without ownership check"; flow:to_server,established; http.method; content:"DELETE"; http.uri; pcre:"/\/api\/v1\/categories\/\d+/Ui"; reference:cve,2026-101033; reference:url,https://github.com/advisories/GHSA-xxhh-mxcg-vmh8; classtype:attempted-access; sid:5208349; rev:1;)
+
+# === CVE-2026-101088: Nezha TOCTOU Race Condition DoS (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-101088 Nezha TOCTOU race - concurrent batch-delete server with active monitoring"; flow:to_server,established; http.method; content:"POST"; http.uri; content:"/api/v1/batch-delete/server"; startswith; nocase; threshold:type both, count 5, seconds 10, track by_src; reference:cve,2026-101088; reference:url,https://github.com/advisories/GHSA-fqx6-jcw7-6879; classtype:attempted-dos; sid:5208350; rev:1;)
+
+# === MITRE ATT&CK T1046 - Network Service Scanning ===
+alert tcp any any -> any any (msg:"MITRE T1046 Network service scanning - rapid connection attempts to multiple ports"; flags:S,12; flow:stateless; threshold:type threshold, count 10, seconds 30, track by_src; reference:url,https://attack.mitre.org/techniques/T1046/; classtype:network-scan; sid:5208351; rev:1;)
+
+# === MITRE ATT&CK T1595 - Active Scanning ===
+alert tcp any any -> any any (msg:"MITRE T1595 Active scanning - SYN sweep across subnet detected"; flags:S,12; flow:stateless; ttl:>1; threshold:type threshold, count 20, seconds 60, track by_src; reference:url,https://attack.mitre.org/techniques/T1595/; classtype:network-scan; sid:5208352; rev:1;)
+
+# === MITRE ATT&CK T1592 - Gather Victim Host Information ===
+alert http any any -> any any (msg:"MITRE T1592 Host info gathering via HTTP fingerprinting headers"; flow:to_server,established; http.user_agent; pcre:"/(masscan|nmap|zgrab|nikto|dirb|gobuster|wpscan|sqlmap)/i"; reference:url,https://attack.mitre.org/techniques/T1592/; classtype:attempted-recon; sid:5208353; rev:1;)
+
+# === MITRE ATT&CK T1190 - Exploit Public-Facing Application ===
+alert http any any -> any any (msg:"MITRE T1190 Exploit public-facing app - known exploit payload in URI"; flow:to_server,established; http.uri; pcre:"/(\/wp-content\/|\/phpmyadmin\/|\/\.env|\/vendor\/phpunit\/|\/cgi-bin\/|\/actuator\/env|\/solr\/|\/jenkins\/)/Ui"; reference:url,https://attack.mitre.org/techniques/T1190/; classtype:attempted-exploit; sid:5208354; rev:1;)
+
+# === MITRE ATT&CK T1505 - Server Software Component ===
+alert http any any -> any any (msg:"MITRE T1505 Web shell upload detected - PHP/JSP file in upload directory"; flow:to_server,established; http.method; content:"POST"; http.request_header; content:"multipart"; nocase; http.request_body; pcre:"/filename=[\"']?[^\"'\s]*\.(php|phtml|jsp|jspx|asp|aspx)/Pi"; reference:url,https://attack.mitre.org/techniques/T1505/; classtype:attempted-admin; sid:5208355; rev:1;)
+
+# === MITRE ATT&CK T1059 - Command and Scripting Interpreter ===
+alert http any any -> any any (msg:"MITRE T1059 Command execution via web - shell command patterns in HTTP request"; flow:to_server,established; http.request_body; pcre:"/(;|\||&&|\$\().*(cat|ls|id|whoami|uname|pwd|wget|curl|bash|sh|nc|python|perl|ruby)/Pi"; reference:url,https://attack.mitre.org/techniques/T1059/; classtype:attempted-admin; sid:5208356; rev:1;)
+
+# === MITRE ATT&CK T1071 - Application Layer Protocol ===
+alert dns any any -> any any (msg:"MITRE T1071 DNS tunneling - excessive TXT queries to single domain"; dns.query.name; pcre:"/[a-z0-9]{30,}\./"; threshold:type threshold, count 10, seconds 60, track by_src; reference:url,https://attack.mitre.org/techniques/T1071/; classtype:trojan-activity; sid:5208357; rev:1;)
+
+# === MITRE ATT&CK T1568 - Dynamic Resolution ===
+alert dns any any -> any any (msg:"MITRE T1568 Dynamic DNS - fast-flux domain pattern detected"; dns.query.name; pcre:"/[a-z0-9]{8,}\.(duckdns|no-ip|ddns|dynamicdns|changeip)/i"; reference:url,https://attack.mitre.org/techniques/T1568/; classtype:trojan-activity; sid:5208358; rev:1;)
+
+# === MITRE ATT&CK T1041 - Exfiltration Over C2 Channel ===
+alert tcp any any -> any $HOME_NET any (msg:"MITRE T1041 C2 exfiltration - large outbound data transfer to suspicious IP"; flow:to_server,established; dsize:>1048576; threshold:type threshold, count 3, seconds 300, track by_src; reference:url,https://attack.mitre.org/techniques/T1041/; classtype:trojan-activity; sid:5208359; rev:1;)
+
+# === MITRE ATT&CK T1048 - Exfiltration Over Alternative Protocol ===
+alert tcp any $HOME_NET any -> any 53 (msg:"MITRE T1048 DNS exfiltration - large DNS query to non-standard port"; flow:to_server; dsize:>200; reference:url,https://attack.mitre.org/techniques/T1048/; classtype:trojan-activity; sid:5208360; rev:1;)
+
+# === MITRE ATT&CK T1567 - Exfiltration Over Web Service ===
+alert http any $HOME_NET any -> any any (msg:"MITRE T1567 Exfil over web service - large upload to cloud storage provider"; flow:to_server,established; http.method; content:"PUT"; dsize:>5242880; http.host; pcre:"/(s3\.amazonaws|blob\.core\.windows|storage\.googleapis|onedrive|dropbox)/i"; reference:url,https://attack.mitre.org/techniques/T1567/; classtype:trojan-activity; sid:5208361; rev:1;)
+
+# === MITRE ATT&CK T1090 - Proxy ===
+alert tcp any any -> any any (msg:"MITRE T1090 Proxy connection - TOR exit node connection detected"; flow:established; reference:url,https://attack.mitre.org/techniques/T1090/; classtype:trojan-activity; sid:5208362; rev:1;)
+
+# === MITRE ATT&CK T1133 - External Remote Services ===
+alert ssh any any -> any any (msg:"MITRE T1133 External remote services - SSH brute force from external source"; flow:to_server; flags:S,12; threshold:type threshold, count 20, seconds 60, track by_src; reference:url,https://attack.mitre.org/techniques/T1133/; classtype:attempted-admin; sid:5208363; rev:1;)
+
+# === MITRE ATT&CK T1110 - Brute Force ===
+alert http any any -> any any (msg:"MITRE T1110 HTTP brute force - rapid authentication attempts to login endpoint"; flow:to_server,established; http.method; content:"POST"; http.uri; pcre:"/(login|auth|signin|authenticate)/Ui"; http.response_code; content:"401"; threshold:type threshold, count 10, seconds 60, track by_src; reference:url,https://attack.mitre.org/techniques/T1110/; classtype:attempted-admin; sid:5208364; rev:1;)
+
+# === MITRE ATT&CK T1078 - Valid Accounts ===
+alert http any any -> any any (msg:"MITRE T1078 Valid account abuse - login from unusual geography or impossible travel"; flow:to_server,established; http.method; content:"POST"; http.uri; pcre:"/(login|auth|oauth)/Ui"; http.response_code; content:"200"; threshold:type threshold, count 5, seconds 300, track by_src; reference:url,https://attack.mitre.org/techniques/T1078/; classtype:suspicious-login; sid:5208365; rev:1;)
+
+# === MITRE ATT&CK T1486 - Data Encrypted for Impact ===
+alert tcp any any -> any $HOME_NET any (msg:"MITRE T1486 Ransomware activity - mass file extension change pattern"; flow:to_server,established; pcre:"/\.(locked|encrypted|crypto|crypted|wallet|ransom|lock|enc)/i"; dsize:>100; reference:url,https://attack.mitre.org/techniques/T1486/; classtype:trojan-activity; sid:5208366; rev:1;)
+
+# === MITRE ATT&CK T1490 - Inhibit System Recovery ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1490 Inhibit recovery - vssadmin delete shadows command pattern"; flow:to_server,established; pcre:"/vssadmin.*delete.*shadows|wbadmin.*delete|bcdedit.*recoveryenabled/i"; reference:url,https://attack.mitre.org/techniques/T1490/; classtype:trojan-activity; sid:5208367; rev:1;)
+
+# === MITRE ATT&CK T1566 - Phishing ===
+alert http any any -> any any (msg:"MITRE T1566 Phishing - credential harvesting page with fake login form"; flow:to_server,established; http.response_body; pcre:"/(<form.*action.*(login|submit|verify|update|confirm).*(password|passwd|pin|otp))/i"; http.host; pcre:"/(login|account|verify|update|secure|confirm)/i"; reference:url,https://attack.mitre.org/techniques/T1566/; classtype:trojan-activity; sid:5208368; rev:1;)
+
+# === MITRE ATT&CK T1539 - Steal Browser Session Cookie ===
+alert http any any -> any any (msg:"MITRE T1539 Cookie theft - exfiltration of browser session cookies via HTTP"; flow:to_server,established; http.request_body; pcre:"/(PHPSESSID|JSESSIONID|_ga|session_token|auth_token|cookie).{0,50}=[a-zA-Z0-9+\/]{40,}/Pi"; reference:url,https://attack.mitre.org/techniques/T1539/; classtype:trojan-activity; sid:5208369; rev:1;)
+
+# === MITRE ATT&CK T1528 - Steal Application Access Token ===
+alert http any any -> any any (msg:"MITRE T1528 Token theft - OAuth access token in URL parameter or request body"; flow:to_server,established; http.uri; pcre:"/access_token=[a-zA-Z0-9._-]{50,}/Ui"; reference:url,https://attack.mitre.org/techniques/T1528/; classtype:trojan-activity; sid:5208370; rev:1;)
+
+# === MITRE ATT&CK T1557 - Adversary-in-the-Middle ===
+alert http any any -> any any (msg:"MITRE T1557 AitM - SSL stripping detected, HTTP login form served over plaintext"; flow:to_server,established; http.response_body; pcre:"/<form.*password/i"; ttl:>1; reference:url,https://attack.mitre.org/techniques/T1557/; classtype:trojan-activity; sid:5208371; rev:1;)
+
+# === MITRE ATT&CK T1620 - Reflective Code Loading ===
+alert http any any -> any any (msg:"MITRE T1620 Reflective code loading - DLL/so injection payload in HTTP traffic"; flow:to_server,established; http.request_body; pcre:"/\x4d\x5a|\x7fELF/i"; dsize:>1024; reference:url,https://attack.mitre.org/techniques/T1620/; classtype:trojan-activity; sid:5208372; rev:1;)
+
+# === MITRE ATT&CK T1213 - Data from Information Repositories ===
+alert http any any -> any any (msg:"MITRE T1213 Data repository access - bulk download from Confluence/wiki/sharepoint"; flow:to_server,established; http.method; content:"GET"; http.uri; pcre:"/(\/wiki\/|\/confluence\/|\/sharepoint\/|\/api\/v2\/wiki\/).*export/Ui"; dsize:>1048576; reference:url,https://attack.mitre.org/techniques/T1213/; classtype:trojan-activity; sid:5208373; rev:1;)
+
+# === MITRE ATT&CK T1555 - Credentials from Password Stores ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1555 Credential store access - LSASS/SAM database read pattern via SMB"; flow:to_server,established; pcre:"/\\lsass\.exe|\\SAM|\\SYSTEM|\\SECURITY/i"; reference:url,https://attack.mitre.org/techniques/T1555/; classtype:attempted-admin; sid:5208374; rev:1;)
+
+# === MITRE ATT&CK T1003 - OS Credential Dumping ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1003 Credential dumping - LSASS memory access via DCsync or Mimikatz pattern"; flow:to_server,established; pcre:"/lsadump|dcsync|mimikatz|sekurlsa|credentialjack/i"; reference:url,https://attack.mitre.org/techniques/T1003/; classtype:attempted-admin; sid:5208375; rev:1;)
+
+# === MITRE ATT&CK T1053 - Scheduled Task/Job ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1053 Scheduled task creation - schtasks/cron command in network traffic"; flow:to_server,established; pcre:"/(schtasks\s+\/create|crontab\s+-e|at\s+\d|systemctl\s+enable)/i"; reference:url,https://attack.mitre.org/techniques/T1053/; classtype:attempted-persistence; sid:5208376; rev:1;)
+
+# === MITRE ATT&CK T1547 - Boot or Logon Autostart Execution ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1547 AutoStart execution - registry run key or startup file modification"; flow:to_server,established; pcre:"/(HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run|~\/\.bashrc|~\/\.bash_profile|Startup)/i"; reference:url,https://attack.mitre.org/techniques/T1547/; classtype:attempted-persistence; sid:5208377; rev:1;)
+
+# === MITRE ATT&CK T1136 - Create Account ===
+alert http any any -> any any (msg:"MITRE T1136 Account creation - new user creation via API without MFA verification"; flow:to_server,established; http.method; content:"POST"; http.uri; pcre:"/(\/api\/.*user|\/admin\/user|\/v1\/users|\/api\/v1\/account)/Ui"; http.request_body; content:"create"; nocase; http.request_body; content:!"mfa"; reference:url,https://attack.mitre.org/techniques/T1136/; classtype:attempted-persistence; sid:5208378; rev:1;)
+
+# === MITRE ATT&CK T1548 - Abuse Elevation Control Mechanism ===
+alert http any any -> any any (msg:"MITRE T1548 Privilege escalation - sudo/su/setuid pattern in web request"; flow:to_server,established; http.request_body; pcre:"/(sudo\s|su\s+-|setuid|chmod\s+[47]755|chown\s+root)/i"; reference:url,https://attack.mitre.org/techniques/T1548/; classtype:attempted-privilege-escalation; sid:5208379; rev:1;)
+
+# === MITRE ATT&CK T1068 - Exploitation for Privilege Escalation ===
+alert http any any -> any any (msg:"MITRE T1068 Privilege escalation exploit - kernel exploit payload pattern"; flow:to_server,established; http.request_body; pcre:"/(dirty_cow|dirty_pipe|CVE-\d{4}-\d+.*priv|kernel.*exploit|overlayfs)/i"; reference:url,https://attack.mitre.org/techniques/T1068/; classtype:attempted-privilege-escalation; sid:5208380; rev:1;)
+
+# === MITRE ATT&CK T1496 - Resource Hijacking (Crypto Mining) ===
+alert http any any -> any any (msg:"MITRE T1496 Cryptominer download - known mining pool or miner binary URL"; flow:to_server,established; http.uri; pcre:"/(xmrig|stratum\+tcp|cryptonight|monero.*pool|\/\/minerd|\/coinhive)/i"; reference:url,https://attack.mitre.org/techniques/T1496/; classtype:trojan-activity; sid:5208381; rev:1;)
+
+# === MITRE ATT&CK T1055 - Process Injection ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1055 Process injection - VirtualAllocEx/CreateRemoteThread pattern in traffic"; flow:to_server,established; pcre:"/VirtualAllocEx|CreateRemoteThread|WriteProcessMemory|NtMapViewOfSection/i"; reference:url,https://attack.mitre.org/techniques/T1055/; classtype:trojan-activity; sid:5208382; rev:1;)
+
+# === MITRE ATT&CK T1572 - Protocol Tunneling ===
+alert tcp any $HOME_NET any -> any 443 (msg:"MITRE T1572 Protocol tunneling - non-SSL traffic on port 443"; flow:to_server,established; tls.subject; content:!""; pcre:"/^[\x00-\xff]{4}/"; reference:url,https://attack.mitre.org/techniques/T1572/; classtype:trojan-activity; sid:5208383; rev:1;)
+
+# === MITRE ATT&CK T1106 - Native API ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1106 Native API abuse - direct syscall pattern detected"; flow:to_server,established; pcre:"/NtCreateThreadEx|NtAllocateVirtualMemory|NtProtectVirtualMemory|NtWriteVirtualMemory/i"; reference:url,https://attack.mitre.org/techniques/T1106/; classtype:trojan-activity; sid:5208384; rev:1;)
+
+# === MITRE ATT&CK T1027 - Obfuscated Files or Information ===
+alert http any any -> any any (msg:"MITRE T1027 Obfuscated payload - base64 encoded executable in HTTP traffic"; flow:to_server,established; http.request_body; pcre:"/[A-Za-z0-9+\/]{500,}={0,2}/"; reference:url,https://attack.mitre.org/techniques/T1027/; classtype:trojan-activity; sid:5208385; rev:1;)
+
+# === MITRE ATT&CK T1140 - Deobfuscate/Decode Files ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1140 Deobfuscation - base64 decode command execution pattern"; flow:to_server,established; pcre:"/(base64\s+-d|base64\s+--decode|openssl\s+enc.*-d|python.*base64\.b64decode)/i"; reference:url,https://attack.mitre.org/techniques/T1140/; classtype:trojan-activity; sid:5208386; rev:1;)
+
+# === MITRE ATT&CK T1036 - Masquerading ===
+alert http any any -> any any (msg:"MITRE T1036 Masquerading - process name spoofing via fake system binary name"; flow:to_server,established; http.request_body; pcre:"/(svchost32|scvhost|system32\/taskmgr\.exe|tmp\/sshd|\.\/systemd)/i"; reference:url,https://attack.mitre.org/techniques/T1036/; classtype:trojan-activity; sid:5208387; rev:1;)
+
+# === MITRE ATT&CK T1070 - Indicator Removal ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1070 Indicator removal - log clearing or history wiping command"; flow:to_server,established; pcre:"/(rm\s+-f.*\.log|history\s+-c|wevtutil\s+cl|journalctl\s+--vacuum|truncate.*\.log)/i"; reference:url,https://attack.mitre.org/techniques/T1070/; classtype:attempted-hide-tracks; sid:5208388; rev:1;)
+
+# === MITRE ATT&CK T1562 - Impair Defenses ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1562 Defense impairment - antivirus or firewall disable command"; flow:to_server,established; pcre:"/(netsh\s+advfirewall.*off|systemctl\s+stop.*(firewalld|ufw|iptables)|taskkill.*av|Set-MpPreference.*Disable)/i"; reference:url,https://attack.mitre.org/techniques/T1562/; classtype:attempted-admin; sid:5208389; rev:1;)
+
+# === MITRE ATT&CK T1134 - Access Token Manipulation ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1134 Token manipulation - DuplicateToken/ImpersonateLoggedOnUser API pattern"; flow:to_server,established; pcre:"/DuplicateTokenEx|ImpersonateLoggedOnUser|SetThreadToken|AdjustTokenPrivileges/i"; reference:url,https://attack.mitre.org/techniques/T1134/; classtype:attempted-privilege-escalation; sid:5208390; rev:1;)
+
+# === MITRE ATT&CK T1484 - Domain Policy Modification ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1484 Domain policy modification - GPO or domain trust change attempt"; flow:to_server,established; pcre:"/(netdom\s+trust|nltest.*domain_trust|Set-GPPrefRegistryValue|New-GPO)/i"; reference:url,https://attack.mitre.org/techniques/T1484/; classtype:attempted-admin; sid:5208391; rev:1;)
+
+# === MITRE ATT&CK T1482 - Domain Trust Discovery ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1482 Domain trust discovery - nltest/dsquery domain enumeration"; flow:to_server,established; pcre:"/(nltest.*trusted_domains|dsquery.*domain|Get-ADDomain|Get-ADTrust|netdom\s+query)/i"; reference:url,https://attack.mitre.org/techniques/T1482/; classtype:attempted-recon; sid:5208392; rev:1;)
+
+# === MITRE ATT&CK T1018 - Remote System Discovery ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1018 Remote system discovery - network range enumeration via ping sweep"; flow:to_server,established; pcre:"/(nmap\s+-sn|fping|arp-scan|nbtscan|for.*\/24.*ping)/i"; reference:url,https://attack.mitre.org/techniques/T1018/; classtype:network-scan; sid:5208393; rev:1;)
+
+# === MITRE ATT&CK T1087 - Account Discovery ===
+alert http any any -> any any (msg:"MITRE T1087 Account discovery - user enumeration via API or LDAP query pattern"; flow:to_server,established; http.uri; pcre:"/(\/api\/users\?|\/users\/list|\/ldap.*search|\/api\/v1\/users.*page=)/Ui"; threshold:type threshold, count 20, seconds 60, track by_src; reference:url,https://attack.mitre.org/techniques/T1087/; classtype:attempted-recon; sid:5208394; rev:1;)
+
+# === MITRE ATT&CK T1069 - Permission Groups Discovery ===
+alert http any any -> any any (msg:"MITRE T1069 Permission group discovery - group/role enumeration via API"; flow:to_server,established; http.uri; pcre:"/(\/api\/.*groups|\/api\/.*roles|\/api\/.*permissions|\/admin\/groups)/Ui"; threshold:type threshold, count 15, seconds 60, track by_src; reference:url,https://attack.mitre.org/techniques/T1069/; classtype:attempted-recon; sid:5208395; rev:1;)
+
+# === MITRE ATT&CK T1083 - File and Directory Discovery ===
+alert http any any -> any any (msg:"MITRE T1083 File directory discovery - recursive listing via path traversal pattern"; flow:to_server,established; http.uri; pcre:"/(\/etc\/passwd|\/etc\/shadow|\/proc\/self\/|\/var\/log\/|C:\\Windows\\System32|C:\\Users\\)/Ui"; reference:url,https://attack.mitre.org/techniques/T1083/; classtype:attempted-recon; sid:5208396; rev:1;)
+
+# === MITRE ATT&CK T1550 - Use Alternate Authentication Material ===
+alert tcp any any -> any any (msg:"MITRE T1550 Pass-the-hash - NTLM hash authentication without password"; flow:to_server,established; pcre:"/NTLM\s+(TlRMTVNT|AADAA|AAAAAA)/i"; reference:url,https://attack.mitre.org/techniques/T1550/; classtype:attempted-admin; sid:5208397; rev:1;)
+
+# === MITRE ATT&CK T1021 - Remote Services ===
+alert ssh any any -> any any (msg:"MITRE T1021 SSH remote service abuse - successful SSH auth from new source IP"; flow:to_server,established; flags:S,12; threshold:type limit, count 1, seconds 3600, track by_src; reference:url,https://attack.mitre.org/techniques/T1021/; classtype:suspicious-login; sid:5208398; rev:1;)
+
+# === MITRE ATT&CK T1098 - Account Manipulation ===
+alert http any any -> any any (msg:"MITRE T1098 Account manipulation - privilege change or admin role assignment via API"; flow:to_server,established; http.method; content:"PATCH"; http.uri; pcre:"/(\/users\/.*\/role|\/accounts\/.*\/permissions|\/api\/.*admin)/Ui"; http.request_body; pcre:"/(admin|root|superuser|role.*admin)/i"; reference:url,https://attack.mitre.org/techniques/T1098/; classtype:attempted-admin; sid:5208399; rev:1;)
+
+# === MITRE ATT&CK T1531 - Account Access Removal ===
+alert http any any -> any any (msg:"MITRE T1531 Account access removal - bulk user deletion or deactivation pattern"; flow:to_server,established; http.method; content:"DELETE"; http.uri; pcre:"/\/api\/.*users(\/|batch)/Ui"; threshold:type threshold, count 5, seconds 60, track by_src; reference:url,https://attack.mitre.org/techniques/T1531/; classtype:attempted-admin; sid:5208400; rev:1;)
+
+# === MITRE ATT&CK T1529 - System Shutdown/Reboot ===
+alert tcp any $HOME_NET any -> any any (msg:"MITRE T1529 System shutdown - unexpected reboot command from external source"; flow:to_server,established; pcre:"/(shutdown\s+-[hr]|reboot|halt|init\s+0|systemctl\s+(reboot|poweroff))/i"; reference:url,https://attack.mitre.org/techniques/T1529/; classtype:attempted-dos; sid:5208401; rev:1;)
