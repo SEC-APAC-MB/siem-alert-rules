@@ -2,8 +2,8 @@
   "description": "Minimum Baseline SIEM Rules — AZURE",
   "version": "1.0.0",
   "type": "minimum-baseline",
-  "generated": "2026-09-25T04:05:13.667790+00:00",
-  "total_rules": 121,
+  "generated": "2026-09-28T04:05:06.845463+00:00",
+  "total_rules": 123,
   "domains_covered": 13,
   "domains": [
     {
@@ -30,7 +30,7 @@
       "category": "privilege_escalation",
       "weight": "critical",
       "description": "Admin role changes, policy modifications, unauthorized elevation",
-      "rule_count": 15,
+      "rule_count": 16,
       "rule_ids": [
         "AZ-PRIVILEGE-ESCALATION-002",
         "AZ-PRIVILEGE-ESCALATION-004",
@@ -195,12 +195,13 @@
       "category": "sql_injection",
       "weight": "high",
       "description": "Injection patterns, union selects, OR 1=1 attempts",
-      "rule_count": 5,
+      "rule_count": 6,
       "rule_ids": [
         "AZ-SQL-INJECTION-013",
         "AZ-SQL-INJECTION-001",
         "AZ-SQL-INJECTION-012",
         "AZ-SQL-INJECTION-014",
+        "AZ-SQL-INJECTION-019",
         "GHADV-4263"
       ]
     },
@@ -249,8 +250,8 @@
       "severity_label": "Medium",
       "category": "database",
       "tactics": [
-        "DefenseEvasion",
-        "CredentialAccess"
+        "CredentialAccess",
+        "DefenseEvasion"
       ],
       "mitre_attack": [
         "T1110",
@@ -281,8 +282,8 @@
       "severity_label": "Medium",
       "category": "database",
       "tactics": [
-        "DefenseEvasion",
-        "CredentialAccess"
+        "CredentialAccess",
+        "DefenseEvasion"
       ],
       "mitre_attack": [
         "T1110",
@@ -313,8 +314,8 @@
       "severity_label": "Medium",
       "category": "database",
       "tactics": [
-        "DefenseEvasion",
-        "CredentialAccess"
+        "CredentialAccess",
+        "DefenseEvasion"
       ],
       "mitre_attack": [
         "T1110",
@@ -345,8 +346,8 @@
       "severity_label": "Medium",
       "category": "database",
       "tactics": [
-        "DefenseEvasion",
-        "CredentialAccess"
+        "CredentialAccess",
+        "DefenseEvasion"
       ],
       "mitre_attack": [
         "T1110",
@@ -1607,9 +1608,9 @@
       "severity_label": "Medium",
       "category": "privilege-escalation",
       "tactics": [
-        "DefenseEvasion",
         "CredentialAccess",
-        "PrivilegeEscalation"
+        "PrivilegeEscalation",
+        "DefenseEvasion"
       ],
       "mitre_attack": [
         "T1548",
@@ -1671,9 +1672,9 @@
       "severity_label": "Medium",
       "category": "privilege-escalation",
       "tactics": [
-        "DefenseEvasion",
         "CredentialAccess",
-        "PrivilegeEscalation"
+        "PrivilegeEscalation",
+        "DefenseEvasion"
       ],
       "mitre_attack": [
         "T1548",
@@ -1765,9 +1766,9 @@
       "severity_label": "Medium",
       "category": "privilege-escalation",
       "tactics": [
-        "DefenseEvasion",
         "CredentialAccess",
-        "PrivilegeEscalation"
+        "PrivilegeEscalation",
+        "DefenseEvasion"
       ],
       "mitre_attack": [
         "T1110",
@@ -1818,6 +1819,36 @@
         "privilege-escalation",
         "cve",
         "cve-2026-86060",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AZ-PRIVILEGE-ESCALATION-018",
+      "name": "CVE-2026-87886 — Backup Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-87886: Acronis Backup plugin for cPanel & WHM and extension for Plesk contains an incorrect default permissions vulnerability that could allow for privilege escalation.. Product: Backup",
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "privilege-escalation",
+      "tactics": [
+        "PrivilegeEscalation"
+      ],
+      "mitre_attack": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SecurityEvent | where EventID in (4672, 4688) and (CommandLine contains \"sudo\" or CommandLine contains \"runas\") | summarize count() by Account, bin(TimeGenerated, 5m)",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-87886",
         "exploited"
       ]
     },
@@ -2249,8 +2280,8 @@
       "severity_label": "Medium",
       "category": "sql-injection",
       "tactics": [
-        "DefenseEvasion",
         "CredentialAccess",
+        "DefenseEvasion",
         "InitialAccess"
       ],
       "mitre_attack": [
@@ -2283,8 +2314,8 @@
       "severity_label": "Medium",
       "category": "sql-injection",
       "tactics": [
-        "DefenseEvasion",
         "CredentialAccess",
+        "DefenseEvasion",
         "InitialAccess"
       ],
       "mitre_attack": [
@@ -2317,8 +2348,8 @@
       "severity_label": "Medium",
       "category": "sql-injection",
       "tactics": [
-        "DefenseEvasion",
         "CredentialAccess",
+        "DefenseEvasion",
         "InitialAccess"
       ],
       "mitre_attack": [
@@ -2331,7 +2362,7 @@
         "NIST-800-53-SI-4",
         "GDPR-32A"
       ],
-      "query": "AzureDiagnostics | where httpStatusCode_d in (400, 403, 500) and RequestMethod_s == \"POST\" | summarize count() by bin(TimeGenerated, 5m), clientIp_s | where count_ > 5",
+      "query": "union CommonSecurityLog, SecurityEvent | where Message has \"CVE-2026-76461\" or RuleName has \"CVE-2026-76461\" or ProcessName has \"CVE-2026-76461\" | summarize count() by bin(TimeGenerated, 5m), Computer, EventID | where count_ > 5 // AZ-SQL-INJECTION-012",
       "queryFrequency": "5m",
       "queryPeriod": "10m",
       "triggerOperator": "GreaterThan",
@@ -2351,8 +2382,8 @@
       "severity_label": "Medium",
       "category": "sql-injection",
       "tactics": [
-        "DefenseEvasion",
         "CredentialAccess",
+        "DefenseEvasion",
         "InitialAccess"
       ],
       "mitre_attack": [
@@ -2366,6 +2397,40 @@
         "GDPR-32A"
       ],
       "query": "union CommonSecurityLog, SecurityEvent | where Message has \"CVE-2026-76461\" or RuleName has \"CVE-2026-76461\" or ProcessName has \"CVE-2026-76461\" | summarize count() by bin(TimeGenerated, 5m), Computer, EventID | where count_ > 5 // AZ-SQL-INJECTION-014",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tags": [
+        "sql-injection",
+        "cve",
+        "cve-2026-76461",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AZ-SQL-INJECTION-019",
+      "name": "CVE-2026-76461 — Secure Email Gateway Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-76461: Cisco AsyncOS software for Cisco Secure Email Gateway (SEG) contains a SQL injection vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary commands with root privileges on the underlying operating system.. Product: Secure Email Gateway",
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "sql-injection",
+      "tactics": [
+        "CredentialAccess",
+        "DefenseEvasion",
+        "InitialAccess"
+      ],
+      "mitre_attack": [
+        "T1190",
+        "T1110",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message has \"CVE-2026-76461\" or RuleName has \"CVE-2026-76461\" or ProcessName has \"CVE-2026-76461\" | summarize count() by bin(TimeGenerated, 5m), Computer, EventID | where count_ > 5 // AZ-SQL-INJECTION-019",
       "queryFrequency": "5m",
       "queryPeriod": "10m",
       "triggerOperator": "GreaterThan",
@@ -2475,10 +2540,10 @@
       "severity_label": "Medium",
       "category": "ssrf",
       "tactics": [
-        "DefenseEvasion",
         "CredentialAccess",
-        "InitialAccess",
-        "Collection"
+        "Collection",
+        "DefenseEvasion",
+        "InitialAccess"
       ],
       "mitre_attack": [
         "T1110",
@@ -2512,10 +2577,10 @@
       "severity_label": "Medium",
       "category": "ssrf",
       "tactics": [
-        "DefenseEvasion",
         "CredentialAccess",
-        "InitialAccess",
-        "Collection"
+        "Collection",
+        "DefenseEvasion",
+        "InitialAccess"
       ],
       "mitre_attack": [
         "T1592",
@@ -2549,10 +2614,10 @@
       "severity_label": "Medium",
       "category": "ssrf",
       "tactics": [
-        "DefenseEvasion",
         "CredentialAccess",
-        "InitialAccess",
-        "Collection"
+        "Collection",
+        "DefenseEvasion",
+        "InitialAccess"
       ],
       "mitre_attack": [
         "T1213",

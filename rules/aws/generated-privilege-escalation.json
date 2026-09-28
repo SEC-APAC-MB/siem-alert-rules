@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-privilege-escalation (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-25T04:05:13.301051Z",
-  "total_rules": 13,
+  "converted": "2026-09-28T04:05:06.486381Z",
+  "total_rules": 14,
   "rules": [
     {
       "rule_id": "AWS-PRIVILEGE-ESCALATION-002",
@@ -774,6 +774,65 @@
         "privilege-escalation",
         "cve",
         "cve-2026-86060",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-PRIVILEGE-ESCALATION-018",
+      "name": "CVE-2026-87886 \u2014 Backup Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-87886: Acronis Backup plugin for cPanel & WHM and extension for Plesk contains an incorrect default permissions vulnerability that could allow for privilege escalation.. Product: Backup",
+      "severity": "critical",
+      "category": "privilege-escalation",
+      "mitre_attack": [
+        "T1548"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-87886\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202687886BackupExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-87886 \u2014 Backup Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "privilege-escalation",
+        "cve",
+        "cve-2026-87886",
         "exploited"
       ]
     }
