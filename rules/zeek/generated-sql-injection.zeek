@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-sql-injection
-# Auto-generated: 2026-09-24T04:05:05.700490Z
+# Auto-generated: 2026-09-25T04:05:13.167489Z
 # Load in local.zeek: @load ./generated-sql-injection
 
 signature ZK-SQL-INJECTION-013 {
@@ -20,5 +20,12 @@ signature ZK-SQL-INJECTION-012 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*((union|select|script|alert|onload|onerror|\.\./|\.\.\\)).*/ regex
+	event "CVE-2026-76461 — Secure Email Gateway Exploitation"
+}
+
+signature ZK-SQL-INJECTION-014 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((login|auth|password|passwd)).*/ regex
 	event "CVE-2026-76461 — Secure Email Gateway Exploitation"
 }

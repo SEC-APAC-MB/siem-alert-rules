@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-general (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-24T04:05:05.820616Z",
-  "total_rules": 18,
+  "converted": "2026-09-25T04:05:13.290570Z",
+  "total_rules": 20,
   "rules": [
     {
       "rule_id": "AWS-GENERAL-002",
@@ -1085,6 +1085,127 @@
         "general",
         "cve",
         "cve-2026-19490",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-GENERAL-011",
+      "name": "CVE-2026-58704 \u2014 Pixel Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-58704: Google Pixel devices contain an improper authorization vulnerability in the cellular modem. A logic error may allow an attacker to bypass permission checks and escalate privileges.. Product: Pixel",
+      "severity": "critical",
+      "category": "general",
+      "mitre_attack": [
+        "T1548",
+        "T1110",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-58704\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202658704PixelExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-58704 \u2014 Pixel Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "general",
+        "cve",
+        "cve-2026-58704",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-GENERAL-015",
+      "name": "CVE-2026-84869 \u2014 ScreenConnect Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-84869: ConnectWise ScreenConnect contains both an improper privilege management and missing authorization vulnerability that may allow an attacker to transfer and execute files through an active remote session without authorization or host confirmation.. Product: ScreenConnect",
+      "severity": "critical",
+      "category": "general",
+      "mitre_attack": [
+        "T1110",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2026-84869\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE202684869ScreenConnectExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2026-84869 \u2014 ScreenConnect Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "general",
+        "cve",
+        "cve-2026-84869",
         "exploited"
       ]
     }

@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-general
-# Auto-generated: 2026-09-24T04:05:05.698307Z
+# Auto-generated: 2026-09-25T04:05:13.165192Z
 # Load in local.zeek: @load ./generated-general
 
 signature ZK-GENERAL-002 {
@@ -126,4 +126,18 @@ signature ZK-GENERAL-007 {
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*((login|auth|password|passwd)).*/ regex
 	event "CVE-2026-19490 — NetScaler Exploitation"
+}
+
+signature ZK-GENERAL-011 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((sudo|runas|setuid|chmod)).*/ regex
+	event "CVE-2026-58704 — Pixel Exploitation"
+}
+
+signature ZK-GENERAL-015 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((login|auth|password|passwd)).*/ regex
+	event "CVE-2026-84869 — ScreenConnect Exploitation"
 }

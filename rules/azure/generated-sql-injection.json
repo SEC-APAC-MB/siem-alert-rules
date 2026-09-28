@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-sql-injection (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-24T04:05:05.783109Z",
-  "total_rules": 3,
+  "converted": "2026-09-25T04:05:13.252195Z",
+  "total_rules": 4,
   "rules": [
     {
       "rule_id": "AZ-SQL-INJECTION-013",
@@ -12,9 +12,9 @@
       "severity_label": "Medium",
       "category": "sql-injection",
       "tactics": [
-        "InitialAccess",
         "DefenseEvasion",
-        "CredentialAccess"
+        "CredentialAccess",
+        "InitialAccess"
       ],
       "mitre_attack": [
         "T1190",
@@ -46,9 +46,9 @@
       "severity_label": "Medium",
       "category": "sql-injection",
       "tactics": [
-        "InitialAccess",
         "DefenseEvasion",
-        "CredentialAccess"
+        "CredentialAccess",
+        "InitialAccess"
       ],
       "mitre_attack": [
         "T1110",
@@ -80,9 +80,9 @@
       "severity_label": "Medium",
       "category": "sql-injection",
       "tactics": [
-        "InitialAccess",
         "DefenseEvasion",
-        "CredentialAccess"
+        "CredentialAccess",
+        "InitialAccess"
       ],
       "mitre_attack": [
         "T1190",
@@ -95,6 +95,40 @@
         "GDPR-32A"
       ],
       "query": "AzureDiagnostics | where httpStatusCode_d in (400, 403, 500) and RequestMethod_s == \"POST\" | summarize count() by bin(TimeGenerated, 5m), clientIp_s | where count_ > 5",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tags": [
+        "sql-injection",
+        "cve",
+        "cve-2026-76461",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AZ-SQL-INJECTION-014",
+      "name": "CVE-2026-76461 \u2014 Secure Email Gateway Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-76461: Cisco AsyncOS software for Cisco Secure Email Gateway (SEG) contains a SQL injection vulnerability that could allow an unauthenticated, remote attacker to execute arbitrary commands with root privileges on the underlying operating system.. Product: Secure Email Gateway",
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "sql-injection",
+      "tactics": [
+        "DefenseEvasion",
+        "CredentialAccess",
+        "InitialAccess"
+      ],
+      "mitre_attack": [
+        "T1110",
+        "T1190",
+        "T1078"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "union CommonSecurityLog, SecurityEvent | where Message has \"CVE-2026-76461\" or RuleName has \"CVE-2026-76461\" or ProcessName has \"CVE-2026-76461\" | summarize count() by bin(TimeGenerated, 5m), Computer, EventID | where count_ > 5 // AZ-SQL-INJECTION-014",
       "queryFrequency": "5m",
       "queryPeriod": "10m",
       "triggerOperator": "GreaterThan",
