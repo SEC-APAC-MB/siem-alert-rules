@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-supply_chain
-# Auto-generated: 2026-09-25T04:05:13.168136Z
+# Auto-generated: 2026-09-29T04:05:05.407169Z
 # Load in local.zeek: @load ./generated-supply_chain
 
 signature ZK-SUPPLY_CHAIN-057 {
