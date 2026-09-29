@@ -1,0 +1,308 @@
+# Suricata Detection Rules - Generated 2026-09-29
+# Based on: GitHub Advisory Database CVEs (2026-08-27 to 2026-09-29)
+# MITRE ATT&CK techniques, current threat landscape
+# SIDs: 5208902 - 5209001
+
+# === CVE-based detections ===
+
+# CVE-2026-101895: Angular SSR DoS via malformed DOCTYPE
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-101895 Angular SSR DoS via Malformed DOCTYPE Detection"; flow:to_server,established; content:"<!DOCTYPE"; nocase; pcre:"/<!(?i)DOCTYPE[^>]*\{/"; content:"Content-Type|3a| text/html"; http_header; detection_filter:track by_src, count 5, seconds 10; reference:cve,2026-101895; classtype:attempted-dos; sid:5208902; rev:1;)
+
+# CVE-2026-88058: Angular SSR XSS via processing instruction nodes
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-88058 Angular SSR XSS via Processing Instruction Nodes"; flow:to_server,established; content:"<?"; http_client_body; pcre:"/<\?.*\?>/"; content:"Content-Type|3a| text/html"; http_header; reference:cve,2026-88058; classtype:web-application-attack; sid:5208903; rev:1;)
+
+# CVE-2026-86950: Out-of-bounds write (Apple/nvme)
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-86950 Out-of-Bounds Write Exploit Attempt"; flow:to_server,established; content:"POST"; http_method; pcre:"/overflow|oob|bounds/i"; content:"Content-Type|3a| application/octet-stream"; http_header; reference:cve,2026-86950; classtype:attempted-admin; sid:5208904; rev:1;)
+
+# CVE-2026-93355: LiteLLM weak auth via JWT
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-93355 LiteLLM Weak Authentication JWT Bypass"; flow:to_server,established; content:"Authorization|3a| Bearer"; http_header; content:"alg|3a|"; pcre:"/\"alg\"[ ]*:[ ]*\"none\"/"; content:"/v1/"; http_uri; reference:cve,2026-93355; classtype:attempted-bypass; sid:5208905; rev:1;)
+
+# CVE-2026-87741: ConvertPlus WordPress deserialization
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-87741 ConvertPlus WordPress Deserialization Attack"; flow:to_server,established; content:"/wp-admin/admin-ajax.php"; http_uri; content:"action|3d|"; pcre:"/action=convertplus/i"; content:"POST"; http_method; reference:cve,2026-87741; classtype:web-application-attack; sid:5208906; rev:1;)
+
+# CVE-2026-101108: Joomla Vehicle Manager unauthenticated SQLi
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-101108 Joomla Vehicle Manager Unauthenticated SQL Injection"; flow:to_server,established; content:"/index.php"; http_uri; pcre:"/option=com_vehiclemanager/i"; pcre:"/(union|select|concat|0x[0-9a-f]+)/i"; http_uri; reference:cve,2026-101108; classtype:web-application-attack; sid:5208907; rev:1;)
+
+# CVE-2026-101110: Joomla Book Library unauthenticated SQLi
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-101110 Joomla Book Library Unauthenticated SQL Injection"; flow:to_server,established; content:"/index.php"; http_uri; pcre:"/option=com_booklibrary/i"; pcre:"/(union|select|concat|0x[0-9a-f]+)/i"; http_uri; reference:cve,2026-101110; classtype:web-application-attack; sid:5208908; rev:1;)
+
+# CVE-2026-100752: Joomla Real Estate Manager unauthenticated SQLi
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-100752 Joomla Real Estate Manager Unauthenticated SQL Injection"; flow:to_server,established; content:"/index.php"; http_uri; pcre:"/option=com_realestatemanager/i"; pcre:"/(union|select|concat|0x[0-9a-f]+)/i"; http_uri; reference:cve,2026-100752; classtype:web-application-attack; sid:5208909; rev:1;)
+
+# CVE-2026-84292: fast-uri authority injection via unvalidated port
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-84292 fast-uri Authority Injection via Unvalidated Port"; flow:to_server,established; content:"://"; http_uri; pcre:"/:\d{1,5}[^\/\s]/"; content:"Host|3a|"; http_header; reference:cve,2026-84292; classtype:web-application-attack; sid:5208910; rev:1;)
+
+# CVE-2026-84394: fast-uri host confusion via unclosed bracket
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-84394 fast-uri Host Confusion via Unclosed Bracket"; flow:to_server,established; content:"//["; http_uri; pcre:"/\/\/\[[^\]]/"; reference:cve,2026-84394; classtype:web-application-attack; sid:5208911; rev:1;)
+
+# CVE-2026-68497: jackson-databind Duration XMLGregorianCalendar DoS
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-68497 jackson-databind Duration XMLGregorianCalendar DoS"; flow:to_server,established; content:"Content-Type|3a| application/json"; http_header; pcre:"/\"type\"[ ]*:[ ]*\"Duration\".*\"value\"[ ]*:[ ]*\"[0-9]{20,}\"/"; reference:cve,2026-68497; classtype:attempted-dos; sid:5208912; rev:1;)
+
+# CVE-2026-83557: jackson-databind Comparable missing from unsafe base types
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-83557 jackson-databind Polymorphic Type Deserialization Bypass"; flow:to_server,established; content:"Content-Type|3a| application/json"; http_header; pcre:"/\[\"java\.lang\.Comparable\"/"; reference:cve,2026-83557; classtype:web-application-attack; sid:5208913; rev:1;)
+
+# CVE-2026-19032: jackson-databind path deserialization missing scheme allowlist
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-19032 jackson-databind Path Deserialization FileSystemProvider SSRF"; flow:to_server,established; content:"Content-Type|3a| application/json"; http_header; pcre:"/\"file|\"jar|\"ftp/i"; content:"java.nio.file"; http_client_body; reference:cve,2026-19032; classtype:web-application-attack; sid:5208914; rev:1;)
+
+# CVE-2026-77310: jackson-databind incomplete fix for CVE-2026-54514 SSRF
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-77310 jackson-databind SSRF via InetAddress Deserialization"; flow:to_server,established; content:"Content-Type|3a| application/json"; http_header; pcre:"/\"java\.net\.InetAddress\"/"; reference:cve,2026-77310; classtype:web-application-attack; sid:5208915; rev:1;)
+
+# CVE-2026-85024: undici WebSocket permessage-deflate DoS
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-85024 undici WebSocket permessage-deflate Decompression DoS"; flow:to_server,established; content:"Upgrade|3a| websocket"; http_header; content:"Sec-WebSocket-Extensions|3a| permessage-deflate"; http_header; detection_filter:track by_src, count 20, seconds 5; reference:cve,2026-85024; classtype:attempted-dos; sid:5208916; rev:1;)
+
+# CVE-2026-88932: multer orphaned disk writes DoS
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-88932 multer Orphaned Disk Writes DoS via Aborted Uploads"; flow:to_server,established; content:"Content-Type|3a| multipart/form-data"; http_header; pcre:"/filename=.+/i"; detection_filter:track by_src, count 50, seconds 30; reference:cve,2026-88932; classtype:attempted-dos; sid:5208917; rev:1;)
+
+# CVE-2026-87859: morgan log injection via unescaped double quote
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-87859 morgan Log Injection via Unescaped Double Quote"; flow:to_server,established; content:"\""; http_uri; pcre:"/\x22[^\x22]*\x22[^\x22]*\x22/"; reference:cve,2026-87859; classtype:web-application-attack; sid:5208918; rev:1;)
+
+# CVE-2026-101913: ip-address isLinkLocal SSRF bypass
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-101913 ip-address isLinkLocal SSRF Bypass via fe80 Scope"; flow:to_server,established; content:"fe80|3a|"; http_uri; pcre:"/fe80::/i"; reference:cve,2026-101913; classtype:web-application-attack; sid:5208919; rev:1;)
+
+# CVE-2026-101910: ip-address NAT64 local-use range SSRF bypass
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-101910 ip-address NAT64 SSRF Bypass via 64:ff9b:1"; flow:to_server,established; content:"64|3a|ff9b|3a|1|3a|"; http_uri; pcre:"/64:ff9b:1::/i"; reference:cve,2026-101910; classtype:web-application-attack; sid:5208920; rev:1;)
+
+# CVE-2026-91095: proxygen HTTPTransaction issue
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-91095 proxygen HTTPTransaction Memory Corruption"; flow:to_server,established; pcre:"/Transfer-Encoding|3a| chunked/i"; http_header; content:"Content-Length|3a|"; http_header; reference:cve,2026-91095; classtype:attempted-admin; sid:5208921; rev:1;)
+
+# CVE-2026-91096: proxygen WebTransportImpl terminateSessionStreams
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-91096 proxygen WebTransport Session Stream Termination Exploit"; flow:to_server,established; content:"|3a|protocol"; http_header; pcre:"/webtransport/i"; reference:cve,2026-91096; classtype:attempted-admin; sid:5208922; rev:1;)
+
+# CVE-2026-84895: proxygen QuicWtSession closeSession use-after-free
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-84895 proxygen QuicWtSession closeSession Use-After-Free"; flow:to_server,established; pcre:"/^CONNECT /"; http_method; content:"|3a|authority"; http_header; reference:cve,2026-84895; classtype:attempted-admin; sid:5208923; rev:1;)
+
+# CVE-2026-101187: Ziroom ZHOME hardcoded credentials
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-101187 Ziroom ZHOME Hardcoded Credential Access Attempt"; flow:to_server,established; content:"admin|3a|admin"; http_header; pcre:"/Authorization|3a| Basic YWRtaW46YWRtaW4=/i"; reference:cve,2026-101187; classtype:attempted-admin; sid:5208924; rev:1;)
+
+# CVE-2026-102004: VxWorks memory corruption via system calls
+alert tcp $HOME_NET any -> $EXTERNAL_NET 17185 (msg:"CVE-2026-102004 VxWorks Memory Corruption via System Call Arguments"; flow:to_server,established; dsize:>4096; content:"|eb|"; depth:1; reference:cve,2026-102004; classtype:attempted-admin; sid:5208925; rev:1;)
+
+# CVE-2026-102010: GCC erase_if binary heap corruption
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-102010 GCC erase_if Binary Heap Memory Corruption Exploit"; flow:to_server,established; content:"Content-Type|3a| application/x-www-form-urlencoded"; http_header; pcre:"/erase_if|binary_heap|priority_queue/i"; reference:cve,2026-102010; classtype:attempted-admin; sid:5208926; rev:1;)
+
+# CVE-2026-13018: Chrome Codecs insufficient validation
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-13018 Chrome Codecs Insufficient Input Validation"; flow:to_server,established; content:"User-Agent|3a|"; http_header; pcre:"/Chrome\/14[0-6]\./"; content:"Accept|3a| video/"; http_header; reference:cve,2026-13018; classtype:web-application-attack; sid:5208927; rev:1;)
+
+# CVE-2026-96760: Authlib signature verification bypass
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-96760 Authlib Signature Verification Bypass"; flow:to_server,established; content:"Authorization|3a| Bearer"; http_header; pcre:"/eyJ[A-Za-z0-9_-]*\.eyJ[A-Za-z0-9_-]*\./"; content:"alg|3a|none"; reference:cve,2026-96760; classtype:attempted-bypass; sid:5208928; rev:1;)
+
+# CVE-2026-101132: DeepSeek harness path traversal
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-101132 DeepSeek Harness Path Traversal"; flow:to_server,established; pcre:"/\.\.%2f|\.\.\/|%2e%2e%2f/i"; http_uri; content:"deepseek"; http_uri; reference:cve,2026-101132; classtype:web-application-attack; sid:5208929; rev:1;)
+
+# CVE-2026-101139: Bagisto unknown function vulnerability
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-101139 Bagisto E-commerce Unauthorized Access"; flow:to_server,established; content:"/admin"; http_uri; pcre:"/bagisto/i"; content:"POST"; http_method; reference:cve,2026-101139; classtype:web-application-attack; sid:5208930; rev:1;)
+
+# CVE-2026-96740: StreamsHub Console for Apache Kafka tenant client issue
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-96740 StreamsHub Kafka Console Tenant Client Attack"; flow:to_server,established; content:"/api/kafka"; http_uri; pcre:"/tenant|consumer-group/i"; http_uri; reference:cve,2026-96740; classtype:web-application-attack; sid:5208931; rev:1;)
+
+# CVE-2026-101101: ag-ui-protocol vulnerability
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-101101 ag-ui-protocol Unauthorized Access"; flow:to_server,established; pcre:"/ag-ui|agent-ui/i"; http_uri; content:"POST"; http_method; reference:cve,2026-101101; classtype:web-application-attack; sid:5208932; rev:1;)
+
+# CVE-2026-101102: DeepSeek harness path traversal variant
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-101102 DeepSeek Harness File Manipulation"; flow:to_server,established; content:"deepseek"; http_uri; pcre:"/file|path|exec/i"; http_uri; reference:cve,2026-101102; classtype:web-application-attack; sid:5208933; rev:1;)
+
+# CVE-2026-101100: ag-ui-protocol flaw
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"CVE-2026-101100 ag-ui-protocol Input Validation Bypass"; flow:to_server,established; pcre:"/ag-ui|agent-ui/i"; http_uri; pcre:"/[;|&`$]/"; http_uri; reference:cve,2026-101100; classtype:web-application-attack; sid:5208934; rev:1;)
+
+# === MITRE ATT&CK Technique-based detections ===
+
+# T1046: Network Service Discovery - Nmap SYN scan detection
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1046 Network Service Discovery Nmap SYN Scan"; flags:S,12; detection_filter:track by_src, count 20, seconds 5; reference:url,attack.mitre.org/techniques/T1046; classtype:network-scan; sid:5208935; rev:1;)
+
+# T1046: Network Service Discovery - UDP scan
+alert udp $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1046 UDP Service Scan Detection"; dsize:0; detection_filter:track by_src, count 15, seconds 5; reference:url,attack.mitre.org/techniques/T1046; classtype:network-scan; sid:5208936; rev:1;)
+
+# T1595: Active Scanning - vulnerability scanner user agents
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1595 Active Scanning Vulnerability Scanner UA Detection"; flow:to_server,established; pcre:"/User-Agent|3a|.*(nikto|nmap|sqlmap|nessus|acunetix|burp|zap|gobuster|dirb|wpscan|nuclei)/i"; http_header; reference:url,attack.mitre.org/techniques/T1595; classtype:network-scan; sid:5208937; rev:1;)
+
+# T1592: Gather Victim Host Info - SNMP bulk enumeration
+alert udp $EXTERNAL_NET any -> $HOME_NET 161 (msg:"MITRE T1592 SNMP Bulk Enumeration Host Info Gathering"; content:"|30 29|"; depth:2; byte_test:1,&,0x20,1; reference:url,attack.mitre.org/techniques/T1592; classtype:attempted-recon; sid:5208938; rev:1;)
+
+# T1592: Gather Victim Host Info - LDAP enumeration
+alert tcp $EXTERNAL_NET any -> $HOME_NET 389 (msg:"MITRE T1592 LDAP Directory Enumeration Attempt"; flow:to_server,established; content:"|30 84 00 00 00 0a|"; depth:6; reference:url,attack.mitre.org/techniques/T1592; classtype:attempted-recon; sid:5208939; rev:1;)
+
+# T1110: Brute Force - SSH password spraying
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"MITRE T1110 SSH Brute Force Password Spraying"; flow:to_server,established; content:"SSH-"; depth:4; detection_filter:track by_src, count 10, seconds 30; reference:url,attack.mitre.org/techniques/T1110; classtype:attempted-admin; sid:5208940; rev:1;)
+
+# T1110: Brute Force - RDP credential stuffing
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"MITRE T1110 RDP Brute Force Credential Stuffing"; flow:to_server,established; detection_filter:track by_src, count 15, seconds 60; reference:url,attack.mitre.org/techniques/T1110; classtype:attempted-admin; sid:5208941; rev:1;)
+
+# T1110: Brute Force - HTTP basic auth brute force
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1110 HTTP Basic Auth Brute Force"; flow:to_server,established; content:"Authorization|3a| Basic"; http_header; detection_filter:track by_src, count 20, seconds 60; reference:url,attack.mitre.org/techniques/T1110; classtype:attempted-admin; sid:5208942; rev:1;)
+
+# T1059: Command and Scripting Interpreter - PowerShell over HTTP
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1059 PowerShell Encoded Command via HTTP"; flow:to_server,established; pcre:"/powershell.*-enc|powershell.*-e /i"; http_uri; reference:url,attack.mitre.org/techniques/T1059; classtype:trojan-activity; sid:5208943; rev:1;)
+
+# T1059: Command and Scripting Interpreter - Python reverse shell
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1059 Python Reverse Shell Connection"; flow:to_server,established; content:"import socket"; depth:14; pcre:"/socket\.connect|subprocess|os\.system/i"; reference:url,attack.mitre.org/techniques/T1059; classtype:trojan-activity; sid:5208944; rev:1;)
+
+# T1071: Application Layer Protocol - DNS tunneling detection
+alert dns $HOME_NET any -> $EXTERNAL_NET 53 (msg:"MITRE T1071 DNS Tunneling via Long Subdomain Query"; dns.query.name; pcre:"/^[a-zA-Z0-9]{40,}\./"; dns.query.rrtype:A; reference:url,attack.mitre.org/techniques/T1071; classtype:trojan-activity; sid:5208945; rev:1;)
+
+# T1071: Application Layer Protocol - DNS TXT record exfiltration
+alert dns $HOME_NET any -> $EXTERNAL_NET 53 (msg:"MITRE T1071 DNS TXT Record Data Exfiltration"; dns.query.rrtype:TXT; dns.query.name; pcre:"/[a-zA-Z0-9+\/]{50,}/"; reference:url,attack.mitre.org/techniques/T1071; classtype:trojan-activity; sid:5208946; rev:1;)
+
+# T1568: Dynamic Resolution - Dynamic DNS C2 callback
+alert dns $HOME_NET any -> $EXTERNAL_NET 53 (msg:"MITRE T1568 Dynamic DNS C2 Callback Detection"; dns.query.name; pcre:"/[a-z0-9]{8,}\.(duckdns|no-ip|ddns|dynu|freedns)\./i"; reference:url,attack.mitre.org/techniques/T1568; classtype:trojan-activity; sid:5208947; rev:1;)
+
+# T1041: Exfiltration Over C2 Channel - large outbound HTTPS to suspicious domain
+alert tls $HOME_NET any -> $EXTERNAL_NET $HTTPS_PORTS (msg:"MITRE T1041 Exfiltration Over C2 Channel Large HTTPS Upload"; flow:to_server,established; dsize:>1048576; tls.sni; pcre:"/[a-z0-9]{10,}\.(ru|cn|ir|kp|tk|ml|ga|cf)/i"; reference:url,attack.mitre.org/techniques/T1041; classtype:trojan-activity; sid:5208948; rev:1;)
+
+# T1048: Exfiltration Over Alternative Protocol - outbound FTP to unknown host
+alert tcp $HOME_NET any -> $EXTERNAL_NET 21 (msg:"MITRE T1048 Exfiltration Over FTP to Unknown External Host"; flow:to_server,established; content:"STOR"; depth:4; dsize:>524288; reference:url,attack.mitre.org/techniques/T1048; classtype:trojan-activity; sid:5208949; rev:1;)
+
+# T1048: Exfiltration Over Alternative Protocol - DNS zone transfer to external
+alert dns $HOME_NET any -> $EXTERNAL_NET 53 (msg:"MITRE T1048 Unauthorized DNS Zone Transfer Attempt"; dns.query.rrtype:AXFR; reference:url,attack.mitre.org/techniques/T1048; classtype:trojan-activity; sid:5208950; rev:1;)
+
+# T1078: Valid Accounts - unusual RDP from external IP
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"MITRE T1078 Valid Account Abuse External RDP Access"; flow:to_server,established; content:"|03 00|"; depth:2; dsize:>200; reference:url,attack.mitre.org/techniques/T1078; classtype:trojan-activity; sid:5208951; rev:1;)
+
+# T1133: External Remote Services - VPN connection from anomalous geo
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"MITRE T1133 External Remote Services VPN Anomalous Connection"; flow:to_server,established; tls.sni; pcre:"/vpn|fortinet|pulsesecure|citrix/i"; reference:url,attack.mitre.org/techniques/T1133; classtype:trojan-activity; sid:5208952; rev:1;)
+
+# T1190: Exploit Public-Facing Application - generic web shell upload
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1190 Web Shell Upload Attempt"; flow:to_server,established; pcre:"/(c99|r57|b374k|wso|shell)\.(php|jsp|asp|aspx)/i"; http_uri; content:"POST"; http_method; reference:url,attack.mitre.org/techniques/T1190; classtype:web-application-attack; sid:5208953; rev:1;)
+
+# T1190: Exploit Public-Facing Application - SSRF via metadata endpoint
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"MITRE T1190 SSRF Cloud Metadata Endpoint Access"; flow:to_server,established; content:"169.254.169.254"; http_uri; pcre:"/(latest|meta-data|computeMetadata)/i"; reference:url,attack.mitre.org/techniques/T1190; classtype:web-application-attack; sid:5208954; rev:1;)
+
+# T1505: Server Software Component - rogue web shell POST
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1505 Web Shell Command Execution POST"; flow:to_server,established; pcre:"/(cmd|command|exec|do|action)=[a-z0-9+/=]{20,}/i"; http_uri; content:"POST"; http_method; reference:url,attack.mitre.org/techniques/T1505; classtype:web-application-attack; sid:5208955; rev:1;)
+
+# T1003: OS Credential Dumping - LSASS memory access via SMB
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1003 LSASS Memory Dump via SMB"; flow:to_server,established; content:"|00 00 00 9c fe 53 4d 42 40|"; depth:9; content:"lsass"; nocase; distance:0; within:200; reference:url,attack.mitre.org/techniques/T1003; classtype:attempted-admin; sid:5208956; rev:1;)
+
+# T1003: OS Credential Dumping - ntds.dit extraction
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1003 ntds.dit Extraction via SMB"; flow:to_server,established; content:"ntds.dit"; nocase; reference:url,attack.mitre.org/techniques/T1003; classtype:attempted-admin; sid:5208957; rev:1;)
+
+# T1003: OS Credential Dumping - SAM registry hive dump
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1003 SAM Registry Hive Dump via SMB"; flow:to_server,established; pcre:"/\\\\SAM$|\\\\SYSTEM$/i"; reference:url,attack.mitre.org/techniques/T1003; classtype:attempted-admin; sid:5208958; rev:1;)
+
+# T1055: Process Injection - DLL injection via CreateRemoteThread
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1055 Remote DLL Injection via SMB Named Pipe"; flow:to_server,established; content:"|5c 5c|"; pcre:"/\\\\pipe\\\\|\\\\ipc\\\\/i"; reference:url,attack.mitre.org/techniques/T1055; classtype:attempted-admin; sid:5208959; rev:1;)
+
+# T1547: Boot or Logon Autostart Execution - suspicious scheduled task creation via RPC
+alert tcp $HOME_NET any -> $HOME_NET 135 (msg:"MITRE T1547 Scheduled Task Creation via RPC"; flow:to_server,established; content:"ITaskSchedulerService"; nocase; reference:url,attack.mitre.org/techniques/T1547; classtype:attempted-admin; sid:5208960; rev:1;)
+
+# T1021: Remote Services - WinRM lateral movement
+alert tcp $HOME_NET any -> $HOME_NET 5985 (msg:"MITRE T1021 WinRM Lateral Movement Attempt"; flow:to_server,established; content:"WSManCreate"; nocase; reference:url,attack.mitre.org/techniques/T1021; classtype:attempted-admin; sid:5208961; rev:1;)
+
+# T1021: Remote Services - SSH lateral movement from internal host
+alert tcp $HOME_NET any -> $HOME_NET 22 (msg:"MITRE T1021 SSH Lateral Movement Internal"; flow:to_server,established; content:"SSH-2.0-"; depth:8; reference:url,attack.mitre.org/techniques/T1021; classtype:attempted-admin; sid:5208962; rev:1;)
+
+# T1090: Proxy - TOR exit node inbound connection
+alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1090 TOR Exit Node Inbound Connection"; flow:to_server,established; pcre:"/^(x-|via|forwarded)/i"; http_header; reference:url,attack.mitre.org/techniques/T1090; classtype:trojan-activity; sid:5208963; rev:1;)
+
+# T1567: Exfiltration Over Web Service - cloud storage upload
+alert tls $HOME_NET any -> $EXTERNAL_NET $HTTPS_PORTS (msg:"MITRE T1567 Exfiltration Over Cloud Storage Service"; flow:to_server,established; tls.sni; pcre:"/(dropbox|mega\.nz|wetransfer|sendanywhere|filebin|gofile|streamable)\./i"; dsize:>10485760; reference:url,attack.mitre.org/techniques/T1567; classtype:trojan-activity; sid:5208964; rev:1;)
+
+# T1071: Application Layer Protocol - ICMP tunneling
+alert icmp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1071 ICMP Tunneling Large Payload"; dsize:>1000; itype:8; reference:url,attack.mitre.org/techniques/T1071; classtype:trojan-activity; sid:5208965; rev:1;)
+
+# T1566: Phishing - credential harvesting page patterns
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1566 Phishing Credential Harvest Page Pattern"; flow:to_server,established; pcre:"/(login|signin|account|verify|update).*\.(tk|ml|ga|cf|gq)/i"; http_uri; reference:url,attack.mitre.org/techniques/T1566; classtype:trojan-activity; sid:5208966; rev:1;)
+
+# T1566: Phishing - suspicious OAuth redirect
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1566 Phishing Suspicious OAuth Redirect"; flow:to_server,established; pcre:"/redirect_uri=https?:\/\/[^/]+\.(tk|ml|ga|cf|gq|xyz)/i"; http_uri; reference:url,attack.mitre.org/techniques/T1566; classtype:trojan-activity; sid:5208967; rev:1;)
+
+# T1059: Command and Scripting Interpreter - Bash reverse shell
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1059 Bash Reverse Shell /dev/tcp"; flow:to_server,established; content:"/dev/tcp/"; depth:10; reference:url,attack.mitre.org/techniques/T1059; classtype:trojan-activity; sid:5208968; rev:1;)
+
+# T1059: Command and Scripting Interpreter - suspicious curl pipe to bash
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"MITRE T1059 Curl Pipe to Bash Remote Script Execution"; flow:to_server,established; pcre:"/curl.*\| *(bash|sh|zsh)/i"; reference:url,attack.mitre.org/techniques/T1059; classtype:trojan-activity; sid:5208969; rev:1;)
+
+# T1486: Data Encrypted for Impact - ransomware file extension pattern
+alert smb $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1486 Ransomware File Extension Creation via SMB"; flow:to_server,established; pcre:"/\.(locked|encrypted|crypted|crypto|locky|crypt|wannacry|ryuk|conti|lockbit|blackcat|akira|royal|play)\./i"; reference:url,attack.mitre.org/techniques/T1486; classtype:trojan-activity; sid:5208970; rev:1;)
+
+# T1486: Data Encrypted for Impact - mass file rename via SMB
+alert smb $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1486 Mass File Rename Ransomware Activity"; flow:to_server,established; detection_filter:track by_src, count 100, seconds 10; reference:url,attack.mitre.org/techniques/T1486; classtype:trojan-activity; sid:5208971; rev:1;)
+
+# T1490: Inhibit System Recovery - vssadmin delete shadows
+alert smb $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1490 VSSAdmin Delete Shadow Copies via SMB"; flow:to_server,established; content:"vssadmin"; nocase; content:"delete"; nocase; distance:0; within:50; reference:url,attack.mitre.org/techniques/T1490; classtype:trojan-activity; sid:5208972; rev:1;)
+
+# T1490: Inhibit System Recovery - wbadmin delete backup
+alert smb $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1490 WBAdmin Delete Backup via SMB"; flow:to_server,established; content:"wbadmin"; nocase; content:"delete"; nocase; distance:0; within:50; reference:url,attack.mitre.org/techniques/T1490; classtype:trojan-activity; sid:5208973; rev:1;)
+
+# T1562: Impair Defenses - Windows Defender exclusion via registry
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1562 Windows Defender Exclusion Registry Modification"; flow:to_server,established; pcre:"/ExcludedPaths|ExcludedExtensions|DisableAntiSpyware/i"; reference:url,attack.mitre.org/techniques/T1562; classtype:attempted-admin; sid:5208974; rev:1;)
+
+# T1562: Impair Defenses - disabling security services
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1562 Disabling Security Services via SMB"; flow:to_server,established; content:"sc.exe"; nocase; content:"stop"; nocase; distance:0; within:30; pcre:"/(WinDefend|Sense|MsMpSvc|WdNisSvc)/i"; reference:url,attack.mitre.org/techniques/T1562; classtype:attempted-admin; sid:5208975; rev:1;)
+
+# T1218: System Binary Proxy Execution - mshta.exe execution via HTTP
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1218 Mshta Proxy Execution via HTTP"; flow:to_server,established; pcre:"/mshta.*\.(hta|vbs|js)/i"; reference:url,attack.mitre.org/techniques/T1218; classtype:trojan-activity; sid:5208976; rev:1;)
+
+# T1218: System Binary Proxy Execution - rundll32 suspicious DLL load
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1218 Rundll32 Suspicious DLL Load via HTTP"; flow:to_server,established; pcre:"/rundll32.*\.(dll|ocx)/i"; reference:url,attack.mitre.org/techniques/T1218; classtype:trojan-activity; sid:5208977; rev:1;)
+
+# T1218: System Binary Proxy Execution - certutil for download
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1218 Certutil Download via HTTP"; flow:to_server,established; pcre:"/certutil.*-urlcache.*-split/i"; reference:url,attack.mitre.org/techniques/T1218; classtype:trojan-activity; sid:5208978; rev:1;)
+
+# T1036: Masquerading - suspicious process name mimicking system process
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1036 Masquerading Fake System Process Name"; flow:to_server,established; pcre:"/(svchost|csrss|lsass|winlogon|explorer|spoolsv)\.(exe|scr)\.d[l]/i"; reference:url,attack.mitre.org/techniques/T1036; classtype:trojan-activity; sid:5208979; rev:1;)
+
+# T1036: Masquerading - executable with double extension
+alert smb $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1036 Masquerading Double Extension Executable via SMB"; flow:to_server,established; pcre:"/\.(txt|pdf|doc|xlsx|jpg|png)\.(exe|scr|com|bat|cmd|vbs|js|ps1)$/i"; reference:url,attack.mitre.org/techniques/T1036; classtype:trojan-activity; sid:5208980; rev:1;)
+
+# T1105: Ingress Tool Transfer - suspicious file download via HTTP
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1105 Suspicious Tool Transfer via HTTP"; flow:to_server,established; pcre:"/\.(exe|dll|scr|ps1|bat|vbs|jar|sh)/i"; http_uri; content:"Content-Disposition|3a| attachment"; http_header; reference:url,attack.mitre.org/techniques/T1105; classtype:trojan-activity; sid:5208981; rev:1;)
+
+# T1105: Ingress Tool Transfer - BITSAdmin download
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1105 BITSAdmin File Transfer via HTTP"; flow:to_server,established; content:"MicrosoftBITS"; http_header; reference:url,attack.mitre.org/techniques/T1105; classtype:trojan-activity; sid:5208982; rev:1;)
+
+# T1555: Credentials from Password Stores - browser credential extraction
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1555 Browser Credential Database Access via SMB"; flow:to_server,established; pcre:"/(Login Data|Cookies|Local State|key4\.db|logins\.json)/i"; reference:url,attack.mitre.org/techniques/T1555; classtype:attempted-admin; sid:5208983; rev:1;)
+
+# T1528: Steal Application Access Token - JWT token in URL
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"MITRE T1528 Application Access Token Exfiltration via HTTP"; flow:to_server,established; pcre:"/(access_token|jwt|bearer|api_key|apikey)=[A-Za-z0-9_-]{20,}/i"; http_uri; reference:url,attack.mitre.org/techniques/T1528; classtype:trojan-activity; sid:5208984; rev:1;)
+
+# T1557: Adversary-in-the-Middle - SSL strip detection
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"MITRE T1557 SSL Strip Adversary-in-the-Middle"; flow:to_server,established; content:"Location|3a| http://"; http_header; pcre:"/login|signin|account|auth/i"; reference:url,attack.mitre.org/techniques/T1557; classtype:trojan-activity; sid:5208985; rev:1;)
+
+# T1557: Adversary-in-the-Middle - HTTP credentials over non-TLS
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"MITRE T1557 Credentials Transmitted Over Non-TLS HTTP"; flow:to_server,established; content:"password"; http_client_body; pcre:"/Content-Type|3a| application\/x-www-form-urlencoded/i"; reference:url,attack.mitre.org/techniques/T1557; classtype:trojan-activity; sid:5208986; rev:1;)
+
+# T1199: Trusted Relationship - unusual API calls from partner IP range
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1199 Trusted Relationship Anomalous API Access"; flow:to_server,established; pcre:"/api\/(v[0-9]+|internal)\//i"; http_uri; content:"X-Forwarded-For|3a|"; http_header; reference:url,attack.mitre.org/techniques/T1199; classtype:trojan-activity; sid:5208987; rev:1;)
+
+# T1136: Create Account - suspicious new account creation via SMB
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1136 Suspicious Account Creation via SMB"; flow:to_server,established; content:"net user"; nocase; content:"/add"; nocase; distance:0; within:50; reference:url,attack.mitre.org/techniques/T1136; classtype:attempted-admin; sid:5208988; rev:1;)
+
+# T1543: Create or Modify System Process - suspicious service creation
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1543 Suspicious Windows Service Creation via SMB"; flow:to_server,established; content:"sc create"; nocase; pcre:"/sc\s+(create|config)\s+/i"; reference:url,attack.mitre.org/techniques/T1543; classtype:attempted-admin; sid:5208989; rev:1;)
+
+# T1572: Protocol Tunneling - SSH tunnel detection
+alert tcp $HOME_NET any -> $EXTERNAL_NET 22 (msg:"MITRE T1572 Protocol Tunneling via SSH"; flow:to_server,established; content:"SSH-2.0-"; depth:8; dsize:>65535; reference:url,attack.mitre.org/techniques/T1572; classtype:trojan-activity; sid:5208990; rev:1;)
+
+# T1572: Protocol Tunneling - DNS over HTTPS to suspicious provider
+alert tls $HOME_NET any -> $EXTERNAL_NET $HTTPS_PORTS (msg:"MITRE T1572 DNS over HTTPS Tunneling to Suspicious Provider"; flow:to_server,established; tls.sni; pcre:"/(dns\.google|cloudflare-dns|dns\.quad9|dns\.adguard)\./i"; reference:url,attack.mitre.org/techniques/T1572; classtype:trojan-activity; sid:5208991; rev:1;)
+
+# T1098: Account Manipulation - privilege escalation via group modification
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1098 Account Manipulation via Group Membership Change"; flow:to_server,established; content:"net group"; nocase; content:"/add"; nocase; distance:0; within:50; reference:url,attack.mitre.org/techniques/T1098; classtype:attempted-admin; sid:5208992; rev:1;)
+
+# T1098: Account Manipulation - AdminSDHolder modification
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1098 AdminSDHolder Modification via LDAP"; flow:to_server,established; content:"AdminSDHolder"; nocase; reference:url,attack.mitre.org/techniques/T1098; classtype:attempted-admin; sid:5208993; rev:1;)
+
+# T1087: Account Discovery - enumerate all domain users
+alert tcp $HOME_NET any -> $HOME_NET 389 (msg:"MITRE T1087 Domain User Enumeration via LDAP"; flow:to_server,established; content:"objectClass=user"; nocase; reference:url,attack.mitre.org/techniques/T1087; classtype:attempted-recon; sid:5208994; rev:1;)
+
+# T1087: Account Discovery - enumerate domain admins
+alert tcp $HOME_NET any -> $HOME_NET 389 (msg:"MITRE T1087 Domain Admin Group Enumeration via LDAP"; flow:to_server,established; content:"Domain Admins"; nocase; reference:url,attack.mitre.org/techniques/T1087; classtype:attempted-recon; sid:5208995; rev:1;)
+
+# T1018: Remote System Discovery - NetBIOS enumeration
+alert udp $HOME_NET any -> $HOME_NET 137 (msg:"MITRE T1018 Remote System Discovery via NetBIOS Name Query"; content:"|00 00 00 01|"; depth:4; reference:url,attack.mitre.org/techniques/T1018; classtype:attempted-recon; sid:5208996; rev:1;)
+
+# T1018: Remote System Discovery - ping sweep ICMP
+alert icmp $HOME_NET any -> $HOME_NET any (msg:"MITRE T1018 Internal Ping Sweep Discovery"; itype:8; dsize:32; detection_filter:track by_src, count 20, seconds 5; reference:url,attack.mitre.org/techniques/T1018; classtype:attempted-recon; sid:5208997; rev:1;)
+
+# T1049: System Network Connections Discovery - netstat output exfiltration
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"MITRE T1049 System Network Connections Discovery Exfiltration"; flow:to_server,established; pcre:"/(netstat|ss -|netsh|ipconfig|ifconfig|route print)/i"; http_client_body; reference:url,attack.mitre.org/techniques/T1049; classtype:trojan-activity; sid:5208998; rev:1;)
+
+# T1069: Permission Groups Discovery - BloodHound collection
+alert tcp $HOME_NET any -> $HOME_NET 389 (msg:"MITRE T1069 Permission Groups Discovery BloodHound Pattern"; flow:to_server,established; pcre:"/(memberOf|primaryGroupID|sAMAccountType|gPLink)/i"; detection_filter:track by_src, count 100, seconds 30; reference:url,attack.mitre.org/techniques/T1069; classtype:attempted-recon; sid:5208999; rev:1;)
+
+# T1057: Process Discovery - tasklist execution via SMB
+alert smb $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1057 Process Discovery via Tasklist over SMB"; flow:to_server,established; content:"tasklist"; nocase; reference:url,attack.mitre.org/techniques/T1057; classtype:attempted-recon; sid:5209000; rev:1;)
+
+# T1082: System Information Discovery - systeminfo via SMB
+alert smb $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1082 System Information Discovery via SMB"; flow:to_server,established; content:"systeminfo"; nocase; reference:url,attack.mitre.org/techniques/T1082; classtype:attempted-recon; sid:5209001; rev:1;)
