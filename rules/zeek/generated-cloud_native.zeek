@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-cloud_native
-# Auto-generated: 2026-09-25T04:05:13.164007Z
+# Auto-generated: 2026-09-30T04:05:10.928330Z
 # Load in local.zeek: @load ./generated-cloud_native
 
 signature ZK-CLOUD_NATIVE-067 {
