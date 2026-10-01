@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-ransomware
-# Auto-generated: 2026-09-25T04:05:13.166850Z
+# Auto-generated: 2026-10-01T04:05:05.426475Z
 # Load in local.zeek: @load ./generated-ransomware
 
 signature ZK-RANSOMWARE-077 {
