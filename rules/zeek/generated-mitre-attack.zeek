@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-mitre-attack
-# Auto-generated: 2026-09-25T04:05:13.165524Z
+# Auto-generated: 2026-10-02T08:21:17.496663Z
 # Load in local.zeek: @load ./generated-mitre-attack
 
 signature ZK-MITRE-ATTACK-021 {
@@ -139,5 +139,145 @@ signature ZK-MITRE-ATTACK-040 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*(mitre\-attack).*/ regex
+	event "MITRE T1578.004: Revert Cloud Instance"
+}
+
+signature ZK-MITRE-ATTACK-001 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((LoadLibrary|VirtualAlloc|WriteProcessMemory|CreateRemoteThread)).*/ regex
+	event "MITRE T1055.011: Extra Window Memory Injection"
+}
+
+signature ZK-MITRE-ATTACK-002 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((schtasks|crontab|systemctl\ enable|launchctl\ load)).*/ regex
+	event "MITRE T1053.005: Scheduled Task"
+}
+
+signature ZK-MITRE-ATTACK-003 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1205.002: Socket Filters"
+}
+
+signature ZK-MITRE-ATTACK-004 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1560.001: Archive via Utility"
+}
+
+signature ZK-MITRE-ATTACK-005 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1021.005: VNC"
+}
+
+signature ZK-MITRE-ATTACK-006 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1047: Windows Management Instrumentation"
+}
+
+signature ZK-MITRE-ATTACK-007 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1687: Exploitation for Defense Impairment"
+}
+
+signature ZK-MITRE-ATTACK-008 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1113: Screen Capture"
+}
+
+signature ZK-MITRE-ATTACK-009 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1027.011: Fileless Storage"
+}
+
+signature ZK-MITRE-ATTACK-010 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1037: Boot or Logon Initialization Scripts"
+}
+
+signature ZK-MITRE-ATTACK-011 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1557: Adversary-in-the-Middle"
+}
+
+signature ZK-MITRE-ATTACK-012 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1033: System Owner/User Discovery"
+}
+
+signature ZK-MITRE-ATTACK-013 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1583: Acquire Infrastructure"
+}
+
+signature ZK-MITRE-ATTACK-014 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1218.011: Rundll32"
+}
+
+signature ZK-MITRE-ATTACK-015 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1613: Container and Resource Discovery"
+}
+
+signature ZK-MITRE-ATTACK-016 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1583.007: Serverless"
+}
+
+signature ZK-MITRE-ATTACK-017 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1132.001: Standard Encoding"
+}
+
+signature ZK-MITRE-ATTACK-018 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1027.009: Embedded Payloads"
+}
+
+signature ZK-MITRE-ATTACK-019 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
+	event "MITRE T1556.003: Pluggable Authentication Modules"
+}
+
+signature ZK-MITRE-ATTACK-020 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((mitre-attack|attack|mitre)).*/ regex
 	event "MITRE T1578.004: Revert Cloud Instance"
 }

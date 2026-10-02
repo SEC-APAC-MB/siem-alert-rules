@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-supply_chain
-# Auto-generated: 2026-09-25T04:05:13.168136Z
+# Auto-generated: 2026-10-02T08:21:17.498691Z
 # Load in local.zeek: @load ./generated-supply_chain
 
 signature ZK-SUPPLY_CHAIN-057 {
@@ -69,5 +69,75 @@ signature ZK-SUPPLY_CHAIN-066 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*(supply_chain).*/ regex
+	event "Dependency Version Pinning Bypass"
+}
+
+signature ZK-SUPPLY_CHAIN-037 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((npm\ install|pip\ install)).*/ regex
+	event "Dependency Confusion Attack"
+}
+
+signature ZK-SUPPLY_CHAIN-038 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((npm\ install|pip\ install)).*/ regex
+	event "Typosquatting Package Install"
+}
+
+signature ZK-SUPPLY_CHAIN-039 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((npm\ install|pip\ install)).*/ regex
+	event "Compromised CI/CD Pipeline"
+}
+
+signature ZK-SUPPLY_CHAIN-040 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((npm\ install|pip\ install)).*/ regex
+	event "Malicious NPM/PyPI Package"
+}
+
+signature ZK-SUPPLY_CHAIN-041 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((npm\ install|pip\ install)).*/ regex
+	event "Container Image Tampering"
+}
+
+signature ZK-SUPPLY_CHAIN-042 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((npm\ install|pip\ install)).*/ regex
+	event "Compromised Update Server"
+}
+
+signature ZK-SUPPLY_CHAIN-043 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((npm\ install|pip\ install)).*/ regex
+	event "Build Pipeline Injection"
+}
+
+signature ZK-SUPPLY_CHAIN-044 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((npm\ install|pip\ install)).*/ regex
+	event "Secret Leakage in CI Logs"
+}
+
+signature ZK-SUPPLY_CHAIN-045 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((npm\ install|pip\ install)).*/ regex
+	event "Unsigned Artifact Deployment"
+}
+
+signature ZK-SUPPLY_CHAIN-046 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((npm\ install|pip\ install)).*/ regex
 	event "Dependency Version Pinning Bypass"
 }

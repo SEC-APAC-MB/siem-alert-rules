@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-reconnaissance (converted)",
   "version": "2.0.0",
-  "converted": "2026-09-25T04:05:13.303003Z",
-  "total_rules": 10,
+  "converted": "2026-10-02T08:21:17.555273Z",
+  "total_rules": 14,
   "rules": [
     {
       "rule_id": "AWS-RECONNAISSANCE-117",
@@ -489,6 +489,206 @@
           "detail": {
             "eventName": [
               "Kubernetes API Server Recon"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "AWS-RECONNAISSANCE-097",
+      "name": "Active Directory Domain Enumeration",
+      "description": "Detect AD enumeration via LDAP queries, DSQuery, BloodHound collection",
+      "severity": "medium",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"reconnaissance\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ActiveDirectoryDomainEnumeration",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Active Directory Domain Enumeration"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "AWS-RECONNAISSANCE-098",
+      "name": "Network Service Discovery (Nmap/Masscan)",
+      "description": "Detect port scanning patterns from Nmap, Masscan, Shodan",
+      "severity": "medium",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"reconnaissance\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "NetworkServiceDiscoveryNmapMasscan",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Network Service Discovery (Nmap/Masscan)"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "AWS-RECONNAISSANCE-099",
+      "name": "DNS Zone Transfer Attempt",
+      "description": "Detect AXFR zone transfer attempts revealing internal DNS records",
+      "severity": "high",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"reconnaissance\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "DNSZoneTransferAttempt",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "DNS Zone Transfer Attempt"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "AWS-RECONNAISSANCE-100",
+      "name": "Web Technology Fingerprinting",
+      "description": "Detect Wappalyzer/WhatWeb-style fingerprinting probes",
+      "severity": "medium",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"reconnaissance\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "WebTechnologyFingerprinting",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Web Technology Fingerprinting"
             ]
           }
         },
