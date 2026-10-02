@@ -1,0 +1,304 @@
+# Suricata Detection Rules - Generated 2026-10-02 00:53 CEST
+# Source: GitHub Advisory Database CVEs (published >2026-08-27)
+# MITRE ATT&CK techniques, current threat landscape
+# SIDs: 52100100 - 52100199
+
+# === CVE-2026-55395: Teledyne FLIR Aware2 Hardcoded Passwords (CRITICAL) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-55395 Teledyne FLIR Aware2 hardcoded password authentication attempt"; flow:established,to_server; content:"POST"; http_method; content:"/api/login"; http_uri; content:"admin"; http_client_body; depth:20; content:"flir_default"; http_client_body; distance:0; classtype:attempted-admin; sid:52100100; rev:1;)
+
+# === CVE-2026-55393: Teledyne FLIR Aware2 Path Traversal (CRITICAL) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-55393 Teledyne FLIR Aware2 path traversal via web interface"; flow:established,to_server; content:"GET"; http_method; content:"../"; http_uri; content:"flir"; http_header; pcre:"/(\.\.\/){2,}/Ui"; classtype:attempted-admin; sid:52100101; rev:1;)
+
+# === CVE-2026-14984: Teledyne FLIR Aware2 Cleartext Control Endpoints (CRITICAL) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-14984 Teledyne FLIR Aware2 cleartext control endpoint access"; flow:established,to_server; content:"GET /control/"; depth:15; nocase; classtype:trojan-activity; sid:52100102; rev:1;)
+
+# === CVE-2026-14983: Teledyne FLIR Aware2 Missing Auth Web Interface (HIGH) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-14983 Teledyne FLIR Aware2 missing auth web interface access"; flow:established,to_server; content:"GET"; http_method; content:"/api/"; http_uri; nocase; content:"Authorization"; http_header; negate; classtype:attempted-admin; sid:52100103; rev:1;)
+
+# === CVE-2026-102514: PeaZip PEA Archive OOB Write (HIGH) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-102514 PeaZip PEA archive OOB write via crafted .pea file download"; flow:established,to_client; content:"PEA"; depth:3; nocase; file_data; content:"PCOMPRESS1"; nocase; classtype:attempted-user; sid:52100104; rev:1;)
+
+# === CVE-2026-55394: Teledyne FLIR Aware2 Unencrypted 802.11 (MEDIUM) ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg:"CVE-2026-55394 Teledyne FLIR Aware2 unencrypted 802.11 traffic detected"; flow:established; content:"FLIR"; nocase; dsize:0; classtype:misc-activity; sid:52100105; rev:1;)
+
+# === CVE-2026-27874: Johnson Controls EasyIO FS32 Hard-coded Credentials (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 8080 (msg:"CVE-2026-27874 Johnson Controls EasyIO FS32 hard-coded credential usage"; flow:established,to_server; content:"easyio"; nocase; content:"admin"; nocase; classtype:attempted-admin; sid:52100106; rev:1;)
+
+# === CVE-2026-71451: Johnson Controls EasyIO FS32 OS Command Injection (HIGH) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-71451 Johnson Controls EasyIO FS32 OS command injection"; flow:established,to_server; content:"POST"; http_method; content:"cmd="; http_client_body; pcre:"/cmd=.*?[;&|`$]/Ui"; classtype:attempted-admin; sid:52100107; rev:1;)
+
+# === CVE-2026-55396: RT-Labs CANopen Cleartext Robot Control (HIGH) ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 5000 (msg:"CVE-2026-55396 RT-Labs C-Open CANopen cleartext robot control communication"; flow:established; content:"CANOPEN"; nocase; classtype:trojan-activity; sid:52100108; rev:1;)
+
+# === CVE-2026-82358: RT-Labs C-Open CANopen Write Protection Bypass (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 502 (msg:"CVE-2026-82358 RT-Labs C-Open CANopen SDO write protection bypass attempt"; flow:established,to_server; content:"|2f 00|"; depth:4; content:"|23 10|"; within:4; classtype:attempted-admin; sid:52100109; rev:1;)
+
+# === CVE-2026-82357: RT-Labs C-Open CANopen NULL Deref via LSS (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 502 (msg:"CVE-2026-82357 RT-Labs C-Open CANopen LSS protocol NULL deref attempt"; flow:established,to_server; content:"|04 00|"; depth:2; content:"|01 00|"; within:2; classtype:attempted-dos; sid:52100110; rev:1;)
+
+# === CVE-2026-104286: Path Traversal in Web Interface (CRITICAL) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-104286 path traversal via web interface - restricted directory access"; flow:established,to_server; content:"GET"; http_method; pcre:"/(\.\.[\/\\]){3,}/Ui"; classtype:attempted-admin; sid:52100111; rev:1;)
+
+# === CVE-2026-102670: Joyland AI Cleartext HTTP Traffic (MEDIUM) ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 80 (msg:"CVE-2026-102670 Joyland AI app cleartext HTTP traffic to external server"; flow:established,to_server; content:"Host|3a 20|api.joyland.ai"; http_header; classtype:misc-activity; sid:52100112; rev:1;)
+
+# === CVE-2026-102671: Joyland AI Invalid SSL Certificate (MEDIUM) ===
+alert tls $HOME_NET any -> $EXTERNAL_NET 443 (msg:"CVE-2026-102671 Joyland AI app accepting invalid SSL certificate"; flow:established,to_server; content:"joyland"; nocase; tls_state:not_valid; classtype:misc-activity; sid:52100113; rev:1;)
+
+# === CVE-2026-102667: Joyland AI JavaScript Injection (CRITICAL) ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-102667 Joyland AI JavaScript injection over shared network"; flow:established,to_client; content:"<script"; nocase; content:"joyland"; nocase; pcre:"/<script[^>]*>.*joyland/smi"; classtype:attempted-user; sid:52100114; rev:1;)
+
+# === CVE-2026-102666: Joyland AI Hard-coded GeTui Credentials (MEDIUM) ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-102666 Joyland AI app hard-coded GeTui push notification credentials in traffic"; flow:established,to_server; content:"restapi.getui.com"; http_header; nocase; classtype:misc-activity; sid:52100115; rev:1;)
+
+# === CVE-2026-102669: Joyland AI Hostname Verification Bypass (MEDIUM) ===
+alert tls $HOME_NET any -> $EXTERNAL_NET 443 (msg:"CVE-2026-102669 Joyland AI app hostname verification bypass TLS connection"; flow:established,to_server; content:"joyland"; nocase; tls_state:not_valid; classtype:misc-activity; sid:52100116; rev:1;)
+
+# === CVE-2026-102668: Joyland AI Accepts Any TLS Certificate (MEDIUM) ===
+alert tls $HOME_NET any -> $EXTERNAL_NET 443 (msg:"CVE-2026-102668 Joyland AI app accepts any TLS certificate from any server"; flow:established,to_server; content:"joyland"; nocase; dsize:0; classtype:misc-activity; sid:52100117; rev:1;)
+
+# === CVE-2026-100251: Wormhole.app coturn TURN Misconfiguration (MEDIUM) ===
+alert udp $HOME_NET any -> $EXTERNAL_NET 3478 (msg:"CVE-2026-100251 Wormhole.app coturn TURN server misconfiguration traffic"; flow:to_server; content:"wormhole"; nocase; classtype:misc-activity; sid:52100118; rev:1;)
+
+# === CVE-2026-102628: Cadmos LTI Laravel Debug Mode (CRITICAL) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-102628 Cadmos LTI Laravel debug mode enabled - APP_DEBUG exposure"; flow:established,to_server; content:"GET"; http_method; content:"cadmos"; http_uri; nocase; content:"Whoops!"; http_response_body; classtype:attempted-recon; sid:52100119; rev:1;)
+
+# === CVE-2026-15911: Confluent Kafka Python Vault KMS (HIGH) ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 8200 (msg:"CVE-2026-15911 Confluent Kafka Python HashiCorp Vault KMS credential exposure"; flow:established,to_server; content:"vault"; nocase; content:"kafka"; nocase; classtype:attempted-recon; sid:52100120; rev:1;)
+
+# === CVE-2026-104058: Podgrab Missing Auth WebSocket (MEDIUM) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-104058 Podgrab unauthenticated WebSocket /ws route access"; flow:established,to_server; content:"Upgrade|3a 20|websocket"; http_header; content:"/ws"; http_uri; classtype:attempted-recon; sid:52100121; rev:1;)
+
+# === CVE-2026-104059: Lektor CSRF Admin API (HIGH) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-104059 Lektor admin API cross-site request forgery attempt"; flow:established,to_server; content:"POST"; http_method; content:"/admin/api/"; http_uri; nocase; content:"Referer"; http_header; negate; classtype:attempted-user; sid:52100122; rev:1;)
+
+# === CVE-2026-104057: Podgrab Unauthenticated DoS (HIGH) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-104057 Podgrab unauthenticated denial-of-service via unsynchronized access"; flow:established,to_server; content:"GET"; http_method; content:"/podcasts"; http_uri; nocase; detection_filter:track_src_by,count:50,seconds:10; classtype:attempted-dos; sid:52100123; rev:1;)
+
+# === CVE-2026-78577: Tapo C120/C200 HTTPS Onboarding Scan (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-78577 TP-Link Tapo C120 C200 HTTPS onboarding scan vulnerability"; flow:established,to_server; content:"tapo"; nocase; content:"onboarding"; nocase; classtype:attempted-recon; sid:52100124; rev:1;)
+
+# === CVE-2026-78578: Tapo C120/C200 Missing Auth HTTPS Onboarding (HIGH) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-78578 TP-Link Tapo C120 C200 no auth HTTPS onboarding connect"; flow:established,to_server; content:"POST"; http_method; content:"/onboarding"; http_uri; nocase; content:"Authorization"; http_header; negate; classtype:attempted-admin; sid:52100125; rev:1;)
+
+# === CVE-2026-68496: FasterXML jackson Smile Parser (HIGH) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-68496 FasterXML jackson Smile parser StreamReadConstraints bypass"; flow:established,to_server; content:"application/x-jackson-smile"; http_header; nocase; content:"|00 02 00 00|"; depth:4; classtype:attempted-dos; sid:52100126; rev:1;)
+
+# === CVE-2026-102294: TP-Link TL-WR841N OS Command Injection (HIGH) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-102294 TP-Link TL-WR841N authenticated OS command injection in IPv6 WAN"; flow:established,to_server; content:"POST"; http_method; content:"/cgi"; http_uri; content:"ipv6_wan"; http_client_body; pcre:"/[;&|`$]/Um"; classtype:attempted-admin; sid:52100127; rev:1;)
+
+# === CVE-2026-9032: Tapo C120/C200 NULL Pointer Deref HTTPS Onboarding (HIGH) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-9032 TP-Link Tapo C120 C200 NULL deref HTTPS onboarding connect"; flow:established,to_server; content:"POST"; http_method; content:"onboarding"; http_uri; content:"connect"; http_uri; pcre:"/connect.*?\x00/smi"; classtype:attempted-dos; sid:52100128; rev:1;)
+
+# === CVE-2026-56097: rubygem-katello SQL Injection (MEDIUM) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-56097 rubygem-katello SQL injection in Red Hat Satellite"; flow:established,to_server; content:"GET"; http_method; content:"/katello/api/"; http_uri; pcre:"/(union|select|insert|drop).*?(from|into|table)/Ui"; classtype:sql-injection; sid:52100129; rev:1;)
+
+# === CVE-2026-12545: rubygem-hammer_cli Command Injection (MEDIUM) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-12545 rubygem-hammer_cli command injection in Hammer CLI"; flow:established,to_server; content:"POST"; http_method; content:"hammer"; http_uri; pcre:"/[;&|`$]/Ui"; classtype:attempted-admin; sid:52100130; rev:1;)
+
+# === CVE-2026-12542: Foreman foreman-tail OS Command Injection (MEDIUM) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-12542 Foreman foreman-tail OS command injection via crafted input"; flow:established,to_server; content:"POST"; http_method; content:"foreman-tail"; http_uri; pcre:"/[;&|`$]/Ui"; classtype:attempted-admin; sid:52100131; rev:1;)
+
+# === CVE-2026-104018: Wind River VxWorks Improper Privilege Management (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 17185 (msg:"CVE-2026-104018 Wind River VxWorks improper privilege management in command shell"; flow:established,to_server; content:"WR"; nocase; content:"shell"; nocase; classtype:attempted-admin; sid:52100132; rev:1;)
+
+# === CVE-2026-103884: Keycloak X.509 CRL Distribution Point (MEDIUM) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-103884 Keycloak X.509 client cert auth CRL distribution point bypass"; flow:established,to_server; content:"/auth/realms/"; http_uri; content:"x509"; http_uri; nocase; content:"CRL"; http_uri; nocase; classtype:attempted-user; sid:52100133; rev:1;)
+
+# === CVE-2026-102369: Tapo C120/C200 Login Challenge Data (HIGH) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-102369 TP-Link Tapo C120 C200 login challenge data inadequate protection"; flow:established,to_server; content:"POST"; http_method; content:"/login"; http_uri; content:"tapo"; http_header; nocase; classtype:attempted-admin; sid:52100134; rev:1;)
+
+# === CVE-2023-54404: Zod Schema Validation ReDoS (HIGH) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2023-54404 Zod schema-validation library uncontrolled resource consumption ReDoS"; flow:established,to_server; content:"application/json"; http_header; pcre:"/(a+){10000}/Ui"; classtype:attempted-dos; sid:52100135; rev:1;)
+
+# === CVE-2026-57941: Apache HTTP Server mod_http2 Use After Free (CRITICAL) ===
+alert http $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-57941 Apache HTTP Server mod_http2 use-after-free via shared session bbtmp"; flow:established,to_server; content:"Upgrade|3a 20|h2c"; http_header; detection_filter:track_src_by,count:20,seconds:5; classtype:attempted-admin; sid:52100136; rev:1;)
+
+# === CVE-2026-96658: Foreman Authenticated Privilege Escalation (CRITICAL) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-96658 Foreman authenticated low-level user privilege escalation attempt"; flow:established,to_server; content:"POST"; http_method; content:"/users/"; http_uri; content:"role_ids"; http_client_body; classtype:attempted-admin; sid:52100137; rev:1;)
+
+# === CVE-2026-59797: Apache HTTP Server mod_ssl SSLRequire Improper Privilege (CRITICAL) ===
+alert tls $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-59797 Apache mod_ssl SSLRequire improper privilege management bypass"; flow:established,to_server; content:"SSLRequire"; nocase; tls_state:client_hello; classtype:attempted-admin; sid:52100138; rev:1;)
+
+# === CVE-2026-73637: Apache HTTP Server mod_auth_digest Use After Free (HIGH) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-73637 Apache mod_auth_digest use-after-free in HTTP Digest auth"; flow:established,to_server; content:"Authorization|3a 20|Digest"; http_header; pcre:"/nc=00000001.*nc=00000001/Ui"; classtype:attempted-admin; sid:52100139; rev:1;)
+
+# === CVE-2026-27872: Johnson Controls EasyIO FG Brute Force (MEDIUM) ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-27872 Johnson Controls EasyIO FG brute force improper privilege management"; flow:established,to_server; content:"POST"; http_method; content:"/login"; http_uri; detection_filter:track_src_by,count:30,seconds:60; classtype:attempted-admin; sid:52100140; rev:1;)
+
+# === CVE-2026-8618: TP-Link Deco TDDPv2 Stack Buffer Overflow (HIGH) ===
+alert udp $EXTERNAL_NET any -> $HOME_NET 1040 (msg:"CVE-2026-8618 TP-Link Deco TDDPv2 stack-based buffer overflow in tddp service"; flow:to_server; content:"|01 00|"; depth:2; dsize:>256; classtype:attempted-admin; sid:52100141; rev:1;)
+
+# === CVE-2026-84682: TP-Link Archer AX90 V1 TDDPv2 Command Injection (HIGH) ===
+alert udp $EXTERNAL_NET any -> $HOME_NET 1040 (msg:"CVE-2026-84682 TP-Link Archer AX90 V1 TDDPv2 command injection attempt"; flow:to_server; content:"|01 00|"; depth:2; content:"cmd"; nocase; pcre:"/[;&|`$]/"; classtype:attempted-admin; sid:52100142; rev:1;)
+
+# === CVE-2026-103484: pgvector IVFFlat OOB Write (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5432 (msg:"CVE-2026-103484 pgvector IVFFlat index build out-of-bounds write attempt"; flow:established,to_server; content:"CREATE INDEX"; nocase; content:"ivfflat"; nocase; pcre:"/lists\s*=\s*\d{6,}/Ui"; classtype:attempted-user; sid:52100143; rev:1;)
+
+# === CVE-2026-93832: Motorola System App Exported Without Permission (MEDIUM) ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-93832 Motorola exported system component unauthorized access traffic"; flow:established,to_server; content:"motorola"; http_header; nocase; content:"intent"; nocase; classtype:misc-activity; sid:52100144; rev:1;)
+
+# === CVE-2026-102370: Kasa EC70/EC71 Debug Interface (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 9999 (msg:"CVE-2026-102370 Kasa EC70 EC71 production debug interface not disabled"; flow:established,to_server; content:"TP-LINK"; nocase; dsize:0; classtype:attempted-recon; sid:52100145; rev:1;)
+
+# === MITRE ATT&CK T1046: Network Service Discovery ===
+alert udp $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1046 Network service discovery - mass port scan detected"; flow:to_server; detection_filter:track_src_by,count:50,seconds:10; classtype:network-scan; sid:52100146; rev:1;)
+
+# === MITRE ATT&CK T1046: SNMP Enumeration ===
+alert udp $EXTERNAL_NET any -> $HOME_NET 161 (msg:"MITRE T1046 SNMP enumeration attempt for network service discovery"; flow:to_server; content:"|30 26 02 01 01 04 06 70 75 62 6c 69 63 a0 19|"; depth:16; classtype:network-scan; sid:52100147; rev:1;)
+
+# === MITRE ATT&CK T1611: Authentication Modality Bypass ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1611 Authentication modality bypass - multi-factor bypass attempt"; flow:established,to_server; content:"POST"; http_method; content:"/auth/mfa/bypass"; http_uri; nocase; classtype:attempted-admin; sid:52100148; rev:1;)
+
+# === MITRE ATT&CK T1621: Multi-Factor Authentication Request Generation ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1621 MFA fatigue request generation - rapid auth requests"; flow:established,to_server; content:"POST"; http_method; content:"/auth/verify"; http_uri; detection_filter:track_src_by,count:20,seconds:30; classtype:attempted-admin; sid:52100149; rev:1;)
+
+# === MITRE ATT&CK T1110.003: Password Spraying ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1110.003 Password spraying - distributed authentication failures"; flow:established,to_server; content:"POST"; http_method; content:"login"; http_uri; nocase; detection_filter:track_src_by,count:100,seconds:60; classtype:attempted-admin; sid:52100150; rev:1;)
+
+# === MITRE ATT&CK T1110.001: Password Guessing ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1110.001 Password guessing - rapid failed logins from single source"; flow:established,to_server; content:"POST"; http_method; content:"password"; http_client_body; detection_filter:track_src_by,count:30,seconds:60; classtype:attempted-admin; sid:52100151; rev:1;)
+
+# === MITRE ATT&CK T1059.004: Unix Shell Scripting ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1059.004 Unix shell command injection via HTTP parameter"; flow:established,to_server; pcre:"/(bash|sh|zsh|ksh)\s+-[ic]/Ui"; classtype:attempted-user; sid:52100152; rev:1;)
+
+# === MITRE ATT&CK T1059.001: PowerShell Remote Command ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1059.001 PowerShell command execution via HTTP"; flow:established,to_server; content:"powershell"; nocase; pcre:"/(encodedcommand|enc|e)\s+/Ui"; classtype:attempted-admin; sid:52100153; rev:1;)
+
+# === MITRE ATT&CK T1190: Exploit Public-Facing Application - SSRF ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1190 SSRF attempt targeting internal services via HTTP"; flow:established,to_server; pcre:"/(127\.0\.0\.1|localhost|169\.254\.169\.254|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+|192\.168\.\d+\.\d+)/Ui"; classtype:attempted-recon; sid:52100154; rev:1;)
+
+# === MITRE ATT&CK T1190: SSRF targeting AWS Metadata ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1190 SSRF targeting AWS EC2 instance metadata endpoint"; flow:established,to_server; content:"169.254.169.254"; http_uri; content:"latest"; http_uri; classtype:attempted-recon; sid:52100155; rev:1;)
+
+# === MITRE ATT&CK T1190: SSRF targeting GCP Metadata ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1190 SSRF targeting GCP metadata endpoint via header injection"; flow:established,to_server; content:"Metadata-Flavor|3a 20|Google"; http_header; content:"169.254.169.254"; http_uri; classtype:attempted-recon; sid:52100156; rev:1;)
+
+# === MITRE ATT&CK T1505.003: Web Shell Upload ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1505.003 Web shell upload via HTTP POST with PHP/JSP content"; flow:established,to_server; content:"POST"; http_method; content:"Content-Type|3a 20|application/octet-stream"; http_header; file_data; content:"<?php"; nocase; classtype:trojan-activity; sid:52100157; rev:1;)
+
+# === MITRE ATT&CK T1027: Obfuscated Files - Base64 in URI ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1027 Base64 encoded payload in HTTP URI - obfuscated file transfer"; flow:established,to_server; pcre:"/[A-Za-z0-9+\/]{200,}={0,2}/U"; classtype:trojan-activity; sid:52100158; rev:1;)
+
+# === MITRE ATT&CK T1027.002: Software Packing - UPX Binary ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1027.002 UPX-packed binary transfer detected over network"; flow:established,to_server; content:"UPX0"; nocase; content:"UPX1"; nocase; classtype:trojan-activity; sid:52100159; rev:1;)
+
+# === MITRE ATT&CK T1071.001: Web Protocols - C2 Beacon ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1071.001 HTTP C2 beacon pattern - periodic check-in detected"; flow:established,to_server; content:"GET"; http_method; content:"/checkin"; http_uri; nocase; detection_filter:track_src_by,count:50,seconds:300; classtype:trojan-activity; sid:52100160; rev:1;)
+
+# === MITRE ATT&CK T1071.004: DNS C2 Tunneling ===
+alert dns $HOME_NET any -> $EXTERNAL_NET 53 (msg:"MITRE T1071.004 DNS tunneling - excessive TXT record queries"; flow:to_server; content:"TXT"; nocase; detection_filter:track_src_by,count:100,seconds:60; classtype:trojan-activity; sid:52100161; rev:1;)
+
+# === MITRE ATT&CK T1568.002: Dynamic Resolution - Domain Generation Algorithms ===
+alert dns $HOME_NET any -> $EXTERNAL_NET 53 (msg:"MITRE T1568.002 DGA domain query pattern - randomized subdomain"; flow:to_server; pcre:"/[a-z0-9]{12,}\.[a-z]{2,4}/i"; detection_filter:track_src_by,count:30,seconds:60; classtype:trojan-activity; sid:52100162; rev:1;)
+
+# === MITRE ATT&CK T1048.003: Exfiltration Over Unencrypted Non-C2 Protocol ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1048.003 Data exfiltration via HTTP POST - large upload to file sharing service"; flow:established,to_server; content:"POST"; http_method; content:"upload"; http_uri; nocase; dsize:>10000000; classtype:exfiltration; sid:52100163; rev:1;)
+
+# === MITRE ATT&CK T1041: Exfiltration Over C2 Channel ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1041 Data exfiltration over C2 HTTP channel - large response to beacon"; flow:established,to_client; dsize:>5000000; content:"POST"; http_method; classtype:exfiltration; sid:52100164; rev:1;)
+
+# === MITRE ATT&CK T1567.002: Exfiltration to Cloud Storage ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1567.002 Data exfiltration to cloud storage - large upload to AWS S3"; flow:established,to_server; content:"PUT"; http_method; content:".s3.amazonaws.com"; http_header; dsize:>5000000; classtype:exfiltration; sid:52100165; rev:1;)
+
+# === MITRE ATT&CK T1567.001: Exfiltration to Code Repository ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1567.001 Data exfiltration via code repository push - large git push"; flow:established,to_server; content:"git-receive-pack"; http_uri; dsize:>10000000; classtype:exfiltration; sid:52100166; rev:1;)
+
+# === MITRE ATT&CK T1053.003: Cron Job Persistence ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1053.003 Cron job persistence via web shell - crontab modification"; flow:established,to_server; content:"crontab"; nocase; content:"-e"; nocase; pcre:"/(crontab|cron\.d|cron\.daily)/Ui"; classtype:trojan-activity; sid:52100167; rev:1;)
+
+# === MITRE ATT&CK T1543.002: Systemd Service Persistence ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1543.002 Systemd service creation via remote command execution"; flow:established,to_server; content:"systemctl"; nocase; content:"create"; nocase; pcre:"/systemctl.*?(enable|create|start)/Ui"; classtype:trojan-activity; sid:52100168; rev:1;)
+
+# === MITRE ATT&CK T1136.001: Local Account Creation ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1136.001 Local account creation via remote command injection"; flow:established,to_server; content:"useradd"; nocase; pcre:"/(useradd|adduser|net user)/Ui"; classtype:attempted-admin; sid:52100169; rev:1;)
+
+# === MITRE ATT&CK T1136.002: Domain Account Creation ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1136.002 Domain account creation via remote command injection"; flow:established,to_server; content:"net user"; nocase; content:"/domain"; nocase; pcre:"/net\s+user\s+\S+\s+\S+\s+\/domain/i"; classtype:attempted-admin; sid:52100170; rev:1;)
+
+# === MITRE ATT&CK T1003.001: LSASS Memory Dump ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1003.001 LSASS memory dump exfiltration via HTTP"; flow:established,to_server; content:"lsass.dmp"; nocase; classtype:attempted-admin; sid:52100171; rev:1;)
+
+# === MITRE ATT&CK T1003.002: SAM Database Dump ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1003.002 SAM database dump exfiltration via HTTP"; flow:established,to_server; content:"SAM"; nocase; content:"SYSTEM"; nocase; dsize:>1000000; classtype:attempted-admin; sid:52100172; rev:1;)
+
+# === MITRE ATT&CK T1555.003: Credentials from Password Stores - Browser ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1555.003 Browser credential theft - Login Data file exfiltration"; flow:established,to_server; content:"Login Data"; nocase; content:"Chrome"; nocase; classtype:attempted-user; sid:52100173; rev:1;)
+
+# === MITRE ATT&CK T1552.001: Credentials In Files - SSH Keys ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1552.001 SSH private key exfiltration via HTTP"; flow:established,to_server; content:"-----BEGIN"; nocase; content:"PRIVATE KEY-----"; nocase; classtype:attempted-user; sid:52100174; rev:1;)
+
+# === MITRE ATT&CK T1552.001: Credentials In Files - AWS Keys ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1552.001 AWS access key exfiltration via HTTP POST"; flow:established,to_server; content:"AKIA"; depth:4; http_client_body; classtype:attempted-user; sid:52100175; rev:1;)
+
+# === MITRE ATT&CK T1212: Exploitation for Credential Access ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1212 Exploitation for credential access - LDAP query injection"; flow:established,to_server; content:"POST"; http_method; pcre:"/\)(\||&)\(.*=/Ui"; classtype:attempted-admin; sid:52100176; rev:1;)
+
+# === MITRE ATT&CK T1486: Data Encrypted for Impact - Ransomware ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1486 Ransomware encryption activity - mass file extension change beacon"; flow:established,to_server; content:".encrypted"; nocase; content:"ransom"; nocase; detection_filter:track_src_by,count:100,seconds:30; classtype:trojan-activity; sid:52100177; rev:1;)
+
+# === MITRE ATT&CK T1490: Inhibit System Recovery - VSS Deletion ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1490 Volume Shadow Copy deletion via remote command execution"; flow:established,to_server; content:"vssadmin"; nocase; content:"delete"; nocase; pcre:"/vssadmin.*?delete.*?shadows/i"; classtype:attempted-admin; sid:52100178; rev:1;)
+
+# === MITRE ATT&CK T1498: Network Denial of Service - SYN Flood ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1498 SYN flood denial of service attack detected"; flow:to_server; flags:S,12; detection_filter:track_src_by,count:500,seconds:10; classtype:attempted-dos; sid:52100179; rev:1;)
+
+# === MITRE ATT&CK T1499: Endpoint Denial of Service - Service Stop ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1499 Endpoint DoS via service stop command injection"; flow:established,to_server; content:"sc stop"; nocase; pcre:"/(sc\s+stop|systemctl\s+stop|service\s+\S+\s+stop)/Ui"; classtype:attempted-dos; sid:52100180; rev:1;)
+
+# === MITRE ATT&CK T1090.001: Internal Proxy - DNS over HTTPS ===
+alert tls $HOME_NET any -> $EXTERNAL_NET 443 (msg:"MITRE T1090.001 Internal proxy via DNS-over-HTTPS to non-corporate resolver"; flow:established,to_server; content:"application/dns-message"; http_header; content:"dns.google"; http_header; nocase; classtype:trojan-activity; sid:52100181; rev:1;)
+
+# === MITRE ATT&CK T1090.003: Proxy Chain - Tor Exit Node ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 9001 (msg:"MITRE T1090.003 Tor relay/exit node connection from internal host"; flow:established,to_server; content:"|00 00 00 06|"; depth:4; classtype:trojan-activity; sid:52100182; rev:1;)
+
+# === MITRE ATT&CK T1572: Protocol Tunneling - SSH Tunnel ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 22 (msg:"MITRE T1572 Protocol tunneling via SSH - excessive data transfer"; flow:established,to_server; dsize:>1000000; detection_filter:track_src_by,count:50,seconds:60; classtype:trojan-activity; sid:52100183; rev:1;)
+
+# === MITRE ATT&CK T1571: Non-Standard Port C2 ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 1337 (msg:"MITRE T1571 Non-standard port C2 communication on port 1337"; flow:established,to_server; classtype:trojan-activity; sid:52100184; rev:1;)
+
+# === MITRE ATT&CK T1573.002: Encrypted Channel - Asymmetric Cryptography ===
+alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1573.002 Encrypted channel to suspicious TLS endpoint with self-signed cert"; flow:established,to_server; tls_state:not_valid; dsize:>10000; classtype:trojan-activity; sid:52100185; rev:1;)
+
+# === MITRE ATT&CK T1105: Ingress Tool Transfer - Suspicious Download ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1105 Ingress tool transfer - executable download from suspicious host"; flow:established,to_client; content:"Content-Type|3a 20|application/x-msdownload"; http_header; dsize:>1000000; classtype:trojan-activity; sid:52100186; rev:1;)
+
+# === MITRE ATT&CK T1105: Ingress Tool Transfer - ELF Binary ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1105 Ingress tool transfer - ELF binary download via HTTP"; flow:established,to_client; content:"|7f 45 4c 46|"; depth:4; classtype:trojan-activity; sid:52100187; rev:1;)
+
+# === MITRE ATT&CK T1059.009: Cloud API Scripting ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1059.009 Cloud API scripting - suspicious AWS CLI commands in traffic"; flow:established,to_server; content:"aws"; nocase; content:"s3api"; nocase; content:"ls"; nocase; pcre:"/aws\s+(s3|ec2|iam|sts|lambda)/Ui"; classtype:attempted-admin; sid:52100188; rev:1;)
+
+# === MITRE ATT&CK T1525: Implant Internal Image ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1525 Implant in internal image - container registry anomalous push"; flow:established,to_server; content:"PUT"; http_method; content:"/v2/"; http_uri; content:"blobs"; http_uri; dsize:>50000000; classtype:trojan-activity; sid:52100189; rev:1;)
+
+# === MITRE ATT&CK T1613: Container and Resource Discovery ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1613 Container and resource discovery via Kubernetes API"; flow:established,to_server; content:"GET"; http_method; content:"/api/v1/pods"; http_uri; content:"kubernetes"; http_header; nocase; classtype:attempted-recon; sid:52100190; rev:1;)
+
+# === MITRE ATT&CK T1611: Escape to Host via Container ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1611 Container escape to host - privileged container creation attempt"; flow:established,to_server; content:"POST"; http_method; content:"/api/v1/namespaces"; http_uri; content:"privileged"; http_client_body; nocase; classtype:attempted-admin; sid:52100191; rev:1;)
+
+# === MITRE ATT&CK T1609: Container Administration Command ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1609 Container administration command - kubectl exec via API"; flow:established,to_server; content:"POST"; http_method; content:"/api/v1/namespaces"; http_uri; content:"exec"; http_uri; classtype:attempted-admin; sid:52100192; rev:1;)
+
+# === MITRE ATT&CK T1610: Deploy Container with High Privileges ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1610 Deploy container with security context privileged - escalation"; flow:established,to_server; content:"POST"; http_method; content:"securityContext"; http_client_body; content:"privileged"; http_client_body; nocase; content:"true"; http_client_body; nocase; classtype:attempted-admin; sid:52100193; rev:1;)
+
+# === MITRE ATT&CK T1612: Build Image on Host ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1612 Build image on host - docker build with suspicious Dockerfile"; flow:established,to_server; content:"POST"; http_method; content:"/build"; http_uri; content:"t"; http_uri; nocase; classtype:trojan-activity; sid:52100194; rev:1;)
+
+# === MITRE ATT&CK T1525: Implant Container Image ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1525 Implant container image - anomalous docker pull from untrusted registry"; flow:established,to_server; content:"GET"; http_method; content:"/v2/"; http_uri; pcre:"/\/v2\/[^\/]+\/manifests\//U"; classtype:trojan-activity; sid:52100195; rev:1;)
+
+# === MITRE ATT&CK T1210: Exploitation of Remote Services - SMB ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"MITRE T1210 Exploitation of remote services - SMB exploit attempt"; flow:established,to_server; content:"|ff 53 4d 42|"; depth:4; dsize:>1000; classtype:attempted-admin; sid:52100196; rev:1;)
+
+# === MITRE ATT&CK T1210: Exploitation of Remote Services - RDP ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"MITRE T1210 Exploitation of remote services - RDP brute force connection"; flow:to_server; detection_filter:track_src_by,count:50,seconds:30; classtype:attempted-admin; sid:52100197; rev:1;)
+
+# === MITRE ATT&CK T1021.006: Remote Services - WinRM ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5985 (msg:"MITRE T1021.006 Remote services via WinRM - unauthorized access attempt"; flow:established,to_server; content:"POST"; http_method; content:"/wsman"; http_uri; content:"Authorization"; http_header; negate; classtype:attempted-admin; sid:52100198; rev:1;)
+
+# === MITRE ATT&CK T1550.002: Use Alternate Auth Material - Pass the Hash ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"MITRE T1550.002 Pass the hash attack - SMB NTLM hash authentication"; flow:established,to_server; content:"|ff 53 4d 42|"; depth:4; content:"NTLM"; nocase; pcre:"/NTLM\s+0x[0-9a-f]{32}/i"; classtype:attempted-admin; sid:52100199; rev:1;)
