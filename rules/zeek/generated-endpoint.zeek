@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-endpoint
-# Auto-generated: 2026-10-02T08:21:17.495705Z
+# Auto-generated: 2026-10-03T04:05:07.616282Z
 # Load in local.zeek: @load ./generated-endpoint
 
 signature ZK-ENDPOINT-006 {

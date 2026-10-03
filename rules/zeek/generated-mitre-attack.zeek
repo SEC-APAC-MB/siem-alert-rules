@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-mitre-attack
-# Auto-generated: 2026-10-02T08:21:17.496663Z
+# Auto-generated: 2026-10-03T04:05:07.617226Z
 # Load in local.zeek: @load ./generated-mitre-attack
 
 signature ZK-MITRE-ATTACK-021 {
