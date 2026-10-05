@@ -1,0 +1,210 @@
+# Suricata Detection Rules - Generated 2026-10-05
+# Based on: GitHub Advisory Database CVEs (2026-08-27 to 2026-10-05)
+# MITRE ATT&CK techniques, current threat landscape
+# SIDs: 52111400 - 52111499 (100 rules)
+
+# --- CVE-Based Rules (1-20) ---
+
+alert tls any any -> any any (msg:"CVE-2026-105223 kubernetes-client TLS certificate verification bypass detected"; tls.cert_subject; pcre:"/kubernetes/i"; content:"insecure"; nocase; content:"tls|3a|false"; nocase; classtype:attempted-admin; sid:52111400; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-105294 Legcord configuration injection attempt"; http.uri; content:"/theme"; nocase; content:"script"; nocase; pcre:"/eval|exec|require|import/Ui"; classtype:attempted-user; sid:52111401; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-105293 Legcord path traversal via theme IPC handler"; http.uri; content:"../"; nocase; content:"theme"; nocase; pcre:"/%2e%2e%2f|\.\.\/|..\//Ui"; classtype:attempted-user; sid:52111402; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-105295 GitAhead insecure update download without integrity check"; http.host; content:"gitahead"; nocase; http.uri; content:"/update"; nocase; content:".exe"; nocase; classtype:trojan-activity; sid:52111403; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-105181 Online Admission System SQLi in register1.php fname parameter"; http.uri; content:"/register1.php"; nocase; pcre:"/fname=.*(?:union|select|insert|drop|or\s+1=1|sleep|benchmark)/Ui"; classtype:web-application-attack; sid:52111404; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-105184 Online Admission System SQLi in admin/creteria.php ID parameter"; http.uri; content:"/admin/creteria.php"; nocase; pcre:"/ID=.*(?:union|select|insert|drop|or\s+1=1|sleep)/Ui"; classtype:web-application-attack; sid:52111405; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-105183 Online Admission System SQLi in admin/confirm.php schedid parameter"; http.uri; content:"/admin/confirm.php"; nocase; pcre:"/schedid=.*(?:union|select|insert|drop|or\s+1=1|sleep)/Ui"; classtype:web-application-attack; sid:52111406; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-105182 Online Reviewer Management System SQLi in btn_functions.php"; http.uri; content:"btn_functions.php"; nocase; content:"action=update"; nocase; pcre:"/Title=.*(?:union|select|insert|drop|or\s+1=1)/Ui"; classtype:web-application-attack; sid:52111407; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-105172 Online Admission System SQLi in login1.php User parameter"; http.uri; content:"/login1.php"; nocase; http.request_body; pcre:"/User=.*(?:union|select|or\s+1=1|sleep|benchmark)/Ui"; classtype:web-application-attack; sid:52111408; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-105177 Drug Recommendation System SQLi in Admin/add_drug.php"; http.uri; content:"/Admin/add_drug.php"; nocase; pcre:"/(txtname|cmdtype|txtusage|txtsideeffect|cmdcontraindication)=.*(?:union|select|insert|or\s+1=1)/Ui"; classtype:web-application-attack; sid:52111409; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-105170 Food Waste Management System admin signup without authentication"; http.uri; content:"/admin/signup.php"; nocase; content:"sign"; nocase; http.response_header; content:"200"; classtype:web-application-attack; sid:52111410; rev:1;)
+
+alert tcp any any -> any any (msg:"CVE-2026-20589 MediaTek venc out-of-bounds write via type confusion"; dsize:>4096; content:"|ff fe|"; depth:2; classtype:attempted-admin; sid:52111411; rev:1;)
+
+alert tcp any any -> any any (msg:"CVE-2026-20588 MediaTek mtee privilege escalation via missing bounds check"; flow:established; dsize:>8192; classtype:attempted-priv; sid:52111412; rev:1;)
+
+alert tcp any any -> any any (msg:"CVE-2026-20543 MediaTek Modem information disclosure via logic error"; flow:established; content:"|00 00 00 00|"; depth:4; dsize:>1024; classtype:attempted-recon; sid:52111413; rev:1;)
+
+alert tcp any any -> any any (msg:"CVE-2026-20541 MediaTek Modem OOB read via rogue base station"; flow:established; content:"|52 43 43|"; depth:3; dsize:>512; classtype:attempted-dos; sid:52111414; rev:1;)
+
+alert tcp any any -> any any (msg:"CVE-2026-20537 MediaTek aidl use-after-free memory corruption"; flow:established; content:"|41 49 44 4c|"; depth:4; dsize:>2048; classtype:attempted-admin; sid:52111415; rev:1;)
+
+alert tcp any any -> any any (msg:"CVE-2026-20586 MediaTek vdec remote privilege escalation via missing bounds check"; flow:established; dsize:>65535; classtype:attempted-admin; sid:52111416; rev:1;)
+
+alert tcp any any -> any any (msg:"CVE-2026-20526 MediaTek Modem remote privesc via rogue base station OOB write"; flow:established; content:"|4d 4f 44 45 4d|"; depth:5; dsize:>4096; classtype:attempted-admin; sid:52111417; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-105292 Chaterm login cross-site request forgery attempt"; http.method; content:"POST"; http.uri; content:"/login"; nocase; http.request_header; content:"Referer"; nocase; pcre:"/Referer\s*:\s*https?:\/\/(?!.*chaterm)/i"; classtype:web-application-attack; sid:52111418; rev:1;)
+
+alert http any any -> any any (msg:"CVE-2026-105174 Gerapy command injection via crawl API"; http.uri; content:"/api/crawl"; nocase; http.request_body; pcre:"/(command|cmd|exec|eval|system|popen|subprocess)/Ui"; classtype:web-application-attack; sid:52111419; rev:1;)
+
+# --- MITRE ATT&CK Technique Rules (21-60) ---
+
+alert icmp any any -> any any (msg:"MITRE T1595.001 Active Scanning - ICMP sweep detected"; itype:8; flow:to_server; detection_filter:track by_src, count 20, seconds 10; classtype:network-scan; sid:52111420; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1595.002 Vulnerability scanning - Nmap user agent detected"; http.user_agent; content:"Nmap"; nocase; classtype:network-scan; sid:52111421; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1595.003 Wordlist scanning - rapid 404 responses with directory brute force pattern"; http.method; content:"GET"; detection_filter:track by_src, count 50, seconds 30; classtype:network-scan; sid:52111422; rev:1;)
+
+alert dns any any -> any any (msg:"MITRE T1592.001 Hardware info exfiltration via DNS query"; dns.query.name; pcre:"/hwinfo|hardware-id|device-uuid/i"; classtype:trojan-activity; sid:52111423; rev:1;)
+
+alert dns any any -> any any (msg:"MITRE T1592.002 Software inventory exfiltration via DNS"; dns.query.name; pcre:"/(installed|software-list|app-list|pkg-list)/i"; classtype:trojan-activity; sid:52111424; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1592.004 Client configuration exfiltration attempt"; http.request_body; pcre:"/(proxy|vpn|dns-config|network-config)/i"; classtype:trojan-activity; sid:52111425; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1588.006 Exploit acquisition - exploit-db or CVE query from known exploit repository"; http.host; pcre:"/(exploit-db|exploitdb|packetstorm|metasploit)/i"; classtype:trojan-activity; sid:52111426; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1059.001 PowerShell download cradle detected"; http.response_body; pcre:"/(IEX|Invoke-Expression|DownloadString|DownloadFile|Invoke-WebRequest|Net\.WebClient)/i"; classtype:trojan-activity; sid:52111427; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1059.004 Unix shell command injection via web request"; http.request_body; pcre:"/(\/bin\/sh|\/bin\/bash|nc\s+-e|wget\s+.*\|.*sh|curl\s+.*\|.*bash)/i"; classtype:web-application-attack; sid:52111428; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1059.009 Cloud API command execution attempt"; http.uri; pcre:"/(Invoke-Command|RunCommand|ExecuteCommand|exec\?cmd)/i"; http.request_body; pcre:"/(powershell|bash|cmd|whoami|id|uname)/i"; classtype:trojan-activity; sid:52111429; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1071.001 C2 beacon via HTTP with regular interval"; flow:established,to_server; detection_filter:track by_src, count 30, seconds 60; http.request_header; content:"Content-Length|3a| 0"; classtype:trojan-activity; sid:52111430; rev:1;)
+
+alert dns any any -> any any (msg:"MITRE T1071.004 DNS tunneling - long subdomain query detected"; dns.query.name; pcre:"/^[a-z0-9]{40,}\./i"; classtype:trojan-activity; sid:52111431; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1041 Data exfiltration over HTTP - large POST to suspicious endpoint"; flow:established,to_server; http.method; content:"POST"; dsize:>100000; http.uri; pcre:"/(upload|sync|backup|beacon|checkin)/i"; classtype:exfiltration; sid:52111432; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1048.002 Data exfiltration via SMTP - large email attachment"; flow:established; dsize:>5000000; content:"BASE64"; nocase; classtype:exfiltration; sid:52111433; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1048.003 Data exfiltration over HTTP to file sharing service"; flow:established,to_server; http.host; pcre:"/(transfer\.sh|filebin|paste|upload\.ee|uguu|0x0)/i"; dsize:>100000; classtype:exfiltration; sid:52111434; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1567.002 Data exfiltration to AWS S3 bucket"; flow:established,to_server; http.host; pcre:"/[a-z0-9-]+\.s3[.-].*amazonaws\.com/i"; http.method; content:"PUT"; dsize:>1000000; classtype:exfiltration; sid:52111435; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1567.001 Data exfiltration to code repository (GitHub/GitLab)"; flow:established,to_server; http.host; pcre:"/(github\.com|gitlab\.com|bitbucket\.org)/i"; http.method; content:"POST"; http.uri; pcre:"/(api\.github|api\.gitlab)/i"; dsize:>500000; classtype:exfiltration; sid:52111436; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1110.001 Password guessing - rapid authentication failures"; flow:established,to_server; http.response_code; content:"401"; detection_filter:track by_src, count 20, seconds 60; classtype:attempted-admin; sid:52111437; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1110.003 Password spraying - single password multiple users"; flow:established,to_server; http.response_code; content:"401"; detection_filter:track by_src, count 50, seconds 300; classtype:attempted-admin; sid:52111438; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1110.004 Credential stuffing - automated login with leaked credentials"; flow:established,to_server; http.method; content:"POST"; http.uri; pcre:"/(login|signin|auth|authenticate)/i"; http.request_header; content:"Authorization|3a| Basic"; detection_filter:track by_src, count 100, seconds 300; classtype:attempted-admin; sid:52111439; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1003.001 LSASS memory access via Mimikatz pattern"; flow:established; content:"Mimikatz"; nocase; classtype:credential-access; sid:52111440; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1003.002 SAM database access attempt via SMB"; flow:established; content:"|5c 5c|SAM|5c|"; nocase; dsize:>1024; classtype:credential-access; sid:52111441; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1003.006 DCSync replication request - DSReplicaGetChanges"; flow:established; content:"DSReplica"; nocase; classtype:credential-access; sid:52111442; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1558.001 Kerberos golden ticket - forged TGT detected"; flow:established; content:"krb5tgt"; nocase; dsize:>1000; classtype:credential-access; sid:52111443; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1558.002 Kerberos silver ticket - forged TGS detected"; flow:established; content:"krb5tgs"; nocase; classtype:credential-access; sid:52111444; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1505.003 Web shell detected - suspicious PHP file upload"; flow:established,to_server; http.method; content:"POST"; http.uri; pcre:"/(cmd\.php|shell\.php|webshell\.php|c99\.php|r57\.php|b374k\.php)/i"; classtype:trojan-activity; sid:52111445; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1505.002 Transport agent - suspicious Exchange transport agent registration"; flow:established; content:"TransportAgent"; nocase; content:"Install-TransportAgent"; nocase; classtype:persistence; sid:52111446; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1547.001 Registry Run key persistence via web shell"; flow:established; http.response_body; pcre:"/(HKLM|HKCU)\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run/i"; classtype:persistence; sid:52111447; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1547.009 Shortcut file modification via web request"; flow:established; http.response_body; content:".lnk"; nocase; pcre:"/(TargetPath|Arguments|IconLocation)/i"; classtype:persistence; sid:52111448; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1136.001 Local account creation - net user command pattern"; flow:established; content:"net user"; nocase; content:"/add"; nocase; classtype:persistence; sid:52111449; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1136.002 Domain account creation - dsadd user command"; flow:established; content:"dsadd user"; nocase; classtype:persistence; sid:52111450; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1098.001 Exchange mailbox delegation manipulation"; flow:established; http.uri; pcre:"/powershell.*Add-MailboxPermission.*FullAccess/i"; classtype:persistence; sid:52111451; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1098.002 Suspicious Exchange email forwarding rule creation"; flow:established; http.uri; pcre:"/powershell.*Set-InboxRule.*RedirectTo/i"; classtype:persistence; sid:52111452; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1078.002 Suspicious domain account usage from unexpected location"; flow:established,to_server; http.request_header; content:"Authorization|3a| NTLM"; pcre:"/Negotiate|NTLM/i"; classtype:attempted-admin; sid:52111453; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1078.004 Cloud account abuse - API calls from new geolocation"; flow:established,to_server; http.host; pcre:"/(api\.aws|api\.azure|admin\.google)/i"; http.request_header; content:"Authorization|3a| Bearer"; classtype:attempted-admin; sid:52111454; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1486 Ransomware encryption activity - rapid file modification pattern"; flow:established; http.request_body; pcre:"/(\.encrypted|\.locked|\.crypto|\.ransom|readme.*decrypt)/i"; classtype:ransomware; sid:52111455; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1490 Volume Shadow Copy deletion via vssadmin"; flow:established; content:"vssadmin delete shadows"; nocase; classtype:ransomware; sid:52111456; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1490 System recovery inhibition via wbadmin delete"; flow:established; content:"wbadmin delete"; nocase; content:"catalog"; nocase; classtype:ransomware; sid:52111457; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1562.001 Security tool disablement - Windows Defender exclusion"; flow:established; content:"Add-MpPreference"; nocase; content:"ExclusionPath"; nocase; classtype:defense-evasion; sid:52111458; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1562.002 Windows event log tampering - wevtutil clear"; flow:established; content:"wevtutil cl"; nocase; classtype:defense-evasion; sid:52111459; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1562.004 Firewall disablement via netsh"; flow:established; content:"netsh advfirewall"; nocase; content:"off"; nocase; classtype:defense-evasion; sid:52111460; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1027.002 Obfuscated binary download - packed executable"; flow:established,to_server; http.response_header; content:"Content-Type|3a| application/octet-stream"; http.response_body; content:"MZ"; depth:2; dsize:>100000; classtype:trojan-activity; sid:52111461; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1027.007 Dynamic API resolution - GetProcAddress pattern in downloaded payload"; flow:established; http.response_body; pcre:"/(GetProcAddress|LoadLibrary|VirtualAlloc|WriteProcessMemory)/i"; classtype:trojan-activity; sid:52111462; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1140 Base64 decoded payload execution in web request"; http.request_body; pcre:"/(base64\s+-d|base64\s+--decode|openssl\s+enc\s+-d|certutil\s+-decode)/i"; classtype:defense-evasion; sid:52111463; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1036.005 Masquerading - svchost.exe from non-standard path"; flow:established; content:"svchost.exe"; nocase; pcre:"/(temp|appdata|downloads|programdata)\\.*svchost\.exe/i"; classtype:defense-evasion; sid:52111464; rev:1;)
+
+alert tls any any -> any any (msg:"MITRE T1572 Protocol tunneling - DNS over HTTPS to suspicious provider"; tls.sni; pcre:"/(dns\.google|cloudflare-dns\.com|dns\.quad9\.net)/i"; detection_filter:track by_src, count 100, seconds 60; classtype:command-and-control; sid:52111465; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1571 Non-standard port C2 communication - HTTP on high port"; flow:established,to_server; dsize:>500; content:"HTTP/1"; depth:6; dport:>10000; classtype:command-and-control; sid:52111466; rev:1;)
+
+alert tls any any -> any any (msg:"MITRE T1573.002 TLS connection to suspicious domain with self-signed certificate"; tls.cert_issuer; pcre:"/(self-signed|test|temporary|unknown)/i"; classtype:command-and-control; sid:52111467; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1218.011 Suspicious rundll32 execution with remote payload"; flow:established; content:"rundll32.exe"; nocase; pcre:"/(http|ftp|\\\\\\\\)/i"; classtype:defense-evasion; sid:52111468; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1218.005 Mshta executing remote HTA payload"; flow:established; content:"mshta.exe"; nocase; pcre:"/(http|ftp|\\\\\\\\).*\.hta/i"; classtype:defense-evasion; sid:52111469; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1218.010 Regsvr32 scrobj.dll execution with remote script"; flow:established; content:"regsvr32.exe"; nocase; content:"scrobj.dll"; nocase; pcre:"/(http|https):\/\//i"; classtype:defense-evasion; sid:52111470; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1105 Ingress tool transfer - suspicious executable download via HTTP"; flow:established,to_client; http.response_header; content:"Content-Type|3a| application/x-msdownload"; http.response_body; content:"MZ"; depth:2; classtype:trojan-activity; sid:52111471; rev:1;)
+
+alert udp any any -> any any (msg:"MITRE T1557.001 LLMNR/NBT-NS poisoning response detected"; content:"|00 00 00 80|"; depth:4; dsize:>50; classtype:credential-access; sid:52111472; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1053.005 Cron modification via web shell"; flow:established; http.request_body; pcre:"/(crontab|\/etc\/cron\.|\/var\/spool\/cron)/i"; classtype:persistence; sid:52111473; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1053.002 Windows at.exe scheduled task creation"; flow:established; content:"at.exe"; nocase; pcre:"/\\\\\\\\.*\d{2}:\d{2}/i"; classtype:persistence; sid:52111474; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1543.002 Systemd service file creation via web request"; flow:established; http.request_body; pcre:"/\[Unit\]/i"; pcre:"/(ExecStart|Type=simple|WantedBy)/i"; classtype:persistence; sid:52111475; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1546.001 WMI event subscription persistence detected"; flow:established; content:"__EventFilter"; nocase; content:"CommandLineEventConsumer"; nocase; classtype:persistence; sid:52111476; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1546.008 Accessibility features hijack - sethc.exe replacement"; flow:established; content:"sethc.exe"; nocase; pcre:"/(copy|move|rename).*sethc/i"; classtype:persistence; sid:52111477; rev:1;)
+
+alert http any any -> any any (msg:"MITRE T1008 Fallback C2 channel - secondary beacon attempt"; flow:established,to_server; http.uri; content:"/api/v1/ping"; nocase; detection_filter:track by_src, count 5, seconds 30; classtype:command-and-control; sid:52111478; rev:1;)
+
+alert tcp any any -> any any (msg:"MITRE T1095 Non-application layer protocol C2 - raw TCP on unusual port"; flow:established; dsize:>100; dport:>20000; content:!"HTTP"; depth:4; content:!"SSH"; depth:3; classtype:command-and-control; sid:52111479; rev:1;)
+
+# --- Current Threat Landscape Rules (61-100) ---
+
+alert http any any -> any any (msg:"AI LLM prompt injection attack - system override attempt"; flow:established,to_server; http.request_body; pcre:"/(ignore.*previous.*instructions|system.*prompt.*leak|jailbreak|DAN|developer.*mode)/i"; classtype:web-application-attack; sid:52111480; rev:1;)
+
+alert http any any -> any any (msg:"AI model extraction attack - rapid API queries with boundary probing"; flow:established,to_server; http.uri; pcre:"/(complete|generate|predict|inference|chat)/i"; detection_filter:track by_src, count 500, seconds 60; classtype:attempted-recon; sid:52111481; rev:1;)
+
+alert http any any -> any any (msg:"AI training data poisoning attempt - suspicious feedback injection"; flow:established,to_server; http.method; content:"POST"; http.uri; pcre:"/(feedback|rate|train|fine-tune|rlhf)/i"; http.request_body; pcre:"/(ignore|override|system|admin|root)/i"; classtype:web-application-attack; sid:52111482; rev:1;)
+
+alert http any any -> any any (msg:"Supply chain npm typosquatting - suspicious package download"; flow:established,to_server; http.host; content:"registry.npmjs.org"; http.uri; pcre:"/(lodahs|react-routerd|expresss|axioss|molab|monogo)/i"; classtype:trojan-activity; sid:52111483; rev:1;)
+
+alert http any any -> any any (msg:"Supply chain PyPI typosquatting - suspicious pip install"; flow:established,to_server; http.host; content:"pypi.org"; http.uri; pcre:"/(requets|pyton|numpyy|pandass|matplotlob|djangoo)/i"; classtype:trojan-activity; sid:52111484; rev:1;)
+
+alert tcp any any -> any any (msg:"Container escape attempt - privileged container access pattern"; flow:established; content:"docker run"; nocase; content:"--privileged"; nocase; classtype:attempted-priv; sid:52111485; rev:1;)
+
+alert tcp any any -> any any (msg:"Container host filesystem mount escape attempt"; flow:established; content:"docker run"; nocase; content:"-v /:/host"; nocase; classtype:attempted-priv; sid:52111486; rev:1;)
+
+alert http any any -> any any (msg:"Kubernetes RBAC privilege escalation - clusterrole binding creation"; flow:established,to_server; http.method; content:"POST"; http.uri; pcre:"/\/apis\/rbac\.authorization\.k8s\.io.*clusterrolebindings/i"; http.request_body; pcre:"/cluster-admin/i"; classtype:attempted-priv; sid:52111487; rev:1;)
+
+alert http any any -> any any (msg:"Kubernetes pod escape via hostPath volume mount"; flow:established,to_server; http.method; content:"POST"; http.uri; pcre:"/\/api\/v1\/namespaces\/.*\/pods/i"; http.request_body; pcre:"/hostPath.*\/(etc|root|var\/lib\/docker)/i"; classtype:attempted-priv; sid:52111488; rev:1;)
+
+alert http any any -> any any (msg:"AWS IMDSv1 exploitation - SSRF to metadata service"; flow:established,to_server; http.host; content:"169.254.169.254"; http.uri; content:"/latest/meta-data/"; nocase; classtype:credential-access; sid:52111489; rev:1;)
+
+alert http any any -> any any (msg:"AWS STS temporary credential exfiltration - AssumeRole token response"; flow:established,to_client; http.response_body; pcre:"/(AccessKeyId|SecretAccessKey|SessionToken)/i"; http.host; content:"sts.amazonaws.com"; classtype:credential-access; sid:52111490; rev:1;)
+
+alert http any any -> any any (msg:"Azure managed identity abuse - metadata endpoint access"; flow:established,to_server; http.host; content:"169.254.169.254"; http.uri; content:"/metadata/identity/oauth2/token"; nocase; http.request_header; content:"Metadata|3a| true"; classtype:credential-access; sid:52111491; rev:1;)
+
+alert http any any -> any any (msg:"GCP service account key creation abuse"; flow:established,to_server; http.method; content:"POST"; http.host; content:"iam.googleapis.com"; http.uri; pcre:"/\/serviceAccounts\/.*\/keys/i"; classtype:credential-access; sid:52111492; rev:1;)
+
+alert http any any -> any any (msg:"OAuth token reuse from anomalous source - possible token theft"; flow:established,to_server; http.request_header; content:"Authorization|3a| Bearer"; detection_filter:track by_src, count 1, seconds 1; classtype:credential-access; sid:52111493; rev:1;)
+
+alert http any any -> any any (msg:"JWT none algorithm bypass attempt"; flow:established,to_server; http.request_header; content:"Authorization|3a| Bearer"; pcre:"/eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0/i"; classtype:web-application-attack; sid:52111494; rev:1;)
+
+alert http any any -> any any (msg:"SSRF internal network probe via web application"; flow:established,to_server; http.uri; pcre:"/(url|uri|target|redirect|next|callback|dest|return)=(https?:\/\/)?(127\.0\.0\.1|localhost|10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/i"; classtype:web-application-attack; sid:52111495; rev:1;)
+
+alert http any any -> any any (msg:"SSRF cloud metadata access via open redirect"; flow:established,to_server; http.uri; pcre:"/(redirect|url|return)=(https?:\/\/)?169\.254\.169\.254/i"; classtype:web-application-attack; sid:52111496; rev:1;)
+
+alert http any any -> any any (msg:"API mass enumeration - sequential ID access pattern"; flow:established,to_server; http.uri; pcre:"/\/api\/.*\/\d+$/"; detection_filter:track by_src, count 200, seconds 60; classtype:attempted-recon; sid:52111497; rev:1;)
+
+alert http any any -> any any (msg:"GraphQL introspection query abuse in production"; flow:established,to_server; http.request_body; pcre:"/(__schema|__type|introspection)/i"; http.uri; content:"graphql"; nocase; classtype:attempted-recon; sid:52111498; rev:1;)
+
+alert http any any -> any any (msg:"WebSocket C2 channel - suspicious upgrade with binary frames"; flow:established,to_server; http.request_header; content:"Upgrade|3a| websocket"; content:"Sec-WebSocket-Protocol|3a| binary"; classtype:command-and-control; sid:52111499; rev:1;)
