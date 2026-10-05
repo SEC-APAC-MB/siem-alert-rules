@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-privilege-escalation
-# Auto-generated: 2026-10-04T06:00:40.866049Z
+# Auto-generated: 2026-10-05T04:05:12.455299Z
 # Load in local.zeek: @load ./generated-privilege-escalation
 
 signature ZK-PRIVILEGE-ESCALATION-002 {
