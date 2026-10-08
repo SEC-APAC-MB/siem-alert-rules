@@ -1,0 +1,2969 @@
+[
+  {
+    "ghsa_id": "GHSA-39q2-5h5r-39p7",
+    "cve_id": "CVE-2026-84897",
+    "url": "https://api.github.com/advisories/GHSA-39q2-5h5r-39p7",
+    "html_url": "https://github.com/advisories/GHSA-39q2-5h5r-39p7",
+    "summary": "src/internal.c in wolfSSL wolfSSH through 1.5.0 admits the server-to-client Diffie-Hellman group...",
+    "description": "src/internal.c in wolfSSL wolfSSH through 1.5.0 admits the server-to-client Diffie-Hellman group exchange messages SSH_MSG_KEX_DH_GEX_GROUP (31) and SSH_MSG_KEX_DH_GEX_REPLY (33) when a server receives them from an unauthenticated client. IsMessageAllowedServer() applies no direction check to the key exchange message range: when the peer is keying and no particular message is expected, which is the state a server is in for the whole window after it processes the client's KEXINIT because nothing sets handshake->expectMsgId there, the function falls out of its expectation branch without a verdict and reaches a numeric bound that admits every message id from 30 through 34. A client that negotiates diffie-hellman-group-exchange-sha256 and then sends message 31 makes the server run the client-side handler DoKexDhGexGroup(), which validates the attacker-supplied group with two 8-round Miller-Rabin primality tests, one on p and one on (p-1)/2, on a value of up to 8192 bits. The handler then returns success: the server stores the attacker's prime and generator, generates a Diffie-Hellman key pair in the attacker's group, and sends the client-role message SSH_MSG_KEX_DH_GEX_INIT (32) back to the attacker. Published RFC 3526 safe primes are the worst-case input and cost the attacker nothing to obtain. The primality validation was added in 1.5.0; versions from 1.2.0 through 1.4.22 admit the same message and enter the same client-role path without the primality cost. Message 33 is admitted as well, but on a server it is rejected before any cryptography because no public key check callback is registered, so it carries no comparable cost. Builds that define WOLFSSH_NO_DH_GEX_SHA256, which is implied by WOLFSSH_NO_DH or NO_SHA256, are unaffected.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-39q2-5h5r-39p7",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-84897",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-84897",
+      "https://github.com/wolfSSL/wolfssh/pull/1221",
+      "https://github.com/wolfSSL/wolfssh/commit/a472f1ee2b653f623d85ef2297321733f1dbfd22",
+      "https://www.rfc-editor.org/rfc/rfc3526.html",
+      "https://www.rfc-editor.org/rfc/rfc4419.html",
+      "https://github.com/advisories/GHSA-39q2-5h5r-39p7"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:31Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T03:17:00Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:Y/R:X/V:X/RE:X/U:X",
+        "score": 6.9
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-372",
+        "name": "Incomplete Internal State Distinction"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-4ff8-whrv-3wcm",
+    "cve_id": "CVE-2026-83742",
+    "url": "https://api.github.com/advisories/GHSA-4ff8-whrv-3wcm",
+    "html_url": "https://github.com/advisories/GHSA-4ff8-whrv-3wcm",
+    "summary": "Unsigned integer underflow in wstrncat() in src/port.c in wolfSSL wolfSSH from v1.4.11 through v1...",
+    "description": "Unsigned integer underflow in wstrncat() in src/port.c in wolfSSL wolfSSH from v1.4.11 through v1.5.0 on non-Windows platforms allows an authenticated remote attacker to write one out-of-bounds null byte past the end of a stack buffer by sending a crafted SFTP path. wolfSSH_RealPath() in src/ssh.c appends each path component with a remaining-size bound (outSz - curSz) rather than the full destination size, so once the accumulated path reaches half the output buffer the size_t computation n - strlen(s1) - 1 wraps to near SIZE_MAX. The strncat() call is then effectively unbounded and copies the whole component; when that component exactly fills the remainder of the buffer, its terminating null is written one byte past the end. The caller's own length check keeps the copied data inside the buffer, so the overflow is limited to that single null byte, which may corrupt an adjacent stack value and crash the process. Applications that call the public wolfSSH_RealPath() with an output buffer smaller than the input path are additionally exposed to an unbounded copy, because the word32 expression outSz - segSz in that length check also wraps.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-4ff8-whrv-3wcm",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-83742",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-83742",
+      "https://github.com/wolfSSL/wolfssh/pull/1084",
+      "https://github.com/wolfSSL/wolfssh/commit/513e52b18927a4e3f7cf17ecaf107958e56139de",
+      "https://github.com/wolfSSL/wolfssh/commit/822e4464560b467580ea37a2fc03b0988d88b71f",
+      "https://github.com/wolfSSL/wolfssh/commit/fbc7cd88a23b59a45a584020a4c7242d9bd70f35",
+      "https://github.com/advisories/GHSA-4ff8-whrv-3wcm"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:31Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T03:16:59Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:N/R:X/V:X/RE:X/U:X",
+        "score": 5.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-121",
+        "name": "Stack-based Buffer Overflow"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-hxj2-954q-rw24",
+    "cve_id": "CVE-2026-14911",
+    "url": "https://api.github.com/advisories/GHSA-hxj2-954q-rw24",
+    "html_url": "https://github.com/advisories/GHSA-hxj2-954q-rw24",
+    "summary": "Improper Neutralization of Input During Web Page Generation (“Cross-site Scripting”) in ASUS...",
+    "description": "Improper Neutralization of Input During Web Page Generation (“Cross-site Scripting”) in ASUS router modules allows a remote attacker to read DOM information, modify router settings, and cause a denial-of-service condition when an authenticated user visits a crafted URL.Refer to the '\nSecurity Update for ASUS Router Firmware  ' section on the ASUS Security Advisory for more information.",
+    "type": "unreviewed",
+    "severity": "critical",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-hxj2-954q-rw24",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-14911",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-14911",
+      "https://www.asus.com/security-advisory",
+      "https://github.com/advisories/GHSA-hxj2-954q-rw24"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:31Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T03:16:58Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:H/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 9.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-79",
+        "name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-cqr9-f685-gr3w",
+    "cve_id": "CVE-2026-81535",
+    "url": "https://api.github.com/advisories/GHSA-cqr9-f685-gr3w",
+    "html_url": "https://github.com/advisories/GHSA-cqr9-f685-gr3w",
+    "summary": "In wolfSSH through 1.5.0 built with --enable-fwd, DoChannelOpen() in src/internal.c gates only...",
+    "description": "In wolfSSH through 1.5.0 built with --enable-fwd, DoChannelOpen() in src/internal.c gates only direct-tcpip channel opens with the forwarding policy callback. forwarded-tcpip opens are admitted without an authorization check and are not capped in number, allowing a malicious SSH peer to make an endpoint allocate unbounded per-channel buffers for forwarding channels the application never authorized. A client also does not check a forwarded-tcpip open against the forwards it registered with a tcpip-forward request, as RFC 4254 section 7.2 requires, so a malicious server can open forwarding channels for addresses and ports the client never asked it to forward.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-cqr9-f685-gr3w",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-81535",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-81535",
+      "https://github.com/wolfSSL/wolfssh/commit/616eb681e70759c30c3ba158f2b18d7bd954def8",
+      "https://github.com/wolfSSL/wolfssh/commit/79a7f299337a28aa561409688a268d0efe6e295c",
+      "https://github.com/wolfSSL/wolfssh/commit/e396a0a4b6b367f10270287446a4be0071742b5c",
+      "https://github.com/advisories/GHSA-cqr9-f685-gr3w"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:31Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T03:16:59Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-862",
+        "name": "Missing Authorization"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-c487-h25j-24jq",
+    "cve_id": "CVE-2026-16516",
+    "url": "https://api.github.com/advisories/GHSA-c487-h25j-24jq",
+    "html_url": "https://github.com/advisories/GHSA-c487-h25j-24jq",
+    "summary": "wolfSSH does not validate that the ECDSA curve identifier in a KEXDH_REPLY host key blob matches...",
+    "description": "wolfSSH does not validate that the ECDSA curve identifier in a KEXDH_REPLY host key blob matches the algorithm negotiated during key exchange. In ParseECCPubKey() (src/internal.c), the blob's algorithm string is used to derive the curve via NameToId/wcPrimeForId without checking against the negotiated ssh->handshake->pubKeyId, and the RFC 5656 curve identifier string is discarded via GetSkip() rather than compared. An active network man-in-the-middle attacker can substitute a host key blob containing a different ECDSA curve, causing the client to import the key on the wrong curve. Because the attacker controls the private key for the substituted curve, signature verification passes. Exploitation requires an active MitM position and a lax public key check callback (e.g., TOFU, algorithm-name-only check, or fingerprint match against the parsed key).",
+    "type": "unreviewed",
+    "severity": "critical",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-c487-h25j-24jq",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-16516",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-16516",
+      "https://github.com/wolfSSL/wolfssh/issues/1012",
+      "https://github.com/wolfSSL/wolfssh/commit/31d13697a608fa1bf9eec11aa6eff1503ade836f",
+      "https://github.com/advisories/GHSA-c487-h25j-24jq"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:31Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T03:16:58Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:L/VI:H/VA:N/SC:L/SI:H/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 9.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-345",
+        "name": "Insufficient Verification of Data Authenticity"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-wvwm-whv3-3f6j",
+    "cve_id": "CVE-2026-97673",
+    "url": "https://api.github.com/advisories/GHSA-wvwm-whv3-3f6j",
+    "html_url": "https://github.com/advisories/GHSA-wvwm-whv3-3f6j",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute arbitrary code due to improper input validation.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-wvwm-whv3-3f6j",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-97673",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-97673",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-wvwm-whv3-3f6j"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:31Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:36Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+        "score": 8.8
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-693",
+        "name": "Protection Mechanism Failure"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "score": 8.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-p76v-2jpq-7gvc",
+    "cve_id": "CVE-2026-106061",
+    "url": "https://api.github.com/advisories/GHSA-p76v-2jpq-7gvc",
+    "html_url": "https://github.com/advisories/GHSA-p76v-2jpq-7gvc",
+    "summary": "A flaw was found in GIMP’s X cursor (XMC) thumbnail loader. When GIMP generates a thumbnail for a...",
+    "description": "A flaw was found in GIMP’s X cursor (XMC) thumbnail loader. When GIMP generates a thumbnail for a crafted XMC file, it allocates a pixel buffer using a width * height size computed in 32-bit signed arithmetic. If that product overflows, the allocation is smaller than the true image extent. A subsequent GEGL buffer read uses the unwrapped dimensions and performs an out-of-bounds read on the heap (CWE-125), after integer overflow in the size calculation (CWE-190). This can crash GIMP or corrupt process memory.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-p76v-2jpq-7gvc",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-106061",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-106061",
+      "https://access.redhat.com/security/cve/CVE-2026-106061",
+      "https://bugzilla.redhat.com/show_bug.cgi?id=2546640",
+      "https://github.com/advisories/GHSA-p76v-2jpq-7gvc"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:31Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T03:16:57Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+        "score": 5.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+      "score": 5.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-36jf-xmwg-5wp8",
+    "cve_id": "CVE-2026-83540",
+    "url": "https://api.github.com/advisories/GHSA-36jf-xmwg-5wp8",
+    "html_url": "https://github.com/advisories/GHSA-36jf-xmwg-5wp8",
+    "summary": "When password or public key authentication is used with the Windows port of wolfSSHd, the Windows...",
+    "description": "When password or public key authentication is used with the Windows port of wolfSSHd, the Windows logon token acquired for one authenticated connection is not released before a token is acquired for a subsequent connection, resulting in user login poisoning between connections. A less privileged user with a valid account on the server can exploit this to force a login as a more privileged user. The vulnerability was introduced with the initial Windows port of wolfSSHd in wolfSSH version 1.4.15 and affects all versions through 1.5.0. Non-Windows builds of wolfSSHd are not affected.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-36jf-xmwg-5wp8",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-83540",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-83540",
+      "https://github.com/wolfSSL/wolfssh/commit/9777bc5ce810d6c418a1473e9e8c40cdb0026e5a",
+      "https://github.com/wolfSSL/wolfssh/commit/b6bd975ccfac6aadf29b98e35e09114bef3840a9",
+      "https://github.com/wolfSSL/wolfssh",
+      "https://www.wolfssl.com/docs/security-vulnerabilities",
+      "https://github.com/advisories/GHSA-36jf-xmwg-5wp8"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:31Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T03:16:59Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:P/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 7.7
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-287",
+        "name": "Improper Authentication"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-fcpg-rqrm-22xm",
+    "cve_id": "CVE-2026-19396",
+    "url": "https://api.github.com/advisories/GHSA-fcpg-rqrm-22xm",
+    "html_url": "https://github.com/advisories/GHSA-fcpg-rqrm-22xm",
+    "summary": "A predictable seed in the pseudo-random number generator (PRNG) in the IFTTT pairing token...",
+    "description": "A predictable seed in the pseudo-random number generator (PRNG) in the IFTTT pairing token generation of the ASUS RT-BE57 router allows an unauthenticated nearby user to derive the pairing token and read or modify router settings via observed values from an administrator-initiated IFTTT pairing session.Refer to the ' Security Update for ASUS Router Firmware  ' section on the ASUS Security Advisory for more information.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-fcpg-rqrm-22xm",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-19396",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-19396",
+      "https://www.asus.com/security-advisory",
+      "https://github.com/advisories/GHSA-fcpg-rqrm-22xm"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:31Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T02:16:58Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:A/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 7.7
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-337",
+        "name": "Predictable Seed in Pseudo-Random Number Generator (PRNG)"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-r946-p43h-mw8h",
+    "cve_id": "CVE-2026-102478",
+    "url": "https://api.github.com/advisories/GHSA-r946-p43h-mw8h",
+    "html_url": "https://github.com/advisories/GHSA-r946-p43h-mw8h",
+    "summary": "In affected versions of Octopus Server, an authenticated user with permission to modify roles...",
+    "description": "In affected versions of Octopus Server, an authenticated user with permission to modify roles could bypass the protections preventing access abuse resulting in privilege escalation. It was possible for the built-in role to be weakened and the attacker's account added to a privileged team. This was achievable due to improper validation of unsafe equivalence in inputs.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-r946-p43h-mw8h",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-102478",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-102478",
+      "https://advisories.octopus.com/post/2026/sa2026-11",
+      "https://github.com/advisories/GHSA-r946-p43h-mw8h"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:23Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T02:16:56Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 8.7
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-1289",
+        "name": "Improper Validation of Unsafe Equivalence in Input"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-rx2g-2998-5867",
+    "cve_id": "CVE-2026-19386",
+    "url": "https://api.github.com/advisories/GHSA-rx2g-2998-5867",
+    "html_url": "https://github.com/advisories/GHSA-rx2g-2998-5867",
+    "summary": "A stack-based buffer overflow in the ASUS router modules allows an authenticated nearby user to...",
+    "description": "A stack-based buffer overflow in the ASUS router modules allows an authenticated nearby user to execute arbitrary code via a crafted configuration file upload that exceeds the expected buffer size.Refer to the ' Security Update for ASUS Router Firmware  ' section on the ASUS Security Advisory for more information.",
+    "type": "unreviewed",
+    "severity": "critical",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-rx2g-2998-5867",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-19386",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-19386",
+      "https://www.asus.com/security-advisory",
+      "https://github.com/advisories/GHSA-rx2g-2998-5867"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:23Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T02:16:57Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:A/AC:L/AT:N/PR:H/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 9.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-121",
+        "name": "Stack-based Buffer Overflow"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-jh3c-v2fg-3q6f",
+    "cve_id": "CVE-2026-16528",
+    "url": "https://api.github.com/advisories/GHSA-jh3c-v2fg-3q6f",
+    "html_url": "https://github.com/advisories/GHSA-jh3c-v2fg-3q6f",
+    "summary": "Insertion of Sensitive Information into Log File in certain ASUS router models allows a remote...",
+    "description": "Insertion of Sensitive Information into Log File in certain ASUS router models allows a remote authenticated attacker to obtain DDNS credentials from the system log, potentially enabling modification of DNS settings.Refer to the ' Security Update for ASUS Router Firmware  ' section on the ASUS Security Advisory for more information.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-jh3c-v2fg-3q6f",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-16528",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-16528",
+      "https://www.asus.com/security-advisory",
+      "https://github.com/advisories/GHSA-jh3c-v2fg-3q6f"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:23Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T02:16:57Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:A/AC:L/AT:N/PR:H/UI:N/VC:H/VI:H/VA:L/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 8.4
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-532",
+        "name": "Insertion of Sensitive Information into Log File"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-75h9-9962-658r",
+    "cve_id": "CVE-2026-105324",
+    "url": "https://api.github.com/advisories/GHSA-75h9-9962-658r",
+    "html_url": "https://github.com/advisories/GHSA-75h9-9962-658r",
+    "summary": "An HTTP header injection vulnerability in start-page-loader.cgi of ADM allows an unauthenticated...",
+    "description": "An HTTP header injection vulnerability in start-page-loader.cgi of ADM allows an unauthenticated remote attacker to read arbitrary files on the host system. By sending a crafted HTTP request with injected headers via the state parameter, the attacker can leverage the underlying web server's X-Sendfile mechanism to retrieve sensitive files without authentication.\nAffected products and versions include: from ADM 4.1.0 through ADM 4.3.3.RWC1 as well as from ADM 5.0.0 through ADM 5.1.4.RL21.",
+    "type": "unreviewed",
+    "severity": "critical",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-75h9-9962-658r",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-105324",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-105324",
+      "https://www.asustor.com/security/security_advisory_detail?id=71",
+      "https://github.com/advisories/GHSA-75h9-9962-658r"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:23Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T02:16:57Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:N/VA:N/SC:H/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 9.2
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-113",
+        "name": "Improper Neutralization of CRLF Sequences in HTTP Headers ('HTTP Request/Response Splitting')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-993v-gm7c-q4cq",
+    "cve_id": "CVE-2026-106471",
+    "url": "https://api.github.com/advisories/GHSA-993v-gm7c-q4cq",
+    "html_url": "https://github.com/advisories/GHSA-993v-gm7c-q4cq",
+    "summary": "A flaw was found in Candlepin. The central authorization filter incorrectly grants access when...",
+    "description": "A flaw was found in Candlepin. The central authorization filter incorrectly grants access when any one of multiple @Verify-annotated parameters is accessible, instead of requiring access to every verified entity. A low-privilege authenticated attacker who can access the first referenced object can bypass authorization checks on subsequent objects. When target resource identifiers are known, this can enable unauthorized disclosure of consumer information and unauthorized modification of entitlements and related subscription resources, including across organizations.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-993v-gm7c-q4cq",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-106471",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-106471",
+      "https://access.redhat.com/security/cve/CVE-2026-106471",
+      "https://bugzilla.redhat.com/show_bug.cgi?id=2547044",
+      "https://github.com/advisories/GHSA-993v-gm7c-q4cq"
+    ],
+    "published_at": "2026-10-07T03:30:23Z",
+    "updated_at": "2026-10-07T03:30:23Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T02:16:57Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N",
+        "score": 8.1
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-863",
+        "name": "Incorrect Authorization"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N",
+      "score": 8.1
+    }
+  },
+  {
+    "ghsa_id": "GHSA-x724-4ccj-hq65",
+    "cve_id": "CVE-2026-97674",
+    "url": "https://api.github.com/advisories/GHSA-x724-4ccj-hq65",
+    "html_url": "https://github.com/advisories/GHSA-x724-4ccj-hq65",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute arbitrary OS commands due to improper neutralization of special elements used in an OS command ('Code Injection'), aka improper control of code generation.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-x724-4ccj-hq65",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-97674",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-97674",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-x724-4ccj-hq65"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:31Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:36Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N",
+        "score": 8.1
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-94",
+        "name": "Improper Control of Generation of Code ('Code Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N",
+      "score": 8.1
+    }
+  },
+  {
+    "ghsa_id": "GHSA-rc3v-3p84-v27h",
+    "cve_id": "CVE-2026-97680",
+    "url": "https://api.github.com/advisories/GHSA-rc3v-3p84-v27h",
+    "html_url": "https://github.com/advisories/GHSA-rc3v-3p84-v27h",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain sensitive information or inject malicious data due to improper access control in the vertex result caching subsystem.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-rc3v-3p84-v27h",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-97680",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-97680",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-rc3v-3p84-v27h"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:31Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:36Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:L",
+        "score": 8.3
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-284",
+        "name": "Improper Access Control"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:L",
+      "score": 8.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-frvf-4f3j-8j6r",
+    "cve_id": "CVE-2026-97678",
+    "url": "https://api.github.com/advisories/GHSA-frvf-4f3j-8j6r",
+    "html_url": "https://github.com/advisories/GHSA-frvf-4f3j-8j6r",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute arbitrary code due to improper input validation.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-frvf-4f3j-8j6r",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-97678",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-97678",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-frvf-4f3j-8j6r"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:31Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:36Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+        "score": 8.8
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-693",
+        "name": "Protection Mechanism Failure"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "score": 8.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-3qcv-3xgf-mj2v",
+    "cve_id": "CVE-2026-97671",
+    "url": "https://api.github.com/advisories/GHSA-3qcv-3xgf-mj2v",
+    "html_url": "https://github.com/advisories/GHSA-3qcv-3xgf-mj2v",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain sensitive information due to a path traversal vulnerability.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-3qcv-3xgf-mj2v",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-97671",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-97671",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-3qcv-3xgf-mj2v"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:26Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:35Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
+        "score": 6.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-22",
+        "name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
+      "score": 6.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-j57w-mr47-g6cj",
+    "cve_id": "CVE-2026-93679",
+    "url": "https://api.github.com/advisories/GHSA-j57w-mr47-g6cj",
+    "html_url": "https://github.com/advisories/GHSA-j57w-mr47-g6cj",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to cause a...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to cause a denial of service due to uncontrolled resource consumption during ZIP file extraction.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-j57w-mr47-g6cj",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-93679",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-93679",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-j57w-mr47-g6cj"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:26Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:35Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:L",
+        "score": 4.3
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-400",
+        "name": "Uncontrolled Resource Consumption"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:L",
+      "score": 4.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-4m6r-m628-76r6",
+    "cve_id": "CVE-2026-93449",
+    "url": "https://api.github.com/advisories/GHSA-4m6r-m628-76r6",
+    "html_url": "https://github.com/advisories/GHSA-4m6r-m628-76r6",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute arbitrary code due to improper control of code generation.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-4m6r-m628-76r6",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-93449",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-93449",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-4m6r-m628-76r6"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:26Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:35Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H",
+        "score": 8.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-94",
+        "name": "Improper Control of Generation of Code ('Code Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H",
+      "score": 8.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-p2rj-wm8g-5h9f",
+    "cve_id": "CVE-2026-97655",
+    "url": "https://api.github.com/advisories/GHSA-p2rj-wm8g-5h9f",
+    "html_url": "https://github.com/advisories/GHSA-p2rj-wm8g-5h9f",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote attacker to execute arbitrary code due...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote attacker to execute arbitrary code due to an incomplete blocklist in the code security scanner.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-p2rj-wm8g-5h9f",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-97655",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-97655",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-p2rj-wm8g-5h9f"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:26Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:35Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+        "score": 8.8
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-94",
+        "name": "Improper Control of Generation of Code ('Code Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "score": 8.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-j9v6-r8pm-v4jp",
+    "cve_id": "CVE-2026-93448",
+    "url": "https://api.github.com/advisories/GHSA-j9v6-r8pm-v4jp",
+    "html_url": "https://github.com/advisories/GHSA-j9v6-r8pm-v4jp",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain sensitive information due to improper limitation of a pathname to a restricted directory.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-j9v6-r8pm-v4jp",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-93448",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-93448",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-j9v6-r8pm-v4jp"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:26Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:34Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
+        "score": 6.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-22",
+        "name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
+      "score": 6.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-43mm-q7h7-p26f",
+    "cve_id": "CVE-2026-93447",
+    "url": "https://api.github.com/advisories/GHSA-43mm-q7h7-p26f",
+    "html_url": "https://github.com/advisories/GHSA-43mm-q7h7-p26f",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow an attacker with access to the server secret...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow an attacker with access to the server secret and Redis write access to submit a malicious serialized cache value. When the value was retrieved, deserialization could have executed attacker-controlled code with the privileges of the service process.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-43mm-q7h7-p26f",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-93447",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-93447",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-43mm-q7h7-p26f"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:26Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:34Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+        "score": 7.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-502",
+        "name": "Deserialization of Untrusted Data"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "score": 7.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-f6p7-w434-2956",
+    "cve_id": "CVE-2026-93445",
+    "url": "https://api.github.com/advisories/GHSA-f6p7-w434-2956",
+    "html_url": "https://github.com/advisories/GHSA-f6p7-w434-2956",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute arbitrary code due to improper control of generation of code.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-f6p7-w434-2956",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-93445",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-93445",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-f6p7-w434-2956"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:26Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:34Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N",
+        "score": 8.1
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-94",
+        "name": "Improper Control of Generation of Code ('Code Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N",
+      "score": 8.1
+    }
+  },
+  {
+    "ghsa_id": "GHSA-74xw-7rg4-6p4c",
+    "cve_id": "CVE-2026-104334",
+    "url": "https://api.github.com/advisories/GHSA-74xw-7rg4-6p4c",
+    "html_url": "https://github.com/advisories/GHSA-74xw-7rg4-6p4c",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote attacker to execute arbitrary code due...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote attacker to execute arbitrary code due to improper control of code generation.",
+    "type": "unreviewed",
+    "severity": "critical",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-74xw-7rg4-6p4c",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-104334",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-104334",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-74xw-7rg4-6p4c"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:26Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:34Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "score": 9.8
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-94",
+        "name": "Improper Control of Generation of Code ('Code Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "score": 9.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-xfjh-68gf-97jx",
+    "cve_id": "CVE-2026-93443",
+    "url": "https://api.github.com/advisories/GHSA-xfjh-68gf-97jx",
+    "html_url": "https://github.com/advisories/GHSA-xfjh-68gf-97jx",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute arbitrary code due to improper neutralization of special elements used in code.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-xfjh-68gf-97jx",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-93443",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-93443",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-xfjh-68gf-97jx"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:26Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:34Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+        "score": 7.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-94",
+        "name": "Improper Control of Generation of Code ('Code Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "score": 7.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-xhw9-mf2x-qh4j",
+    "cve_id": "CVE-2026-93674",
+    "url": "https://api.github.com/advisories/GHSA-xhw9-mf2x-qh4j",
+    "html_url": "https://github.com/advisories/GHSA-xhw9-mf2x-qh4j",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote attacker to execute arbitrary code due...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote attacker to execute arbitrary code due to improper neutralization of special elements used in an OS command.",
+    "type": "unreviewed",
+    "severity": "critical",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-xhw9-mf2x-qh4j",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-93674",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-93674",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-xhw9-mf2x-qh4j"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:26Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:35Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "score": 9.8
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-94",
+        "name": "Improper Control of Generation of Code ('Code Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "score": 9.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-4mr4-mxhm-g7v2",
+    "cve_id": "CVE-2026-101331",
+    "url": "https://api.github.com/advisories/GHSA-4mr4-mxhm-g7v2",
+    "html_url": "https://github.com/advisories/GHSA-4mr4-mxhm-g7v2",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain sensitive information due to insufficiently protected credentials.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-4mr4-mxhm-g7v2",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-101331",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-101331",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-4mr4-mxhm-g7v2"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:25Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:33Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
+        "score": 7.7
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-522",
+        "name": "Insufficiently Protected Credentials"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
+      "score": 7.7
+    }
+  },
+  {
+    "ghsa_id": "GHSA-f4v9-vgq2-xwmv",
+    "cve_id": "CVE-2026-97679",
+    "url": "https://api.github.com/advisories/GHSA-f4v9-vgq2-xwmv",
+    "html_url": "https://github.com/advisories/GHSA-f4v9-vgq2-xwmv",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute arbitrary code due to improper neutralization of special elements used in an OS command ('Code Injection') related to improper input validation.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-f4v9-vgq2-xwmv",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-97679",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-97679",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-f4v9-vgq2-xwmv"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:23Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:36Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+        "score": 8.8
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-94",
+        "name": "Improper Control of Generation of Code ('Code Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "score": 8.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-jm65-m624-cgvm",
+    "cve_id": "CVE-2026-97676",
+    "url": "https://api.github.com/advisories/GHSA-jm65-m624-cgvm",
+    "html_url": "https://github.com/advisories/GHSA-jm65-m624-cgvm",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute arbitrary code due to improper neutralization of special elements used in code, resulting in a sandbox escape.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-jm65-m624-cgvm",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-97676",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-97676",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-jm65-m624-cgvm"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:23Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:36Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+        "score": 8.8
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-94",
+        "name": "Improper Control of Generation of Code ('Code Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "score": 8.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-f976-m8p3-mhcp",
+    "cve_id": "CVE-2026-93678",
+    "url": "https://api.github.com/advisories/GHSA-f976-m8p3-mhcp",
+    "html_url": "https://github.com/advisories/GHSA-f976-m8p3-mhcp",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain sensitive information due to improper authorization.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-f976-m8p3-mhcp",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-93678",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-93678",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-f976-m8p3-mhcp"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:23Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:35Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:H/A:L",
+        "score": 7.6
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-639",
+        "name": "Authorization Bypass Through User-Controlled Key"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:H/A:L",
+      "score": 7.6
+    }
+  },
+  {
+    "ghsa_id": "GHSA-v6qv-q7jg-j4m7",
+    "cve_id": "CVE-2026-93677",
+    "url": "https://api.github.com/advisories/GHSA-v6qv-q7jg-j4m7",
+    "html_url": "https://github.com/advisories/GHSA-v6qv-q7jg-j4m7",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain sensitive information due to exposure of sensitive information to an unauthorized actor.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-v6qv-q7jg-j4m7",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-93677",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-93677",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-v6qv-q7jg-j4m7"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:23Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:35Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
+        "score": 7.7
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-200",
+        "name": "Exposure of Sensitive Information to an Unauthorized Actor"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N",
+      "score": 7.7
+    }
+  },
+  {
+    "ghsa_id": "GHSA-2cwm-fc8f-jqcm",
+    "cve_id": "CVE-2026-93675",
+    "url": "https://api.github.com/advisories/GHSA-2cwm-fc8f-jqcm",
+    "html_url": "https://github.com/advisories/GHSA-2cwm-fc8f-jqcm",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote attacker to execute arbitrary code due...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote attacker to execute arbitrary code due to an expected dependency confusion.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-2cwm-fc8f-jqcm",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-93675",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-93675",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-2cwm-fc8f-jqcm"
+    ],
+    "published_at": "2026-10-07T03:30:22Z",
+    "updated_at": "2026-10-07T03:30:23Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:35Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+        "score": 8.8
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-440",
+        "name": "Expected Behavior Violation"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "score": 8.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-q95g-mfgr-9rr3",
+    "cve_id": "CVE-2026-103360",
+    "url": "https://api.github.com/advisories/GHSA-q95g-mfgr-9rr3",
+    "html_url": "https://github.com/advisories/GHSA-q95g-mfgr-9rr3",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain sensitive information due to improper limitation of a pathname to a restricted directory.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-q95g-mfgr-9rr3",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-103360",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-103360",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-q95g-mfgr-9rr3"
+    ],
+    "published_at": "2026-10-07T03:30:21Z",
+    "updated_at": "2026-10-07T03:30:25Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:34Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N",
+        "score": 8.1
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-22",
+        "name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:N",
+      "score": 8.1
+    }
+  },
+  {
+    "ghsa_id": "GHSA-pc86-f397-xcjj",
+    "cve_id": "CVE-2026-101329",
+    "url": "https://api.github.com/advisories/GHSA-pc86-f397-xcjj",
+    "html_url": "https://github.com/advisories/GHSA-pc86-f397-xcjj",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to obtain sensitive information due to improper access control.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-pc86-f397-xcjj",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-101329",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-101329",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-pc86-f397-xcjj"
+    ],
+    "published_at": "2026-10-07T03:30:21Z",
+    "updated_at": "2026-10-07T03:30:25Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:32Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
+        "score": 6.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-284",
+        "name": "Improper Access Control"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
+      "score": 6.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-g2pv-fx5p-45j2",
+    "cve_id": "CVE-2026-88962",
+    "url": "https://api.github.com/advisories/GHSA-g2pv-fx5p-45j2",
+    "html_url": "https://github.com/advisories/GHSA-g2pv-fx5p-45j2",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute arbitrary code due to improper control of code generation.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-g2pv-fx5p-45j2",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-88962",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-88962",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-g2pv-fx5p-45j2"
+    ],
+    "published_at": "2026-10-07T03:30:21Z",
+    "updated_at": "2026-10-07T03:30:22Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T01:16:34Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+        "score": 8.8
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-94",
+        "name": "Improper Control of Generation of Code ('Code Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "score": 8.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-m2fx-2vhw-gg64",
+    "cve_id": "CVE-2026-80048",
+    "url": "https://api.github.com/advisories/GHSA-m2fx-2vhw-gg64",
+    "html_url": "https://github.com/advisories/GHSA-m2fx-2vhw-gg64",
+    "summary": "A flaw was found in `sssd-kcm`. A local user or process able to connect to the `sssd-kcm` UNIX...",
+    "description": "A flaw was found in `sssd-kcm`. A local user or process able to connect to the `sssd-kcm` UNIX socket can exploit this vulnerability. By sending a large request length header and then stalling the connection, an attacker can cause the system to preallocate significant memory. This leads to memory exhaustion within the `sssd-kcm` responder, resulting in a Denial of Service (DoS) for affected deployments.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-m2fx-2vhw-gg64",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-80048",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-80048",
+      "https://access.redhat.com/security/cve/CVE-2026-80048",
+      "https://bugzilla.redhat.com/show_bug.cgi?id=2479377",
+      "https://github.com/advisories/GHSA-m2fx-2vhw-gg64"
+    ],
+    "published_at": "2026-10-07T00:31:37Z",
+    "updated_at": "2026-10-07T00:31:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T00:17:21Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-770",
+        "name": "Allocation of Resources Without Limits or Throttling"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-75jr-mmgj-gcxq",
+    "cve_id": "CVE-2026-104335",
+    "url": "https://api.github.com/advisories/GHSA-75jr-mmgj-gcxq",
+    "html_url": "https://github.com/advisories/GHSA-75jr-mmgj-gcxq",
+    "summary": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute...",
+    "description": "IBM Langflow OSS 1.0.0 through 1.12.2 could allow a remote authenticated attacker to execute arbitrary code due to improper access control.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-75jr-mmgj-gcxq",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-104335",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-104335",
+      "https://www.ibm.com/support/pages/node/7290694",
+      "https://github.com/advisories/GHSA-75jr-mmgj-gcxq"
+    ],
+    "published_at": "2026-10-07T00:31:36Z",
+    "updated_at": "2026-10-07T00:31:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T00:17:20Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+        "score": 8.8
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-284",
+        "name": "Improper Access Control"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "score": 8.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-99hr-wq4p-x49q",
+    "cve_id": "CVE-2026-106583",
+    "url": "https://api.github.com/advisories/GHSA-99hr-wq4p-x49q",
+    "html_url": "https://github.com/advisories/GHSA-99hr-wq4p-x49q",
+    "summary": "In ssh in OpenSSH before 10.6, a $ or \\ character can occur in a command-line username, leading...",
+    "description": "In ssh in OpenSSH before 10.6, a $ or \\ character can occur in a command-line username, leading to injection.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-99hr-wq4p-x49q",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-106583",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-106583",
+      "https://www.openssh.org/releasenotes.html#10.6",
+      "https://github.com/advisories/GHSA-99hr-wq4p-x49q"
+    ],
+    "published_at": "2026-10-07T00:31:36Z",
+    "updated_at": "2026-10-07T00:31:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-07T00:17:20Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N",
+        "score": 2.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-99",
+        "name": "Improper Control of Resource Identifiers ('Resource Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N",
+      "score": 2.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-4hxf-v5w4-4vm6",
+    "cve_id": "CVE-2026-65142",
+    "url": "https://api.github.com/advisories/GHSA-4hxf-v5w4-4vm6",
+    "html_url": "https://github.com/advisories/GHSA-4hxf-v5w4-4vm6",
+    "summary": "NVIDIA Model-Optimizer contains a vulnerability where an attacker may cause deserialization of...",
+    "description": "NVIDIA Model-Optimizer contains a vulnerability where an attacker may cause deserialization of untrusted data. A successful exploit of this vulnerability might lead to code execution, data tampering, denial of service, and information disclosure.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-4hxf-v5w4-4vm6",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-65142",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-65142",
+      "https://github.com/NVIDIA/product-security/tree/main/2026/5903",
+      "https://www.cve.org/CVERecord?id=CVE-2026-65142",
+      "https://github.com/advisories/GHSA-4hxf-v5w4-4vm6"
+    ],
+    "published_at": "2026-10-07T00:31:36Z",
+    "updated_at": "2026-10-07T00:31:41Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T22:17:07Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+        "score": 7.8
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-502",
+        "name": "Deserialization of Untrusted Data"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "score": 7.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-33m9-4v26-qccr",
+    "cve_id": "CVE-2026-65122",
+    "url": "https://api.github.com/advisories/GHSA-33m9-4v26-qccr",
+    "html_url": "https://github.com/advisories/GHSA-33m9-4v26-qccr",
+    "summary": "NVIDIA TensorRT contains a vulnerability where an attacker can cause an out of bounds read. A...",
+    "description": "NVIDIA TensorRT contains a vulnerability where an attacker can cause an out of bounds read. A successful exploit of this vulnerability may lead to denial of service.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-33m9-4v26-qccr",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-65122",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-65122",
+      "https://github.com/NVIDIA/product-security/tree/main/2026/5891",
+      "https://www.cve.org/CVERecord?id=CVE-2026-65122",
+      "https://github.com/advisories/GHSA-33m9-4v26-qccr"
+    ],
+    "published_at": "2026-10-07T00:31:36Z",
+    "updated_at": "2026-10-07T00:31:40Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T22:17:07Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+        "score": 5.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+      "score": 5.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-8wpc-x9xg-9q94",
+    "cve_id": "CVE-2026-106589",
+    "url": "https://api.github.com/advisories/GHSA-8wpc-x9xg-9q94",
+    "html_url": "https://github.com/advisories/GHSA-8wpc-x9xg-9q94",
+    "summary": "In sshd in OpenSSH through 10.6, in certain environments such as QNX 6 and SCO OpenServer 5, sshd...",
+    "description": "In sshd in OpenSSH through 10.6, in certain environments such as QNX 6 and SCO OpenServer 5, sshd-session can unexpectedly have root privileges. This is related to the GatewayPorts and StreamLocalForwarding configuration options, and lack of support for file-descriptor passing and unprivileged allocation of PTY devices.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-8wpc-x9xg-9q94",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-106589",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-106589",
+      "https://www.openssh.org/releasenotes.html#10.6",
+      "https://github.com/advisories/GHSA-8wpc-x9xg-9q94"
+    ],
+    "published_at": "2026-10-07T00:31:36Z",
+    "updated_at": "2026-10-07T00:31:40Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T22:17:06Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:N",
+        "score": 2.9
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-272",
+        "name": "Least Privilege Violation"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:H/PR:N/UI:N/S:U/C:N/I:L/A:N",
+      "score": 2.9
+    }
+  },
+  {
+    "ghsa_id": "GHSA-8fmq-pfxf-6hmc",
+    "cve_id": "CVE-2026-106587",
+    "url": "https://api.github.com/advisories/GHSA-8fmq-pfxf-6hmc",
+    "html_url": "https://github.com/advisories/GHSA-8fmq-pfxf-6hmc",
+    "summary": "In sshd in OpenSSH before 10.6, the value \"none\" for a configuration option is sometimes...",
+    "description": "In sshd in OpenSSH before 10.6, the value \"none\" for a configuration option is sometimes interpreted as a filename but was intended to mean that a feature is disabled.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-8fmq-pfxf-6hmc",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-106587",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-106587",
+      "https://www.openssh.org/releasenotes.html#10.6",
+      "https://github.com/advisories/GHSA-8fmq-pfxf-6hmc"
+    ],
+    "published_at": "2026-10-07T00:31:36Z",
+    "updated_at": "2026-10-07T00:31:40Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T22:17:06Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:L",
+        "score": 3.6
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-843",
+        "name": "Access of Resource Using Incompatible Type ('Type Confusion')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:L",
+      "score": 3.6
+    }
+  },
+  {
+    "ghsa_id": "GHSA-74g8-x9g6-gwmc",
+    "cve_id": "CVE-2026-106588",
+    "url": "https://api.github.com/advisories/GHSA-74g8-x9g6-gwmc",
+    "html_url": "https://github.com/advisories/GHSA-74g8-x9g6-gwmc",
+    "summary": "In sshd in OpenSSH through 10.6, use of the macOS 27 (or later) SDK has the side effect of loss...",
+    "description": "In sshd in OpenSSH through 10.6, use of the macOS 27 (or later) SDK has the side effect of loss of sandboxing, which is potentially unexpected.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-74g8-x9g6-gwmc",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-106588",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-106588",
+      "https://www.openssh.org/releasenotes.html#10.6",
+      "https://github.com/advisories/GHSA-74g8-x9g6-gwmc"
+    ],
+    "published_at": "2026-10-07T00:31:36Z",
+    "updated_at": "2026-10-07T00:31:40Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T22:17:06Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N",
+        "score": 3.1
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-653",
+        "name": "Improper Isolation or Compartmentalization"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N",
+      "score": 3.1
+    }
+  },
+  {
+    "ghsa_id": "GHSA-j45v-7hgc-xv9x",
+    "cve_id": "CVE-2026-106555",
+    "url": "https://api.github.com/advisories/GHSA-j45v-7hgc-xv9x",
+    "html_url": "https://github.com/advisories/GHSA-j45v-7hgc-xv9x",
+    "summary": "In sshd in OpenSSH before 10.6, GSSAPIAuthentication authentication state can incorrectly be...",
+    "description": "In sshd in OpenSSH before 10.6, GSSAPIAuthentication authentication state can incorrectly be persisted across authentication attempts.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-j45v-7hgc-xv9x",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-106555",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-106555",
+      "https://www.openssh.org/releasenotes.html#10.6",
+      "https://github.com/advisories/GHSA-j45v-7hgc-xv9x"
+    ],
+    "published_at": "2026-10-06T21:32:05Z",
+    "updated_at": "2026-10-06T21:32:09Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T21:17:19Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:H/PR:L/UI:R/S:U/C:L/I:N/A:N",
+        "score": 2.2
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-669",
+        "name": "Incorrect Resource Transfer Between Spheres"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:H/PR:L/UI:R/S:U/C:L/I:N/A:N",
+      "score": 2.2
+    }
+  },
+  {
+    "ghsa_id": "GHSA-9hq3-hc6p-gc8q",
+    "cve_id": "CVE-2026-106584",
+    "url": "https://api.github.com/advisories/GHSA-9hq3-hc6p-gc8q",
+    "html_url": "https://github.com/advisories/GHSA-9hq3-hc6p-gc8q",
+    "summary": "In ssh-keygen in OpenSSH before 10.6, certificates could have incorrect expiration times because...",
+    "description": "In ssh-keygen in OpenSSH before 10.6, certificates could have incorrect expiration times because of Daylight Saving mishandling. There can be a slightly more severe effect on users in certain Antarctic locations.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-9hq3-hc6p-gc8q",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-106584",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-106584",
+      "https://www.openssh.org/releasenotes.html#10.6",
+      "https://github.com/advisories/GHSA-9hq3-hc6p-gc8q"
+    ],
+    "published_at": "2026-10-06T21:32:04Z",
+    "updated_at": "2026-10-06T21:32:09Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T21:17:19Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:N",
+        "score": 2.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-193",
+        "name": "Off-by-one Error"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:H/PR:N/UI:R/S:U/C:N/I:L/A:N",
+      "score": 2.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-h97m-6c64-h5x2",
+    "cve_id": "CVE-2026-43598",
+    "url": "https://api.github.com/advisories/GHSA-h97m-6c64-h5x2",
+    "html_url": "https://github.com/advisories/GHSA-h97m-6c64-h5x2",
+    "summary": "Improper input validation in the AMD ROCm Communication Collectives Library (RCCL) could allow a...",
+    "description": "Improper input validation in the AMD ROCm Communication Collectives Library (RCCL) could allow a compromised peer rank or network-adjacent attacker to dereference an attacker-controlled pointer, potentially resulting in remote code execution.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-h97m-6c64-h5x2",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-43598",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-43598",
+      "https://www.amd.com/en/resources/product-security/bulletin/AMD-SB-6033.html",
+      "https://github.com/advisories/GHSA-h97m-6c64-h5x2"
+    ],
+    "published_at": "2026-10-06T21:32:04Z",
+    "updated_at": "2026-10-06T21:32:09Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T21:17:20Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:H/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 7.7
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-822",
+        "name": "Untrusted Pointer Dereference"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-jrjw-pc9r-c624",
+    "cve_id": "CVE-2026-106586",
+    "url": "https://api.github.com/advisories/GHSA-jrjw-pc9r-c624",
+    "html_url": "https://github.com/advisories/GHSA-jrjw-pc9r-c624",
+    "summary": "In sshd in OpenSSH before 10.6, the restrict keyword (in authorized_keys) was supposed to be...",
+    "description": "In sshd in OpenSSH before 10.6, the restrict keyword (in authorized_keys) was supposed to be applicable to tunnel forwarding but was not, a different vulnerability than CVE-2026-73283.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-jrjw-pc9r-c624",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-106586",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-106586",
+      "https://www.openssh.org/releasenotes.html#10.6",
+      "https://github.com/advisories/GHSA-jrjw-pc9r-c624"
+    ],
+    "published_at": "2026-10-06T21:32:04Z",
+    "updated_at": "2026-10-06T21:32:09Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T21:17:19Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N",
+        "score": 2.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-670",
+        "name": "Always-Incorrect Control Flow Implementation"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:N/I:L/A:N",
+      "score": 2.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-52jg-q5cg-3x56",
+    "cve_id": "CVE-2026-19029",
+    "url": "https://api.github.com/advisories/GHSA-52jg-q5cg-3x56",
+    "html_url": "https://github.com/advisories/GHSA-52jg-q5cg-3x56",
+    "summary": "A heap-based buffer over-read in H5Z__filter_scaleoffset() in src/H5Zscaleoffset.c in HDF5...",
+    "description": "A heap-based buffer over-read in H5Z__filter_scaleoffset() in src/H5Zscaleoffset.c in HDF5 through 2.2.0 lets an attacker cause a denial of service (application crash) with a crafted HDF5 file. When the stored minimum bits equal the full precision of the datatype, the decoder copies d_nelmts * size bytes from the compressed chunk without checking that the chunk holds that many bytes. Both values come from attacker-controlled scale-offset filter parameters in the dataset's filter pipeline message.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-52jg-q5cg-3x56",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-19029",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-19029",
+      "https://github.com/HDFGroup/hdf5/pull/6718",
+      "https://github.com/advisories/GHSA-52jg-q5cg-3x56"
+    ],
+    "published_at": "2026-10-06T21:32:04Z",
+    "updated_at": "2026-10-06T21:32:09Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T21:17:20Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.8
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-j4h6-744f-q3hq",
+    "cve_id": "CVE-2026-106585",
+    "url": "https://api.github.com/advisories/GHSA-j4h6-744f-q3hq",
+    "html_url": "https://github.com/advisories/GHSA-j4h6-744f-q3hq",
+    "summary": "In sshd and ssh in OpenSSH before 10.6, there is no check for whether the maximum packet length...",
+    "description": "In sshd and ssh in OpenSSH before 10.6, there is no check for whether the maximum packet length is exceeded during decompression of highly compressed data.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-j4h6-744f-q3hq",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-106585",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-106585",
+      "https://www.openssh.org/releasenotes.html#10.6",
+      "https://github.com/advisories/GHSA-j4h6-744f-q3hq"
+    ],
+    "published_at": "2026-10-06T21:32:04Z",
+    "updated_at": "2026-10-06T21:32:09Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T21:17:19Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:L",
+        "score": 6.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-409",
+        "name": "Improper Handling of Highly Compressed Data (Data Amplification)"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:L",
+      "score": 6.5
+    }
+  }
+]

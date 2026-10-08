@@ -1,0 +1,251 @@
+# Suricata Detection Rules - Generated 2026-10-07 14:01 UTC
+# Source: GitHub Advisory Database + MITRE ATT&CK
+# CVE Coverage: 50 advisories published after 2026-08-27
+# MITRE ATT&CK: T1190, T1059, T1110, T1078, T1195, T1053, T1547, T1543, T1574
+#               T1105, T1027, T1546, T1136, T1542, T1204, T1003, T1558, T1528
+#               T1552, T1021, T1071, T1572, T1573, T1048, T1070, T1562, T1036
+#               T1140, T1119, T1560, T1057, T1595, T1590, T1592, T1199, T1133
+#               T1068, T1061, T1210, T1534, T1014, T1039, T1112, T1129
+# Severity: 5 CRITICAL, 21 HIGH, 19 MEDIUM, 2 LOW, 3 UNKNOWN
+# SID Range: 52122261 - 52122360
+# Total Rules: 100
+
+# === CVE-2026-96408: Movable Type Code Injection (CRITICAL) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-96408 Movable Type upgrade script code injection attempt"; content:"/mt-upgrade.cgi"; nocase; http_uri; content:"upgrade_step"; nocase; http_uri; pcre:"/upgrade_step=[^&]*(\x3b|\x7c|\x24)/i"; reference:cve,2026-96408; classtype:attempted-admin; sid:52122261; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-96408 Movable Type upgrade script code injection over TLS"; content:"/mt-upgrade.cgi"; nocase; http_uri; content:"upgrade_step"; nocase; http_uri; pcre:"/upgrade_step=[^&]*(\x3b|\x7c|\x24)/i"; reference:cve,2026-96408; classtype:attempted-admin; sid:52122262; rev:1;)
+
+# === CVE-2026-105192: LMCache ZeroMQ Unauthenticated Router (CRITICAL) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5570 (msg:"CVE-2026-105192 LMCache ZeroMQ ROUTER unauthenticated access attempt"; content:"|01 00|"; depth:2; dsize:<200; reference:cve,2026-105192; classtype:attempted-admin; sid:52122263; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5571 (msg:"CVE-2026-105192 LMCache distributed mode unauthenticated ZeroMQ port scan"; flags:S; reference:cve,2026-105192; classtype:attempted-recon; sid:52122264; rev:1;)
+
+# === CVE-2026-107104: ERP Unsafe Deserialization (CRITICAL) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-107104 ERP system unsafe deserialization user-controlled data"; content:"Content-Type"; nocase; http_header; content:"application/x-java-serialized-object"; nocase; http_header; reference:cve,2026-107104; classtype:attempted-admin; sid:52122265; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-107104 ERP deserialization attack via serialized Java object"; content:"Content-Type"; nocase; http_header; content:"application/x-java-serialized-object"; nocase; http_header; reference:cve,2026-107104; classtype:attempted-admin; sid:52122266; rev:1;)
+
+# === CVE-2025-64393: Veeam Backup Arbitrary Code Execution (CRITICAL) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 9419 (msg:"CVE-2025-64393 Veeam Backup Viewer arbitrary code execution attempt"; content:"VEEAM"; nocase; content:"viewer"; nocase; pcre:"/viewer.*exec|exec.*viewer/i"; reference:cve,2025-64393; classtype:attempted-admin; sid:52122267; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2025-64393 Veeam Backup Replication code execution over web console"; content:"/vbr"; nocase; http_uri; content:"exec"; nocase; http_uri; reference:cve,2025-64393; classtype:attempted-admin; sid:52122268; rev:1;)
+
+# === CVE-2026-102782: Joomla OrdaSoft SQL Injection (CRITICAL) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-102782 Joomla OrdaSoft Simple Membership unauthenticated SQL injection"; content:"/index.php"; nocase; http_uri; content:"option=com_simplemembership"; nocase; http_uri; pcre:"/UNION.*SELECT|OR.*1=1|AND.*1=1/i"; reference:cve,2026-102782; classtype:web-application-attack; sid:52122269; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-102782 Joomla Simple Membership SQLi over TLS"; content:"option=com_simplemembership"; nocase; http_uri; pcre:"/UNION.*SELECT|OR.*1=1|AND.*1=1/i"; reference:cve,2026-102782; classtype:web-application-attack; sid:52122270; rev:1;)
+
+# === CVE-2026-57449: Actual Sync Server CORS Proxy Bypass (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5006 (msg:"CVE-2026-57449 Actual Sync Server CORS proxy allowlist prefix bypass"; content:"/cors-proxy"; nocase; http_uri; content:"api.github.com"; nocase; http_uri; pcre:"/repos\/[^\/]+\/plugin[A-Za-z0-9_-]+/i"; reference:cve,2026-57449; classtype:web-application-attack; sid:52122271; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-57449 Actual Sync Server CORS proxy GitHub token exfiltration attempt"; content:"/cors-proxy"; nocase; http_uri; content:"contents/.env"; nocase; http_uri; reference:cve,2026-57449; classtype:web-application-attack; sid:52122272; rev:1;)
+
+# === CVE-2026-46434: wger Trainer Privilege Escalation (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-46434 wger trainer privilege escalation account deactivation"; content:"/user/"; nocase; http_uri; content:"/deactivate"; nocase; http_uri; reference:cve,2026-46434; classtype:attempted-admin; sid:52122273; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-46434 wger trainer to manager privilege escalation via deactivate endpoint"; content:"/deactivate"; nocase; http_uri; pcre:"/user\/\d+\/deactivate/i"; reference:cve,2026-46434; classtype:attempted-admin; sid:52122274; rev:1;)
+
+# === CVE-2026-43976: wger Cross-Tenant Data Leak (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-43976 wger cross-tenant admin notes leak via gym=None bypass"; content:"/api/v2/"; nocase; http_uri; content:"gym"; nocase; pcre:"/gym=None|gym=0|gym=-1/i"; reference:cve,2026-43976; classtype:web-application-attack; sid:52122275; rev:1;)
+
+# === CVE-2026-46438: wger IDOR Cross-User Data Corruption (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-46438 wger IDOR cross-user WorkoutLog slot_entry injection"; content:"/api/v2/workoutlog/"; nocase; http_uri; content:"slot_entry"; nocase; http_client_body; reference:cve,2026-46438; classtype:web-application-attack; sid:52122276; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-46438 wger WorkoutLog IDOR via slot_entry foreign key bypass TLS"; content:"/api/v2/workoutlog/"; nocase; http_uri; content:"slot_entry"; nocase; http_client_body; reference:cve,2026-46438; classtype:web-application-attack; sid:52122277; rev:1;)
+
+# === CVE-2026-46437: wger API Token Not Revoked (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-46437 wger stale API token usage after password change"; content:"Authorization"; nocase; http_header; content:"Token"; nocase; http_header; content:"/api/v2/weightentry/"; nocase; http_uri; reference:cve,2026-46437; classtype:web-application-attack; sid:52122278; rev:1;)
+
+# === CVE-2026-45161: wger CSRF via trainer_login GET (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-45161 wger trainer_login GET CSRF bypass forced session rebinding"; content:"/trainer-login"; nocase; http_uri; pcre:"/trainer-login\?next=/i"; reference:cve,2026-45161; classtype:web-application-attack; sid:52122279; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-45161 wger trainer_login CSRF via GET request with next redirect"; content:"/trainer-login"; nocase; http_uri; reference:cve,2026-45161; classtype:web-application-attack; sid:52122280; rev:1;)
+
+# === CVE-2026-107159: MiniUPnPd Divide-by-Zero (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1900 (msg:"CVE-2026-107159 MiniUPnPd strict mode divide-by-zero via crafted SSDP"; content:"M-SEARCH"; nocase; content:"upnp:discover"; nocase; pcre:"/ST:.*[\x00\x01]/i"; reference:cve,2026-107159; classtype:attempted-dos; sid:52122281; rev:1;)
+alert udp $EXTERNAL_NET any -> $HOME_NET 1900 (msg:"CVE-2026-107159 MiniUPnPd SSDP divide-by-zero DoS with zero-length field"; content:"M-SEARCH"; nocase; dsize:<100; reference:cve,2026-107159; classtype:attempted-dos; sid:52122282; rev:1;)
+
+# === CVE-2026-42710: SQL Injection (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-42710 SQL injection via special elements in web parameter"; content:"UNION"; nocase; http_uri; content:"SELECT"; nocase; http_uri; pcre:"/UNION.*SELECT/i"; reference:cve,2026-42710; classtype:web-application-attack; sid:52122283; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-42710 SQL injection attempt over encrypted channel"; content:"UNION"; nocase; http_client_body; content:"SELECT"; nocase; http_client_body; reference:cve,2026-42710; classtype:web-application-attack; sid:52122284; rev:1;)
+
+# === CVE-2026-42708: SQL Injection (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-42708 SQL injection via improper neutralization of special elements"; pcre:"/(\x27|\x22).*(OR|AND).*(=|LIKE)/i"; http_uri; reference:cve,2026-42708; classtype:web-application-attack; sid:52122285; rev:1;)
+
+# === CVE-2026-106059: GitAhead macOS Command Injection (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-106059 GitAhead macOS command injection via crafted git repository"; content:"git"; nocase; pcre:"/git.*(\x3b|\x7c|\x24\x28)/i"; reference:cve,2026-106059; classtype:attempted-user; sid:52122286; rev:1;)
+
+# === CVE-2026-106058: GitAhead OS Command Injection (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-106058 GitAhead Filter.cpp OS command injection"; content:"filter"; nocase; pcre:"/filter.*(\x3b|\x7c).*(cat|ls|id|whoami)/i"; reference:cve,2026-106058; classtype:attempted-user; sid:52122287; rev:1;)
+
+# === CVE-2026-106057: patool OS Command Injection on Windows (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-106057 patool pre-4.0.6 OS command injection on Windows"; content:"patool"; nocase; pcre:"/patool.*(\x26\x26|\x7c\x7c)/i"; reference:cve,2026-106057; classtype:attempted-user; sid:52122288; rev:1;)
+
+# === CVE-2026-106056: Rundeck OS Command Injection (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 4440 (msg:"CVE-2026-106056 Rundeck pre-6.2.0 authenticated OS command injection"; content:"/rundeck"; nocase; http_uri; content:"exec"; nocase; pcre:"/exec.*(\x3b|\x7c\x7c|\x26\x26)/i"; reference:cve,2026-106056; classtype:attempted-admin; sid:52122289; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 4443 (msg:"CVE-2026-106056 Rundeck command injection via project node execution"; content:"/project/"; nocase; http_uri; content:"/exec"; nocase; http_uri; reference:cve,2026-106056; classtype:attempted-admin; sid:52122290; rev:1;)
+
+# === CVE-2026-92533: BugTracker.NET Path Traversal (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-92533 BugTracker.NET path traversal file download"; content:"download_file.aspx"; nocase; http_uri; pcre:"/(file|path)=.*\.\.\.\//i"; reference:cve,2026-92533; classtype:web-application-attack; sid:52122291; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-92533 BugTracker.NET path traversal via encoded dot-dot-slash"; content:"download_file.aspx"; nocase; http_uri; pcre:"/(file|path)=.*%2e%2e%2f/i"; reference:cve,2026-92533; classtype:web-application-attack; sid:52122292; rev:1;)
+
+# === CVE-2026-92532: BugTracker.NET Unrestricted File Upload (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-92532 BugTracker.NET unrestricted file upload via attachment"; content:"upload.aspx"; nocase; http_uri; content:"filename"; nocase; http_header; pcre:"/filename=.*\.(asp|aspx|php|jsp|exe|sh)/i"; reference:cve,2026-92532; classtype:web-application-attack; sid:52122293; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-92532 BugTracker.NET malicious file upload attachment TLS"; content:"upload.aspx"; nocase; http_uri; content:"multipart/form-data"; nocase; http_header; reference:cve,2026-92532; classtype:web-application-attack; sid:52122294; rev:1;)
+
+# === CVE-2026-92531: BugTracker.NET SVN Command Injection (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-92531 BugTracker.NET SVN integration OS command injection"; content:"svn"; nocase; http_uri; pcre:"/svn.*(\x3b|\x7c).*(cat|id|whoami|wget|curl)/i"; reference:cve,2026-92531; classtype:attempted-admin; sid:52122295; rev:1;)
+
+# === CVE-2026-103668: Movable Type SQL Injection (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-103668 Movable Type Site Search SQL injection"; content:"/mt-search.cgi"; nocase; http_uri; content:"search"; nocase; pcre:"/search.*UNION.*SELECT/i"; reference:cve,2026-103668; classtype:web-application-attack; sid:52122296; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-103668 Movable Type SQLi via search parameter over TLS"; content:"/mt-search.cgi"; nocase; http_uri; pcre:"/(\x27|\x22).*(OR|AND).*(=|LIKE)/i"; reference:cve,2026-103668; classtype:web-application-attack; sid:52122297; rev:1;)
+
+# === CVE-2026-5703: Satel Iberia SenNet Path Traversal (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-5703 Satel Iberia SenNet Datalogger Serie 200 path traversal"; content:"/sennet/"; nocase; http_uri; pcre:"/\.\.\.\/.*\.\.\.\//i"; reference:cve,2026-5703; classtype:web-application-attack; sid:52122298; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 502 (msg:"CVE-2026-5703 SenNet Datalogger Modbus path traversal via HTTP"; content:"/../"; nocase; http_uri; reference:cve,2026-5703; classtype:web-application-attack; sid:52122299; rev:1;)
+
+# === CVE-2026-89417: OMGF WordPress Plugin Vulnerability (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-89417 OMGF WordPress plugin GDPR Google Fonts vulnerability"; content:"/wp-content/plugins/omgf/"; nocase; http_uri; reference:cve,2026-89417; classtype:web-application-attack; sid:52122300; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-89417 OMGF plugin exploit via admin-ajax POST request"; content:"admin-ajax.php"; nocase; http_uri; content:"action=omgf"; nocase; http_client_body; reference:cve,2026-89417; classtype:web-application-attack; sid:52122301; rev:1;)
+
+# === CVE-2026-58069: Veeam Backup Cloud Connect (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 6180 (msg:"CVE-2026-58069 Veeam Backup Cloud Connect tenant authentication bypass"; content:"/cloudconnect/"; nocase; http_uri; content:"tenant"; nocase; pcre:"/tenant.*(\x27|\x22).*(OR|AND)/i"; reference:cve,2026-58069; classtype:attempted-admin; sid:52122302; rev:1;)
+
+# === CVE-2026-42714: SQL Injection (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-42714 SQL injection special elements web request"; pcre:"/(\x27|%27).*(UNION|SELECT|INSERT|DROP)/i"; http_uri; reference:cve,2026-42714; classtype:web-application-attack; sid:52122303; rev:1;)
+
+# === CVE-2026-42713: SQL Injection (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-42713 SQL injection via special character injection in parameters"; pcre:"/param.*(\x27|%27|\x22|%22).*(OR|AND|UNION)/i"; http_uri; reference:cve,2026-42713; classtype:web-application-attack; sid:52122304; rev:1;)
+
+# === CVE-2026-42721: SQL Injection (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-42721 SQL injection in web application parameter via UNION SELECT"; content:"UNION"; nocase; http_client_body; content:"SELECT"; nocase; http_client_body; reference:cve,2026-42721; classtype:web-application-attack; sid:52122305; rev:1;)
+
+# === CVE-2026-42720: SQL Injection (HIGH) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-42720 SQL injection via improperly neutralized special elements"; pcre:"/(\x3b|%3b).*(DROP|DELETE|UPDATE|INSERT)/i"; http_uri; reference:cve,2026-42720; classtype:web-application-attack; sid:52122306; rev:1;)
+
+# === CVE-2026-90466: Impala Trusted JAR Path Traversal (UNKNOWN) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21050 (msg:"CVE-2026-90466 Impala trusted_jar_paths path traversal attacker-controlled JAR"; content:"/jars/"; nocase; pcre:"/\.\.\.\/.*\.jar/i"; reference:cve,2026-90466; classtype:web-application-attack; sid:52122307; rev:1;)
+
+# === CVE-2026-93684: Impala SELECT Permission Bypass (UNKNOWN) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21050 (msg:"CVE-2026-93684 Impala SELECT-only user privilege escalation to write operations"; content:"INSERT"; nocase; content:"INTO"; nocase; pcre:"/INSERT.*INTO.*SELECT/i"; reference:cve,2026-93684; classtype:attempted-admin; sid:52122308; rev:1;)
+
+# === CVE-2026-97720: Impala JWT/OAuth Auth Bypass (UNKNOWN) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21050 (msg:"CVE-2026-97720 Apache Impala incorrect JWT/OAuth authentication executor bypass"; content:"Authorization"; nocase; http_header; content:"Bearer"; nocase; http_header; pcre:"/Bearer\s+[A-Za-z0-9._-]+\.[A-Za-z0-9._-]+\.*/i"; reference:cve,2026-97720; classtype:attempted-admin; sid:52122309; rev:1;)
+
+# === CVE-2026-105884: XSS (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-105884 Cross-site scripting via improper input neutralization"; pcre:"/(\x3c|%3c)script.*(\x3e|%3e)/i"; http_uri; reference:cve,2026-105884; classtype:web-application-attack; sid:52122310; rev:1;)
+
+# === CVE-2026-105875: XSS (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-105875 XSS via web page generation improper input neutralization"; pcre:"/(\x3c|%3c)img.*onerror\s*=/i"; http_uri; reference:cve,2026-105875; classtype:web-application-attack; sid:52122311; rev:1;)
+
+# === CVE-2026-97294: XSS (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-97294 XSS via improper web page generation neutralization"; pcre:"/(\x3c|%3c)svg.*onload\s*=/i"; http_uri; reference:cve,2026-97294; classtype:web-application-attack; sid:52122312; rev:1;)
+
+# === CVE-2026-27434: WordPress Vivoo WP Rentals Missing Authorization (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-27434 WordPress WP Rentals missing authorization exploit"; content:"/wp-admin/admin-ajax.php"; nocase; http_uri; content:"action=vivoo"; nocase; http_client_body; reference:cve,2026-27434; classtype:web-application-attack; sid:52122313; rev:1;)
+
+# === CVE-2026-92393: Apache YuniKorn Label Check Bypass (LOW) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 31979 (msg:"CVE-2026-92393 Apache YuniKorn label and user annotation check bypass"; content:"/api/v1/"; nocase; http_uri; content:"yunikorn"; nocase; reference:cve,2026-92393; classtype:attempted-admin; sid:52122314; rev:1;)
+
+# === CVE-2026-104391: XSS (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-104391 XSS via script tag injection in web page"; pcre:"/(\x3c|%3c)script.*src\s*=/i"; http_uri; reference:cve,2026-104391; classtype:web-application-attack; sid:52122315; rev:1;)
+
+# === CVE-2026-78243: Apache YuniKorn LDAP Crash (LOW) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 31979 (msg:"CVE-2026-78243 Apache YuniKorn LDAP group resolver crash DoS"; content:"ldap"; nocase; pcre:"/ldap.*(\x00|\xff|\xfe)/i"; reference:cve,2026-78243; classtype:attempted-dos; sid:52122316; rev:1;)
+
+# === CVE-2026-103075: WordPress Hustle Missing Authorization (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-103075 WPMU DEV Hustle missing authorization exploit"; content:"/wp-admin/admin-ajax.php"; nocase; http_uri; content:"action=hustle"; nocase; http_client_body; reference:cve,2026-103075; classtype:web-application-attack; sid:52122317; rev:1;)
+
+# === CVE-2026-104393: XSS (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-104393 XSS via iframe injection in web page generation"; pcre:"/(\x3c|%3c)iframe.*src\s*=/i"; http_uri; reference:cve,2026-104393; classtype:web-application-attack; sid:52122318; rev:1;)
+
+# === CVE-2026-105873: XSS (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-105873 XSS via DOM manipulation event handler injection"; pcre:"/on(click|load|error|mouseover)\s*=/i"; http_uri; reference:cve,2026-105873; classtype:web-application-attack; sid:52122319; rev:1;)
+
+# === CVE-2026-105871: XSS (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-105871 XSS via JavaScript event handler attribute injection"; pcre:"/on(focus|blur|submit|change)\s*=/i"; http_uri; reference:cve,2026-105871; classtype:web-application-attack; sid:52122320; rev:1;)
+
+# === CVE-2026-93026: Veeam Backup Enterprise Manager (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 9398 (msg:"CVE-2026-93026 Veeam Backup Enterprise Manager unauthorized modification"; content:"/enterprise_manager/"; nocase; http_uri; content:"modify"; nocase; http_uri; reference:cve,2026-93026; classtype:attempted-admin; sid:52122321; rev:1;)
+
+# === CVE-2026-102781: Joomla OrdaSoft Destructive CRUD (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-102781 Joomla OrdaSoft Touch Slider unauthenticated destructive CRUD"; content:"option=com_touchslider"; nocase; http_uri; pcre:"/(DELETE|DROP|TRUNCATE)/i"; reference:cve,2026-102781; classtype:web-application-attack; sid:52122322; rev:1;)
+
+# === CVE-2025-64391: Veeam Agent Local Privilege Escalation (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 11731 (msg:"CVE-2025-64391 Veeam Agent local user privilege escalation termination"; content:"veeam"; nocase; pcre:"/veeam.*(\x3bkill|\x3bpkill|\x7ckill)/i"; reference:cve,2025-64391; classtype:attempted-admin; sid:52122323; rev:1;)
+
+# === CVE-2026-58068: Veeam Agent Process Termination (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 11731 (msg:"CVE-2026-58068 Veeam Agent for Microsoft Windows local user process termination"; content:"VeeamAgent"; nocase; pcre:"/VeeamAgent.*kill|kill.*VeeamAgent/i"; reference:cve,2026-58068; classtype:attempted-dos; sid:52122324; rev:1;)
+
+# === CVE-2026-104390: Arraytics Booktics Missing Authorization (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-104390 Arraytics Booktics missing authorization incorrectly configured"; content:"/booktics/"; nocase; http_uri; content:"admin"; nocase; http_uri; reference:cve,2026-104390; classtype:web-application-attack; sid:52122325; rev:1;)
+
+# === CVE-2026-105876: Modula Image Gallery Missing Authorization (MEDIUM) ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"CVE-2026-105876 WP Chill Modula Image Gallery missing authorization exploit"; content:"/wp-admin/admin-ajax.php"; nocase; http_uri; content:"action=modula"; nocase; http_client_body; reference:cve,2026-105876; classtype:web-application-attack; sid:52122326; rev:1;)
+
+# === MITRE ATT&CK: T1595 Active Scanning ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1595 Active scanning - rapid SYN sweep multiple ports"; flags:S; detection_filter:track by_src, count 20, seconds 10; classtype:network-scan; sid:52122327; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"MITRE T1595 Active scanning - Nmap user-agent detected"; content:"Nmap"; nocase; http_header; content:"Scripting"; nocase; http_header; classtype:network-scan; sid:52122328; rev:1;)
+
+# === MITRE ATT&CK: T1110 Brute Force ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"MITRE T1110 SSH brute force - rapid authentication failures"; flags:S; detection_filter:track by_src, count 10, seconds 30; content:"SSH"; nocase; classtype:attempted-recon; sid:52122329; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"MITRE T1110 RDP brute force - multiple connection attempts"; flags:S; detection_filter:track by_src, count 15, seconds 60; classtype:attempted-recon; sid:52122330; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"MITRE T1110 FTP brute force - rapid login attempts"; content:"USER"; nocase; detection_filter:track by_src, count 10, seconds 30; classtype:attempted-recon; sid:52122331; rev:1;)
+
+# === MITRE ATT&CK: T1078 Valid Accounts ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"MITRE T1078 Valid accounts - SSH login from anomalous source"; content:"SSH"; nocase; content:"accepted"; nocase; pcre:"/Accepted.*from\s+\d+\.\d+\.\d+\.\d+/i"; classtype:successful-admin; sid:52122332; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 88 (msg:"MITRE T1078 Kerberos valid account usage from new source - AS-REQ"; content:"AS-REQ"; nocase; dsize:<200; classtype:successful-admin; sid:52122333; rev:1;)
+
+# === MITRE ATT&CK: T1195 Supply Chain Attack ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"MITRE T1195 Supply chain - npm package typosquashing detection"; content:"npm"; nocase; pcre:"/npm.*(lodahs|reactt|expresss|axioss|momennt)/i"; classtype:trojan-activity; sid:52122334; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"MITRE T1195 Supply chain - PyPI package typosquatching detection"; content:"pip"; nocase; pcre:"/pip.*(reqeusts|djangoo|flaskk|numpyy|pandass)/i"; classtype:trojan-activity; sid:52122335; rev:1;)
+
+# === MITRE ATT&CK: T1059 Command and Scripting Interpreter ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"MITRE T1059 PowerShell remote execution via web request"; content:"powershell"; nocase; pcre:"/powershell.*-enc.*[A-Za-z0-9+/=]/i"; classtype:attempted-admin; sid:52122336; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"MITRE T1059 Python script execution via web parameter"; content:"python"; nocase; pcre:"/python.*(-c|exec|eval)/i"; classtype:attempted-admin; sid:52122337; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"MITRE T1059 Bash command injection via web parameter"; pcre:"/(\x3b|\x7c\x7c|\x26\x26).*(bash|sh|zsh)\s+-c/i"; http_uri; classtype:attempted-admin; sid:52122338; rev:1;)
+
+# === MITRE ATT&CK: T1053 Scheduled Task/Job ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"MITRE T1053 Scheduled task creation via SMB remote RPC"; content:"schtasks"; nocase; content:"/create"; nocase; classtype:attempted-admin; sid:52122339; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5985 (msg:"MITRE T1053 Cron job creation via WinRM remote execution"; content:"crontab"; nocase; content:"-e"; nocase; classtype:attempted-admin; sid:52122340; rev:1;)
+
+# === MITRE ATT&CK: T1547 Boot or Logon Autostart Execution ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"MITRE T1547 Registry Run key modification via SMB"; content:"HKLM"; nocase; content:"Software|Microsoft|Windows|CurrentVersion|Run"; nocase; classtype:attempted-admin; sid:52122341; rev:1;)
+
+# === MITRE ATT&CK: T1574 Hijack Execution Flow ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"MITRE T1574 DLL hijacking via SMB share write"; content:".dll"; nocase; content:"System32"; nocase; classtype:attempted-admin; sid:52122342; rev:1;)
+
+# === MITRE ATT&CK: T1105 Ingress Tool Transfer ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"MITRE T1105 Ingress tool transfer - suspicious binary download via HTTP"; content:"Content-Type"; nocase; http_header; content:"application/octet-stream"; nocase; http_header; dsize:>1000000; classtype:trojan-activity; sid:52122343; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"MITRE T1105 Ingress tool transfer - executable download over TLS"; content:"Content-Type"; nocase; http_header; content:"application/x-msdownload"; nocase; http_header; classtype:trojan-activity; sid:52122344; rev:1;)
+
+# === MITRE ATT&CK: T1027 Obfuscated Files or Information ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"MITRE T1027 Base64 encoded payload in HTTP request"; pcre:"/[A-Za-z0-9+\/]{200,}={0,2}/"; http_client_body; classtype:trojan-activity; sid:52122345; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 (msg:"MITRE T1027 XOR encoded data in HTTP header"; pcre:"/X-Encoded.*XOR/i"; http_header; classtype:trojan-activity; sid:52122346; rev:1;)
+
+# === MITRE ATT&CK: T1003 OS Credential Dumping ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"MITRE T1003 LSASS memory access via SMB for credential dumping"; content:"lsass.exe"; nocase; content:"admin$"; nocase; classtype:attempted-admin; sid:52122347; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"MITRE T1003 SAM database access via registry save"; content:"reg"; nocase; content:"save"; nocase; content:"SAM"; nocase; classtype:attempted-admin; sid:52122348; rev:1;)
+
+# === MITRE ATT&CK: T1558 Steal or Forge Kerberos Tickets ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 88 (msg:"MITRE T1558 Kerberoasting - TGS-REQ for SPN with RC4 encryption"; content:"TGS-REQ"; nocase; pcre:"/RC4|0x17/i"; classtype:attempted-admin; sid:52122349; rev:1;)
+
+# === MITRE ATT&CK: T1552 Unsecured Credentials ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"MITRE T1552 Credential access via SMB share containing credentials file"; content:"passwords"; nocase; pcre:"/(passwords|credentials|secrets)\.(txt|json|xml|ini|conf)/i"; classtype:attempted-admin; sid:52122350; rev:1;)
+
+# === MITRE ATT&CK: T1021 Remote Services ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"MITRE T1021 RDP connection from external network to internal host"; flags:S; content:"Cookie"; nocase; pcre:"/Cookie:.*mstshash=/i"; classtype:attempted-admin; sid:52122351; rev:1;)
+
+# === MITRE ATT&CK: T1071 Application Layer Protocol ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 53 (msg:"MITRE T1071 DNS tunneling - excessive TXT record queries"; content:"TXT"; nocase; detection_filter:track by_src, count 50, seconds 60; classtype:trojan-activity; sid:52122352; rev:1;)
+
+# === MITRE ATT&CK: T1572 Non-Standard Port ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 4444 (msg:"MITRE T1572 C2 communication on non-standard port 4444"; flags:S; classtype:trojan-activity; sid:52122353; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1337 (msg:"MITRE T1572 C2 communication on non-standard port 1337"; flags:S; classtype:trojan-activity; sid:52122354; rev:1;)
+
+# === MITRE ATT&CK: T1573 Encrypted Channel ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 8443 (msg:"MITRE T1573 Encrypted C2 channel on non-standard TLS port 8443"; flags:S; content:"TLS"; nocase; dsize:>100; classtype:trojan-activity; sid:52122355; rev:1;)
+
+# === MITRE ATT&CK: T1048 Exfiltration Over Alternative Protocol ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"MITRE T1048 Data exfiltration via DNS queries with large payloads"; content:"TXT"; nocase; dsize:>200; classtype:exfiltration; sid:52122356; rev:1;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"MITRE T1048 Data exfiltration over HTTPS with large upload"; dsize:>10000000; content:"POST"; nocase; classtype:exfiltration; sid:52122357; rev:1;)
+
+# === MITRE ATT&CK: T1070 Indicator Removal ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"MITRE T1070 Indicator removal - clearing Windows event logs via SMB"; content:"wevtutil"; nocase; content:"cl"; nocase; classtype:attempted-admin; sid:52122358; rev:1;)
+
+# === MITRE ATT&CK: T1562 Impair Defenses ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"MITRE T1562 Defender disable via SMB remote execution"; content:"Set-MpPreference"; nocase; content:"DisableRealtimeMonitoring"; nocase; classtype:attempted-admin; sid:52122359; rev:1;)
+
+# === MITRE ATT&CK: T1036 Masquerading ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"MITRE T1036 Masquerading - renamed sysinternals tool execution via SMB"; content:"psexec"; nocase; pcre:"/psexec.*-r\s+\w+/i"; classtype:trojan-activity; sid:52122360; rev:1;)
