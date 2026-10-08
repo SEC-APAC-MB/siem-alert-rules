@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-remote-code-execution
-# Auto-generated: 2026-10-07T04:05:05.400729Z
+# Auto-generated: 2026-10-08T04:05:05.056740Z
 # Load in local.zeek: @load ./generated-remote-code-execution
 
 signature ZK-REMOTE-CODE-EXECUTION-003 {

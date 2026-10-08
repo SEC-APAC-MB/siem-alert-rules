@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-sql-injection
-# Auto-generated: 2026-10-07T04:05:05.401410Z
+# Auto-generated: 2026-10-08T04:05:05.057684Z
 # Load in local.zeek: @load ./generated-sql-injection
 
 signature ZK-SQL-INJECTION-013 {
