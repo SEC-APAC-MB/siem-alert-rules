@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-web-application (converted)",
   "version": "2.0.0",
-  "converted": "2026-10-07T04:05:05.570720Z",
-  "total_rules": 1,
+  "converted": "2026-10-09T04:05:05.678199Z",
+  "total_rules": 2,
   "rules": [
     {
       "rule_id": "AWS-WEB-APPLICATION-017",
@@ -64,6 +64,66 @@
         "web-application",
         "cve",
         "cve-2026-34486",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AWS-WEB-APPLICATION-002",
+      "name": "CVE-2016-3081 \u2014 Struts Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2016-3081: Apache Struts contains a command injection vulnerability that could allow remote attackers to execute arbitrary code via method:prefix when Dynamic Method Invocation is enabled.. Product: Struts",
+      "severity": "critical",
+      "category": "web-application",
+      "mitre_attack": [
+        "T1190",
+        "T1059"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"CVE-2016-3081\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "CVE20163081StrutsExploitation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "CVE-2016-3081 \u2014 Struts Exploitation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "web-application",
+        "cve",
+        "cve-2016-3081",
         "exploited"
       ]
     }

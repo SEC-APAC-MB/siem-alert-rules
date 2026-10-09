@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules — generated-web-application (converted)",
   "version": "2.0.0",
-  "converted": "2026-10-07T04:05:05.443654Z",
-  "total_rules": 1,
+  "converted": "2026-10-09T04:05:05.538277Z",
+  "total_rules": 2,
   "rules": [
     {
       "rule_id": "OCI-WEB-APPLICATION-017",
@@ -44,6 +44,46 @@
         "web-application",
         "cve",
         "cve-2026-34486",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "OCI-WEB-APPLICATION-002",
+      "name": "CVE-2016-3081 — Struts Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2016-3081: Apache Struts contains a command injection vulnerability that could allow remote attackers to execute arbitrary code via method:prefix when Dynamic Method Invocation is enabled.. Product: Struts",
+      "severity": "MEDIUM",
+      "category": "web-application",
+      "mitre_attack": [
+        "T1190",
+        "T1059"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SELECT \"siem_web_application_web_application_002\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2016%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_web_application_web_application_002",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "web-application",
+        "cve",
+        "cve-2016-3081",
         "exploited"
       ]
     }
