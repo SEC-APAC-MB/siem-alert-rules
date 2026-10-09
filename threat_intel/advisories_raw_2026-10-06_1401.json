@@ -1,0 +1,3418 @@
+[
+  {
+    "ghsa_id": "GHSA-wq5f-xc86-pv6w",
+    "cve_id": null,
+    "url": "https://api.github.com/advisories/GHSA-wq5f-xc86-pv6w",
+    "html_url": "https://github.com/advisories/GHSA-wq5f-xc86-pv6w",
+    "summary": "sharp : Vulnerability in librsvg dependency CVE-2026-96889",
+    "description": "### Impact\n\nA memory-related vulnerability has been discovered and fixed in the upstream librsvg dependency. When certain runtime-specific conditions apply, this vulnerability can lead to possible remote code execution (RCE) on glibc-based Linux.\n\n### Patches\n\n#### Using prebuilt binaries provided by sharp?\n\nMost people rely on the prebuilt binaries provided by sharp.\n\nPlease upgrade sharp to the latest version, currently 0.35.5, which provides librsvg 2.63.2.\n\n#### Using a globally-installed librsvg?\n\nPlease ensure you are using the latest librsvg 2.63.2.\n\n### Workarounds\n\nAdd the following to your code to prevent sharp from decoding SVG images.\n```js\nsharp.block({ operation: [\"VipsForeignLoadSvg\"] });\n```\n\nTo avoid RCE, ensure you are using a `node` executable binary compiled as a Position Independent Executable (PIE). Most Linux package managers already use this security-hardening feature however be warned that the \"official\" Node.js binaries do not.\n1",
+    "type": "reviewed",
+    "severity": "high",
+    "repository_advisory_url": "https://api.github.com/repos/lovell/sharp/security-advisories/GHSA-wq5f-xc86-pv6w",
+    "source_code_location": "https://github.com/lovell/sharp",
+    "identifiers": [
+      {
+        "value": "GHSA-wq5f-xc86-pv6w",
+        "type": "GHSA"
+      }
+    ],
+    "references": [
+      "https://github.com/lovell/sharp/security/advisories/GHSA-wq5f-xc86-pv6w",
+      "https://github.com/lovell/sharp/commit/96de105d9d36ab04c76c2b78b97255171630d236",
+      "https://github.com/lovell/sharp/releases/tag/v0.35.5",
+      "https://gitlab.gnome.org/GNOME/librsvg/-/work_items/1241",
+      "https://www.cve.org/CVERecord?id=CVE-2026-96889",
+      "https://github.com/advisories/GHSA-wq5f-xc86-pv6w"
+    ],
+    "published_at": "2026-10-06T13:43:57Z",
+    "updated_at": "2026-10-06T13:43:58Z",
+    "github_reviewed_at": "2026-10-06T13:43:57Z",
+    "nvd_published_at": null,
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "sharp"
+        },
+        "vulnerable_version_range": "< 0.35.5",
+        "first_patched_version": "0.35.5",
+        "vulnerable_functions": [
+
+        ]
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:H/SI:H/SA:H",
+        "score": 8.9
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-416",
+        "name": "Use After Free"
+      },
+      {
+        "cwe_id": "CWE-1395",
+        "name": "Dependency on Vulnerable Third-Party Component"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-3cr3-8m4c-fpxw",
+    "cve_id": "CVE-2026-105747",
+    "url": "https://api.github.com/advisories/GHSA-3cr3-8m4c-fpxw",
+    "html_url": "https://github.com/advisories/GHSA-3cr3-8m4c-fpxw",
+    "summary": "Docling: METS-GBS archive member limit enforced after full member enumeration (memory exhaustion during format detection)",
+    "description": "### Summary\n\nWhen docling detects the input format of a gzip-compressed tar archive (METS-GBS), and later when the METS-GBS backend opens it, it calls `tarfile.TarFile.getmembers()`. That builds the full member list in memory before the `max_member_count` limit is checked. A small archive with a very large number of empty members therefore makes docling allocate memory in proportion to the member count, and the limit has no effect.\n\n### Details\n\n`docling/datamodel/document.py` (format detection) and `docling/backend/mets_gbs_backend.py` both iterate `tar.getmembers()` and count members inside the loop. `getmembers()` reads every header up front.\n\nMeasured on Python 3.12: an archive of 1,000,000 empty members compresses to about 6.2 MB and makes `getmembers()` hold about 408 MB (about 66 times the input size). Format detection runs for any `application/gzip` input before `allowed_formats` is applied, so the allocation happens even when METS-GBS is not an allowed format.\n\nThis check was introduced by the fix for CVE-2026-44018 (GHSA-r3xg-rg9j-67fv) in 2.91.0. The eager enumeration it relies on has been there since METS-GBS detection was added in 2.45.0.\n\n### Impact\n\nMemory exhaustion of the converting process, proportional to the size of the input archive. Confidentiality and integrity are not affected.\n\n### Patches\n\nFixed in docling 2.131.0 by [#4412](https://github.com/docling-project/docling/pull/4412). Format detection and the METS-GBS backend now read archive members one at a time and stop as soon as `max_member_count` is exceeded, including when looking up page files.\n\n### Workarounds\n\nUpgrade to 2.131.0. For older versions:\n\nReject gzip or tar inputs before they reach docling when METS-GBS support is not needed, and run conversions of untrusted input with memory limits.",
+    "type": "reviewed",
+    "severity": "medium",
+    "repository_advisory_url": "https://api.github.com/repos/docling-project/docling/security-advisories/GHSA-3cr3-8m4c-fpxw",
+    "source_code_location": "https://github.com/docling-project/docling",
+    "identifiers": [
+      {
+        "value": "GHSA-3cr3-8m4c-fpxw",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-105747",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://github.com/docling-project/docling/security/advisories/GHSA-3cr3-8m4c-fpxw",
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-105747",
+      "https://github.com/docling-project/docling/pull/4412",
+      "https://github.com/docling-project/docling/commit/ebae65cd71c37c88b36185b406a449b92d8f7ffa",
+      "https://github.com/docling-project/docling/releases/tag/v2.131.0",
+      "https://github.com/advisories/GHSA-3cr3-8m4c-fpxw"
+    ],
+    "published_at": "2026-10-06T13:41:16Z",
+    "updated_at": "2026-10-06T13:43:20Z",
+    "github_reviewed_at": "2026-10-06T13:41:16Z",
+    "nvd_published_at": null,
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "pip",
+          "name": "docling"
+        },
+        "vulnerable_version_range": ">= 2.45.0, < 2.131.0",
+        "first_patched_version": "2.131.0",
+        "vulnerable_functions": [
+
+        ]
+      },
+      {
+        "package": {
+          "ecosystem": "pip",
+          "name": "docling-slim"
+        },
+        "vulnerable_version_range": ">= 2.92.0, < 2.131.0",
+        "first_patched_version": "2.131.0",
+        "vulnerable_functions": [
+
+        ]
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:L",
+        "score": 4.3
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-409",
+        "name": "Improper Handling of Highly Compressed Data (Data Amplification)"
+      },
+      {
+        "cwe_id": "CWE-770",
+        "name": "Allocation of Resources Without Limits or Throttling"
+      }
+    ],
+    "credits": [
+      {
+        "user": {
+          "login": "jonathanlotan",
+          "id": 43203030,
+          "node_id": "MDQ6VXNlcjQzMjAzMDMw",
+          "avatar_url": "https://avatars.githubusercontent.com/u/43203030?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/jonathanlotan",
+          "html_url": "https://github.com/jonathanlotan",
+          "followers_url": "https://api.github.com/users/jonathanlotan/followers",
+          "following_url": "https://api.github.com/users/jonathanlotan/following{/other_user}",
+          "gists_url": "https://api.github.com/users/jonathanlotan/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/jonathanlotan/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/jonathanlotan/subscriptions",
+          "organizations_url": "https://api.github.com/users/jonathanlotan/orgs",
+          "repos_url": "https://api.github.com/users/jonathanlotan/repos",
+          "events_url": "https://api.github.com/users/jonathanlotan/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/jonathanlotan/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "reporter"
+      },
+      {
+        "user": {
+          "login": "wittjeff",
+          "id": 1848307,
+          "node_id": "MDQ6VXNlcjE4NDgzMDc=",
+          "avatar_url": "https://avatars.githubusercontent.com/u/1848307?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/wittjeff",
+          "html_url": "https://github.com/wittjeff",
+          "followers_url": "https://api.github.com/users/wittjeff/followers",
+          "following_url": "https://api.github.com/users/wittjeff/following{/other_user}",
+          "gists_url": "https://api.github.com/users/wittjeff/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/wittjeff/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/wittjeff/subscriptions",
+          "organizations_url": "https://api.github.com/users/wittjeff/orgs",
+          "repos_url": "https://api.github.com/users/wittjeff/repos",
+          "events_url": "https://api.github.com/users/wittjeff/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/wittjeff/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "reporter"
+      }
+    ],
+    "comments": 3,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:L",
+      "score": 4.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-pqg4-j6r4-53mv",
+    "cve_id": "CVE-2026-102422",
+    "url": "https://api.github.com/advisories/GHSA-pqg4-j6r4-53mv",
+    "html_url": "https://github.com/advisories/GHSA-pqg4-j6r4-53mv",
+    "summary": "shell-quote: `quote()` command injection via a line terminator in a token after a `{ comment }` token",
+    "description": "### Impact\n\n`quote()` emits a `{ comment }` token as `#` followed by its text, which comments out the rest of the shell line, including the opening quote of any later string token. A line terminator in that later string ends the comment, and the rest of the string is parsed as shell input:\n\n```js\nquote(['echo', 'ok', { comment: 'x' }, 'a\\nid;#']);\n// echo ok #x 'a\n// id;#'\n```\n\nPassed to `sh`, `bash`, `dash`, `ksh`, or `zsh`, this runs `id`.\n\n`parse()` emits a comment token for a `#` in the middle of a word (for example `http://example.com/#frag`), so callers that combine `parse()` output with another untrusted string, such as `quote(parse(untrustedCommand).concat(untrustedArg))`, are affected. The fix for CVE-2026-9277 rejected line terminators in the comment's own text, but not in the tokens after it.\n\nExploitation requires an attacker-controlled string containing a line terminator that follows a `{ comment }` token in the same `quote()` call.\n\n### Patches\n\nFixed in v1.11.0: `quote()` throws a `TypeError` when a string after a `{ comment }` token contains a line terminator (`\\n`, `\\r`, U+2028, or U+2029).\n\n### Workarounds\n\nDrop every token after a `{ comment }` token before calling `quote()`, or reject line terminators in untrusted strings. Separately, do not append other shell text after `quote()` output that contains a comment, since the comment swallows it.",
+    "type": "reviewed",
+    "severity": "critical",
+    "repository_advisory_url": "https://api.github.com/repos/ljharb/shell-quote/security-advisories/GHSA-pqg4-j6r4-53mv",
+    "source_code_location": "https://github.com/ljharb/shell-quote",
+    "identifiers": [
+      {
+        "value": "GHSA-pqg4-j6r4-53mv",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-102422",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://github.com/ljharb/shell-quote/security/advisories/GHSA-pqg4-j6r4-53mv",
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-102422",
+      "https://github.com/ljharb/shell-quote/commit/6002b2ed90c6b83095eb272b6b0adaf3a172b0bc",
+      "https://github.com/advisories/GHSA-pqg4-j6r4-53mv"
+    ],
+    "published_at": "2026-10-06T13:40:36Z",
+    "updated_at": "2026-10-06T13:40:37Z",
+    "github_reviewed_at": "2026-10-06T13:40:36Z",
+    "nvd_published_at": "2026-09-29T04:17:55Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "shell-quote"
+        },
+        "vulnerable_version_range": ">= 1.8.4, < 1.11.0",
+        "first_patched_version": "1.11.0",
+        "vulnerable_functions": [
+
+        ]
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "score": 8.1
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N",
+        "score": 9.2
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-78",
+        "name": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
+      }
+    ],
+    "credits": [
+      {
+        "user": {
+          "login": "euriconicacio",
+          "id": 5957301,
+          "node_id": "MDQ6VXNlcjU5NTczMDE=",
+          "avatar_url": "https://avatars.githubusercontent.com/u/5957301?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/euriconicacio",
+          "html_url": "https://github.com/euriconicacio",
+          "followers_url": "https://api.github.com/users/euriconicacio/followers",
+          "following_url": "https://api.github.com/users/euriconicacio/following{/other_user}",
+          "gists_url": "https://api.github.com/users/euriconicacio/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/euriconicacio/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/euriconicacio/subscriptions",
+          "organizations_url": "https://api.github.com/users/euriconicacio/orgs",
+          "repos_url": "https://api.github.com/users/euriconicacio/repos",
+          "events_url": "https://api.github.com/users/euriconicacio/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/euriconicacio/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "finder"
+      },
+      {
+        "user": {
+          "login": "ljharb",
+          "id": 45469,
+          "node_id": "MDQ6VXNlcjQ1NDY5",
+          "avatar_url": "https://avatars.githubusercontent.com/u/45469?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/ljharb",
+          "html_url": "https://github.com/ljharb",
+          "followers_url": "https://api.github.com/users/ljharb/followers",
+          "following_url": "https://api.github.com/users/ljharb/following{/other_user}",
+          "gists_url": "https://api.github.com/users/ljharb/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/ljharb/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/ljharb/subscriptions",
+          "organizations_url": "https://api.github.com/users/ljharb/orgs",
+          "repos_url": "https://api.github.com/users/ljharb/repos",
+          "events_url": "https://api.github.com/users/ljharb/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/ljharb/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "remediation_developer"
+      }
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "score": 8.1
+    },
+    "epss": {
+      "percentage": 0.00383,
+      "percentile": 0.29703
+    }
+  },
+  {
+    "ghsa_id": "GHSA-477h-4r7f-fvrx",
+    "cve_id": "CVE-2026-102414",
+    "url": "https://api.github.com/advisories/GHSA-477h-4r7f-fvrx",
+    "html_url": "https://github.com/advisories/GHSA-477h-4r7f-fvrx",
+    "summary": "pbkdf2 rehashes long passwords on every iteration, enabling denial of service",
+    "description": "### Summary\nThis is the same bug as Django had (CVE-2013-1443).\n\n### Details\nA long password can cause a DoS because it is not using cached HMAC, length limits, or pre-hashing passwords longer than the block size of the hash function as per HMAC spec. This line of code hashes the full password each iteration: https://github.com/browserify/pbkdf2/blob/1c3b1f526b052a29b3b42120c9821895772df7e8/lib/sync.js#L60\n\nAlso see https://github.com/browserify/pbkdf2/issues/82\n\n### PoC\nThe first key will take a lot longer to generate when not using the native code and uses code from `/lib/sync.js` (ie when this if statement is true):\nhttps://github.com/browserify/pbkdf2/blob/1c3b1f526b052a29b3b42120c9821895772df7e8/index.js#L33-L37\n\n```js\nvar pbkdf2 = require('pbkdf2');\nvar createHash = require('create-hash');\nvar pw = \".\".repeat(1048576); // 1 MiB\n\nvar t0 = performance.now();\nvar key1 = pbkdf2.pbkdf2Sync(pw, \"salt\", 1000, 32, \"sha256\");\nvar t1 = performance.now();\npw = createHash('sha256').update(pw).digest(); // HMAC specification for keys larger than block size\nvar key2 = pbkdf2.pbkdf2Sync(pw, \"salt\", 1000, 32, \"sha256\");\nvar t2 = performance.now();\n\nconsole.log(\"First took:  \" + (t1 - t0));\nconsole.log(\"Second took: \" + (t2 - t1));\nconsole.log(\"Generated keys:\");\nconsole.log(key1);\nconsole.log(key2);\n```\n\n### Impact\nDoS",
+    "type": "reviewed",
+    "severity": "medium",
+    "repository_advisory_url": "https://api.github.com/repos/browserify/pbkdf2/security-advisories/GHSA-477h-4r7f-fvrx",
+    "source_code_location": "https://github.com/browserify/pbkdf2",
+    "identifiers": [
+      {
+        "value": "GHSA-477h-4r7f-fvrx",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-102414",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://github.com/browserify/pbkdf2/security/advisories/GHSA-477h-4r7f-fvrx",
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-102414",
+      "https://github.com/browserify/pbkdf2/issues/82",
+      "https://github.com/browserify/pbkdf2/commit/493d8d8ff437f680338bf7397398fda884ad462e",
+      "https://github.com/advisories/GHSA-477h-4r7f-fvrx"
+    ],
+    "published_at": "2026-10-06T13:40:10Z",
+    "updated_at": "2026-10-06T13:40:10Z",
+    "github_reviewed_at": "2026-10-06T13:40:10Z",
+    "nvd_published_at": "2026-09-29T04:17:55Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "npm",
+          "name": "pbkdf2"
+        },
+        "vulnerable_version_range": "<= 3.1.6",
+        "first_patched_version": "3.1.7",
+        "vulnerable_functions": [
+
+        ]
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "score": 3.7
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:P/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N",
+        "score": 6.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-400",
+        "name": "Uncontrolled Resource Consumption"
+      }
+    ],
+    "credits": [
+      {
+        "user": {
+          "login": "ljharb",
+          "id": 45469,
+          "node_id": "MDQ6VXNlcjQ1NDY5",
+          "avatar_url": "https://avatars.githubusercontent.com/u/45469?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/ljharb",
+          "html_url": "https://github.com/ljharb",
+          "followers_url": "https://api.github.com/users/ljharb/followers",
+          "following_url": "https://api.github.com/users/ljharb/following{/other_user}",
+          "gists_url": "https://api.github.com/users/ljharb/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/ljharb/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/ljharb/subscriptions",
+          "organizations_url": "https://api.github.com/users/ljharb/orgs",
+          "repos_url": "https://api.github.com/users/ljharb/repos",
+          "events_url": "https://api.github.com/users/ljharb/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/ljharb/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "remediation_developer"
+      }
+    ],
+    "comments": 1,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "score": 3.7
+    },
+    "epss": {
+      "percentage": 0.00284,
+      "percentile": 0.18762
+    }
+  },
+  {
+    "ghsa_id": "GHSA-j8f7-x8jm-wmm4",
+    "cve_id": null,
+    "url": "https://api.github.com/advisories/GHSA-j8f7-x8jm-wmm4",
+    "html_url": "https://github.com/advisories/GHSA-j8f7-x8jm-wmm4",
+    "summary": "Langflow: SSRF in URL-taking components (protection disabled by default / warn-only, not applied to RSS, SearXNG, Web Search, Home Assistant, Glean, Docling)",
+    "description": "### Summary\n\nBefore **Langflow 1.10.3**, several built-in components sent server-side HTTP requests to URLs the flow author controls, with no SSRF enforcement. An authenticated user who can build or run flows could make the Langflow server reach loopback, RFC 1918 / private networks, link-local addresses and cloud metadata endpoints (for example `http://169.254.169.254/latest/meta-data/`), and in many cases read the response back through the component output.\n\nTwo things combined to cause this:\n\n1. **Protection disabled / warn-only.** The SSRF guard (`lfx/utils/ssrf_protection.py`, added in 1.7.0 by #10544) shipped with `ssrf_protection_enabled = False`, and its only caller, the **API Request** component, called `validate_url_for_ssrf(url, warn_only=True)`. So even with protection turned on, blocked URLs were only logged.\n2. **Inconsistent coverage.** Other components that take a user-supplied URL or base URL did not call the guard at all: RSS Reader, SearXNG, Web Search (fetching result / RSS URLs), Home Assistant, Glean Search and Docling Serve (remote).\n\nThe problem was fixed across several PRs and is fully fixed in **Langflow 1.10.3** (and 1.11.0+). With the default settings, outbound requests from these components are now validated after DNS resolution, pinned to the validated IP (to prevent DNS rebinding) and **blocked** when they target private, loopback, link-local or metadata addresses, unless the operator allowlists the host.\n\n### Affected versions\n\n| Package (PyPI) | Vulnerable | Patched |\n|---|---|---|\n| `langflow` | `< 1.10.3` | `1.10.3` |\n| `langflow-base` | `< 0.10.3` | `0.10.3` |\n| `lfx` | `< 1.10.3` | `1.10.3` |\n| `lfx-docling` (Docling Serve component) | `< 0.1.2` | `0.1.2` |\n\nHow the fix rolled out:\n\n| Release | Change |\n|---|---|\n| `< 1.7.0` | No SSRF guard. All URL-taking components make unrestricted requests. |\n| `1.7.0` – `1.9.2` | Guard exists, but `ssrf_protection_enabled=False` by default and API Request uses `warn_only=True`. |\n| `1.9.3` | #13016: protection **on by default**, API Request **blocks** (DNS pinning / anti-rebinding). Other components still unprotected. |\n| `1.10.1` | #13395 (RSS Reader, SearXNG) and #13643 (Home Assistant, Glean, plus model-provider URL components) route requests through SSRF-safe helpers. |\n| `1.10.3` | #14033 (Docling Serve) and #14071 (Web Search result/RSS fetching). **All components cited in this report are protected.** |\n\n### Details\n\nVulnerable pattern (for example `rss.py` before #13395):\n\n```python\nresponse = requests.get(self.rss_url, timeout=self.timeout)\n```\n\nAPI Request before #13016:\n\n```python\n# TODO: In next major version (2.0), remove warn_only=True to enforce blocking\nvalidate_url_for_ssrf(url, warn_only=True)\n```\n\nwith `ssrf_protection_enabled: bool = False` in the settings.\n\n**Clarifications on the original report.** Some sinks in the report are not exploitable SSRF:\n\n- `web_search.py`: the DuckDuckGo search request and the Google News RSS request, and `news_search.py:131`. The host is hard-coded (`html.duckduckgo.com` / `news.google.com`) and user input only goes into `quote_plus`-encoded path and query segments, so the destination cannot be redirected. The real Web Search sink was fetching the **result URLs**, which is fixed in #14071.\n- `langflow/load/utils.py` `get_flow()`: this is a client-side SDK helper (`from langflow.load import get_flow`) that the caller runs against their own Langflow URL. No API route calls it, so it is not a backend SSRF endpoint.\n\n### PoC (vulnerable versions)\n\n1. Log in as any user who can create flows.\n2. Add an **RSS Reader** (or SearXNG / Home Assistant / Glean / Docling Serve) component and set its URL to `http://169.254.169.254/latest/meta-data/` (or an internal host such as `http://10.0.0.1/`).\n3. Run the component. The Langflow server issues the request, and the response or error is shown in the component output.\n\nOn patched versions the same run fails with `SSRFProtectionError: Access to IP address 169.254.169.254 is blocked by SSRF protection`.\n\n### Impact\n\n- Access to cloud instance metadata (IAM credentials / tokens) on AWS, GCP and Azure deployments.\n- Probing and interaction with internal services and private networks reachable from the Langflow host.\n- Requires an authenticated account with permission to build or run flows. Deployments where every user is already fully trusted are less affected.\n\n### Fix\n\n- **#13016**: sets `ssrf_protection_enabled = True` by default, changes `warn_only` to default `False`, drops `warn_only=True` from API Request, and adds `validate_and_resolve_url()` plus `SSRFProtectedTransport` (DNS pinning).\n\n  ```diff\n  -    ssrf_protection_enabled: bool = False\n  +    ssrf_protection_enabled: bool = True\n  ```\n- **#13395**: adds `lfx.utils.ssrf_requests.ssrf_safe_get` (per-hop validation and pinning for `requests`) and uses it in RSS Reader and SearXNG.\n\n  ```diff\n  -            response = requests.get(self.rss_url, timeout=self.timeout)\n  +            response = ssrf_safe_get(self.rss_url, timeout=self.timeout)\n  ```\n- **#13643**: adds `lfx.utils.ssrf_httpx` (`ssrf_safe_httpx_get/post`, protected client kwargs) and applies it to Home Assistant, Glean and the model-provider base-URL components.\n- **#14033**: Docling Serve builds its `httpx.Client` with `ssrf_protected_httpx_client_kwargs_for_url(base_url)`.\n- **#14071** (release-1.10.3) / **#14073** (forward-port to 1.11.0): Web Search validates and pins each result URL before fetching it, with redirects disabled.\n\nNote: connector-style components (for example Home Assistant, Ollama, LM Studio) keep a documented loopback exemption (#14146), so a self-hosted user can reach a local service on `localhost`. Private-network and metadata addresses stay blocked. Operators can tighten or relax this with `LANGFLOW_SSRF_ALLOWED_HOSTS` and `LANGFLOW_CONNECTOR_SSRF_VALIDATION_ENABLED`.\n\n### Remediation\n\n- Upgrade to `langflow >= 1.10.3` (or `langflow-base >= 0.10.3` / `lfx >= 1.10.3` / `lfx-docling >= 0.1.2`).\n- Do not set `LANGFLOW_SSRF_PROTECTION_ENABLED=false`. If you need to reach internal hosts on purpose, allowlist only those hosts with `LANGFLOW_SSRF_ALLOWED_HOSTS`.\n- On versions that cannot be upgraded right away, restrict outbound network access from the Langflow host (for example, block `169.254.169.254` and use IMDSv2 on AWS).",
+    "type": "reviewed",
+    "severity": "medium",
+    "repository_advisory_url": "https://api.github.com/repos/langflow-ai/langflow/security-advisories/GHSA-j8f7-x8jm-wmm4",
+    "source_code_location": "https://github.com/langflow-ai/langflow",
+    "identifiers": [
+      {
+        "value": "GHSA-j8f7-x8jm-wmm4",
+        "type": "GHSA"
+      }
+    ],
+    "references": [
+      "https://github.com/langflow-ai/langflow/security/advisories/GHSA-j8f7-x8jm-wmm4",
+      "https://github.com/langflow-ai/langflow/pull/13016",
+      "https://github.com/langflow-ai/langflow/pull/13395",
+      "https://github.com/langflow-ai/langflow/pull/13643",
+      "https://github.com/langflow-ai/langflow/pull/14033",
+      "https://github.com/langflow-ai/langflow/pull/14071",
+      "https://github.com/langflow-ai/langflow/commit/94859df33acd70b2a1f816e26d68f5e89a7e5639",
+      "https://github.com/langflow-ai/langflow/releases/tag/v1.10.3",
+      "https://github.com/advisories/GHSA-j8f7-x8jm-wmm4"
+    ],
+    "published_at": "2026-10-06T13:39:57Z",
+    "updated_at": "2026-10-06T13:39:59Z",
+    "github_reviewed_at": "2026-10-06T13:39:57Z",
+    "nvd_published_at": null,
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "pip",
+          "name": "langflow"
+        },
+        "vulnerable_version_range": "< 1.10.3",
+        "first_patched_version": "1.10.3",
+        "vulnerable_functions": [
+
+        ]
+      },
+      {
+        "package": {
+          "ecosystem": "pip",
+          "name": "langflow-base"
+        },
+        "vulnerable_version_range": "< 0.10.3",
+        "first_patched_version": "0.10.3",
+        "vulnerable_functions": [
+
+        ]
+      },
+      {
+        "package": {
+          "ecosystem": "pip",
+          "name": "lfx"
+        },
+        "vulnerable_version_range": "< 1.10.3",
+        "first_patched_version": "1.10.3",
+        "vulnerable_functions": [
+
+        ]
+      },
+      {
+        "package": {
+          "ecosystem": "pip",
+          "name": "lfx-docling"
+        },
+        "vulnerable_version_range": "< 0.1.2",
+        "first_patched_version": "0.1.2",
+        "vulnerable_functions": [
+
+        ]
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:N/VA:N/SC:H/SI:L/SA:N",
+        "score": 6.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-918",
+        "name": "Server-Side Request Forgery (SSRF)"
+      }
+    ],
+    "credits": [
+      {
+        "user": {
+          "login": "andifilhohub",
+          "id": 115162146,
+          "node_id": "U_kgDOBt08Ig",
+          "avatar_url": "https://avatars.githubusercontent.com/u/115162146?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/andifilhohub",
+          "html_url": "https://github.com/andifilhohub",
+          "followers_url": "https://api.github.com/users/andifilhohub/followers",
+          "following_url": "https://api.github.com/users/andifilhohub/following{/other_user}",
+          "gists_url": "https://api.github.com/users/andifilhohub/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/andifilhohub/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/andifilhohub/subscriptions",
+          "organizations_url": "https://api.github.com/users/andifilhohub/orgs",
+          "repos_url": "https://api.github.com/users/andifilhohub/repos",
+          "events_url": "https://api.github.com/users/andifilhohub/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/andifilhohub/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "analyst"
+      },
+      {
+        "user": {
+          "login": "erichare",
+          "id": 700235,
+          "node_id": "MDQ6VXNlcjcwMDIzNQ==",
+          "avatar_url": "https://avatars.githubusercontent.com/u/700235?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/erichare",
+          "html_url": "https://github.com/erichare",
+          "followers_url": "https://api.github.com/users/erichare/followers",
+          "following_url": "https://api.github.com/users/erichare/following{/other_user}",
+          "gists_url": "https://api.github.com/users/erichare/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/erichare/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/erichare/subscriptions",
+          "organizations_url": "https://api.github.com/users/erichare/orgs",
+          "repos_url": "https://api.github.com/users/erichare/repos",
+          "events_url": "https://api.github.com/users/erichare/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/erichare/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "remediation_developer"
+      }
+    ],
+    "comments": 2,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-8qpj-27x8-pwpq",
+    "cve_id": "CVE-2026-10561",
+    "url": "https://api.github.com/advisories/GHSA-8qpj-27x8-pwpq",
+    "html_url": "https://github.com/advisories/GHSA-8qpj-27x8-pwpq",
+    "summary": "Langflow: PythonREPLComponent executes unsandboxed Python code, enabling authenticated RCE and privilege escalation",
+    "description": "### Summary\n\nLangflow's built-in Python interpreter components — `PythonREPLComponent` (Python Interpreter) and the legacy `PythonREPLToolComponent` (Python REPL Tool) — executed arbitrary user- or model-supplied Python code inside flows without effective sandboxing. Because the code ran in-process with the privileges of the Langflow service, any **authenticated** user who could edit and run a flow could achieve remote code execution and, from there, escalate privileges to superuser (e.g. by opening a database session and flipping `is_superuser`) or compromise the host.\n\n**This issue is fixed as of 1.10.1**, with additional hardening through 1.12.3. See *Remediation* below.\n\n### Affected\n\n- **Package:** `langflow` (PyPI), and the underlying `lfx` package that ships the component.\n- **Vulnerable versions:** `< 1.10.1`.\n- **Patched:** `1.10.1` (core fix). Upgrade to `>= 1.12.3` for the complete hardening series.\n\n### Details\n\nThe root cause is **code injection** (CWE-94/CWE-95): the component passed raw input to LangChain's `PythonREPL`, which is explicitly *not* a security sandbox.\n\nTwo distinct weaknesses existed before 1.10.1:\n\n1. **Unrestricted builtins (default deployments).** `get_globals()` built the `exec` globals from the `global_imports` allow-list but never set `__builtins__`. CPython's `exec()` then auto-injected the full `builtins` module, leaving `__import__`, `open`, `eval`, `exec` and the whole import machinery reachable regardless of the allow-list — e.g. `__import__(\"os\").system(...)` or `__import__(\"subprocess\").check_output([...])`. This made the \"only modules in Global Imports can be used\" guarantee false, and it applied even with the **default** configuration (`allow_custom_components=True`).\n\n2. **No server-policy gate (locked-down deployments).** Even a deployment hardened with `allow_custom_components=False` could still run interpreter code, because the components did not consult that policy before executing.\n\nBoth let an authenticated user run the reported PoC, which opens a DB session and sets `is_superuser = True` on their account, or writes to the filesystem / runs OS commands with the service's privileges.\n\n### PoC (as reported)\n\n1. Authenticate as a normal user.\n2. Create a flow with the `PythonREPLComponent`.\n3. Execute Python that imports Langflow internals and elevates the account:\n\n```python\nimport asyncio\nfrom sqlmodel import select\nfrom langflow.services.database.models.user.model import User\nfrom langflow.services.deps import session_scope\n\nasync def escalate():\n    async with session_scope() as session:\n        stmt = select(User).where(User.username == 'testuser')\n        user = (await session.exec(stmt)).first()\n        if user:\n            user.is_superuser = True\n            session.add(user)\n            await session.commit()\n\nasyncio.run(escalate())\n```\n\n### Impact\n\nAny authenticated user could:\n- Execute arbitrary Python / OS commands with the Langflow service's privileges (RCE).\n- Escalate their own account to superuser via direct database access.\n- Read/modify data and configuration, and potentially pivot to the underlying host.\n\n### Remediation\n\nUpgrade to **Langflow 1.10.1 or later** (preferably **>= 1.12.3**). The interpreter components were hardened with layered, defense-in-depth controls, applied in `run_python_repl()` before any code is executed:\n\n- **Restricted builtins** — `get_globals()` injects a curated `safe_builtins()` mapping, removing `__import__`, `eval`, `exec`, `compile`, `open`, `input`, `globals`/`locals`/`vars`, `getattr`/`setattr`, etc. (#13397)\n- **AST validation** — `validate_code_safety()` rejects inline `import`/`from ... import`, dunder/escape-gadget attribute access (`__class__`, `__subclasses__`, `__globals__`, frame/traceback introspection) and format-string dunder traversal. (#13397)\n- **Server-policy gate** — `ensure_code_execution_enabled()` refuses to run when `allow_custom_components=False` or `block_code_interpreter_components=True`, and **fails closed** if the settings stack cannot be resolved. (#13700 — this advisory — and #14375)\n- **Allow-listed module proxies** — imported modules are exposed via a proxy that blocks reaching `sys.modules[\"os\"]` through a module's transitive import graph. (#15198)\n- **Optional hardware isolation** — configure `LANGFLOW_SANDBOX_BACKEND` to run interpreter code in an isolated microVM instead of in-process. (#14400)\n\nUpstream fix references: #13397, #13700 (carries this GHSA), #14375, #14400, #15198.\n\n### Hardening recommendations for operators\n\n- Keep Langflow updated (>= 1.12.3).\n- For locked-down deployments, set `LANGFLOW_ALLOW_CUSTOM_COMPONENTS=false` (or `LANGFLOW_BLOCK_CODE_INTERPRETER_COMPONENTS=true`) to disable the interpreter entirely.\n- For deployments that must run untrusted code, configure `LANGFLOW_SANDBOX_BACKEND` for microVM isolation.\n- Run the Langflow service as an unprivileged user with least-privilege database credentials.",
+    "type": "reviewed",
+    "severity": "critical",
+    "repository_advisory_url": "https://api.github.com/repos/langflow-ai/langflow/security-advisories/GHSA-8qpj-27x8-pwpq",
+    "source_code_location": "https://github.com/langflow-ai/langflow",
+    "identifiers": [
+      {
+        "value": "GHSA-8qpj-27x8-pwpq",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-10561",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://github.com/langflow-ai/langflow/security/advisories/GHSA-8qpj-27x8-pwpq",
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-10561",
+      "https://github.com/langflow-ai/langflow/pull/13700",
+      "https://github.com/langflow-ai/langflow/commit/2754c84aad1306f463db1c3bbb3e8ffbe85da77d",
+      "https://github.com/langflow-ai/langflow/releases/tag/v1.10.1",
+      "https://www.ibm.com/support/pages/node/7277242",
+      "https://github.com/advisories/GHSA-8qpj-27x8-pwpq"
+    ],
+    "published_at": "2026-10-06T13:38:28Z",
+    "updated_at": "2026-10-06T13:38:29Z",
+    "github_reviewed_at": "2026-10-06T13:38:28Z",
+    "nvd_published_at": null,
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "pip",
+          "name": "langflow"
+        },
+        "vulnerable_version_range": "< 1.10.1",
+        "first_patched_version": "1.10.1",
+        "vulnerable_functions": [
+
+        ]
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+        "score": 9.9
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-94",
+        "name": "Improper Control of Generation of Code ('Code Injection')"
+      },
+      {
+        "cwe_id": "CWE-95",
+        "name": "Improper Neutralization of Directives in Dynamically Evaluated Code ('Eval Injection')"
+      },
+      {
+        "cwe_id": "CWE-266",
+        "name": "Incorrect Privilege Assignment"
+      }
+    ],
+    "credits": [
+      {
+        "user": {
+          "login": "XlabAITeam",
+          "id": 214060066,
+          "node_id": "U_kgDODMJMIg",
+          "avatar_url": "https://avatars.githubusercontent.com/u/214060066?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/XlabAITeam",
+          "html_url": "https://github.com/XlabAITeam",
+          "followers_url": "https://api.github.com/users/XlabAITeam/followers",
+          "following_url": "https://api.github.com/users/XlabAITeam/following{/other_user}",
+          "gists_url": "https://api.github.com/users/XlabAITeam/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/XlabAITeam/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/XlabAITeam/subscriptions",
+          "organizations_url": "https://api.github.com/users/XlabAITeam/orgs",
+          "repos_url": "https://api.github.com/users/XlabAITeam/repos",
+          "events_url": "https://api.github.com/users/XlabAITeam/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/XlabAITeam/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "reporter"
+      },
+      {
+        "user": {
+          "login": "andifilhohub",
+          "id": 115162146,
+          "node_id": "U_kgDOBt08Ig",
+          "avatar_url": "https://avatars.githubusercontent.com/u/115162146?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/andifilhohub",
+          "html_url": "https://github.com/andifilhohub",
+          "followers_url": "https://api.github.com/users/andifilhohub/followers",
+          "following_url": "https://api.github.com/users/andifilhohub/following{/other_user}",
+          "gists_url": "https://api.github.com/users/andifilhohub/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/andifilhohub/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/andifilhohub/subscriptions",
+          "organizations_url": "https://api.github.com/users/andifilhohub/orgs",
+          "repos_url": "https://api.github.com/users/andifilhohub/repos",
+          "events_url": "https://api.github.com/users/andifilhohub/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/andifilhohub/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "analyst"
+      },
+      {
+        "user": {
+          "login": "erichare",
+          "id": 700235,
+          "node_id": "MDQ6VXNlcjcwMDIzNQ==",
+          "avatar_url": "https://avatars.githubusercontent.com/u/700235?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/erichare",
+          "html_url": "https://github.com/erichare",
+          "followers_url": "https://api.github.com/users/erichare/followers",
+          "following_url": "https://api.github.com/users/erichare/following{/other_user}",
+          "gists_url": "https://api.github.com/users/erichare/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/erichare/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/erichare/subscriptions",
+          "organizations_url": "https://api.github.com/users/erichare/orgs",
+          "repos_url": "https://api.github.com/users/erichare/repos",
+          "events_url": "https://api.github.com/users/erichare/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/erichare/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "remediation_developer"
+      }
+    ],
+    "comments": 2,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:H/A:H",
+      "score": 9.9
+    },
+    "epss": {
+      "percentage": 0.01003,
+      "percentile": 0.61554
+    }
+  },
+  {
+    "ghsa_id": "GHSA-3wxm-5mm9-q6vj",
+    "cve_id": "CVE-2026-105918",
+    "url": "https://api.github.com/advisories/GHSA-3wxm-5mm9-q6vj",
+    "html_url": "https://github.com/advisories/GHSA-3wxm-5mm9-q6vj",
+    "summary": "A vulnerability has been found in Kusalkasilva Learning-Management-System up to...",
+    "description": "A vulnerability has been found in Kusalkasilva Learning-Management-System up to ffeb873f8803f1e9664384ff75000c7da45466d2. Impacted is the function mysql_error of the file login.php of the component Login Endpoint. The manipulation of the argument username/password leads to sql injection. The attack can be initiated remotely. The exploit has been disclosed to the public and may be used. Continious delivery with rolling releases is used by this product. Therefore, no version details of affected nor updated releases are available. The project was informed of the problem early through an issue report but has not responded yet.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-3wxm-5mm9-q6vj",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-105918",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-105918",
+      "https://github.com/KusalkaSilva/Learning-Management-System/issues/1",
+      "https://github.com/KusalkaSilva/Learning-Management-System",
+      "https://vuldb.com/cve/CVE-2026-105918",
+      "https://vuldb.com/submit/992654",
+      "https://vuldb.com/vuln/413892",
+      "https://vuldb.com/vuln/413892/cti",
+      "https://github.com/advisories/GHSA-3wxm-5mm9-q6vj"
+    ],
+    "published_at": "2026-10-06T12:30:31Z",
+    "updated_at": "2026-10-06T12:30:37Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T12:16:47Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "score": 7.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N/E:P/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.5
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-74",
+        "name": "Improper Neutralization of Special Elements in Output Used by a Downstream Component ('Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "score": 7.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-4wg9-7x2v-7wxf",
+    "cve_id": "CVE-2026-56596",
+    "url": "https://api.github.com/advisories/GHSA-4wg9-7x2v-7wxf",
+    "html_url": "https://github.com/advisories/GHSA-4wg9-7x2v-7wxf",
+    "summary": "HCL BigFix Service Management is affected by an Improper Input Validation vulnerability, which...",
+    "description": "HCL BigFix Service Management is affected by an Improper Input Validation vulnerability, which could allow an attacker to supply unexpected or malformed data, enabling processing errors, business logic bypasses, and unintended application behavior.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-4wg9-7x2v-7wxf",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-56596",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-56596",
+      "https://support.hcl-software.com/csm?id=kb_article&sysparm_article=KB0134015",
+      "https://github.com/advisories/GHSA-4wg9-7x2v-7wxf"
+    ],
+    "published_at": "2026-10-06T12:30:31Z",
+    "updated_at": "2026-10-06T12:30:37Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T12:16:49Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:A/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+        "score": 3.5
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-20",
+        "name": "Improper Input Validation"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:A/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+      "score": 3.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-x658-h3pq-chcg",
+    "cve_id": "CVE-2026-105985",
+    "url": "https://api.github.com/advisories/GHSA-x658-h3pq-chcg",
+    "html_url": "https://github.com/advisories/GHSA-x658-h3pq-chcg",
+    "summary": "Craft CMS 5.10.13.2 contains an authenticated remote code execution vulnerability in the Control...",
+    "description": "Craft CMS 5.10.13.2 contains an authenticated remote code execution vulnerability in the Control Panel action app/render-components.\n\n\n\nAny authenticated user with basic Control Panel access can submit request-controlled component classes and property overrides. By first overriding an EntryType object’s uiLabelFormat and then rendering an Entry that resolves the same request-cached entry type, an attacker can cause arbitrary Twig supplied in the request to be evaluated by renderObjectTemplate().\n\n\n\nThis render path is not sandboxed. A Twig string callable can therefore reach PHP functions such as system(), resulting in operating-system command execution with the privileges of the PHP/web-server process.\n\n\n\nThe issue was reproduced with an active non-admin Craft Team user with no optional permissions enabled. No access to entry-editing, Settings, utility, user-management, project-config, filesystem, Kubernetes, or environment variables was required.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-x658-h3pq-chcg",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-105985",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://github.com/craftcms/cms/security/advisories/GHSA-g48f-wc2q-4rrv",
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-105985",
+      "https://github.com/craftcms/cms",
+      "https://github.com/craftcms/cms/releases/tag/5.11.0",
+      "https://www.hckrt.com/hacktivity/HCKRT-PVWH7W",
+      "https://github.com/advisories/GHSA-x658-h3pq-chcg"
+    ],
+    "published_at": "2026-10-06T12:30:31Z",
+    "updated_at": "2026-10-06T12:30:37Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T11:17:16Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+        "score": 8.8
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 8.7
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-1336",
+        "name": "Improper Neutralization of Special Elements Used in a Template Engine"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "score": 8.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-5c9p-3r63-49hf",
+    "cve_id": "CVE-2026-75819",
+    "url": "https://api.github.com/advisories/GHSA-5c9p-3r63-49hf",
+    "html_url": "https://github.com/advisories/GHSA-5c9p-3r63-49hf",
+    "summary": "GNU Aspell contains an out-of-bounds read vulnerability in ReadOnlyDict::load() in readonly_ws...",
+    "description": "GNU Aspell contains an out-of-bounds read vulnerability in ReadOnlyDict::load() in readonly_ws.cpp. When loading a binary .rws dictionary file, it uses offset fields from the file header as byte indices into a heap buffer without validating their bounds. An attacker can trigger this by convincing a user to run aspell with a crafted dictionary file supplied through --master, --dict-dir, or configuration options, leading to heap memory disclosure or a denial of service via application crash.\n\n\n\nThis issue was fixed in commit 941953b25031bc9104e83f58e138a664b8dedc3f which will be released in version 0.60.8.3.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-5c9p-3r63-49hf",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-75819",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-75819",
+      "https://cert.pl/en/posts/2026/10/CVE-2026-75818",
+      "http://aspell.net",
+      "https://github.com/advisories/GHSA-5c9p-3r63-49hf"
+    ],
+    "published_at": "2026-10-06T12:30:31Z",
+    "updated_at": "2026-10-06T12:30:32Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T11:17:29Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:H/AT:N/PR:N/UI:A/VC:N/VI:N/VA:L/SC:L/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 1.8
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-93mw-x5wh-jf8f",
+    "cve_id": "CVE-2026-75818",
+    "url": "https://api.github.com/advisories/GHSA-93mw-x5wh-jf8f",
+    "html_url": "https://github.com/advisories/GHSA-93mw-x5wh-jf8f",
+    "summary": "GNU Aspell prezip-bin contains a heap-based buffer overflow vulnerability in the decompressor in...",
+    "description": "GNU Aspell prezip-bin contains a heap-based buffer overflow vulnerability in the decompressor in prog/prezip.c. The decompressor does not properly check buffer space, so a crafted compressed file can cause out-of-bounds read and write operations on the heap. An attacker who convinces a user to process a malicious compressed file with prezip-bin can trigger memory corruption, leading to a processs crash.\n\n\n\nThis issue was fixed in commit 15b188437f9e0192d4ac4472ad66a4e2f62a782f which will be released in version 0.60.8.3.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-93mw-x5wh-jf8f",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-75818",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-75818",
+      "https://cert.pl/en/posts/2026/10/CVE-2026-75818",
+      "http://aspell.net",
+      "https://github.com/advisories/GHSA-93mw-x5wh-jf8f"
+    ],
+    "published_at": "2026-10-06T12:30:31Z",
+    "updated_at": "2026-10-06T12:30:32Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T11:17:29Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:H/AT:N/PR:N/UI:A/VC:N/VI:N/VA:L/SC:L/SI:L/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 1.8
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-122",
+        "name": "Heap-based Buffer Overflow"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-7gjr-5wh9-g7w9",
+    "cve_id": "CVE-2026-75820",
+    "url": "https://api.github.com/advisories/GHSA-7gjr-5wh9-g7w9",
+    "html_url": "https://github.com/advisories/GHSA-7gjr-5wh9-g7w9",
+    "summary": "GNU Aspell contains an integer truncation vulnerability in the WritableDict::add() function in...",
+    "description": "GNU Aspell contains an integer truncation vulnerability in the WritableDict::add() function in modules/speller/default/writable.cpp. When loading a personal wordlist, the word length is stored as a single byte, causing truncation for words whose length is a multiple of 256. This leads to heap corruption. An attacker can exploit this by convincing a user to run aspell with a crafted personal wordlist containing such a word, resulting in denial of service.\n\n\n\nThis issue was fixed in commit 782ce94e4dc71eaec4ee1bd945eb3b9c47c5387d which will be released in version 0.60.8.3.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-7gjr-5wh9-g7w9",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-75820",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-75820",
+      "https://cert.pl/en/posts/2026/10/CVE-2026-75818",
+      "http://aspell.net",
+      "https://github.com/advisories/GHSA-7gjr-5wh9-g7w9"
+    ],
+    "published_at": "2026-10-06T12:30:31Z",
+    "updated_at": "2026-10-06T12:30:32Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T11:17:30Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:H/AT:N/PR:N/UI:A/VC:N/VI:N/VA:L/SC:N/SI:L/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 1.8
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-190",
+        "name": "Integer Overflow or Wraparound"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-x69j-rqv7-gx25",
+    "cve_id": "CVE-2026-103831",
+    "url": "https://api.github.com/advisories/GHSA-x69j-rqv7-gx25",
+    "html_url": "https://github.com/advisories/GHSA-x69j-rqv7-gx25",
+    "summary": "CVE-2026-103831: Insecure deserialization vulnerability in the Psr16CacheAdapter component of the...",
+    "description": "CVE-2026-103831: Insecure deserialization vulnerability in the Psr16CacheAdapter component of the TrueLayer Magento 2 Plugin, due to the use of PHP's native unserialize() function without restrictions on the classes allowed when retrieving data stored in the cache. An attacker who already has the ability to write manipulated data to the cache backend used by Magento—such as Redis or Memcached—could inject specially crafted PHP objects and trigger their deserialization, potentially leading to arbitrary code execution via gadget strings available in the application environment. Exploitation therefore requires a prerequisite condition that allows writing to the cache infrastructure, either through access to the local file system or to a cache infrastructure accessible from the Magento environment.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-x69j-rqv7-gx25",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-103831",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-103831",
+      "https://www.incibe.es/en/incibe-cert/notices/aviso/insecure-deserialization-truelayer-magento-2-plugin",
+      "https://github.com/advisories/GHSA-x69j-rqv7-gx25"
+    ],
+    "published_at": "2026-10-06T12:30:31Z",
+    "updated_at": "2026-10-06T12:30:32Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T11:17:13Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:H/AT:P/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 7.5
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-502",
+        "name": "Deserialization of Untrusted Data"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-pc55-w49m-q7wf",
+    "cve_id": "CVE-2026-84854",
+    "url": "https://api.github.com/advisories/GHSA-pc55-w49m-q7wf",
+    "html_url": "https://github.com/advisories/GHSA-pc55-w49m-q7wf",
+    "summary": "In the WibuKey driver for Windows below Version 6.72, insufficient validation of user input when...",
+    "description": "In the WibuKey driver for Windows below Version 6.72, insufficient validation of user input when calculating the size of a kernel buffer could cause small amounts of data to be written outside the intended kernel buffer. This can lead to a system crash. Under unfavorable circumstances, adjacent kernel memory may be modified.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-pc55-w49m-q7wf",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-84854",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-84854",
+      "https://cdn.wibu.com/fileadmin/wibu_downloads/security_advisories/AdvisoryWIBU-100065.pdf",
+      "https://github.com/advisories/GHSA-pc55-w49m-q7wf"
+    ],
+    "published_at": "2026-10-06T12:30:30Z",
+    "updated_at": "2026-10-06T12:30:31Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T10:16:54Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+        "score": 7.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-787",
+        "name": "Out-of-bounds Write"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H",
+      "score": 7.0
+    }
+  },
+  {
+    "ghsa_id": "GHSA-hp83-m8f3-mcqc",
+    "cve_id": "CVE-2026-80327",
+    "url": "https://api.github.com/advisories/GHSA-hp83-m8f3-mcqc",
+    "html_url": "https://github.com/advisories/GHSA-hp83-m8f3-mcqc",
+    "summary": "An open redirect vulnerability exists in the PingGateway Fragment Filter feature. This issue...",
+    "description": "An open redirect vulnerability exists in the PingGateway Fragment Filter feature. This issue affects PingGateway versions 7.1.0 and later, 2023.2.0 through 2024.11.1, and 2025.3.0 through 2025.11.1. It is fixed in versions 2024.11.2, 2025.11.2, and 2026.3.0 (and later).",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-hp83-m8f3-mcqc",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-80327",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-80327",
+      "https://docs.pingidentity.com/pinggateway/release-notes/preface.html",
+      "https://product-downloads.pingidentity.com/browse/ig/featured",
+      "https://support.pingidentity.com/s/article/SECADV202602-Open-Redirect-in-PingGateway-Fragment-Filter",
+      "https://github.com/advisories/GHSA-hp83-m8f3-mcqc"
+    ],
+    "published_at": "2026-10-06T12:30:30Z",
+    "updated_at": "2026-10-06T12:30:30Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T10:16:52Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:A/VC:L/VI:L/VA:N/SC:L/SI:L/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:P/AU:N/R:U/V:X/RE:M/U:Amber",
+        "score": 5.1
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-601",
+        "name": "URL Redirection to Untrusted Site ('Open Redirect')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-9gpc-jg89-88qg",
+    "cve_id": "CVE-2026-98372",
+    "url": "https://api.github.com/advisories/GHSA-9gpc-jg89-88qg",
+    "html_url": "https://github.com/advisories/GHSA-9gpc-jg89-88qg",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfrm: iptfs: fix stack OOB...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfrm: iptfs: fix stack OOB read in iptfs_skb_reset_frag_walk()\n\niptfs_skb_reset_frag_walk() advances to the fragment containing @offset\nwith an unbounded loop:\n\n\twhile (offset >= walk->past + walk->frags[walk->fragi].len)\n\t\twalk->past += walk->frags[walk->fragi++].len;\n\nwalk->fragi is advanced and walk->frags[walk->fragi] is dereferenced\nwithout ever checking fragi against walk->nr_frags. When the requested\noffset is at or beyond the total length spanned by the walk's fragments,\nfragi runs past nr_frags and off the end of the fixed-size on-stack\nfrags[MAX_SKB_FRAGS + 1] array, reading out-of-bounds stack memory.\n\nThe two callers behave differently: iptfs_skb_add_frags() already guards\nagainst this with\n\n\tif (!walk->nr_frags ||\n\t    offset >= walk->total + walk->initial_offset)\n\t\treturn len;\n\nbut iptfs_skb_can_add_frags() has no such guard and calls\niptfs_skb_reset_frag_walk() unconditionally, so it performs the\nout-of-range walk. Its own \"fragi < walk->nr_frags\" bound check runs only\nafterwards, too late to prevent the read.\n\nThis is reachable from the receive path: a crafted IP-TFS (AGGFRAG)\npayload delivered to an IPTFS SA drives iptfs_reassem_cont() ->\niptfs_skb_can_add_frags() with an offset past the fragment total, e.g.:\n\n  BUG: KASAN: stack-out-of-bounds in iptfs_skb_reset_frag_walk+0x235/0x250\n  Read of size 4 at addr ffff888008ad7210 by task repro/345\n   iptfs_skb_reset_frag_walk+0x235/0x250 net/xfrm/xfrm_iptfs.c:392\n   iptfs_skb_can_add_frags+0x155/0x310  net/xfrm/xfrm_iptfs.c:420\n   iptfs_reassem_cont+0xcf8/0x1140      net/xfrm/xfrm_iptfs.c:902\n   iptfs_input_ordered+0x552/0x670      net/xfrm/xfrm_iptfs.c:1280\n   iptfs_input+0x3d6/0xde0              net/xfrm/xfrm_iptfs.c:1741\n   xfrm_input+0x282f/0x6140             net/xfrm/xfrm_input.c:700\n   xfrm4_esp_rcv+0x93/0x120             net/ipv4/xfrm4_protocol.c:104\n   ip_rcv+0x278/0x2d0                   net/ipv4/ip_input.c:612\n\nGive iptfs_skb_can_add_frags() the same up-front guard that\niptfs_skb_add_frags() already has, so the walk is never entered with an\nout-of-range offset. When it triggers, the caller falls back to the\nexisting linearize-and-copy path, which is safe.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-9gpc-jg89-88qg",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98372",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98372",
+      "https://git.kernel.org/stable/c/7e1c6884a0b494b7e3f204877f94c1e07a117bf7",
+      "https://git.kernel.org/stable/c/d042487dc118e494db2e2c1382310255c90ff544",
+      "https://git.kernel.org/stable/c/da56d0ee93d1bad779b0486f2fab92d1bc1f0cf3",
+      "https://github.com/advisories/GHSA-9gpc-jg89-88qg"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:31Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-xf8r-gcp9-vg22",
+    "cve_id": "CVE-2026-98370",
+    "url": "https://api.github.com/advisories/GHSA-xf8r-gcp9-vg22",
+    "html_url": "https://github.com/advisories/GHSA-xf8r-gcp9-vg22",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfrm: fix compat ALLOCSPI...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfrm: fix compat ALLOCSPI request use-after-free\n\nxfrm_state_netlink() builds the ALLOCSPI response with\ndump_one_state(), which already calls alloc_compat() with the response\nskb and header.\n\nxfrm_alloc_userspi() then calls alloc_compat() again, but passes the\noriginal request skb and its header. For a compat request, the\ntranslator therefore interprets the 228-byte compat xfrm_userspi_info\nas the 232-byte native layout and reads four bytes past the declared\npayload. It also publishes the translated child through the request's\nfrag_list.\n\nA multicast clone of the request shares skb_shared_info and can observe\nthat child. xfrm_user_rcv_msg() frees it after the request handler\nreturns, racing a compat receiver which may still be copying from it and\nresulting in a use-after-free.\n\nRemove the redundant conversion. The response keeps its correct compat\ntranslation from dump_one_state(), and no child is attached to the\ninbound request.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-xf8r-gcp9-vg22",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98370",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98370",
+      "https://git.kernel.org/stable/c/17893987e52918c23945c42e47e894a936305a25",
+      "https://git.kernel.org/stable/c/248433942155b42a0ef04a5806c8aca024ea7c33",
+      "https://git.kernel.org/stable/c/2b63341e2ebc9b6f73cbd9214dbe7d46dd98c718",
+      "https://git.kernel.org/stable/c/42971ea17c7a8afc0bdd5ca40648bf4e5bb7b810",
+      "https://git.kernel.org/stable/c/494f2bee9d8d0ebcfa249ac41bed7fed26d119b4",
+      "https://git.kernel.org/stable/c/bb63ab52a18273ec68340ac49aebbaa7b514ccd5",
+      "https://git.kernel.org/stable/c/d1ebd9081879fd9ae9c8fb7e8928f19cc88ae320",
+      "https://git.kernel.org/stable/c/e70f639aee2ff0def155c256cace9e0f81d998e2",
+      "https://github.com/advisories/GHSA-xf8r-gcp9-vg22"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:31Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-q57h-9f6r-c5h9",
+    "cve_id": "CVE-2026-98362",
+    "url": "https://api.github.com/advisories/GHSA-q57h-9f6r-c5h9",
+    "html_url": "https://github.com/advisories/GHSA-q57h-9f6r-c5h9",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nclk: scpi: bound-check DVFS...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nclk: scpi: bound-check DVFS index in scpi_dvfs_recalc_rate\n\ndvfs_get_idx() may return an out-of-range index if the SCP firmware is\nbuggy or returns a stale value. Only negative indexes were rejected, so a\nlarge index walked past info->opps and could treat garbage as a clock rate\n(KASAN OOB / wrong frequency to consumers). The missing upper bound dates\nback to the original SCPI clock driver.\n\nTreat indexes >= opp count as invalid and return 0, same as idx < 0.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-q57h-9f6r-c5h9",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98362",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98362",
+      "https://git.kernel.org/stable/c/0f89e2ac0e945da2ce798f6a61aebf9d291c2e0a",
+      "https://git.kernel.org/stable/c/108c46e8dacc4a0e472a74f98171115d49cbc079",
+      "https://git.kernel.org/stable/c/56b7a9d89c67932bf11b71e3b6d17941fc24a393",
+      "https://git.kernel.org/stable/c/6e3b55823da8ef0d99621efb422cc29f50d7f280",
+      "https://git.kernel.org/stable/c/70f4b78d560e592cbf3325b162424737d032fc1d",
+      "https://git.kernel.org/stable/c/7204095917aeaac89db7377c29a457351a19b076",
+      "https://git.kernel.org/stable/c/a82b274697d0876b478594ca78ad1e6cb062467b",
+      "https://git.kernel.org/stable/c/e1188332a9110cf3635fe286481ee38305b3c2b6",
+      "https://github.com/advisories/GHSA-q57h-9f6r-c5h9"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:30Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-whp9-3996-xqg3",
+    "cve_id": "CVE-2026-98367",
+    "url": "https://api.github.com/advisories/GHSA-whp9-3996-xqg3",
+    "html_url": "https://github.com/advisories/GHSA-whp9-3996-xqg3",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/siw: Clear association...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/siw: Clear association under lock if siw_qp_modify fails in siw_accept\n\nWe need to clear cep before release state_lock as siw_qp_llp_close and\nsiw_qp_modify->siw_qp_llp_close did.\n\nOtherwise if siw_qp_modify() fails in siw_accept(), the QP's state_lock\nis released before the error path cleanup. A concurrent ibv_modify_qp()\ntransitioning the QP to ERROR can race in this window:\n\n  siw_accept()                       ibv_modify_qp(ERROR)\n  ----------------------             ----------------------\n  siw_qp_modify() fails\n  up_write(&qp->state_lock)\n                                     down_write(&qp->state_lock)\n                                     nextstate_from_idle():\n\t\t\t\t     if (qp->cep)\n                                       siw_cep_put(qp->cep) <- frees cep\n                                       qp->cep = NULL\n  goto error\n    cep->qp = NULL                   <- UAF\n\nClear qp->cep and drop the association reference taken by siw_cep_get(),\nall under the write lock held from the initial down_write(&qp->state_lock).\nThread B therefore sees qp->cep == NULL, skips its own put, and cannot free\nthe cep before siw_accept() is done with it.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-whp9-3996-xqg3",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98367",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98367",
+      "https://git.kernel.org/stable/c/030306bbb9273af80f14d7af20129661964cd9a7",
+      "https://git.kernel.org/stable/c/32cd87f54dd1070020e664ccb0312a9f0fea79b4",
+      "https://git.kernel.org/stable/c/9dcc0f4e488b70cff81e0e5717a498c929cf5de3",
+      "https://git.kernel.org/stable/c/ad50d19f3d1ce052b3a146143581e930a1efb33e",
+      "https://git.kernel.org/stable/c/bfdc744bf20ae4c3ef2e470298de5237c5c9a13c",
+      "https://git.kernel.org/stable/c/df2584750314336edcbcc21fb388e04b260f35b7",
+      "https://git.kernel.org/stable/c/e3f039082856adab7e195dea1af45d93dd6a3f1c",
+      "https://git.kernel.org/stable/c/f11e09fe2fc3a11ccdf8f932b68181b0bb1d2078",
+      "https://github.com/advisories/GHSA-whp9-3996-xqg3"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:30Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-33vh-pc87-q32x",
+    "cve_id": "CVE-2026-98363",
+    "url": "https://api.github.com/advisories/GHSA-33vh-pc87-q32x",
+    "html_url": "https://github.com/advisories/GHSA-33vh-pc87-q32x",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nfirmware: arm_scpi: reject...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nfirmware: arm_scpi: reject DVFS OPP count above MAX_DVFS_OPPS\n\nscpi_dvfs_get_info() already rejected a zero opp_count, but still trusted\nany larger value from the SCP firmware. The shared-memory reply only holds\nMAX_DVFS_OPPS entries in buf.opps[]; a bigger count over-reads that array\nand then sizes the allocated OPP table incorrectly (garbage OPPs / OOB).\nThe missing upper bound dates back to the original SCPI DVFS support.\n\nReject zero and out-of-range counts in one check and return -EINVAL.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-33vh-pc87-q32x",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98363",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98363",
+      "https://git.kernel.org/stable/c/0130f9ad3974a5b2ad0fa03d0b300a9fb83ed901",
+      "https://git.kernel.org/stable/c/1aadbef648e92ca642125f188f99b0a26628e3ba",
+      "https://git.kernel.org/stable/c/32471d84a487c7fd74532bc96be56f8028cf4a3f",
+      "https://git.kernel.org/stable/c/69ec03cd481973e4be44a7158ed6c0fa06a9a5f9",
+      "https://git.kernel.org/stable/c/7daaa684097377b66b98a832de307688a7f3bbc7",
+      "https://git.kernel.org/stable/c/cc563a59aded6f3b02d75dcc3c0bc5e90755d99e",
+      "https://git.kernel.org/stable/c/e9887eeaa138c6b5697af3d2f7c71dc82407b154",
+      "https://git.kernel.org/stable/c/f17865332cc4ceaac846bcd7c28badbaedfabeff",
+      "https://github.com/advisories/GHSA-33vh-pc87-q32x"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:30Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-w9qw-7vhq-g4m9",
+    "cve_id": "CVE-2026-98358",
+    "url": "https://api.github.com/advisories/GHSA-w9qw-7vhq-g4m9",
+    "html_url": "https://github.com/advisories/GHSA-w9qw-7vhq-g4m9",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nIB/iser: reject a remote...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nIB/iser: reject a remote invalidation of an unregistered direction\n\nA write command whose data is sent entirely as immediate data is not\nregistered.  iser_reg_mem_fastreg() takes the DMA key path and leaves\nrdma_reg[ISER_DIR_OUT].desc at NULL, while iser_dma_map_task_data() has\nalready set dir[ISER_DIR_OUT].\n\niser_check_remote_inv() looks at dir[] alone and hands the descriptor to\niser_inv_desc(), which reads desc->sig_protected.  A target that answers\nsuch a command with IB_WR_SEND_WITH_INV faults the initiator.\nLeaving those commands unregistered is deliberate.\n\nThe same function already terminates the connection when a target sends\na remote invalidation the initiator did not ask for.  A target that\ninvalidates a direction that was never registered is in the same class,\nso give it the same answer.\n\n  Oops: general protection fault, probably for non-canonical address 0xdffffc0000000004: 0000 [#1] SMP KASAN NOPTI\n  KASAN: null-ptr-deref in range [0x0000000000000020-0x0000000000000027]\n  CPU: 0 UID: 0 PID: 40 Comm: kworker/u8:2 Not tainted 7.2.0-rc5-ISERHOST-gf5098b6bae76-dirty #3 PREEMPT(lazy)\n  Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014\n  Workqueue: rxe_wq do_work\n  RIP: 0010:iser_task_rsp+0x6d6/0xec0\n  Code: 48 c1 ea 03 80 3c 02 00 0f 85 ba 06 00 00 48 8b 9b 78 01 00 00 48 b8 00 00 00 00 00 fc ff df 48 8d 7b 20 48 89 fa 48 c1 ea 03 <0f> b6 04 02 84 c0 74 06 0f 8e 76 06 00 00 80 7b 20 00 0f 84 3d 04\n  RSP: 0018:ffff88811b008db8 EFLAGS: 00010202\n  RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000001848\n  RDX: 0000000000000004 RSI: 1ffff11021587b12 RDI: 0000000000000020\n  RBP: ffff88810adc1ae4 R08: ffff888109b7f860 R09: ffffffff90a922c0\n  R10: ffff88810adc1a1c R11: 000000000000003c R12: ffff888109b7f800\n  R13: ffff88810adc1acc R14: ffff888109b7f820 R15: 0000000000000000\n  FS:  0000000000000000(0000) GS:ffff88818a676000(0000) knlGS:0000000000000000\n  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033\n  CR2: 00000000005afe2b CR3: 000000010af23005 CR4: 0000000000770ef0\n  PKRU: 55555554\n  Call Trace:\n   <IRQ>\n   __ib_process_cq+0xe1/0x390\n   ib_poll_handler+0x6e/0x200\n   irq_poll_softirq+0x1df/0x480\n   ? clockevents_program_event+0x2ba/0x860\n   ? __pfx_irq_poll_softirq+0x10/0x10\n   handle_softirqs+0x18e/0x590\n   ? __pfx_handle_softirqs+0x10/0x10\n   ? __hrtimer_rearm_deferred+0x156/0x450\n   do_softirq+0x3b/0x60\n   </IRQ>\n   <TASK>\n   __local_bh_enable_ip+0x61/0x70\n   __alloc_skb+0x732/0x890\n   ? _raw_spin_lock_irqsave+0x85/0xe0\n   ? __pfx___alloc_skb+0x10/0x10\n   ? _raw_read_unlock_irqrestore+0x16/0x50\n   rxe_init_packet+0x16b/0x4f0\n   prepare_ack_packet+0xb8/0x830\n   rxe_receiver+0x499/0x9980\n   ? __pfx_rxe_receiver+0x10/0x10\n   ? rxe_completer+0x29e5/0x38c0\n   ? hrtimer_start_range_ns_common+0x75f/0x1730\n   ? hrtimer_start_range_ns+0xa6/0x2c0\n   ? __pfx__raw_spin_lock_irqsave+0x10/0x10\n   ? __pfx_rxe_receiver+0x10/0x10\n   do_work+0x144/0x470\n   process_one_work+0x633/0x1030\n   ? assign_work+0x11d/0x370\n   worker_thread+0x45b/0xd10\n   ? __pfx_worker_thread+0x10/0x10\n   kthread+0x2c6/0x3b0\n   ? recalc_sigpending+0x15c/0x1e0\n   ? __pfx_kthread+0x10/0x10\n   ret_from_fork+0x36e/0x5a0\n   ? __pfx_ret_from_fork+0x10/0x10\n   ? __switch_to+0x572/0xdd0\n   ? __pfx_kthread+0x10/0x10\n   ret_from_fork_asm+0x1a/0x30\n   </TASK>\n  Modules linked in:\n  ---[ end trace 0000000000000000 ]---",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-w9qw-7vhq-g4m9",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98358",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98358",
+      "https://git.kernel.org/stable/c/198e4db9add54a50cce60a5d80b8f0ee5456b65a",
+      "https://git.kernel.org/stable/c/19ddd4af7fce9200e70882f622011e9dd130f427",
+      "https://git.kernel.org/stable/c/6ed3ebaff3345837f0528d85bd39ce573c7b9a41",
+      "https://git.kernel.org/stable/c/9d145a2d8d6f8f2cc460b80df41870819048f2a0",
+      "https://git.kernel.org/stable/c/b4d278c91209931199db9c0836dc2e21a7593dad",
+      "https://git.kernel.org/stable/c/b9e37452915feaa8422af87dea5d0c16a7d1ff13",
+      "https://git.kernel.org/stable/c/ceecf3f9c322fc6937a66682942a26ad13a34a07",
+      "https://git.kernel.org/stable/c/d85f0f0a7c85756fc992c70d869706f19dac9259",
+      "https://github.com/advisories/GHSA-w9qw-7vhq-g4m9"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:29Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-888p-vhhf-cr6c",
+    "cve_id": "CVE-2026-98357",
+    "url": "https://api.github.com/advisories/GHSA-888p-vhhf-cr6c",
+    "html_url": "https://github.com/advisories/GHSA-888p-vhhf-cr6c",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nIB/isert: wait for deferred...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nIB/isert: wait for deferred control PDU completions before releasing the connection\n\nisert_send_done() hands ISTATE_SEND_TASKMGTRSP, ISTATE_SEND_REJECT and\nISTATE_SEND_TEXTRSP completions off to isert_comp_wq and returns.  The work\nitem then runs isert_completion_put() -> isert_put_cmd(), which reads\nisert_conn->conn and takes conn->cmd_lock.\n\nNothing orders that work item against teardown.  isert_wait_conn() queues\nisert_release_work, which frees isert_conn, and iscsit_close_connection()\nfrees the iscsit_conn right after it returns, so the queued work can run\nagainst freed memory.\n\nCount the deferred control PDU completions per connection and let\nisert_wait_conn() wait for them before the release work is queued.\n\nISTATE_SEND_LOGOUTRSP is deliberately not counted: that branch runs\niscsit_logout_post_handler(), which ends up waiting for\nconn->conn_wait_comp, and that completion is only sent by\niscsit_close_connection() after it has called iscsit_wait_conn().\nWaiting for it here would deadlock.  Its wait stays the existing\nisert_wait4logout().\n\nThe splat below is from a kernel with tracing printk()s and an msleep(200)\ninjected into isert_do_control_comp() to widen the window:\n\n  BUG: KASAN: slab-use-after-free in isert_put_cmd+0x53d/0x620\n  Read of size 8 at addr ffff8881054f1038 by task kworker/u17:1/182\n\n  CPU: 0 UID: 0 PID: 182 Comm: kworker/u17:1 Tainted: G    B               7.2.0-rc5-TWIDE-gb8babf08acc7 #1 PREEMPT(lazy)\n  Tainted: [B]=BAD_PAGE\n  Hardware name: QEMU Ubuntu 24.04 PC v2 (i440FX + PIIX, arch_caps fix, 1996), BIOS 1.16.3-debian-1.16.3-2 04/01/2014\n  Workqueue: isert_comp_wq isert_do_control_comp\n  Call Trace:\n   <TASK>\n   dump_stack_lvl+0x53/0x70\n   print_report+0xd0/0x630\n   ? __pfx__raw_spin_lock_irqsave+0x10/0x10\n   ? _raw_spin_unlock_irqrestore+0x3e/0x70\n   ? isert_put_cmd+0x53d/0x620\n   kasan_report+0xce/0x100\n   ? isert_put_cmd+0x53d/0x620\n   isert_put_cmd+0x53d/0x620\n   ? isert_completion_put+0x305/0x330\n   ? isert_do_control_comp+0x2ef/0x310\n   process_one_work+0x633/0x1030\n   ? assign_work+0x11d/0x370\n   worker_thread+0x45b/0xd10\n   ? __pfx_worker_thread+0x10/0x10\n   ? __pfx_worker_thread+0x10/0x10\n   kthread+0x2c6/0x3b0\n   ? recalc_sigpending+0x15c/0x1e0\n   ? __pfx_kthread+0x10/0x10\n   ret_from_fork+0x36e/0x5a0\n   ? __pfx_ret_from_fork+0x10/0x10\n   ? __switch_to+0x572/0xdd0\n   ? __pfx_kthread+0x10/0x10\n   ret_from_fork_asm+0x1a/0x30\n   </TASK>\n\n  Allocated by task 48:\n   kasan_save_stack+0x33/0x60\n   kasan_save_track+0x14/0x30\n   __kasan_kmalloc+0x8f/0xa0\n   __kmalloc_cache_noprof+0x158/0x370\n   isert_cma_handler+0x1e3/0x2ae0\n   cma_cm_event_handler+0x3e/0x240\n   cma_ib_req_handler+0x17d9/0x4490\n   cm_process_work+0x41/0x330\n   cm_work_handler+0x5727/0xc160\n   process_one_work+0x633/0x1030\n   worker_thread+0x45b/0xd10\n   kthread+0x2c6/0x3b0\n   ret_from_fork+0x36e/0x5a0\n   ret_from_fork_asm+0x1a/0x30\n\n  Freed by task 184:\n   kasan_save_stack+0x33/0x60\n   kasan_save_track+0x14/0x30\n   kasan_save_free_info+0x3b/0x60\n   __kasan_slab_free+0x43/0x70\n   kfree+0x121/0x380\n   iscsit_close_connection+0x7cf/0x1e60\n   iscsit_take_action_for_connection_exit+0x1b6/0x360\n   iscsi_target_tx_thread+0x472/0x690\n   kthread+0x2c6/0x3b0\n   ret_from_fork+0x36e/0x5a0\n   ret_from_fork_asm+0x1a/0x30",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-888p-vhhf-cr6c",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98357",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98357",
+      "https://git.kernel.org/stable/c/0e230917670c6e6fe3243abfa11299fcbe05b1f4",
+      "https://git.kernel.org/stable/c/505b242d9351690d1385bbe508ab4666f60363ce",
+      "https://git.kernel.org/stable/c/7908fbc597a694bbd99bfb59ece73bc3daded68e",
+      "https://git.kernel.org/stable/c/7edb8a88d6c76237c8b4435765bee1009e26a50a",
+      "https://git.kernel.org/stable/c/a8fe3dfce8c0d8a76dc3d8486a5bff5feebe156f",
+      "https://git.kernel.org/stable/c/b96b8b3e41c308f606ffd10cfef1a7b9f97414cd",
+      "https://git.kernel.org/stable/c/ccdb1523f12bc8a9646de65055d1aafed9e9bcc6",
+      "https://git.kernel.org/stable/c/f5613acbe2e346d5c466ef0bd264fca936b69f82",
+      "https://github.com/advisories/GHSA-888p-vhhf-cr6c"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:29Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-3p8h-wx5x-6qq3",
+    "cve_id": "CVE-2026-98365",
+    "url": "https://api.github.com/advisories/GHSA-3p8h-wx5x-6qq3",
+    "html_url": "https://github.com/advisories/GHSA-3p8h-wx5x-6qq3",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/rxe: Fix integer...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/rxe: Fix integer overflow in mr_check_range() leading to OOB access\n\nmr_check_range() validates that [iova, iova+length) falls within the\nregistered MR range using wraparound-prone arithmetic:\n\n    if (iova < mr->ibmr.iova ||\n        iova + length > mr->ibmr.iova + mr->ibmr.length)\n\nA remote peer can craft an RDMA-Write/Read RETH so that iova + length\nwraps to 0 (e.g. iova=0xfffffffffffffff8, length=8), bypassing the\ncheck. rxe_mr_iova_to_index() then computes a huge index (int idx, only\nguarded by WARN_ON) and rxe_mr_copy_xarray() dereferences\nmr->page_info[huge], causing an out-of-bounds read/write and a kernel\noops that is triggerable by an unauthenticated remote peer.\n\nRewrite the check in overflow-safe form; the first two clauses guarantee\nthat the subsequent subtractions do not underflow:\n\n    if (iova < mr->ibmr.iova ||\n        length > mr->ibmr.length ||\n        iova - mr->ibmr.iova > mr->ibmr.length - length)\n\nWith the fix, mr_check_range() returns -EINVAL for the crafted iova and\nthe responder reports REMOTE_ACCESS_ERROR instead of triggering the OOB.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-3p8h-wx5x-6qq3",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98365",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98365",
+      "https://git.kernel.org/stable/c/2f3b705144e3a3c14184fec6e354680081fe91ec",
+      "https://git.kernel.org/stable/c/3431f525718f6b07da308cda6d44f8cb548bbd37",
+      "https://git.kernel.org/stable/c/5d9426a74fc8cb8f375fcdc19b465a030f9b8cab",
+      "https://git.kernel.org/stable/c/b7d2118660545a00b21e83010ded1a231c6fb8c5",
+      "https://git.kernel.org/stable/c/d10e2a08799e858d3e71ea4169bcd018f216d444",
+      "https://github.com/advisories/GHSA-3p8h-wx5x-6qq3"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:30Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-rjh9-m2m4-jgrv",
+    "cve_id": "CVE-2026-98366",
+    "url": "https://api.github.com/advisories/GHSA-rjh9-m2m4-jgrv",
+    "html_url": "https://github.com/advisories/GHSA-rjh9-m2m4-jgrv",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/rxe: validate access...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/rxe: validate access flags before swapping the MR's PD\n\nrxe_rereg_user_mr() reassigns mr->ibmr.pd first and only then\nvalidates the IB_MR_REREG_ACCESS argument:\n\n\tif (flags & IB_MR_REREG_PD) {\n\t\trxe_put(old_pd);\n\t\trxe_get(pd);\n\t\tmr->ibmr.pd = ibpd;\n\t}\n\n\tif (flags & IB_MR_REREG_ACCESS) {\n\t\tif (access & ~RXE_ACCESS_SUPPORTED_MR)\n\t\t\treturn ERR_PTR(-EOPNOTSUPP);\n\t\tmr->access = access;\n\t}\n\nBoth flags pass the entry check because RXE_MR_REREG_SUPPORTED is\nIB_MR_REREG_PD | IB_MR_REREG_ACCESS, so a caller can reach the access\ncheck with mr->ibmr.pd already reassigned.\n\nmr->ibmr.pd is owned by the core, which adjusts pd->usecnt only on the\nsuccess path: ib_uverbs_rereg_mr() jumps to put_new_uobj on a driver error\nwithout undoing the reassignment, so mr->pd == new_pd while the usecnts\nstill charge the MR to orig_pd. ib_dereg_mr_user() then decrements\nnew_pd, whose count can reach zero while a memory window still references\nit; uverbs_free_pd() frees the PD on that count alone and rxe_mw_cleanup()\nwrites to freed memory:\n\n  BUG: KASAN: slab-use-after-free in __rxe_put+0x31/0xa0\n  Write of size 4 at addr ffff8881301dd690 by task rxe_poc/591\n   __rxe_put+0x31/0xa0\n   rxe_mw_cleanup+0x42/0x200\n   __rxe_cleanup+0x115/0x370\n   rxe_dealloc_mw+0x4c/0x80\n  Allocated by task 591:\n   ib_uverbs_alloc_pd+0x258/0x540\n  Freed by task 591:\n   ib_dealloc_pd_user+0x174/0x210\n   uverbs_free_pd+0x8d/0xc0\n   ib_uverbs_dealloc_pd+0x18e/0x1d0\n\nValidate the access flags before mutating any state so the callback either\napplies every requested change or none.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-rjh9-m2m4-jgrv",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98366",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98366",
+      "https://git.kernel.org/stable/c/08f12745cb72981aa2cabe214af0c7a42a856f0a",
+      "https://git.kernel.org/stable/c/4dd7a53f1c5b44693c26dac4b9b5bd5bb9d604c8",
+      "https://git.kernel.org/stable/c/7230cc456d4bb2221c20c5f1d22b38b8576aa16f",
+      "https://git.kernel.org/stable/c/ae36a5b609ae79f4de966328b78d2584be9719a4",
+      "https://git.kernel.org/stable/c/fe602c91a52e161ace4afd5bdb8f33270c554c6f",
+      "https://github.com/advisories/GHSA-rjh9-m2m4-jgrv"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:30Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-8j4r-887v-cjjx",
+    "cve_id": "CVE-2026-98347",
+    "url": "https://api.github.com/advisories/GHSA-8j4r-887v-cjjx",
+    "html_url": "https://github.com/advisories/GHSA-8j4r-887v-cjjx",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nIB/IPoIB: Avoid restoring...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nIB/IPoIB: Avoid restoring OPER_UP after multicast flush\n\nipoib_ib_dev_flush_light() temporarily clears IPOIB_FLAG_OPER_UP to\nprevent multicast joins while ipoib_mcast_dev_flush() is running, and\nrestores the flag afterwards if it was previously set.\n\nThis restore races with ipoib_ib_dev_down(). If the interface is brought\ndown while the flush is in progress, ipoib_ib_dev_down() clears\nIPOIB_FLAG_OPER_UP, but the flush path may set it again after the device\nhas already gone down.\n\nSince commit 894021a75291 (\"IB/ipoib: Make the carrier_on_task race\naware\"), ipoib_mcast_carrier_on_task() relies on IPOIB_FLAG_OPER_UP\nbeing cleared to terminate its rtnl_trylock() retry loop. If the flag is\nleft set after shutdown, the workqueue retries forever, causing teardown\nto deadlock when ipoib_ndo_uninit() waits in destroy_workqueue() while\nholding RTNL.\n\nInstead of overloading IPOIB_FLAG_OPER_UP to block multicast joins\nduring a light flush, introduce a dedicated IPOIB_FLAG_MCAST_FLUSH flag.\nUse it together with IPOIB_FLAG_OPER_UP to determine whether multicast\njoins are allowed, avoiding the race with device shutdown.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-8j4r-887v-cjjx",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98347",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98347",
+      "https://git.kernel.org/stable/c/188b334a6db36a8e0bfaaf59bc4020639a0f3aad",
+      "https://git.kernel.org/stable/c/1b11e4b55b41d9e69a8e8d07622614202e2eaca9",
+      "https://git.kernel.org/stable/c/1ff3add37c329704ec46181b4ae4f00f9f16ce6f",
+      "https://git.kernel.org/stable/c/326f7d34bd7e64de535566b65c0533b640df5a81",
+      "https://git.kernel.org/stable/c/5ad925d45f28464a5e043c9620880bb6a030da89",
+      "https://git.kernel.org/stable/c/9a141d3dc869d18b2eab35e999f4790a9b84e40f",
+      "https://git.kernel.org/stable/c/b72f38929f4b5aa83161fd3b22a7327207e51ec5",
+      "https://git.kernel.org/stable/c/f973769fb7cb33ba0d4a64b7dcfee0cabaead938",
+      "https://github.com/advisories/GHSA-8j4r-887v-cjjx"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:27Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-jw2q-x793-gp2m",
+    "cve_id": "CVE-2026-98368",
+    "url": "https://api.github.com/advisories/GHSA-jw2q-x793-gp2m",
+    "html_url": "https://github.com/advisories/GHSA-jw2q-x793-gp2m",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nesp: downgrade zerocopy...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nesp: downgrade zerocopy managed frags before mutating skb frags\n\nOn the out-of-place output path (esp->inplace == false) ESP rewrites the\nskb frag array: esp_output_head() appends a trailer frag and\nesp_output_tail() replaces the frags with a destination page, both\nreferenced with get_page().\n\nWhen the skb carries zerocopy managed frags (SKBFL_MANAGED_FRAG_REFS) the\npayload frags are owned by the ubuf and must not be referenced or\nunreferenced individually, but ESP mutates the frag array without ever\ndowngrading the skb.  This breaks the managed-frag invariant two ways:\n\n  - esp_ssg_unref() walks the source scatterlist and drops a page\n    reference for every frag, including the ubuf-owned payload frags,\n    pushing their refcount below the GUP pin bias while the pages are\n    still pinned, i.e. a use-after-free of the zerocopy pages;\n\n  - esp_output_tail() installs its destination page as frag 0 with\n    get_page() but leaves SKBFL_MANAGED_FRAG_REFS set, so\n    skb_release_data() takes the skip_unref branch and never drops that\n    reference, leaking the x->xfrag page at packet rate.\n\nFix this the way every other frag-mutating site does (__ip_append_data(),\n__ip6_append_data(), tcp_sendmsg_locked()) and call\nskb_zcopy_downgrade_managed() before ESP touches the frag array: it takes\na real reference on each existing frag and clears SKBFL_MANAGED_FRAG_REFS,\nso the per-frag unref in esp_ssg_unref() and the frag release in\nskb_release_data() are both balanced and no mixed-ownership frag array is\nleft behind.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-jw2q-x793-gp2m",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98368",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98368",
+      "https://git.kernel.org/stable/c/0d0845ee61c5df47cc68bc446501f48f71e8dcc6",
+      "https://git.kernel.org/stable/c/2359264f377cdbdef2d95868cc8fb572949e48d3",
+      "https://git.kernel.org/stable/c/6508304ac2c8cdafca2f4ab915df8c707893e134",
+      "https://git.kernel.org/stable/c/69a768c12398cada8528080332c822623fa7064d",
+      "https://git.kernel.org/stable/c/6cab554f2c0f28773f712ed3a5479103f42ce844",
+      "https://git.kernel.org/stable/c/f89416eb3db151170a6f3c6dfc5239d26cdce4d2",
+      "https://github.com/advisories/GHSA-jw2q-x793-gp2m"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:31Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-g85q-82h3-fmh4",
+    "cve_id": "CVE-2026-98351",
+    "url": "https://api.github.com/advisories/GHSA-g85q-82h3-fmh4",
+    "html_url": "https://github.com/advisories/GHSA-g85q-82h3-fmh4",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: virt_wifi: free skb...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: virt_wifi: free skb when disconnected\n\nWhen the simulated link is disconnected, virt_wifi_start_xmit() returns\nNET_XMIT_DROP without freeing the skb. dev_hard_start_xmit() treats this\nreturn value as consumed, so every packet sent while disconnected leaks its\nskb.\n\nFree the skb before returning the drop status.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-g85q-82h3-fmh4",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98351",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98351",
+      "https://git.kernel.org/stable/c/36727a702cf8e3399e3da60d0856378f6afcfb34",
+      "https://git.kernel.org/stable/c/38d3a5df85345f158f78b478b265ca906224454e",
+      "https://git.kernel.org/stable/c/46371442847a725cc0df3697fea2eba1dd54b82b",
+      "https://git.kernel.org/stable/c/4f266738af45675faa0e8afee08c6e780afa8b06",
+      "https://git.kernel.org/stable/c/56469996c10a0240653fc00576b4d33bdfb4cc51",
+      "https://git.kernel.org/stable/c/d177eca79e1106834bc423d3969a4a2e3987996a",
+      "https://git.kernel.org/stable/c/ee053ea35c759135460f03d1c574f4ed08de844a",
+      "https://git.kernel.org/stable/c/f9edf7cf63b96d2b776fca8d258d3c5256e40c8e",
+      "https://github.com/advisories/GHSA-g85q-82h3-fmh4"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:28Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-jfv3-vhc3-4xwh",
+    "cve_id": "CVE-2026-98371",
+    "url": "https://api.github.com/advisories/GHSA-jfv3-vhc3-4xwh",
+    "html_url": "https://github.com/advisories/GHSA-jfv3-vhc3-4xwh",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfrm: iptfs: fix runt...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfrm: iptfs: fix runt reassembly panic from short inner tot_len\n\nWhen the start of an inner packet is split across two outer packets\nsuch that fewer than 4 bytes land at the end of the first one,\n__input_process_payload() saves those bytes as a runt and skips the\niplen/iphlen validation performed for in-place packets. When the\ncontinuation packet arrives, iptfs_reassem_cont() only requires the\ndeclared inner length to be >= sizeof(ra_runt) (6) before allocating\nthe reassembly skb with that attacker-controlled length.\n\nHowever, __iptfs_iphlen() always returns the fixed minimum IP header\nsize (20 for IPv4, 40 for IPv6), so for an inner IPv4 tot_len in\n[6, 19] the header-completion copy writes past the declared packet\nlength, and the subsequent \"ipremain -= copylen\" underflows to ~4GB,\nleaving the payload copy length bounded only by blkoff (up to 64KB).\nAt runtime the skb_put() tailroom check turns this into\nskb_over_panic(), i.e. an unprivileged kernel panic (DoS), reachable\nlocally via userns+netns IPTFS SAs and remotely against IPTFS VPN\ngateways when the decrypted outer skb is linear (e.g. AF_PACKET taps,\ntun/tap delivery).\n\nAlign the runt path with the normal path by requiring the declared\ninner length to cover at least the IP header size. This also subsumes\nthe previous >= sizeof(ra_runt) check, since the minimum IP header\nis always larger than the runt buffer.\n\nThis issue was found by the autokbug dynamic kernel fuzzer at\nTencent Yunding Lab.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-jfv3-vhc3-4xwh",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98371",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98371",
+      "https://git.kernel.org/stable/c/5b8afb56ccb7c014b0f1ac40341708b200443c2d",
+      "https://git.kernel.org/stable/c/a7018ee0ea8622ed59edc064be4e0f2c26464f53",
+      "https://git.kernel.org/stable/c/dc33262be1fe43d0eb0b84fb58c6ed42e2f64a8c",
+      "https://github.com/advisories/GHSA-jfv3-vhc3-4xwh"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:31Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-qcc9-56m7-mpxg",
+    "cve_id": "CVE-2026-98364",
+    "url": "https://api.github.com/advisories/GHSA-qcc9-56m7-mpxg",
+    "html_url": "https://github.com/advisories/GHSA-qcc9-56m7-mpxg",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfrm: hold net_device...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfrm: hold net_device reference under RCU in bundle creation\n\nxfrm_bundle_create() and xfrm_create_dummy_bundle() read dst->dev into\na local pointer without taking a device reference, then pass it to\nxfrm_fill_dst(). A concurrent RTM_DELLINK replaces dst->dev via\ndst_dev_put() and frees the old net_device, causing a use-after-free\nwhen xfrm6_fill_dst() later dereferences the stale dev pointer.\n\n  BUG: KASAN: slab-use-after-free in xfrm6_fill_dst+0x82c/0x860\n  (net/ipv6/xfrm6_policy.c:86 netdev_hold())\n  Read of size 8 at addr ffff8880142fe588 by task exploit/153\n  Call Trace:\n   xfrm6_fill_dst+0x82c/0x860\n   xfrm_resolve_and_create_bundle+0x21d4/0x2bd0\n   xfrm_lookup_with_ifid+0x485/0x1640\n   ip6_dst_lookup_flow+0x19b/0x1e0\n   udpv6_sendmsg+0x1443/0x2dd0\n\nFix this by reading dst->dev via dst_dev_rcu() and keeping the RCU\nread-side critical section active until xfrm_fill_dst() has taken the\nrequired device references.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-qcc9-56m7-mpxg",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98364",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98364",
+      "https://git.kernel.org/stable/c/8d85d6bc9c46dc41cb2be0eac53f8ab068c3a807",
+      "https://git.kernel.org/stable/c/9fa903b24b1f46b4ff5443bcd4aca23e5c57f9c1",
+      "https://github.com/advisories/GHSA-qcc9-56m7-mpxg"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:30Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-q823-95hw-ffc6",
+    "cve_id": "CVE-2026-98354",
+    "url": "https://api.github.com/advisories/GHSA-q823-95hw-ffc6",
+    "html_url": "https://github.com/advisories/GHSA-q823-95hw-ffc6",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/mad: Fix receive buffer...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/mad: Fix receive buffer leak when PKey enforcement fails\n\nib_mad_complete_recv() initializes mad_recv_wc->rmpp_list and then runs\nib_mad_enforce_security() before linking recv_buf onto that list.  On\nfailure it calls ib_free_recv_mad(), which only walks rmpp_list and frees\nthe ib_mad_private of every buffer found there.  As the list is still\nempty at that point, nothing is freed at all.\n\nThe caller cannot clean up either: ib_mad_recv_done() sets recv to NULL\nright after ib_mad_complete_recv() returns, assuming the MAD layer took\nownership of the buffer.  Every MAD that fails the PKey check therefore\nleaks one ib_mad_private (about 300 bytes per IB port MAD, ~2K for OPA),\nand a remote node can trigger this repeatedly by sending MADs with a\nwrong PKey.\n\nLink recv_buf onto rmpp_list right after the list is initialized, so the\nerror path has something to free.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-q823-95hw-ffc6",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98354",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98354",
+      "https://git.kernel.org/stable/c/3476c28c9addfa253f505e6bd87f1f5598b961d0",
+      "https://git.kernel.org/stable/c/39c4ea72a40503e102ae07e6776005f96ca078a6",
+      "https://git.kernel.org/stable/c/4617c9a856188674dddb0ca66979746d07688579",
+      "https://git.kernel.org/stable/c/5091e25ec503f7fc02723ca435226467b68caac7",
+      "https://git.kernel.org/stable/c/752b30e9d339008e5ce7eed412e9446078916129",
+      "https://git.kernel.org/stable/c/8e2036fb47a5b152d53eadbd35abf311bd34cc7f",
+      "https://git.kernel.org/stable/c/bad289e42f512646a988f278f536d21547df73f1",
+      "https://git.kernel.org/stable/c/c0d8df85db146d6275e226cb950023be69dd6c77",
+      "https://github.com/advisories/GHSA-q823-95hw-ffc6"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:28Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-2mrf-76x9-2x42",
+    "cve_id": "CVE-2026-98360",
+    "url": "https://api.github.com/advisories/GHSA-2mrf-76x9-2x42",
+    "html_url": "https://github.com/advisories/GHSA-2mrf-76x9-2x42",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/rxe: insert mcg into...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/rxe: insert mcg into mcg_tree only after rxe_mcast_add() succeeds\n\nrxe_get_mcg() publishes a newly allocated multicast group in\nrxe->mcg_tree before programming the backing Ethernet multicast address\nwith rxe_mcast_add(), which runs outside mcg_lock. A local userspace\nRDMA client reaches this path with ATTACH_MCAST on a UD QP; if\nrxe_mcast_add() then returns an error (for example -ENODEV when the\nbacking netdev has been removed, or a propagated dev_mc_add() error),\nthe unwind frees the published group without removing it from the tree.\nA later lookup of the same MGID dereferences the freed struct rxe_mcg\nfrom __rxe_lookup_mcg().\n\nFix this by keeping the new mcg private until rxe_mcast_add() succeeds.\nSplit the tree publication into __rxe_publish_mcg(), call rxe_mcast_add()\nbefore taking the tree reference, and free the still-private mcg on\nfailure. Because the group is never visible in mcg_tree until the\nmulticast address is programmed, no concurrent caller can look it up or\nattach a QP to a group that is about to be torn down, so the error path\nneeds no conditional unwind. If another caller publishes the same MGID\nwhile the address is being programmed, the post-add re-check under\nmcg_lock finds the winner; this caller then drops its private object and\nbalances its own rxe_mcast_add() with rxe_mcast_del() before returning\nthe winner.\n\nReproduced by forcing the rxe_mcast_add() error return under KASAN:\nwithout the change the next attach to the same MGID reports a\nslab-use-after-free in __rxe_lookup_mcg(); with it the forced failure\nreturns cleanly. A no-injection attach/detach regression, including a\ntwo-QP shared join/leave and re-attach, stays KASAN- and leak-clean.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-2mrf-76x9-2x42",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98360",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98360",
+      "https://git.kernel.org/stable/c/02c0a2fa69c16248a7432af8a6d64ab2a73a5283",
+      "https://git.kernel.org/stable/c/1caceeb2d74bbe88223aea55eb8626b4c5f076fd",
+      "https://git.kernel.org/stable/c/c79a789aa15180a1543b5db49c343d12e3ec214d",
+      "https://git.kernel.org/stable/c/d4fc4e37f8a143b0fe83b42c8fb48cf542154fee",
+      "https://git.kernel.org/stable/c/ddb43ac0926d4a931bc9b7744b93627f627457e5",
+      "https://git.kernel.org/stable/c/faae1fb4ccf8205806a8802c008798dabeb0205b",
+      "https://github.com/advisories/GHSA-2mrf-76x9-2x42"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:29Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-j7rh-wqhv-hc9p",
+    "cve_id": "CVE-2026-98369",
+    "url": "https://api.github.com/advisories/GHSA-j7rh-wqhv-hc9p",
+    "html_url": "https://github.com/advisories/GHSA-j7rh-wqhv-hc9p",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfrm: add missing...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nxfrm: add missing rcu_read_lock(), skb_dst_force() and dev_hold() for xfrm_trans_reinject()\n\nsyzbot reported a suspicious RCU usage warning in ip6_pkt_drop():\n\n  WARNING: suspicious RCU usage in ip6_pkt_drop\n  include/net/addrconf.h:389 suspicious rcu_dereference_check() usage!\n\n  Call Trace:\n   __in6_dev_get_safely include/net/addrconf.h:389 [inline]\n   ip6_pkt_drop+0x596/0x610 net/ipv6/route.c:4620\n   ip6_pkt_discard+0x1c/0x30 net/ipv6/route.c:4651\n   xfrm_trans_reinject+0x324/0x630 net/xfrm/xfrm_input.c:806\n   process_one_work kernel/workqueue.c:3322 [inline]\n   process_scheduled_works+0xa8e/0x14e0 kernel/workqueue.c:3405\n   worker_thread+0xa47/0xfb0 kernel/workqueue.c:3486\n\nWhen commit 4f4920669d21 (\"xfrm: Reinject transport-mode packets through\nworkqueue\") converted xfrm_trans_reinject from a tasklet to a workqueue,\nthe reinjection loop ceased running in softirq context. Workqueue workers\nrun in process context where local_bh_disable() does not enter an RCU\nread-side critical section under CONFIG_PREEMPT_RCU.\n\nBecause finish callbacks (such as ip6_rcv_finish) expect to run under an\nRCU read lock (performing route lookups, l3mdev lookups, and accessing\nRCU-protected data structures), invoking them in workqueue context without\nrcu_read_lock() triggers RCU lockdep warnings.\n\nFurthermore, packets queued to the workqueue via xfrm_trans_queue_net()\nmay carry non-refcounted (noref) dst entries (e.g. from ip_route_input_noref).\nAdditionally, on netdevice unregistration, dst_dev_put() replaces dst->dev\nwith blackhole_netdev, so dst entries do not keep skb->dev alive while\nqueued in the workqueue.\n\nFix these issues by:\n1. Calling skb_dst_force(skb) in xfrm_trans_queue_net() while still in the\n   caller's RCU section to ensure dst is reference-counted before queuing.\n2. Holding a reference on skb->dev via dev_hold()/dev_put() across workqueue\n   deferral so skb->dev remains valid during finish() callback processing.\n3. Acquiring rcu_read_lock() around the finish callback invocation loop in\n   xfrm_trans_reinject().",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-j7rh-wqhv-hc9p",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98369",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98369",
+      "https://git.kernel.org/stable/c/0cda8273265d30cac6423834fd7d4acb75f04fdb",
+      "https://git.kernel.org/stable/c/41e47f1664be86c91326f0afe0504a1162d00907",
+      "https://git.kernel.org/stable/c/6601d91a85761f33351c71e04ec0bbd294ca07ce",
+      "https://git.kernel.org/stable/c/664fc0941df7c1918b2cd4de6ee00469ba77d8e4",
+      "https://git.kernel.org/stable/c/68a317b4aec8ca1868a39d69e40f9e29baa4f40a",
+      "https://git.kernel.org/stable/c/6eb3b071be8e260543c604550c54dac66e6b174b",
+      "https://git.kernel.org/stable/c/d2f5082f9e84653fa1a9e8aebaaff23e688f5e19",
+      "https://github.com/advisories/GHSA-j7rh-wqhv-hc9p"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:31Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-fhcv-jhv5-h3gg",
+    "cve_id": "CVE-2026-98359",
+    "url": "https://api.github.com/advisories/GHSA-fhcv-jhv5-h3gg",
+    "html_url": "https://github.com/advisories/GHSA-fhcv-jhv5-h3gg",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/core: Reject...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/core: Reject unregistering netdevs in ib_get_eth_speed\n\nib_device_get_netdev() intentionally returns a referenced net_device even\nwhen it is unregistering, so matching and cleanup callers can still find\nthe association. The reference keeps struct net_device allocated, but does\nnot guarantee that the device remains operational.\n\nib_get_eth_speed() uses the returned device operationally by invoking its\nethtool callback. Although that call is made under RTNL, the function does\nnot verify the registration state first. An asynchronous RDMA port query\ncan therefore call into a netdev after NETDEV_UNREGISTER and ndo_uninit\nhave completed.\n\nCheck for NETREG_REGISTERED while holding RTNL and return -ENODEV for a\ndevice which is being unregistered. Keeping RTNL across the check and the\nethtool operation prevents unregister from starting between them.\n\nKeep the speed fallback and warning under RTNL as well, so the warning can\nsafely read netdev->name. Drop the netdev reference before releasing RTNL\nonce all accesses to the device are complete.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-fhcv-jhv5-h3gg",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98359",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98359",
+      "https://git.kernel.org/stable/c/45c60ffc79771bad154f224a05753191cf1b37bc",
+      "https://git.kernel.org/stable/c/520cd057f138ed8dbe8e05f0eae3a8ed4c5d3a5e",
+      "https://git.kernel.org/stable/c/5bd42f74ec3b4f4687fb600f367af0828d513b3c",
+      "https://git.kernel.org/stable/c/a219459fbd1b2598e63c81a52847eba6c28b72d2",
+      "https://git.kernel.org/stable/c/be4b44c8b47c67a04c08b1a0aba18006b749ae6a",
+      "https://git.kernel.org/stable/c/ef9fbe1b93f3b617b96e86d5cd76b3fa44514cb5",
+      "https://github.com/advisories/GHSA-fhcv-jhv5-h3gg"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:29Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-g3wm-757g-9p35",
+    "cve_id": "CVE-2026-98361",
+    "url": "https://api.github.com/advisories/GHSA-g3wm-757g-9p35",
+    "html_url": "https://github.com/advisories/GHSA-g3wm-757g-9p35",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/rxe: Restore...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/rxe: Restore HMM_PFN_WRITE check in ODP write paths\n\nCommit 0b261d7c1cd3 (\"RDMA/rxe: Break endless pagefault loop for RO\npages\") dropped the access permission test from rxe_check_pagefault()\nand left only HMM_PFN_VALID. A page faulted in read-only, for example\na page-cache folio behind a PROT_READ file mapping, then satisfies the\ncheck and ODP write operations (RDMA WRITE, RDMA READ response, SEND\npayload, atomics) modify it through kmap without ever breaking CoW.\n\nAn unprivileged user can register an ODP MR over such a mapping and\nhave incoming RDMA traffic overwrite the page cache of a file it only\nholds O_RDONLY, including /etc/passwd or setuid binaries. This is the\nsame primitive class as Dirty COW and CVE-2022-2590.\n\nmlx5 has the missing invariant: its ODP path sets the device write bit\nonly for pfns that carry HMM_PFN_WRITE. Restore it in rxe by requiring\nHMM_PFN_WRITE in rxe_check_pagefault() for every operation except\nRXE_PAGEFAULT_RDONLY. A write to a non-writable VMA now fails the one\nfault attempt with -EPERM from hmm_vma_fault() instead of re-faulting\nforever. For a writable VMA the fault breaks CoW and the write lands\nin the private page.\n\nKeep pmem flushes on the read-only check. arch_wb_cache_pmem() never\nmodifies memory, and the FLUSH access bits do not make the umem\nwritable, so classifying flushes as writes would make every flush\nagainst a flush-only MR fail.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-g3wm-757g-9p35",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98361",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98361",
+      "https://git.kernel.org/stable/c/2d6c6f94d3e1cde049fe5db71dbd5549f10b2de1",
+      "https://git.kernel.org/stable/c/769001ce838d907ecaa95f1d0a4e8fc86f761f9f",
+      "https://git.kernel.org/stable/c/c6f56982ec5c7da83c4bdfcce3b6db18bcfe6425",
+      "https://github.com/advisories/GHSA-g3wm-757g-9p35"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:42Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:29Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-pp5x-p5cv-w76c",
+    "cve_id": "CVE-2026-98349",
+    "url": "https://api.github.com/advisories/GHSA-pp5x-p5cv-w76c",
+    "html_url": "https://github.com/advisories/GHSA-pp5x-p5cv-w76c",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: libipw: reject too...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: libipw: reject too-short beacon and probe responses\n\nlibipw_process_probe_response() and the libipw_network_init() call it\nmakes assume the frame contains the full 36-byte beacon and probe\nresponse prefix, but the ipw2100 and ipw2200 receive paths only\nestablish that a management frame carries the generic 24-byte\nthree-address header.\n\nlibipw_network_init() then computes the information element length as\n\n\tstats->len - sizeof(*beacon)\n\nstats->len is a u16 and sizeof() has type size_t, so the subtraction is\nevaluated as size_t and wraps instead of going negative.  Truncating\nthat to the u16 length parameter of libipw_parse_info_param() yields\n65524 for a 24-byte beacon, and the parser then walks the receive\nbuffer as if it held almost 64 KiB of information elements, reading\npast the allocation.\n\nReject the frame before any fixed field is touched.\n\nFound by an AI-assisted review of length arithmetic in management frame\nparsers.  Verified with a KUnit case under Generic KASAN on arm64 under\nQEMU; I do not have the hardware, so it is not tested on a real device.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-pp5x-p5cv-w76c",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98349",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98349",
+      "https://git.kernel.org/stable/c/14ae269c1306053ddf1ccf37c4bd66e085a652d1",
+      "https://git.kernel.org/stable/c/19959fb60228f6dccc40d55507f8b1a751c2dc89",
+      "https://git.kernel.org/stable/c/23afeb5d2bdfd34c8a0a661876291a4fa9978293",
+      "https://git.kernel.org/stable/c/2c87bbc00dc93149d1dc4f803ad92d92e4ef3758",
+      "https://git.kernel.org/stable/c/5ce5721e8cbe3e80db8f43851cc2a2a92485ef4b",
+      "https://git.kernel.org/stable/c/89959ff00a978f3172726d3d5f861ee6f1aae26d",
+      "https://git.kernel.org/stable/c/cee6f141b3bebe62eb0363fd147acb52023935f0",
+      "https://git.kernel.org/stable/c/ff756e6647722b7d225d882f7bdb186d8eee318e",
+      "https://github.com/advisories/GHSA-pp5x-p5cv-w76c"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:42Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:28Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-qh4j-6f7w-8997",
+    "cve_id": "CVE-2026-98352",
+    "url": "https://api.github.com/advisories/GHSA-qh4j-6f7w-8997",
+    "html_url": "https://github.com/advisories/GHSA-qh4j-6f7w-8997",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/rtrs-clt: Fix CQ pool...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/rtrs-clt: Fix CQ pool leak when connect is interrupted\n\nThe client borrows shared CQ credits in the ADDR_RESOLVED handler via\nib_cq_pool_get(), before the peer is connected. create_cm() can return\n-ERESTARTSYS from wait_event_interruptible_timeout() without destroying\nthe CM ID. The init_conns() and stop-and-destroy paths then call\ndestroy_con_cq_qp() while cq is still NULL (no PUT) and only afterwards\nrdma_destroy_id().\n\nCMA serializes the handler against rdma_destroy_id() with handler_mutex,\nbut that does not order the GET against destroy_con_cq_qp(). If\nADDR_RESOLVED has already passed the DESTROYING check, it can take\ncon_mutex, GET credits, and then lose the con to kfree. Device\nunregister later hits WARN_ON(cq->cqe_used) in ib_cq_pool_cleanup().\n\nSet a per-connection flag under con_mutex before CQ/QP teardown so a\nracing ADDR_RESOLVED cannot borrow credits after teardown has begun.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-qh4j-6f7w-8997",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98352",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98352",
+      "https://git.kernel.org/stable/c/2ae16aaa78b5edc6e6d0904c84fd9cdfb762bcda",
+      "https://git.kernel.org/stable/c/31024e158b45358370a0a14ed96589e6aa62d6cb",
+      "https://git.kernel.org/stable/c/6f8020fe7465f49e234a576c04e415e9d08c7878",
+      "https://git.kernel.org/stable/c/74c4ed55e61f1b65ddbebc5b635d136461a1c3da",
+      "https://git.kernel.org/stable/c/8f253d5893f991742464b9e7203c43fc08d0aa11",
+      "https://git.kernel.org/stable/c/a82cca40139d9fcae8208901856bd5bb4051f097",
+      "https://git.kernel.org/stable/c/bf88ac4867050112a6c819c8d1a7209bf48ef427",
+      "https://github.com/advisories/GHSA-qh4j-6f7w-8997"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:42Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:28Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-g4c2-fm3r-x4gh",
+    "cve_id": "CVE-2026-98344",
+    "url": "https://api.github.com/advisories/GHSA-g4c2-fm3r-x4gh",
+    "html_url": "https://github.com/advisories/GHSA-g4c2-fm3r-x4gh",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\ndmaengine: Fix device kref...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndmaengine: Fix device kref underflow in dma_chan_put()\n\ndma_chan_get() takes chan->device->ref only on the slow path:\n\n\t/* no kref on fast path */\n\tif (chan->client_count) {\n\t\t__module_get(owner);\n\t\tchan->client_count++;\n\t\treturn 0;\n\t}\n\tif (!try_module_get(owner))\n\t\treturn -ENODEV;\n\tif (!dma_device_get(chan->device)) { // calls kref_get_unless_zero()\n\ndma_chan_put() drops the ref unconditionally, so every fast-path\nget/put pair drops one extra device reference.\n\nThe bug fires when two conditions hold together: a non-private\nprovider has a persistent client holding chan->client_count > 0\nand another client cycles dmaengine_get()/dmaengine_put().\nWhen the kref hits zero, the subsequent dma_find_channel() returns\nNULL even though the provider module is still loaded.\n\nFix this by dropping device->ref only on the last put, matching the\nsingle slow-path get.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-g4c2-fm3r-x4gh",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98344",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98344",
+      "https://git.kernel.org/stable/c/036b527f92570206da4b8c40b38f8d689e29d0f3",
+      "https://git.kernel.org/stable/c/1a0d9b406febf23054ad595fd47b29325e70fb2d",
+      "https://git.kernel.org/stable/c/44dab659064eb5c10adb0306510eebe848ed592d",
+      "https://git.kernel.org/stable/c/57f7f1c6827be7d8f80feca48d2125fb91c6f6ed",
+      "https://git.kernel.org/stable/c/5fb1797a8c9485e40e5492fa0338ab5c7d1f3fef",
+      "https://git.kernel.org/stable/c/77906ac448d2fa81fa710ae26c0e591ebdc81154",
+      "https://git.kernel.org/stable/c/7c3f4ce651d43705f9ec7f778f642a90d5ff4fba",
+      "https://git.kernel.org/stable/c/de2677e57d3161390d8a508f08cddec6ef7e4b23",
+      "https://github.com/advisories/GHSA-g4c2-fm3r-x4gh"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:42Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:27Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-9ccg-hmmr-m95r",
+    "cve_id": "CVE-2026-98356",
+    "url": "https://api.github.com/advisories/GHSA-9ccg-hmmr-m95r",
+    "html_url": "https://github.com/advisories/GHSA-9ccg-hmmr-m95r",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/bnxt_re: check...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/bnxt_re: check create_singlethread_workqueue() in DCB setup\n\nbnxt_re_init_dcb_wq() ignores a failed allocation. The async DCB\nhandler later calls queue_work() on the NULL pointer.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-9ccg-hmmr-m95r",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98356",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98356",
+      "https://git.kernel.org/stable/c/6c368f7baaea63c1c7c28c6df271511f2a1562c9",
+      "https://git.kernel.org/stable/c/727bbda37d9758960c346546004eea4ad49242e1",
+      "https://git.kernel.org/stable/c/a0fb2007d00b440fd1adddd9b042f01744ed0efc",
+      "https://github.com/advisories/GHSA-9ccg-hmmr-m95r"
+    ],
+    "published_at": "2026-10-06T09:31:36Z",
+    "updated_at": "2026-10-06T09:31:42Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:29Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-jvjw-jpr2-5gjp",
+    "cve_id": "CVE-2026-98342",
+    "url": "https://api.github.com/advisories/GHSA-jvjw-jpr2-5gjp",
+    "html_url": "https://github.com/advisories/GHSA-jvjw-jpr2-5gjp",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\ndmaengine: wait for RCU...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\ndmaengine: wait for RCU readers before releasing dma_device\n\ndma_issue_pending_all() walks the dma_device_list with\nlist_for_each_entry_rcu() under rcu_read_lock(). dma_device_release()\nunlinks the device with list_del_rcu() and then calls\ndevice->device_release() (which in many drivers, such as plx_dma.c,\ndirectly calls kfree()).\n\nBecause there is no grace period between unlinking the device and\nfreeing it, concurrent RCU readers in dma_issue_pending_all() can\naccess the device after it has been freed.\n\nThe lockless walk originally relied on clients holding a dmaengine\nreference to pin the provider module, and therefore the device, for as\nlong as they might traverse the list. Commit 8ad342a86359 (\"dmaengine:\nAdd reference counting to dma_device struct\") decoupled the dma_device\nlifetime from the module reference, so the device can now be released\nwhile a reader is still walking the list.\n\nAdd synchronize_rcu() before the device is freed, so RCU readers are\nguaranteed to have finished. Keep it unconditional: providers that do\nnot implement device_release() free the device themselves once\ndma_async_device_unregister() returns. This call will delay for a grace\nperiod with dma_list_mutex held, which is safe and only teardown path is\ndelayed.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-jvjw-jpr2-5gjp",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98342",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98342",
+      "https://git.kernel.org/stable/c/14578c78405d51fa92e4ada4502a45f537c0fcb8",
+      "https://git.kernel.org/stable/c/4448a539a0c39141cccc67be6cacde0f35024313",
+      "https://git.kernel.org/stable/c/4aed7e47a10b94ea3c5171e8d1382081accd2e03",
+      "https://git.kernel.org/stable/c/8577a5ec4f7e00443015ef99f646def093121a1b",
+      "https://git.kernel.org/stable/c/ac8ce9f89638d6d79875cca7d8ae42566a9bde15",
+      "https://git.kernel.org/stable/c/cbb3310a5167e868a5e763e32b9a23b4d50669ee",
+      "https://git.kernel.org/stable/c/dc750422170a563c7a81f6e49d36bb02c62ae37f",
+      "https://git.kernel.org/stable/c/fc1f4884f1d46fc7a8cee6e2997ecc9e8d1c7f77",
+      "https://github.com/advisories/GHSA-jvjw-jpr2-5gjp"
+    ],
+    "published_at": "2026-10-06T09:31:35Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:27Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-84vw-9582-fhpx",
+    "cve_id": "CVE-2026-98340",
+    "url": "https://api.github.com/advisories/GHSA-84vw-9582-fhpx",
+    "html_url": "https://github.com/advisories/GHSA-84vw-9582-fhpx",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: cfg80211: only group...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: cfg80211: only group hidden BSSes with beacon entries\n\nWhen a probe response for an unknown BSS comes in, __cfg80211_bss_update()\nlooks for an existing entry with the same BSSID and a hidden (zero-length\nor NUL-filled) SSID, and if it finds one it groups them, using the beacon\nIEs from the existing entry.\n\nBut that could find another entry without a beacon, if it was also from a\nprobe response (with SSID), so there's a group without beacon elements.\n\nIf a beacon with a hidden SSID for that BSSID arrives later,\ncfg80211_combine_bsses() goes looking for the probe response entries that\nbelong to it - i.e. entries with the same BSSID and channel that have no\nbeacon IEs - and finds those two. They are already grouped with each\nother, so it hits its\n\n  WARN_ON_ONCE(bss->pub.hidden_beacon_bss)\n  WARN_ON_ONCE(!list_empty(&bss->hidden_list))\n\nwhich are there because an entry without beacon elements is not supposed\nto be part of a group yet.\n\nOnly combine entries when a beacon was already received, ones that are\nkept separate will be combined when a beacon arrives.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-84vw-9582-fhpx",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98340",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98340",
+      "https://git.kernel.org/stable/c/068843ed0902c552a13860c5ec6b2ca65b57a065",
+      "https://git.kernel.org/stable/c/332ea1502c46f53375cb109fa82bfaff818f3a41",
+      "https://git.kernel.org/stable/c/3658093df69849daf4f813a8f087f358e13be203",
+      "https://git.kernel.org/stable/c/4cd6a518ce7527284bbc9baab5fa2453a7d477c2",
+      "https://git.kernel.org/stable/c/73365b81630b57e1a1f9d50dc87281797855c2ac",
+      "https://git.kernel.org/stable/c/7405dd19bda4537a2843637d8d7bed1efd4776cf",
+      "https://git.kernel.org/stable/c/74ed0d992f392c75e1969415527e06df3f7a4034",
+      "https://git.kernel.org/stable/c/86235be788094131912e9bd8412b358d91d99f49",
+      "https://github.com/advisories/GHSA-84vw-9582-fhpx"
+    ],
+    "published_at": "2026-10-06T09:31:35Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:26Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-w8vc-67qx-3qw3",
+    "cve_id": "CVE-2026-98355",
+    "url": "https://api.github.com/advisories/GHSA-w8vc-67qx-3qw3",
+    "html_url": "https://github.com/advisories/GHSA-w8vc-67qx-3qw3",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/rtrs: guard against...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/rtrs: guard against null kobj name\n\nIn the client, if `init_path()` errors, the callee tries to clean up\nwith `rtrs_clt_close_conns()`. However, this can lead to calling the\nevent tracing code with `clt_path->kobj->name` being `NULL` and thus\ncausing a null pointer dereference when trying to copy from it.\n\nThis just adds a guard to check that the name is not `NULL` before\ncopying from it. The server appears to have a similar pattern.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-w8vc-67qx-3qw3",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98355",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98355",
+      "https://git.kernel.org/stable/c/99c24a8968ebef0573825b5cb89d5985d51635b9",
+      "https://git.kernel.org/stable/c/f79cf42ff23f9120246cd6740eaa26f59c632a4a",
+      "https://github.com/advisories/GHSA-w8vc-67qx-3qw3"
+    ],
+    "published_at": "2026-10-06T09:31:35Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:29Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-c26j-r98f-9j66",
+    "cve_id": "CVE-2026-98353",
+    "url": "https://api.github.com/advisories/GHSA-c26j-r98f-9j66",
+    "html_url": "https://github.com/advisories/GHSA-c26j-r98f-9j66",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/erdma: Use IRQ-safe...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nRDMA/erdma: Use IRQ-safe XArray helpers for QP and CQ tables\n\nLocked QP and CQ lookups from EQ interrupts can deadlock with\ncreate-path XArray updates. If an interrupt arrives while the create\npath holds the plain xa_lock, the lookup spins forever trying to\nacquire the same lock.\n\nUse IRQ-safe XArray helpers for all QP and CQ create-path updates,\nincluding the GSI QP store and error paths. Initialize both arrays with\nXA_FLAGS_LOCK_IRQ so sleeping allocations preserve interrupt state.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-c26j-r98f-9j66",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98353",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98353",
+      "https://git.kernel.org/stable/c/00baeade709fb66da647e8327e8398bb532e30f7",
+      "https://git.kernel.org/stable/c/74d4085221a7ec5440996af199ccadfa75b9eb0e",
+      "https://github.com/advisories/GHSA-c26j-r98f-9j66"
+    ],
+    "published_at": "2026-10-06T09:31:35Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:28Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-7rm7-mf5x-673x",
+    "cve_id": "CVE-2026-98320",
+    "url": "https://api.github.com/advisories/GHSA-7rm7-mf5x-673x",
+    "html_url": "https://github.com/advisories/GHSA-7rm7-mf5x-673x",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: flowtable: hold...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: flowtable: hold reference on ct until flow is released\n\nnf_ct_put() releases the ct->ext area inmediately, the rcu typesafe\nsemantics also allow to refer to the wrong conntrack from the flowtable\ndatapath. Hold reference on ct until flow is released after rcu grace\nperiod.\n\nAdd rcu_barrier() on module exit path, to ensure pending flow entries\nare release before module goes away.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-7rm7-mf5x-673x",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98320",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98320",
+      "https://git.kernel.org/stable/c/12c1ac230f4ca16e0017b62a963ab75e0b48074f",
+      "https://git.kernel.org/stable/c/61c6688be282277c6e91ab286a7acd0ae8681ac6",
+      "https://git.kernel.org/stable/c/8274cdc5f9c57e17ed77fc4ba76212536c840f25",
+      "https://git.kernel.org/stable/c/93ff1594be1aad4da364462dd8db050ebcfda2de",
+      "https://git.kernel.org/stable/c/a43cd2b67b91e943273c913237a7a88c50cdcfbc",
+      "https://git.kernel.org/stable/c/d9e6175a3ee48209ee65f294fc567b4e16b29b74",
+      "https://git.kernel.org/stable/c/e75a9fa1d44bcbd66ea02e8781bcca6ea4076e0d",
+      "https://git.kernel.org/stable/c/eed6997e8dc40593a539fcc722e7ed51b18db86c",
+      "https://github.com/advisories/GHSA-7rm7-mf5x-673x"
+    ],
+    "published_at": "2026-10-06T09:31:35Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:23Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-jch8-34rh-p8cm",
+    "cve_id": "CVE-2026-98348",
+    "url": "https://api.github.com/advisories/GHSA-jch8-34rh-p8cm",
+    "html_url": "https://github.com/advisories/GHSA-jch8-34rh-p8cm",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: libipw: reject too...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: libipw: reject too-short association responses\n\nlibipw_handle_assoc_resp() reads the capability, status and aid fields\nof the 30-byte association response prefix and then computes the\ninformation element length as\n\n\tstats->len - sizeof(*frame)\n\nstats->len is a u16 and sizeof() has type size_t, so the subtraction is\nevaluated as size_t and wraps instead of going negative.  Truncating\nthat to the u16 length parameter of libipw_parse_info_param() turns a\nframe shorter than the fixed fields into a length near 64 KiB, and the\nparser then reads past the receive buffer.\n\nBoth the ipw2100 and ipw2200 management receive paths reach this\nfunction having established only that the frame carries the generic\n24-byte three-address header.\n\nReject the frame before any fixed field is touched.\n\nFound by an AI-assisted review of length arithmetic in management frame\nparsers.  Verified with a KUnit case under Generic KASAN on arm64 under\nQEMU; I do not have the hardware, so it is not tested on a real device.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-jch8-34rh-p8cm",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98348",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98348",
+      "https://git.kernel.org/stable/c/14cb425ba1f3a5d849e3bbc3d02d84e0ae195dbb",
+      "https://git.kernel.org/stable/c/400b89217058fac672134a0d4092c8493dadb8ad",
+      "https://git.kernel.org/stable/c/46aa75291056b6dc5faaf956dffdb3e9662477b0",
+      "https://git.kernel.org/stable/c/766268b429ae26d8ca599031fa962b0fe4673120",
+      "https://git.kernel.org/stable/c/adb7118b7d2cfd7e8213c17d7d2829f353017754",
+      "https://git.kernel.org/stable/c/af1b69be19c34e28c0ae54bee954b58cd076969a",
+      "https://git.kernel.org/stable/c/d70bdb84cf1782039384c1ffa7a18b0303c286a7",
+      "https://git.kernel.org/stable/c/e3025ecdb2057f866c09e059fc1466e81d6f243e",
+      "https://github.com/advisories/GHSA-jch8-34rh-p8cm"
+    ],
+    "published_at": "2026-10-06T09:31:35Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:27Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-c6xm-v6x8-64wh",
+    "cve_id": "CVE-2026-98350",
+    "url": "https://api.github.com/advisories/GHSA-c6xm-v6x8-64wh",
+    "html_url": "https://github.com/advisories/GHSA-c6xm-v6x8-64wh",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: brcmfmac: cyw: pass...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: brcmfmac: cyw: pass PMKID to firmware if present\n\nZero out auth_status on initialization. Otherwise, garbage will\nleak from the stack to the firmware (when ssid is less than 32 bytes\nand/or when params->pmkid is set). Then, pass the params->pmkid to the\nfirmware (without it, the firmware caches a garbage PMKID on successful\nauthentication and denies a subsequent association request that includes\nthe PMKID).",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-c6xm-v6x8-64wh",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98350",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98350",
+      "https://git.kernel.org/stable/c/6fba6233e9ca7718661e53555a3961c58772c21a",
+      "https://git.kernel.org/stable/c/c2cf589c7d546557ed60c43f2ec014279265dfbf",
+      "https://git.kernel.org/stable/c/e2de8d5eb2984416affdd9559e55f37c7f1bbf47",
+      "https://github.com/advisories/GHSA-c6xm-v6x8-64wh"
+    ],
+    "published_at": "2026-10-06T09:31:35Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:28Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-3mpf-hfgc-g8p2",
+    "cve_id": "CVE-2026-98322",
+    "url": "https://api.github.com/advisories/GHSA-3mpf-hfgc-g8p2",
+    "html_url": "https://github.com/advisories/GHSA-3mpf-hfgc-g8p2",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: nft_nat: fully...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nnetfilter: nft_nat: fully initialise new_addr in netmap setup\n\nnft_nat_setup_netmap() builds the mapped address in an on-stack\nunion nf_inet_addr. For an IPv4 mapping it writes only the 4-byte .ip\nmember and the loop runs a single 32-bit iteration, but it then copies\nthe whole 16-byte union into range->min_addr and range->max_addr, so the\nupper 12 bytes reach nf_nat_setup_info() uninitialised.\n\nKMSAN reports an uninit-value in nf_nat_setup_info() reached from\nnft_nat_eval(). The IPv6 path fills all 16 bytes and is not affected.\n\nZero-initialise new_addr.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-3mpf-hfgc-g8p2",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98322",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98322",
+      "https://git.kernel.org/stable/c/0ce42c7b84032335abff9eac43762e4ca8224451",
+      "https://git.kernel.org/stable/c/161f5860c92a8ec80b6bdff16e79d70dcd8afc5a",
+      "https://git.kernel.org/stable/c/1c43f5db482f74b41987c39c9c375a5e767556eb",
+      "https://git.kernel.org/stable/c/29365695842db0a97b701a43a09fad1b4f7ecf3e",
+      "https://git.kernel.org/stable/c/7b9380c38c2fd2189416fa602bdbc5c8523b84b2",
+      "https://git.kernel.org/stable/c/d313499df66159b4b7971d760d16729598ab7e5a",
+      "https://git.kernel.org/stable/c/e4982c489ee359162eee3ece1fb36082648464a5",
+      "https://git.kernel.org/stable/c/eb2030137dba3b59cbb5057a33af70488d6bc231",
+      "https://github.com/advisories/GHSA-3mpf-hfgc-g8p2"
+    ],
+    "published_at": "2026-10-06T09:31:35Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:24Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-36pm-6m6w-jv8x",
+    "cve_id": "CVE-2026-98346",
+    "url": "https://api.github.com/advisories/GHSA-36pm-6m6w-jv8x",
+    "html_url": "https://github.com/advisories/GHSA-36pm-6m6w-jv8x",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: cfg80211: don't get...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: cfg80211: don't get the radio mask for netdev-less wdevs\n\ncfg80211_calculate_bi_data() calls rdev_get_radio_mask() with\nwdev->netdev, which can be NULL and then crashes in mac80211.\n\nTo avoid that, invert the order of checks since wdev->netdev\nis always valid for beaconing interfaces.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-36pm-6m6w-jv8x",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98346",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98346",
+      "https://git.kernel.org/stable/c/5b313159c970e945ee125ca87fad0d96ed913e55",
+      "https://git.kernel.org/stable/c/693d777846d525b8b218bad97a1befa5d9bd4334",
+      "https://git.kernel.org/stable/c/7166da84a7fe3553f9065782fd80299a37b150e5",
+      "https://git.kernel.org/stable/c/a7783e585360ee05dfe21d3173dbbe985c94f29e",
+      "https://github.com/advisories/GHSA-36pm-6m6w-jv8x"
+    ],
+    "published_at": "2026-10-06T09:31:35Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:27Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-3437-mcr8-jcvh",
+    "cve_id": "CVE-2026-98325",
+    "url": "https://api.github.com/advisories/GHSA-3437-mcr8-jcvh",
+    "html_url": "https://github.com/advisories/GHSA-3437-mcr8-jcvh",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: mac80211: set up the...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: mac80211: set up the TX info early to fix failure paths\n\nThe previous commit 2c51457d930f (\"wifi: mac80211: free ack status\nframe on TX header build failure\") cleaned up the leak, but still\nleft the code a bit messy and the failed SKB didn't get reported\nto userspace.\n\nFix this up by initialising skb->cb[] earlier, which allows using\nieee80211_free_txskb() and therefore reports it for the failure\nin ieee80211_build_hdr(), and unifies the ieee80211_skb_resize()\nfailure path with it.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-3437-mcr8-jcvh",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98325",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98325",
+      "https://git.kernel.org/stable/c/03d67414bd05b86029afc14535238a9393eac1c6",
+      "https://git.kernel.org/stable/c/0fb37d2b6cb829cebdaea80f39011469f474bdcc",
+      "https://git.kernel.org/stable/c/36e6f0a5e6d7238f4023e77f423c1c1414374309",
+      "https://git.kernel.org/stable/c/420fcc2fdeae6ecd682d2b1605a0a54c88aed4aa",
+      "https://git.kernel.org/stable/c/50d3d79dc0743b616afb00d01a626c76758721f7",
+      "https://git.kernel.org/stable/c/df711e9fa20d7e996711c7f43a11a71805bef78d",
+      "https://github.com/advisories/GHSA-3437-mcr8-jcvh"
+    ],
+    "published_at": "2026-10-06T09:31:35Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:24Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-hvjp-xxq4-q29j",
+    "cve_id": "CVE-2026-98328",
+    "url": "https://api.github.com/advisories/GHSA-hvjp-xxq4-q29j",
+    "html_url": "https://github.com/advisories/GHSA-hvjp-xxq4-q29j",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: mac80211: add HE 6 GHz...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: mac80211: add HE 6 GHz capability in the scan elems len\n\nThe HE 6 GHz Band Capability element is in the probe request for\nevery band if 6 GHz is supported, so add the size to scan_ies_len.\n\nOtherwise, building probe request elements can fail, triggering the\nWARN_ON in __ieee80211_start_scan().",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-hvjp-xxq4-q29j",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98328",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98328",
+      "https://git.kernel.org/stable/c/8659bd6c4c852096b6621086d1ea38eed84b454a",
+      "https://git.kernel.org/stable/c/9d83c08dcce808c732988a5291e3ef4f59d09edb",
+      "https://git.kernel.org/stable/c/ad5bd0f6a0c337a80c141ea8e6c7a1d9c145be79",
+      "https://git.kernel.org/stable/c/be7bfdea1ec9b672a80c736bd6ed932e1adebef8",
+      "https://git.kernel.org/stable/c/cd54bf333f5631d3630bab0a832e9ae648f73515",
+      "https://git.kernel.org/stable/c/db19d5414227d86cee77a000607a6710d7f36853",
+      "https://github.com/advisories/GHSA-hvjp-xxq4-q29j"
+    ],
+    "published_at": "2026-10-06T09:31:35Z",
+    "updated_at": "2026-10-06T09:31:43Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:25Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-8rfq-q292-hgch",
+    "cve_id": "CVE-2026-98339",
+    "url": "https://api.github.com/advisories/GHSA-8rfq-q292-hgch",
+    "html_url": "https://github.com/advisories/GHSA-8rfq-q292-hgch",
+    "summary": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: cfg80211: don't filter...",
+    "description": "In the Linux kernel, the following vulnerability has been resolved:\n\nwifi: cfg80211: don't filter by BSS type when removing stale entries\n\nWhen an assoc AP switches to a channel that already has a BSS entry,\ncfg80211_update_assoc_bss_entry() removes that entry before rehashing\nthe real one, since the two would otherwise collide in the BSS rbtree.\n\nThe lookup for that entry also required it to match the connection's BSS\ntype, so an entry advertising e.g. the IBSS capability bit was left in\nplace, and the following cfg80211_rehash_bss() then ran into it:\n\n  WARN_ON(!cmp)\n\nChanging the type shouldn't really happen, but can be triggered by a\nrogue AP/device, so drop the check and remove any entries matching\nthe comparison.",
+    "type": "unreviewed",
+    "severity": "unknown",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-8rfq-q292-hgch",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-98339",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-98339",
+      "https://git.kernel.org/stable/c/0aa44982125c86b47961be5ac1c82eddab8080f3",
+      "https://git.kernel.org/stable/c/1380ee3a202dbb9f8e8b3c3b87eb410450d57799",
+      "https://git.kernel.org/stable/c/64e23a36d8f04811372365b44cfca325f8e0f4bb",
+      "https://git.kernel.org/stable/c/65fdb973bd905bc3f5cb045a04c1828f2d2a7e24",
+      "https://git.kernel.org/stable/c/6d2fd26185678038ef2ea11dd4d2e6eccbf2dd25",
+      "https://git.kernel.org/stable/c/6ef87a853327434ae1cd9c5a2c27a557fb4047fc",
+      "https://git.kernel.org/stable/c/b377e1000d963e7182a987082b4b06580bd7ac84",
+      "https://git.kernel.org/stable/c/fb445ec7480da5d2b82bf681e3b4313603722729",
+      "https://github.com/advisories/GHSA-8rfq-q292-hgch"
+    ],
+    "published_at": "2026-10-06T09:31:35Z",
+    "updated_at": "2026-10-06T09:31:42Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-06T09:18:26Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  }
+]

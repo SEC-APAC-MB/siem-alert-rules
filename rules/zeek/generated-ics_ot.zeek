@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-ics_ot
-# Auto-generated: 2026-10-02T08:21:17.496488Z
+# Auto-generated: 2026-10-07T04:05:05.397097Z
 # Load in local.zeek: @load ./generated-ics_ot
 
 signature ZK-ICS_OT-087 {

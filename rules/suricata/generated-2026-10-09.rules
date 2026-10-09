@@ -1,0 +1,219 @@
+# Suricata Detection Rules - Generated 2026-10-09
+# Based on latest GitHub Advisory Database CVEs (50 advisories fetched 2026-10-08T22:02Z)
+# SIDs: 52124008 - 52124107
+
+# === fast-jwt CVE-2026-107723: JWT array payload claim-validator bypass ===
+alert http any any -> any any (msg:"CVE-2026-107723 fast-jwt JWT array payload bypass attempt"; flow:established,to_server; http.header; content:"Authorization|3a| Bearer "; depth:50; pcre:"/eyJb[A-Za-z0-9_-]+\.Wy[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+/"; classtype:attempted-user; sid:52124008; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-107723 fast-jwt JWT array payload - decoded bracket in JWT body"; flow:established,to_server; http.header; content:"Authorization|3a| Bearer "; depth:50; pcre:"/eyJ\W.*W\[/"; classtype:attempted-user; sid:52124009; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-107723 fast-jwt JWT array payload verifier bypass detection"; flow:established,both; http.request_body; pcre:"/\[\s*\"[^\"]+\"\s*,\s*\"[^\"]+\"\s*\]/"; classtype:attempted-user; sid:52124010; rev:1;)
+
+# === fast-jwt CVE-2026-107724: Raw JWK as HMAC key token forgery ===
+alert http any any -> any any (msg:"CVE-2026-107724 fast-jwt raw JWK JSON used as HMAC key - HS256 token forgery"; flow:established,to_server; http.header; content:"Authorization|3a| Bearer "; depth:50; pcre:"/eyJhbGciOiJIUzI1NiI/"; http.request_body; content:"kty"; content:"RSA"; within:200; classtype:attempted-user; sid:52124011; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-107724 fast-jwt HS256 token with JWK key material in request"; flow:established,to_server; http.request_body; content:"\"kty\""; content:"\"n\""; content:"\"e\""; within:500; pcre:"/\"alg\"\s*:\s*\"HS256\"/"; classtype:attempted-user; sid:52124012; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-107724 fast-jwt mixed HS256 RS256 algorithm allowlist with JWK key"; flow:established,to_server; http.request_body; pcre:"/\[.*\"HS256\".*\"RS256\".*\]|\[.*\"RS256\".*\"HS256\".*\]/"; content:"kty"; within:300; classtype:attempted-user; sid:52124013; rev:1;)
+
+# === PraisonAI CVE-2026-61426: No-auth network-exposed agent ===
+alert http any any -> any any (msg:"CVE-2026-61426 PraisonAI AgentOS unauthenticated agent invocation"; flow:established,to_server; http.uri; content:"/api/v1/agent"; nocase; http.request_body; content:"input"; within:200; pcre:"/(?!.*[Aa]uthorization)/"; classtype:attempted-admin; sid:52124014; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-61426 PraisonAI AgentOS no-auth mode agent enumeration"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/api/v1/agents"; nocase; pcre:"/(?!.*[Aa]uthorization)/"; classtype:attempted-recon; sid:52124015; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-61426 PraisonAI unauthenticated tool call endpoint"; flow:established,to_server; http.uri; content:"/api/v1/tools"; nocase; http.method; content:"POST"; classtype:attempted-admin; sid:52124016; rev:1;)
+
+# === PraisonAI CVE-2026-61442: Platform member PATCH resource rewrite ===
+alert http any any -> any any (msg:"CVE-2026-61442 PraisonAI platform member PATCH owner resource rewrite"; flow:established,to_server; http.method; content:"PATCH"; http.uri; content:"/api/members/"; nocase; http.request_body; content:"owner"; within:100; classtype:attempted-admin; sid:52124017; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-61442 PraisonAI project lead reassignment DELETE bypass"; flow:established,to_server; http.method; content:"DELETE"; http.uri; content:"/project_lead"; nocase; http.request_body; content:"reassign"; classtype:attempted-admin; sid:52124018; rev:1;)
+
+# === PraisonAI CVE-2026-61434: Shell command allowlist bypass via find -exec ===
+alert http any any -> any any (msg:"CVE-2026-61434 PraisonAI shell command allowlist bypass find -exec"; flow:established,to_server; http.request_body; pcre:"/find\s+.*-exec\s+/i"; classtype:attempted-user; sid:52124019; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-61434 PraisonAI find -exec built-in action sandbox escape"; flow:established,to_server; http.request_body; content:"find"; nocase; content:"-exec"; within:100; pcre:"/-exec\s+(\/bin\/sh|\/bin\/bash|cmd\.exe|powershell)/i"; classtype:attempted-admin; sid:52124020; rev:1;)
+
+# === PraisonAI CVE-2026-61445: AICoder arbitrary file write via LLM tool calls ===
+alert http any any -> any any (msg:"CVE-2026-61445 PraisonAI AICoder arbitrary file write via LLM tool call"; flow:established,to_server; http.uri; content:"/api/v1/coder"; nocase; http.request_body; pcre:"/(write_file|create_file|save_file).*\.\.\/|\/etc\/|\/tmp\//i"; classtype:attempted-admin; sid:52124021; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-61445 PraisonAI AICoder command execution via tool call"; flow:established,to_server; http.request_body; pcre:"/(execute_command|run_command|shell_exec).*\b(rm|cat|wget|curl|nc|bash|sh)\b/i"; classtype:attempted-admin; sid:52124022; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-61445 PraisonAI AICoder path traversal in file write tool"; flow:established,to_server; http.request_body; content:"file_path"; within:50; pcre:"/\.\.[\/\\]/"; classtype:attempted-admin; sid:52124023; rev:1;)
+
+# === PraisonAI CVE-2026-61427: MCP HTTP-stream unauthenticated transport ===
+alert http any any -> any any (msg:"CVE-2026-61427 PraisonAI MCP HTTP-stream unauthenticated tool enumeration"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/mcp/"; nocase; content:"tools"; nocase; pcre:"/(?!.*[Aa]uthorization)/"; classtype:attempted-recon; sid:52124024; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-61427 PraisonAI MCP unvalidated tool-call surface"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/mcp/"; nocase; content:"tools/call"; nocase; classtype:attempted-admin; sid:52124025; rev:1;)
+
+# === PraisonAI CVE-2026-60085: SecurityPolicy SubprocessSandbox bypass ===
+alert http any any -> any any (msg:"CVE-2026-60085 PraisonAI SecurityPolicy SubprocessSandbox bypass attempt"; flow:established,to_server; http.request_body; pcre:"/(import\s+os|subprocess|__import__|eval\(|exec\()/i"; http.uri; content:"/api/v1/agent"; nocase; classtype:attempted-admin; sid:52124026; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-60085 PraisonAI unenforced command path import restrictions"; flow:established,to_server; http.request_body; pcre:"/(os\.system|subprocess\.Popen|subprocess\.call|subprocess\.run)/i"; classtype:attempted-admin; sid:52124027; rev:1;)
+
+# === PraisonAI CVE-2026-60091: Jobs API unauthenticated SSRF via webhook ===
+alert http any any -> any any (msg:"CVE-2026-60091 PraisonAI Jobs API unauthenticated webhook creation"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/jobs"; nocase; http.request_body; content:"webhook_url"; pcre:"/(?!.*[Aa]uthorization)/"; classtype:attempted-admin; sid:52124028; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-60091 PraisonAI Jobs API SSRF via webhook URL"; flow:established,to_server; http.request_body; pcre:"/webhook_url.*\b(127\.0\.0\.1|localhost|169\.254\.169\.254|10\.\d+|192\.168\.\d+|file:\/\/|gopher:\/\/)/i"; classtype:attempted-admin; sid:52124029; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-60091 PraisonAI Jobs API SSRF cloud metadata endpoint"; flow:established,to_server; http.request_body; content:"169.254.169.254"; nocase; http.uri; content:"/api/jobs"; nocase; classtype:attempted-admin; sid:52124030; rev:1;)
+
+# === IBM Security Verify Access CVE-2026-78401: Critical ===
+alert http any any -> any any (msg:"CVE-2026-78401 IBM Security Verify Access critical vulnerability"; flow:established,to_server; http.uri; content:"/ivt/"; nocase; pcre:"/(\.\.|%2e%2e|%2E%2E)/"; classtype:attempted-admin; sid:52124031; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-78401 IBM Verify Access path traversal in management interface"; flow:established,to_server; http.uri; pcre:"/\/mga\/.*(\.\.[\/\\]|%2e%2e)/i"; classtype:attempted-admin; sid:52124032; rev:1;)
+
+# === IBM Security Verify Access CVE-2026-78406: Critical ===
+alert http any any -> any any (msg:"CVE-2026-78406 IBM Security Verify Access authentication bypass"; flow:established,to_server; http.uri; content:"/sps/authsvc/"; nocase; pcre:"/(\.\.|%2e%2e|%2E%2E)/"; classtype:attempted-admin; sid:52124033; rev:1;)
+
+# === IBM Security Verify Access CVE-2026-78399 ===
+alert http any any -> any any (msg:"CVE-2026-78399 IBM Verify Access information disclosure"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/sps/"; nocase; pcre:"/debug|trace|verbose/i"; classtype:attempted-recon; sid:52124034; rev:1;)
+
+# === IBM Security Verify Access CVE-2026-19491: Critical ===
+alert http any any -> any any (msg:"CVE-2026-19491 IBM Security Verify Access remote code execution"; flow:established,to_server; http.uri; content:"/ivt/"; nocase; http.request_body; pcre:"/(\$\(|`|;|&&|\|\|).*(cat|ls|id|whoami|uname)/i"; classtype:attempted-admin; sid:52124035; rev:1;)
+
+# === IBM Security Verify Access CVE-2026-19493/19494/19482/18740: High ===
+alert http any any -> any any (msg:"CVE-2026-19493 IBM Security Verify Access privilege escalation"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/ivt/"; nocase; http.request_body; content:"admin"; nocase; content:"role"; nocase; within:200; classtype:attempted-admin; sid:52124036; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-19494 IBM Security Verify Access buffer overflow attempt"; flow:established,to_server; http.uri; pcre:"/[a-z0-9]{500,}/i"; content:"/sps/"; nocase; classtype:attempted-admin; sid:52124037; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-19482 IBM Verify Access XSS in redirect parameter"; flow:established,to_server; http.uri; content:"redirect"; nocase; pcre:"/(javascript:|data:|onerror=|onload=)/i"; classtype:attempted-user; sid:52124038; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-18740 IBM Verify Access directory traversal via cookie"; flow:established,to_server; http.cookie; pcre:"/(\.\.[\/\\]|%2e%2e)/"; classtype:attempted-admin; sid:52124039; rev:1;)
+
+# === IBM Security Verify Access CVE-2026-16823: Critical ===
+alert http any any -> any any (msg:"CVE-2026-16823 IBM Security Verify Access RCE via crafted request"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/ivt/"; nocase; http.request_body; pcre:"/(class|module|require|import|load|eval|system|exec|popen|spawn|fork|backtick)/i"; classtype:attempted-admin; sid:52124040; rev:1;)
+
+# === IBM Security Verify Access CVE-2026-16916: Critical ===
+alert http any any -> any any (msg:"CVE-2026-16916 IBM Verify Access missing authentication in admin API"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/ivt/api/"; nocase; pcre:"/(?!.*[Aa]uthorization)(?!.*[Cc]ookie)/"; classtype:attempted-admin; sid:52124041; rev:1;)
+
+# === IBM Security Verify Access CVE-2026-17189: High ===
+alert http any any -> any any (msg:"CVE-2026-17189 IBM Verify Access SQL injection in audit log"; flow:established,to_server; http.uri; content:"/ivt/audit"; nocase; pcre:"/(union.*select|or.*1=1|'--|\"--|;.*drop)/i"; classtype:attempted-admin; sid:52124042; rev:1;)
+
+# === IBM Security Verify Access CVE-2026-12091/11939: Low ===
+alert http any any -> any any (msg:"CVE-2026-12091 IBM Verify Access information exposure via error pages"; flow:established,to_client; http.response_body; pcre:"/(stack\s*trace|exception|java\.\w+|com\.ibm\.\w+)/i"; classtype:attempted-recon; sid:52124043; rev:1;)
+
+# === IBM Security Verify Access CVE-2026-11936/11930/11888: Medium ===
+alert http any any -> any any (msg:"CVE-2026-11936 IBM Verify Access session fixation via predictable session ID"; flow:established,to_server; http.cookie; pcre:"/PDID=[a-f0-9]{8,}/i"; http.uri; content:"/pkmslogin"; nocase; classtype:attempted-user; sid:52124044; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-11888 IBM Verify Access open redirect in logout"; flow:established,to_server; http.uri; content:"/pkmslogout"; nocase; pcre:"/(\?|&)url=http/i"; classtype:attempted-user; sid:52124045; rev:1;)
+
+# === HPE iMC CVE-2026-79842: Critical auth bypass ===
+alert http any any -> any any (msg:"CVE-2026-79842 HPE iMC authentication bypass attempt"; flow:established,to_server; http.uri; content:"/imc/"; nocase; pcre:"/(autoLogin|guestLogin|defaultAdmin|backdoor)/i"; classtype:attempted-admin; sid:52124046; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-79842 HPE Intelligent Management Center unauthenticated access"; flow:established,to_server; http.method; content:"GET"; http.uri; content:"/imc/rs/"; nocase; pcre:"/(?!.*[Aa]uthorization)(?!.*[Tt]oken)/"; classtype:attempted-admin; sid:52124047; rev:1;)
+
+# === Dromara Skyeye CVE-2026-107781/107780/107779: Critical ===
+alert http any any -> any any (msg:"CVE-2026-107781 Dromara Skyeye SSRF vulnerability"; flow:established,to_server; http.uri; content:"/skyeye/"; nocase; http.request_body; pcre:"/url=http:\/\/(127\.0\.0\.1|localhost|169\.254\.169\.254|10\.|192\.168\.)/i"; classtype:attempted-admin; sid:52124048; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-107780 Dromara Skyeye OS command injection"; flow:established,to_server; http.request_body; pcre:"/(\$\(|`|;|&&|\|\|).*(cat|ls|id|whoami|uname|wget|curl|nc|bash|sh)/i"; http.uri; content:"/skyeye/"; nocase; classtype:attempted-admin; sid:52124049; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-107779 Dromara Skyeye missing authentication"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/skyeye/api/"; nocase; pcre:"/(?!.*[Aa]uthorization)(?!.*[Tt]oken)(?!.*[Cc]ookie)/"; classtype:attempted-admin; sid:52124050; rev:1;)
+
+# === MIT krb5 CVE-2026-107708/107778: NULL pointer dereference ===
+alert udp any any -> any 88 (msg:"CVE-2026-107708 MIT krb5 KDC NULL pointer dereference in AS-REQ"; dsize:>4096; content:"|30 82|"; depth:4; pcre:"/\x82.{2}\x30\x82.{2}\xa1\x03\x02\x01\x01/"; classtype:attempted-dos; sid:52124051; rev:1;)
+alert udp any any -> any 88 (msg:"CVE-2026-107778 MIT krb5 NULL deref in make_cred_list KRB_CRED"; content:"|76|"; depth:1; pcre:"/\x76\x82.{2}.*\x61\x82.{2}.*\x30\x82.{2}/"; dsize:>2048; classtype:attempted-dos; sid:52124052; rev:1;)
+alert tcp any any -> any 88 (msg:"CVE-2026-107708 MIT krb5 KDC malformed AS-REQ crash attempt"; flow:established,to_server; dsize:>4096; pcre:"/\x6a\x82.{2}/"; classtype:attempted-dos; sid:52124053; rev:1;)
+
+# === IBM Guardium CVE-2026-84275: Path traversal in GIM file upload ===
+alert http any any -> any any (msg:"CVE-2026-84275 IBM Guardium GIM file upload path traversal"; flow:established,to_server; http.uri; content:"/gim/"; nocase; pcre:"/(\.\.[\/\\]|%2e%2e)/"; http.method; content:"POST"; classtype:attempted-admin; sid:52124054; rev:1;)
+
+# === IBM Guardium CVE-2026-84274: Information exposure ===
+alert http any any -> any any (msg:"CVE-2026-84274 IBM Guardium sensitive information exposure"; flow:established,to_client; http.response_body; pcre:"/(password|secret|key|token|credential).*=.*[a-zA-Z0-9]{8,}/i"; http.stat_code; content:"200"; classtype:attempted-recon; sid:52124055; rev:1;)
+
+# === IBM Guardium CVE-2026-84272: Critical missing auth in edge component ===
+alert http any any -> any any (msg:"CVE-2026-84272 IBM Guardium edge component missing authentication"; flow:established,to_server; http.uri; content:"/guardium/edge/"; nocase; pcre:"/(?!.*[Aa]uthorization)(?!.*[Tt]oken)/"; http.method; content:"POST"; classtype:attempted-admin; sid:52124056; rev:1;)
+
+# === IBM Guardium CVE-2026-84271: Signature verification bypass ===
+alert http any any -> any any (msg:"CVE-2026-84271 IBM Guardium patch signature verification bypass"; flow:established,to_server; http.uri; content:"/guardium/patch/"; nocase; http.method; content:"POST"; pcre:"/(\.\.[\/\\]|%2e%2e|signature=false|nosigncheck)/i"; classtype:attempted-admin; sid:52124057; rev:1;)
+
+# === IBM Guardium CVE-2026-82334: Heap-based OOB read ===
+alert http any any -> any any (msg:"CVE-2026-82334 IBM Guardium heap OOB read via crafted request"; flow:established,to_server; http.request_body; dsize:>8192; pcre:"/(\x00\x00\x00\x80|\xff\xff\xff\xff)/"; http.uri; content:"/guardium/"; nocase; classtype:attempted-admin; sid:52124058; rev:1;)
+
+# === Satel Netco Design CVE-2026-101024: Relative path traversal ===
+alert http any any -> any any (msg:"CVE-2026-101024 Satel Netco Design relative path traversal"; flow:established,to_server; http.uri; pcre:"/(\.\.[\/\\]|%2e%2e|%2E%2E)/"; content:"/netco/"; nocase; classtype:attempted-admin; sid:52124059; rev:1;)
+
+# === Tapo CVE-2026-102368: Plaintext cryptographic material in firmware ===
+alert http any any -> any any (msg:"CVE-2026-102368 Tapo device firmware plaintext key extraction"; flow:established,to_client; http.response_body; pcre:"/(BEGIN.*KEY|private_key|device_key|secret_key)/i"; http.uri; content:"/firmware"; nocase; classtype:attempted-recon; sid:52124060; rev:1;)
+
+# === MongoDB Python Driver CVE-2026-106435: Buffer over-read ===
+alert tcp any any -> any 27017 (msg:"CVE-2026-106435 MongoDB Python driver binary accelerator buffer over-read"; flow:established,to_server; dsize:>65536; pcre:"/\x3b\x00\x00\x00/"; classtype:attempted-admin; sid:52124061; rev:1;)
+
+# === libming CVE-2026-95116: DoS ===
+alert http any any -> any any (msg:"CVE-2026-95116 libming denial of service via crafted SWF"; flow:established,to_server; http.uri; content:".swf"; nocase; http.request_body; pcre:"/\x46\x57\x53\x0[0-9]/"; dsize:>102400; classtype:attempted-dos; sid:52124062; rev:1;)
+
+# === Deskin CVE-2026-11318: Privilege escalation ===
+alert http any any -> any any (msg:"CVE-2026-11318 Deskin privilege escalation via service intent"; flow:established,to_server; http.request_body; pcre:"/(com\.deskin\.service|android\.intent\.action)/i"; content:"uid=0"; nocase; classtype:attempted-admin; sid:52124063; rev:1;)
+
+# === System Informer CVE-2026-107782: Incorrect authorization ===
+alert http any any -> any any (msg:"CVE-2026-107782 System Informer incorrect authorization bypass"; flow:established,to_server; http.uri; pcre:"/\/(api|rpc|exec)\/(systeminformer|processhacker)/i"; pcre:"/(?!.*[Aa]uthorization)/"; classtype:attempted-admin; sid:52124064; rev:1;)
+
+# === PraisonAI CVE-2026-61440: Platform label rewrite ===
+alert http any any -> any any (msg:"CVE-2026-61440 PraisonAI platform member unauthorized label rewrite"; flow:established,to_server; http.method; content:"PATCH"; http.uri; content:"/api/labels/"; nocase; http.request_body; content:"owner"; nocase; classtype:attempted-user; sid:52124065; rev:1;)
+
+# === MITRE ATT&CK T1190: Exploit Public-Facing Application ===
+alert http any any -> any any (msg:"MITRE T1190 web shell upload attempt via multipart form data"; flow:established,to_server; http.method; content:"POST"; http.request_body; pcre:"/(<\?php|<%.*eval|<%.*execute|JRequest|JFactory)/i"; pcre:"/(upload|file|attach)/i"; classtype:web-application-attack; sid:52124066; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 struts2 OGNL injection exploit attempt"; flow:established,to_server; http.uri; pcre:"/(\$\{|\%7B).*(ognl|@java|@runtime)/i"; classtype:web-application-attack; sid:52124067; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 log4j JNDI injection attempt"; flow:established,to_server; http.header; pcre:"/\$\{jndi:(ldap|rmi|dns|iiop|http)/i"; classtype:web-application-attack; sid:52124068; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 Spring4Shell class loader manipulation"; flow:established,to_server; http.header; content:"class.module.classLoader"; nocase; classtype:web-application-attack; sid:52124069; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 Apache HTTP Server path traversal RCE"; flow:established,to_server; http.uri; pcre:"/cgi-bin\/.*(\.\.|%2e%2e|%2E%2E)/i"; classtype:web-application-attack; sid:52124070; rev:1;)
+
+# === MITRE ATT&CK T1078: Valid Accounts ===
+alert http any any -> any any (msg:"MITRE T1078 credential stuffing rapid login attempts"; flow:established,to_server; http.method; content:"POST"; http.uri; pcre:"/(login|signin|auth)/i"; pcre:"/(password|passwd|pwd).*=.*/i"; threshold:type both, count 10, seconds 60, track by_src; classtype:attempted-user; sid:52124071; rev:1;)
+
+# === MITRE ATT&CK T1068: Privilege Escalation ===
+alert http any any -> any any (msg:"MITRE T1068 sudo buffer overflow privilege escalation attempt"; flow:established,to_server; http.request_body; pcre:"/sudo.*-s.*-s/i"; classtype:attempted-admin; sid:52124072; rev:1;)
+alert http any any -> any any (msg:"MITRE T1068 pkexec local privilege escalation CVE-2021-4034 variant"; flow:established,to_server; http.request_body; pcre:"/(pkexec|PWNKIT|GCONV_PATH)/i"; classtype:attempted-admin; sid:52124073; rev:1;)
+
+# === MITRE ATT&CK T1555: Credentials in Files ===
+alert http any any -> any any (msg:"MITRE T1555 credentials file access via web request - SSH key"; flow:established,to_server; http.uri; pcre:"/(\/\.ssh\/id_rsa|\/\.ssh\/id_dsa|\/\.ssh\/id_ecdsa)/i"; classtype:attempted-recon; sid:52124074; rev:1;)
+alert http any any -> any any (msg:"MITRE T1555 credentials file access via web request - AWS keys"; flow:established,to_server; http.uri; pcre:"/\/\.aws\/credentials/i"; classtype:attempted-recon; sid:52124075; rev:1;)
+
+# === MITRE ATT&CK T1046: Network Service Discovery ===
+alert tcp any any -> any any (msg:"MITRE T1046 network service discovery nmap probe"; flow:stateless; pcre:"/^Nmap/i"; dsize:<300; classtype:attempted-recon; sid:52124076; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1046 masscan rapid port scan"; flow:stateless; flags:S; threshold:type both, count 50, seconds 5, track by_src; classtype:attempted-recon; sid:52124077; rev:1;)
+
+# === MITRE ATT&CK T1027: Obfuscated Files ===
+alert http any any -> any any (msg:"MITRE T1027 base64 encoded payload in HTTP request"; flow:established,to_server; http.request_body; pcre:"/[A-Za-z0-9+\/]{500,}={0,2}/"; classtype:attempted-user; sid:52124078; rev:1;)
+alert http any any -> any any (msg:"MITRE T1027 XOR encoded payload detected in request body"; flow:established,to_server; http.request_body; pcre:"/(\x41\x41\x41\x41.*\x41\x41\x41\x41)/"; classtype:attempted-user; sid:52124079; rev:1;)
+
+# === MITRE ATT&CK T1059: Command and Scripting Interpreter ===
+alert http any any -> any any (msg:"MITRE T1059 PowerShell encoded command execution via web"; flow:established,to_server; http.request_body; pcre:"/(powershell|pwsh).*-e(ncodedcommand)?\s+[A-Za-z0-9+/]{100,}/i"; classtype:attempted-admin; sid:52124080; rev:1;)
+alert http any any -> any any (msg:"MITRE T1059 Python reverse shell via web request"; flow:established,to_server; http.request_body; pcre:"/(python|python3).*socket.*connect.*exec/i"; classtype:attempted-admin; sid:52124081; rev:1;)
+alert http any any -> any any (msg:"MITRE T1059 Ruby command execution via web parameter"; flow:established,to_server; http.uri; pcre:"/(ruby|rb).*-e.*system|`.*`/i"; classtype:attempted-admin; sid:52124082; rev:1;)
+
+# === MITRE ATT&CK T1486: Data Encrypted for Impact ===
+alert http any any -> any any (msg:"MITRE T1486 ransomware encryption activity indicator"; flow:established,to_server; http.request_body; pcre:"/(\.locked|\.encrypted|\.crypto|\.ransom|\.encrypted_by)/i"; threshold:type both, count 20, seconds 60, track by_src; classtype:attempted-admin; sid:52124083; rev:1;)
+
+# === MITRE ATT&CK T1567: Exfiltration over Web Service ===
+alert http any any -> any any (msg:"MITRE T1567 data exfiltration to cloud storage - large upload"; flow:established,to_server; http.method; content:"PUT"; pcre:"/(s3\.amazonaws|blob\.core\.windows|storage\.googleapis)/i"; dsize:>10485760; classtype:exfiltration; sid:52124084; rev:1;)
+alert http any any -> any any (msg:"MITRE T1567 exfiltration to pastebin-like service"; flow:established,to_server; http.method; content:"POST"; pcre:"/(pastebin|hastebin|dpaste|0bin|ghostbin|privatebin)/i"; dsize:>102400; classtype:exfiltration; sid:52124085; rev:1;)
+
+# === MITRE ATT&CK T1199: Trusted Relationship ===
+alert http any any -> any any (msg:"MITRE T1199 trusted relationship abuse - OAuth token"; flow:established,to_server; http.header; content:"Authorization"; nocase; content:"Bearer"; nocase; http.uri; content:"/api/admin"; nocase; classtype:attempted-admin; sid:52124086; rev:1;)
+
+# === MITRE ATT&CK T1133: External Remote Services ===
+alert http any any -> any any (msg:"MITRE T1133 external remote services VPN brute force"; flow:established,to_server; http.uri; pcre:"/(\/sslvpn|\/remote\/login|\/+ssl_vpn)/i"; threshold:type both, count 20, seconds 60, track by_src; classtype:attempted-user; sid:52124087; rev:1;)
+
+# === MITRE ATT&CK T1531: Account Access Removal ===
+alert http any any -> any any (msg:"MITRE T1531 account access removal - mass user deletion"; flow:established,to_server; http.method; content:"DELETE"; http.uri; pcre:"/\/api\/users\//i"; threshold:type both, count 10, seconds 30, track by_src; classtype:attempted-admin; sid:52124088; rev:1;)
+
+# === AI/LLM attacks ===
+alert http any any -> any any (msg:"AI-LLM prompt injection attempt via web input"; flow:established,to_server; http.request_body; pcre:"/(ignore.*previous.*instructions|system.*prompt|you\s+are\s+now|DAN|jailbreak)/i"; classtype:attempted-user; sid:52124089; rev:1;)
+alert http any any -> any any (msg:"AI-LLM SSRF via tool call to internal endpoint"; flow:established,to_server; http.request_body; pcre:"/(tool_call|function_call|tool_use).*http:\/\/(127\.0\.0\.1|localhost|10\.|192\.168\.)/i"; classtype:attempted-admin; sid:52124090; rev:1;)
+alert http any any -> any any (msg:"AI-LLM data exfiltration via generated URL"; flow:established,to_server; http.uri; pcre:"/https?:\/\/[a-z0-9]+\.(?:worker\.dev|ngrok|serveo|loca\.lt)/i"; http.request_body; pcre:"/(exfiltrate|download_data|read_file)/i"; classtype:exfiltration; sid:52124091; rev:1;)
+
+# === Supply chain attacks ===
+alert http any any -> any any (msg:"Supply chain attack - npm package typosquatting"; flow:established,to_server; http.uri; pcre:"/\/(npm|registry)\//i"; pcre:"/(lodash-es|reactt|express-session-mongo|mongoose-validat|ract|vu|angualr)/i"; classtype:trojan-activity; sid:52124092; rev:1;)
+alert http any any -> any any (msg:"Supply chain attack - PyPI package typosquatting"; flow:established,to_server; http.uri; content:"/pypi/"; nocase; pcre:"/(requets|djang0|flask-restful-api|python-dateutil2|numpyy)/i"; classtype:trojan-activity; sid:52124093; rev:1;)
+
+# === Cloud security ===
+alert http any any -> any any (msg:"Cloud IMDSv1 access without IMDSv2 token"; flow:established,to_server; http.uri; content:"/latest/meta-data/"; nocase; http.header; pcre:"/(?!.*X-aws-ec2-metadata-token)/"; classtype:attempted-admin; sid:52124094; rev:1;)
+alert http any any -> any any (msg:"Cloud S3 bucket enumeration without authorization"; flow:established,to_server; http.method; content:"GET"; http.uri; pcre:"/https?:\/\/[a-z0-9-]+\.s3[.-](?:amazonaws|amazonaws\.com)/i"; pcre:"/(?!.*[Aa]uthorization)/"; http.stat_code; content:"403"; classtype:attempted-recon; sid:52124095; rev:1;)
+
+# === Container security ===
+alert http any any -> any any (msg:"Container escape - Docker socket access via web"; flow:established,to_server; http.uri; pcre:"/\/var\/run\/docker\.sock/i"; classtype:attempted-admin; sid:52124096; rev:1;)
+alert http any any -> any any (msg:"Container escape - Kubernetes API with service account token"; flow:established,to_server; http.uri; content:"/api/v1/"; nocase; http.header; content:"Bearer"; nocase; pcre:"/(?!.*[Cc]lient-[Cc]ert)/"; classtype:attempted-admin; sid:52124097; rev:1;)
+
+# === API security ===
+alert http any any -> any any (msg:"API IDOR via sequential ID enumeration"; flow:established,to_server; http.uri; pcre:"/\/api\/(users|orders|accounts)\/\d{1,5}$/i"; threshold:type both, count 20, seconds 30, track by_src; classtype:attempted-user; sid:52124098; rev:1;)
+alert http any any -> any any (msg:"API mass assignment - role escalation via PUT/PATCH"; flow:established,to_server; http.method; pcre:"/(PUT|PATCH)/i"; http.request_body; pcre:"/(\"role\"|\"isAdmin\"|\"is_admin\"|\"admin\"|\"superuser\").*true/i"; classtype:attempted-admin; sid:52124099; rev:1;)
+
+# === IoT/OT security ===
+alert http any any -> any any (msg:"IoT device default credential usage admin/admin"; flow:established,to_server; http.method; content:"POST"; http.uri; pcre:"/(login|auth|signin)/i"; http.request_body; pcre:"/(user|username).*(admin|root).*pass(word|wd).*(admin|root|12345|password)/i"; classtype:attempted-admin; sid:52124100; rev:1;)
+
+# === Mobile security ===
+alert http any any -> any any (msg:"Mobile app certificate pinning bypass via Frida"; flow:established,to_server; http.request_body; pcre:"/(frida-server|objection|ssl-pinning-bypass)/i"; classtype:attempted-user; sid:52124101; rev:1;)
+
+# === Zero-day / N-day exploitation ===
+alert http any any -> any any (msg:"N-day exploit - Confluence OGNL injection variant"; flow:established,to_server; http.uri; pcre:"/\/server-info\.action/i"; http.request_body; pcre:"/(\$\{|\x24\x7b).*(ognl|@java|@runtime|getClass)/i"; classtype:web-application-attack; sid:52124102; rev:1;)
+alert http any any -> any any (msg:"N-day exploit - Ivanti Connect Secure path traversal"; flow:established,to_server; http.uri; pcre:"/(\/.*\.cgi\/.*\.\.\/|\/cgi-bin\/.*%2e%2e)/i"; classtype:web-application-attack; sid:52124103; rev:1;)
+
+# === DNS exfiltration ===
+alert dns any any -> any any (msg:"DNS tunneling exfiltration - high entropy subdomain"; dns.query; pcre:"/^[a-z0-9]{30,}\./i"; classtype:exfiltration; sid:52124104; rev:1;)
+
+# === CSRF attacks ===
+alert http any any -> any any (msg:"CSRF token missing on state-changing request"; flow:established,to_server; http.method; pcre:"/(POST|PUT|DELETE|PATCH)/i"; http.header; pcre:"/(?!.*[Cc]srf|.*[Xx]-[Cc]srf|.*[Aa]nti-)/"; http.uri; pcre:"/(\/api\/(users|settings|admin|config|password))/i"; classtype:web-application-attack; sid:52124105; rev:1;)
+
+# === XXE attacks ===
+alert http any any -> any any (msg:"XXE external entity injection - DOCTYPE entity declaration"; flow:established,to_server; http.request_body; pcre:"/<!DOCTYPE.*<!ENTITY.*SYSTEM/i"; classtype:web-application-attack; sid:52124106; rev:1;)
+
+# === SSRF attacks ===
+alert http any any -> any any (msg:"SSRF attempt - internal URL in web parameter"; flow:established,to_server; http.request_body; pcre:"/url=http:\/\/(127\.0\.0\.1|localhost|0\.0\.0\.0|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/i"; classtype:web-application-attack; sid:52124107; rev:1;)
