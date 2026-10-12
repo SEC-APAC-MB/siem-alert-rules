@@ -2,8 +2,8 @@
   "description": "Minimum Baseline SIEM Rules — ORACLE",
   "version": "1.0.0",
   "type": "minimum-baseline",
-  "generated": "2026-10-07T04:05:05.981109+00:00",
-  "total_rules": 172,
+  "generated": "2026-10-12T06:00:32.686365+00:00",
+  "total_rules": 226,
   "domains_covered": 13,
   "domains": [
     {
@@ -11,7 +11,7 @@
       "category": "initial_access",
       "weight": "critical",
       "description": "Brute force, failed logins, external access attempts",
-      "rule_count": 10,
+      "rule_count": 20,
       "rule_ids": [
         "OCI-INITIAL_ACCESS-127",
         "OCI-INITIAL_ACCESS-128",
@@ -106,7 +106,7 @@
       "category": "ransomware",
       "weight": "critical",
       "description": "Mass file encryption, storage spikes, ransom indicators",
-      "rule_count": 20,
+      "rule_count": 30,
       "rule_ids": [
         "OCI-RANSOMWARE-077",
         "OCI-RANSOMWARE-078",
@@ -125,7 +125,7 @@
       "category": "reconnaissance",
       "weight": "medium",
       "description": "Port scans, dropped connections, service enumeration",
-      "rule_count": 14,
+      "rule_count": 24,
       "rule_ids": [
         "OCI-RECONNAISSANCE-117",
         "OCI-RECONNAISSANCE-118",
@@ -157,7 +157,7 @@
       "category": "supply_chain",
       "weight": "high",
       "description": "Image tampering, unauthorized deployments, dependency attacks",
-      "rule_count": 20,
+      "rule_count": 30,
       "rule_ids": [
         "OCI-SUPPLY_CHAIN-057",
         "OCI-SUPPLY_CHAIN-058",
@@ -176,7 +176,7 @@
       "category": "zero_day",
       "weight": "critical",
       "description": "Unexpected ports, anomalous patterns, novel exploits",
-      "rule_count": 20,
+      "rule_count": 30,
       "rule_ids": [
         "OCI-ZERO_DAY-087",
         "OCI-ZERO_DAY-088",
@@ -231,7 +231,7 @@
       "category": "execution",
       "weight": "high",
       "description": "PowerShell abuse, suspicious process creation",
-      "rule_count": 10,
+      "rule_count": 14,
       "rule_ids": [
         "OCI-EXECUTION-137",
         "OCI-EXECUTION-138",
@@ -694,6 +694,126 @@
         ],
         "compartmentId": "$COMPARTMENT_ID",
         "metric": "siem_execution_execution_146",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "execution"
+      ]
+    },
+    {
+      "rule_id": "OCI-EXECUTION-097",
+      "name": "PowerShell Suspicious Execution",
+      "description": "Detect encoded PowerShell, -bypass, hidden window, and download cradle patterns",
+      "severity": "MEDIUM",
+      "category": "execution",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_execution_execution_097\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%powershell%' OR \"data__json.message\" LIKE '%execution%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_execution_execution_097",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "execution"
+      ]
+    },
+    {
+      "rule_id": "OCI-EXECUTION-098",
+      "name": "WMI Remote Execution",
+      "description": "Detect WMI-based remote command execution via wmiprvse",
+      "severity": "MEDIUM",
+      "category": "execution",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_execution_execution_098\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%wmi%' OR \"data__json.message\" LIKE '%remote%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_execution_execution_098",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "execution"
+      ]
+    },
+    {
+      "rule_id": "OCI-EXECUTION-099",
+      "name": "Scheduled Task/At Job Creation",
+      "description": "Detect suspicious scheduled task creation for persistence or execution",
+      "severity": "MEDIUM",
+      "category": "execution",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_execution_execution_099\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%scheduled%' OR \"data__json.message\" LIKE '%task%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_execution_execution_099",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "execution"
+      ]
+    },
+    {
+      "rule_id": "OCI-EXECUTION-100",
+      "name": "LSASS Memory Dumping",
+      "description": "Detect procdump, comsvcs.dll minidump, or direct LSASS access",
+      "severity": "MEDIUM",
+      "category": "execution",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_execution_execution_100\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%lsass%' OR \"data__json.message\" LIKE '%memory%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_execution_execution_100",
         "operator": "GT",
         "threshold": 3
       },
@@ -1294,6 +1414,306 @@
         ],
         "compartmentId": "$COMPARTMENT_ID",
         "metric": "siem_initial_access_initial_access_136",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "initial_access"
+      ]
+    },
+    {
+      "rule_id": "OCI-INITIAL_ACCESS-087",
+      "name": "Phishing Link Detection",
+      "description": "Detect credential harvesting links in email via URL reputation",
+      "severity": "MEDIUM",
+      "category": "initial_access",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_initial_access_initial_access_087\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%phishing%' OR \"data__json.message\" LIKE '%link%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_initial_access_initial_access_087",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "initial_access"
+      ]
+    },
+    {
+      "rule_id": "OCI-INITIAL_ACCESS-088",
+      "name": "Spear-Phishing Attachment",
+      "description": "Detect malicious attachments exploiting Office, PDF, or LNK",
+      "severity": "MEDIUM",
+      "category": "initial_access",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_initial_access_initial_access_088\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%spear%' OR \"data__json.message\" LIKE '%phishing%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_initial_access_initial_access_088",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "initial_access"
+      ]
+    },
+    {
+      "rule_id": "OCI-INITIAL_ACCESS-089",
+      "name": "Valid Account Abuse",
+      "description": "Detect impossible travel, unusual time, or new device logins",
+      "severity": "MEDIUM",
+      "category": "initial_access",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_initial_access_initial_access_089\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%valid%' OR \"data__json.message\" LIKE '%account%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_initial_access_initial_access_089",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "initial_access"
+      ]
+    },
+    {
+      "rule_id": "OCI-INITIAL_ACCESS-090",
+      "name": "Exploit Public-Facing Application",
+      "description": "Detect exploitation of CVEs in web apps, VPNs, firewalls",
+      "severity": "MEDIUM",
+      "category": "initial_access",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_initial_access_initial_access_090\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%exploit%' OR \"data__json.message\" LIKE '%public%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_initial_access_initial_access_090",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "initial_access"
+      ]
+    },
+    {
+      "rule_id": "OCI-INITIAL_ACCESS-091",
+      "name": "Supply Chain Compromise",
+      "description": "Detect malicious package or compromised update delivery",
+      "severity": "MEDIUM",
+      "category": "initial_access",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_initial_access_initial_access_091\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%supply%' OR \"data__json.message\" LIKE '%chain%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_initial_access_initial_access_091",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "initial_access"
+      ]
+    },
+    {
+      "rule_id": "OCI-INITIAL_ACCESS-092",
+      "name": "VPN Appliance Exploitation",
+      "description": "Detect attacks on VPN concentrators (Pulse Secure, Fortinet, etc.)",
+      "severity": "MEDIUM",
+      "category": "initial_access",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_initial_access_initial_access_092\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%vpn%' OR \"data__json.message\" LIKE '%appliance%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_initial_access_initial_access_092",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "initial_access"
+      ]
+    },
+    {
+      "rule_id": "OCI-INITIAL_ACCESS-093",
+      "name": "Trusted Relationship Abuse",
+      "description": "Detect lateral movement from MSP/consultant/supplier accounts",
+      "severity": "MEDIUM",
+      "category": "initial_access",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_initial_access_initial_access_093\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%trusted%' OR \"data__json.message\" LIKE '%relationship%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_initial_access_initial_access_093",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "initial_access"
+      ]
+    },
+    {
+      "rule_id": "OCI-INITIAL_ACCESS-094",
+      "name": "Drive-by Compromise",
+      "description": "Detect exploit kit activity and malicious iframe injection",
+      "severity": "MEDIUM",
+      "category": "initial_access",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_initial_access_initial_access_094\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%drive%' OR \"data__json.message\" LIKE '%compromise%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_initial_access_initial_access_094",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "initial_access"
+      ]
+    },
+    {
+      "rule_id": "OCI-INITIAL_ACCESS-095",
+      "name": "External Remote Services Brute Force",
+      "description": "Detect password spraying against RDP, SSH, VPN, OWA",
+      "severity": "MEDIUM",
+      "category": "initial_access",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_initial_access_initial_access_095\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%external%' OR \"data__json.message\" LIKE '%remote%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_initial_access_initial_access_095",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "initial_access"
+      ]
+    },
+    {
+      "rule_id": "OCI-INITIAL_ACCESS-096",
+      "name": "Hardware Additions",
+      "description": "Detect rogue USB, pineapple WiFi, or hardware implant indicators",
+      "severity": "MEDIUM",
+      "category": "initial_access",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_initial_access_initial_access_096\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%hardware%' OR \"data__json.message\" LIKE '%additions%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_initial_access_initial_access_096",
         "operator": "GT",
         "threshold": 3
       },
@@ -3031,6 +3451,306 @@
       ]
     },
     {
+      "rule_id": "OCI-RANSOMWARE-037",
+      "name": "Mass File Encryption Pattern",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "MEDIUM",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_ransomware_ransomware_037\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%mass%' OR \"data__json.message\" LIKE '%file%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_ransomware_ransomware_037",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
+    },
+    {
+      "rule_id": "OCI-RANSOMWARE-038",
+      "name": "Shadow Copy Deletion",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "MEDIUM",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_ransomware_ransomware_038\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%shadow%' OR \"data__json.message\" LIKE '%copy%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_ransomware_ransomware_038",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
+    },
+    {
+      "rule_id": "OCI-RANSOMWARE-039",
+      "name": "Ransom Note Creation",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "MEDIUM",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_ransomware_ransomware_039\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%ransom%' OR \"data__json.message\" LIKE '%note%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_ransomware_ransomware_039",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
+    },
+    {
+      "rule_id": "OCI-RANSOMWARE-040",
+      "name": "Volume Shadow Copy Tampering",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "MEDIUM",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_ransomware_ransomware_040\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%volume%' OR \"data__json.message\" LIKE '%shadow%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_ransomware_ransomware_040",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
+    },
+    {
+      "rule_id": "OCI-RANSOMWARE-041",
+      "name": "Backup Deletion via Vssadmin",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "MEDIUM",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_ransomware_ransomware_041\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%backup%' OR \"data__json.message\" LIKE '%deletion%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_ransomware_ransomware_041",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
+    },
+    {
+      "rule_id": "OCI-RANSOMWARE-042",
+      "name": "Ransomware C2 Beacon Pattern",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "MEDIUM",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_ransomware_ransomware_042\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%ransomware%' OR \"data__json.message\" LIKE '%beacon%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_ransomware_ransomware_042",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
+    },
+    {
+      "rule_id": "OCI-RANSOMWARE-043",
+      "name": "Mimikatz Credential Dumping Pre-Encryption",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "MEDIUM",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_ransomware_ransomware_043\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%mimikatz%' OR \"data__json.message\" LIKE '%credential%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_ransomware_ransomware_043",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
+    },
+    {
+      "rule_id": "OCI-RANSOMWARE-044",
+      "name": "Lateral Movement via PsExec/WMI",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "MEDIUM",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_ransomware_ransomware_044\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%lateral%' OR \"data__json.message\" LIKE '%movement%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_ransomware_ransomware_044",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
+    },
+    {
+      "rule_id": "OCI-RANSOMWARE-045",
+      "name": "Scheduled Task Creation for Encryption",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "MEDIUM",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_ransomware_ransomware_045\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%scheduled%' OR \"data__json.message\" LIKE '%task%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_ransomware_ransomware_045",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
+    },
+    {
+      "rule_id": "OCI-RANSOMWARE-046",
+      "name": "Registry Run Key Persistence for Ransomware",
+      "description": "Detection rules for ransomware indicators: encryption patterns, C2 behavior, lateral movement preceding ransomware deployment",
+      "severity": "MEDIUM",
+      "category": "ransomware",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_ransomware_ransomware_046\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%registry%' OR \"data__json.message\" LIKE '%run%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_ransomware_ransomware_046",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "ransomware"
+      ]
+    },
+    {
       "rule_id": "OCI-RECONNAISSANCE-117",
       "name": "Active Directory Domain Enumeration",
       "description": "Detect AD enumeration via LDAP queries, DSQuery, BloodHound collection",
@@ -3437,6 +4157,306 @@
         ],
         "compartmentId": "$COMPARTMENT_ID",
         "metric": "siem_reconnaissance_reconnaissance_100",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "OCI-RECONNAISSANCE-077",
+      "name": "Active Directory Domain Enumeration",
+      "description": "Detect AD enumeration via LDAP queries, DSQuery, BloodHound collection",
+      "severity": "MEDIUM",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_reconnaissance_reconnaissance_077\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_reconnaissance_reconnaissance_077",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "OCI-RECONNAISSANCE-078",
+      "name": "Network Service Discovery (Nmap/Masscan)",
+      "description": "Detect port scanning patterns from Nmap, Masscan, Shodan",
+      "severity": "MEDIUM",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_reconnaissance_reconnaissance_078\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_reconnaissance_reconnaissance_078",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "OCI-RECONNAISSANCE-079",
+      "name": "DNS Zone Transfer Attempt",
+      "description": "Detect AXFR zone transfer attempts revealing internal DNS records",
+      "severity": "MEDIUM",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_reconnaissance_reconnaissance_079\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (53, 5353) AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_reconnaissance_reconnaissance_079",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "OCI-RECONNAISSANCE-080",
+      "name": "Web Technology Fingerprinting",
+      "description": "Detect Wappalyzer/WhatWeb-style fingerprinting probes",
+      "severity": "MEDIUM",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_reconnaissance_reconnaissance_080\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (80, 443) AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_reconnaissance_reconnaissance_080",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "OCI-RECONNAISSANCE-081",
+      "name": "Cloud Asset Enumeration",
+      "description": "Detect enumeration of S3 buckets, Azure blobs, GCS via automated tools",
+      "severity": "MEDIUM",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_reconnaissance_reconnaissance_081\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_reconnaissance_reconnaissance_081",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "OCI-RECONNAISSANCE-082",
+      "name": "SSL/TLS Certificate Reconnaissance",
+      "description": "Detect certificate transparency log scraping and subdomain discovery",
+      "severity": "MEDIUM",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_reconnaissance_reconnaissance_082\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_reconnaissance_reconnaissance_082",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "OCI-RECONNAISSANCE-083",
+      "name": "API Endpoint Discovery",
+      "description": "Detect automated API endpoint fuzzing and directory brute forcing",
+      "severity": "MEDIUM",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_reconnaissance_reconnaissance_083\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"srcaddr\" NOT LIKE '10.%' AND \"dstaddr\" NOT LIKE '10.%' AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_reconnaissance_reconnaissance_083",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "OCI-RECONNAISSANCE-084",
+      "name": "Email Harvesting & Phishing Prep",
+      "description": "Detect email enumeration from O365/Google via SMTP probing",
+      "severity": "MEDIUM",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_reconnaissance_reconnaissance_084\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (25, 465, 587) AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_reconnaissance_reconnaissance_084",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "OCI-RECONNAISSANCE-085",
+      "name": "SNMP Community String Brute Force",
+      "description": "Detect SNMP community string brute forcing revealing device info",
+      "severity": "MEDIUM",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_reconnaissance_reconnaissance_085\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (161, 162) AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_reconnaissance_reconnaissance_085",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "reconnaissance"
+      ]
+    },
+    {
+      "rule_id": "OCI-RECONNAISSANCE-086",
+      "name": "Kubernetes API Server Recon",
+      "description": "Detect unauthorized Kubernetes API server queries",
+      "severity": "MEDIUM",
+      "category": "reconnaissance",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_reconnaissance_reconnaissance_086\", \"action\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'VcnFlowLogs' AND \"action\" = 'REJECT' AND \"dstport\" IN (6443, 10250) AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_reconnaissance_reconnaissance_086",
         "operator": "GT",
         "threshold": 3
       },
@@ -4461,6 +5481,306 @@
       ]
     },
     {
+      "rule_id": "OCI-SUPPLY_CHAIN-017",
+      "name": "Dependency Confusion Attack",
+      "description": "Detection rules for software supply chain attacks: dependency confusion, typosquatting, compromised packages",
+      "severity": "MEDIUM",
+      "category": "supply_chain",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_supply_chain_supply_chain_017\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%dependency%' OR \"data__json.message\" LIKE '%confusion%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_supply_chain_supply_chain_017",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "supply_chain"
+      ]
+    },
+    {
+      "rule_id": "OCI-SUPPLY_CHAIN-018",
+      "name": "Typosquatting Package Install",
+      "description": "Detection rules for software supply chain attacks: dependency confusion, typosquatting, compromised packages",
+      "severity": "MEDIUM",
+      "category": "supply_chain",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_supply_chain_supply_chain_018\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%typosquatting%' OR \"data__json.message\" LIKE '%package%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_supply_chain_supply_chain_018",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "supply_chain"
+      ]
+    },
+    {
+      "rule_id": "OCI-SUPPLY_CHAIN-019",
+      "name": "Compromised CI/CD Pipeline",
+      "description": "Detection rules for software supply chain attacks: dependency confusion, typosquatting, compromised packages",
+      "severity": "MEDIUM",
+      "category": "supply_chain",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_supply_chain_supply_chain_019\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%compromised%' OR \"data__json.message\" LIKE '%pipeline%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_supply_chain_supply_chain_019",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "supply_chain"
+      ]
+    },
+    {
+      "rule_id": "OCI-SUPPLY_CHAIN-020",
+      "name": "Malicious NPM/PyPI Package",
+      "description": "Detection rules for software supply chain attacks: dependency confusion, typosquatting, compromised packages",
+      "severity": "MEDIUM",
+      "category": "supply_chain",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_supply_chain_supply_chain_020\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%malicious%' OR \"data__json.message\" LIKE '%npm%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_supply_chain_supply_chain_020",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "supply_chain"
+      ]
+    },
+    {
+      "rule_id": "OCI-SUPPLY_CHAIN-021",
+      "name": "Container Image Tampering",
+      "description": "Detection rules for software supply chain attacks: dependency confusion, typosquatting, compromised packages",
+      "severity": "MEDIUM",
+      "category": "supply_chain",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_supply_chain_supply_chain_021\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%container%' OR \"data__json.message\" LIKE '%image%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_supply_chain_supply_chain_021",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "supply_chain"
+      ]
+    },
+    {
+      "rule_id": "OCI-SUPPLY_CHAIN-022",
+      "name": "Compromised Update Server",
+      "description": "Detection rules for software supply chain attacks: dependency confusion, typosquatting, compromised packages",
+      "severity": "MEDIUM",
+      "category": "supply_chain",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_supply_chain_supply_chain_022\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%compromised%' OR \"data__json.message\" LIKE '%update%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_supply_chain_supply_chain_022",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "supply_chain"
+      ]
+    },
+    {
+      "rule_id": "OCI-SUPPLY_CHAIN-023",
+      "name": "Build Pipeline Injection",
+      "description": "Detection rules for software supply chain attacks: dependency confusion, typosquatting, compromised packages",
+      "severity": "MEDIUM",
+      "category": "supply_chain",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_supply_chain_supply_chain_023\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%build%' OR \"data__json.message\" LIKE '%pipeline%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_supply_chain_supply_chain_023",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "supply_chain"
+      ]
+    },
+    {
+      "rule_id": "OCI-SUPPLY_CHAIN-024",
+      "name": "Secret Leakage in CI Logs",
+      "description": "Detection rules for software supply chain attacks: dependency confusion, typosquatting, compromised packages",
+      "severity": "MEDIUM",
+      "category": "supply_chain",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_supply_chain_supply_chain_024\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%secret%' OR \"data__json.message\" LIKE '%leakage%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_supply_chain_supply_chain_024",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "supply_chain"
+      ]
+    },
+    {
+      "rule_id": "OCI-SUPPLY_CHAIN-025",
+      "name": "Unsigned Artifact Deployment",
+      "description": "Detection rules for software supply chain attacks: dependency confusion, typosquatting, compromised packages",
+      "severity": "MEDIUM",
+      "category": "supply_chain",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_supply_chain_supply_chain_025\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%unsigned%' OR \"data__json.message\" LIKE '%artifact%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_supply_chain_supply_chain_025",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "supply_chain"
+      ]
+    },
+    {
+      "rule_id": "OCI-SUPPLY_CHAIN-026",
+      "name": "Dependency Version Pinning Bypass",
+      "description": "Detection rules for software supply chain attacks: dependency confusion, typosquatting, compromised packages",
+      "severity": "MEDIUM",
+      "category": "supply_chain",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_supply_chain_supply_chain_026\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%dependency%' OR \"data__json.message\" LIKE '%version%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_supply_chain_supply_chain_026",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "supply_chain"
+      ]
+    },
+    {
       "rule_id": "OCI-ZERO_DAY-087",
       "name": "Unexpected Process Execution from Web Directory",
       "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
@@ -5047,6 +6367,306 @@
         ],
         "compartmentId": "$COMPARTMENT_ID",
         "metric": "siem_zero_day_zero_day_076",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
+    },
+    {
+      "rule_id": "OCI-ZERO_DAY-047",
+      "name": "Unexpected Process Execution from Web Directory",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "MEDIUM",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_zero_day_zero_day_047\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%unexpected%' OR \"data__json.message\" LIKE '%process%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_zero_day_zero_day_047",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
+    },
+    {
+      "rule_id": "OCI-ZERO_DAY-048",
+      "name": "Anomalous Child Process from Service",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "MEDIUM",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_zero_day_zero_day_048\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%child%' OR \"data__json.message\" LIKE '%process%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_zero_day_zero_day_048",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
+    },
+    {
+      "rule_id": "OCI-ZERO_DAY-049",
+      "name": "Unusual Network Connection from System Process",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "MEDIUM",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_zero_day_zero_day_049\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%unusual%' OR \"data__json.message\" LIKE '%network%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_zero_day_zero_day_049",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
+    },
+    {
+      "rule_id": "OCI-ZERO_DAY-050",
+      "name": "Memory Injection Pattern Detection",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "MEDIUM",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_zero_day_zero_day_050\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%memory%' OR \"data__json.message\" LIKE '%injection%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_zero_day_zero_day_050",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
+    },
+    {
+      "rule_id": "OCI-ZERO_DAY-051",
+      "name": "Unexpected DLL Loading",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "MEDIUM",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_zero_day_zero_day_051\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%unexpected%' OR \"data__json.message\" LIKE '%dll%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_zero_day_zero_day_051",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
+    },
+    {
+      "rule_id": "OCI-ZERO_DAY-052",
+      "name": "Abnormal Token Privilege Elevation",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "MEDIUM",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_zero_day_zero_day_052\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%abnormal%' OR \"data__json.message\" LIKE '%token%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_zero_day_zero_day_052",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
+    },
+    {
+      "rule_id": "OCI-ZERO_DAY-053",
+      "name": "Process Hollowing Indicator",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "MEDIUM",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_zero_day_zero_day_053\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%process%' OR \"data__json.message\" LIKE '%hollowing%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_zero_day_zero_day_053",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
+    },
+    {
+      "rule_id": "OCI-ZERO_DAY-054",
+      "name": "Reflective DLL Injection",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "MEDIUM",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_zero_day_zero_day_054\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%reflective%' OR \"data__json.message\" LIKE '%dll%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_zero_day_zero_day_054",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
+    },
+    {
+      "rule_id": "OCI-ZERO_DAY-055",
+      "name": "Unusual Named Pipe Activity",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "MEDIUM",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_zero_day_zero_day_055\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%unusual%' OR \"data__json.message\" LIKE '%named%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_zero_day_zero_day_055",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "zero_day"
+      ]
+    },
+    {
+      "rule_id": "OCI-ZERO_DAY-056",
+      "name": "Anomalous Service Installation",
+      "description": "Behavioral detection rules for unknown zero-day exploitation patterns",
+      "severity": "MEDIUM",
+      "category": "zero_day",
+      "mitre_attack": [],
+      "compliance": [],
+      "query": "SELECT \"siem_zero_day_zero_day_056\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%service%' OR \"data__json.message\" LIKE '%installation%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_zero_day_zero_day_056",
         "operator": "GT",
         "threshold": 3
       },

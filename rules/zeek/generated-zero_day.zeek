@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-zero_day
-# Auto-generated: 2026-10-07T04:05:05.403440Z
+# Auto-generated: 2026-10-12T06:00:32.460511Z
 # Load in local.zeek: @load ./generated-zero_day
 
 signature ZK-ZERO_DAY-087 {
@@ -136,6 +136,76 @@ signature ZK-ZERO_DAY-075 {
 }
 
 signature ZK-ZERO_DAY-076 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((\.cgi|\.php|\.asp)).*/ regex
+	event "Anomalous Service Installation"
+}
+
+signature ZK-ZERO_DAY-047 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((\.cgi|\.php|\.asp)).*/ regex
+	event "Unexpected Process Execution from Web Directory"
+}
+
+signature ZK-ZERO_DAY-048 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((\.cgi|\.php|\.asp)).*/ regex
+	event "Anomalous Child Process from Service"
+}
+
+signature ZK-ZERO_DAY-049 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((\.cgi|\.php|\.asp)).*/ regex
+	event "Unusual Network Connection from System Process"
+}
+
+signature ZK-ZERO_DAY-050 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((\.cgi|\.php|\.asp)).*/ regex
+	event "Memory Injection Pattern Detection"
+}
+
+signature ZK-ZERO_DAY-051 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((\.cgi|\.php|\.asp)).*/ regex
+	event "Unexpected DLL Loading"
+}
+
+signature ZK-ZERO_DAY-052 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((\.cgi|\.php|\.asp)).*/ regex
+	event "Abnormal Token Privilege Elevation"
+}
+
+signature ZK-ZERO_DAY-053 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((\.cgi|\.php|\.asp)).*/ regex
+	event "Process Hollowing Indicator"
+}
+
+signature ZK-ZERO_DAY-054 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((\.cgi|\.php|\.asp)).*/ regex
+	event "Reflective DLL Injection"
+}
+
+signature ZK-ZERO_DAY-055 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((\.cgi|\.php|\.asp)).*/ regex
+	event "Unusual Named Pipe Activity"
+}
+
+signature ZK-ZERO_DAY-056 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*((\.cgi|\.php|\.asp)).*/ regex

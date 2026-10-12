@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-ransomware
-# Auto-generated: 2026-10-07T04:05:05.399792Z
+# Auto-generated: 2026-10-12T06:00:32.459108Z
 # Load in local.zeek: @load ./generated-ransomware
 
 signature ZK-RANSOMWARE-077 {
@@ -136,6 +136,76 @@ signature ZK-RANSOMWARE-065 {
 }
 
 signature ZK-RANSOMWARE-066 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((vssadmin\ delete|wbadmin\ delete|bcdedit|cipher\ \/e|\.encrypted|\.locked)).*/ regex
+	event "Registry Run Key Persistence for Ransomware"
+}
+
+signature ZK-RANSOMWARE-037 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((vssadmin\ delete|wbadmin\ delete|bcdedit|cipher\ \/e|\.encrypted|\.locked)).*/ regex
+	event "Mass File Encryption Pattern"
+}
+
+signature ZK-RANSOMWARE-038 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((vssadmin\ delete|wbadmin\ delete|bcdedit|cipher\ \/e|\.encrypted|\.locked)).*/ regex
+	event "Shadow Copy Deletion"
+}
+
+signature ZK-RANSOMWARE-039 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((vssadmin\ delete|wbadmin\ delete|bcdedit|cipher\ \/e|\.encrypted|\.locked)).*/ regex
+	event "Ransom Note Creation"
+}
+
+signature ZK-RANSOMWARE-040 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((vssadmin\ delete|wbadmin\ delete|bcdedit|cipher\ \/e|\.encrypted|\.locked)).*/ regex
+	event "Volume Shadow Copy Tampering"
+}
+
+signature ZK-RANSOMWARE-041 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((vssadmin\ delete|wbadmin\ delete|bcdedit|cipher\ \/e|\.encrypted|\.locked)).*/ regex
+	event "Backup Deletion via Vssadmin"
+}
+
+signature ZK-RANSOMWARE-042 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((vssadmin\ delete|wbadmin\ delete|bcdedit|cipher\ \/e|\.encrypted|\.locked)).*/ regex
+	event "Ransomware C2 Beacon Pattern"
+}
+
+signature ZK-RANSOMWARE-043 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((vssadmin\ delete|wbadmin\ delete|bcdedit|cipher\ \/e|\.encrypted|\.locked)).*/ regex
+	event "Mimikatz Credential Dumping Pre-Encryption"
+}
+
+signature ZK-RANSOMWARE-044 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((vssadmin\ delete|wbadmin\ delete|bcdedit|cipher\ \/e|\.encrypted|\.locked)).*/ regex
+	event "Lateral Movement via PsExec/WMI"
+}
+
+signature ZK-RANSOMWARE-045 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((vssadmin\ delete|wbadmin\ delete|bcdedit|cipher\ \/e|\.encrypted|\.locked)).*/ regex
+	event "Scheduled Task Creation for Encryption"
+}
+
+signature ZK-RANSOMWARE-046 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*((vssadmin\ delete|wbadmin\ delete|bcdedit|cipher\ \/e|\.encrypted|\.locked)).*/ regex
