@@ -1,0 +1,31 @@
+# Zeek SIEM Alert Rules — generated-execution
+# Auto-generated: 2026-10-12T06:00:32.457863Z
+# Load in local.zeek: @load ./generated-execution
+
+signature ZK-EXECUTION-097 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((powershell|cmd\.exe|bash|python|eval|base64)).*/ regex
+	event "PowerShell Suspicious Execution"
+}
+
+signature ZK-EXECUTION-098 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((powershell|cmd\.exe|bash|python|eval|base64)).*/ regex
+	event "WMI Remote Execution"
+}
+
+signature ZK-EXECUTION-099 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((powershell|cmd\.exe|bash|python|eval|base64)).*/ regex
+	event "Scheduled Task/At Job Creation"
+}
+
+signature ZK-EXECUTION-100 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((powershell|cmd\.exe|bash|python|eval|base64)).*/ regex
+	event "LSASS Memory Dumping"
+}

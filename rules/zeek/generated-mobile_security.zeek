@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-mobile_security
-# Auto-generated: 2026-10-07T04:05:05.398024Z
+# Auto-generated: 2026-10-12T06:00:32.458676Z
 # Load in local.zeek: @load ./generated-mobile_security
 
 signature ZK-MOBILE_SECURITY-097 {
@@ -94,6 +94,76 @@ signature ZK-MOBILE_SECURITY-085 {
 }
 
 signature ZK-MOBILE_SECURITY-086 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((Mobile|Android|iPhone)).*/ regex
+	event "Biometric Auth Bypass"
+}
+
+signature ZK-MOBILE_SECURITY-057 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((Mobile|Android|iPhone)).*/ regex
+	event "App Repackaging Detection"
+}
+
+signature ZK-MOBILE_SECURITY-058 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((Mobile|Android|iPhone)).*/ regex
+	event "Certificate Pinning Bypass"
+}
+
+signature ZK-MOBILE_SECURITY-059 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((Mobile|Android|iPhone)).*/ regex
+	event "API Traffic Tampering"
+}
+
+signature ZK-MOBILE_SECURITY-060 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((Mobile|Android|iPhone)).*/ regex
+	event "Root/Jailbreak Detection Bypass"
+}
+
+signature ZK-MOBILE_SECURITY-061 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((Mobile|Android|iPhone)).*/ regex
+	event "Debuggable App in Production"
+}
+
+signature ZK-MOBILE_SECURITY-062 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((Mobile|Android|iPhone)).*/ regex
+	event "Insecure Data Storage"
+}
+
+signature ZK-MOBILE_SECURITY-063 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((Mobile|Android|iPhone)).*/ regex
+	event "Intent Redirection Attack"
+}
+
+signature ZK-MOBILE_SECURITY-064 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((Mobile|Android|iPhone)).*/ regex
+	event "Clipboard Data Leakage"
+}
+
+signature ZK-MOBILE_SECURITY-065 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((Mobile|Android|iPhone)).*/ regex
+	event "Insecure WebView Implementation"
+}
+
+signature ZK-MOBILE_SECURITY-066 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*((Mobile|Android|iPhone)).*/ regex

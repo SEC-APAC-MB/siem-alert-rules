@@ -1,8 +1,8 @@
-# 🚨 SIEM Alert Rules — 37,286 Detection Rules
+# 🚨 SIEM Alert Rules — 29,307 Detection Rules
 
 **Production-ready SIEM alert rules mapped from security test checks, live threat intel, and pentest techniques.**
 
-> **Verified count**: 37,286 rules across 11 platforms as of 2026-10-05. Daily generation engine
+> **Verified count**: 29,307 rules across 11 platforms as of 2026-10-12. Daily generation engine
 > adds rules from CISA KEV, NVD CVE, and MITRE ATT&CK. Target: 2,500+ per platform.
 > Weekly cleanup: stale CVEs (>12 months) removed, revoked MITRE techniques flagged, XML validation enforced.
 
@@ -12,17 +12,17 @@ Covers OWASP WSTG, API Security, Mobile Security, AI/LLM Security, MITRE ATT&CK,
 
 | Platform | Rules | Format | Directory |
 |----------|-------|--------|------------|
-| Elastic Security (Kibana) | 5,396 | KQL/EQL + Rule API JSON | `rules/elastic/` |
-| Splunk Enterprise | 4,831 | SPL + correlation searches | `rules/splunk/` |
-| FortiSIEM | 673 | Pattern-based XML | `rules/fortisiem/` |
-| IBM QRadar | 786 | AQL + custom rules | `rules/qradar/` |
-| Microsoft Sentinel | 802 | KQL analytics rules | `rules/sentinel/` |
-| Wazuh | 9,952 | Custom rules (XML) | `rules/wazuh/` |
-| Zeek (Bro) | 266 | Zeek script signatures | `rules/zeek/` |
-| Suricata | 11,787 | Emerging threats + custom | `rules/suricata/` |
-| Oracle Cloud Infrastructure | 1,192 | OCI Alarm + Event rules | `rules/oracle/` |
-| Microsoft Azure | 878 | Azure Monitor + Policy | `rules/azure/` |
-| AWS | 723 | CloudWatch + EventBridge + GuardDuty | `rules/aws/` |
+| Elastic Security (Kibana) | 5,496 | KQL/EQL + Rule API JSON | `rules/elastic/` |
+| Splunk Enterprise | 4,947 | SPL + correlation searches | `rules/splunk/` |
+| FortiSIEM | 1,109 | Pattern-based XML | `rules/fortisiem/` |
+| IBM QRadar | 886 | AQL + custom rules | `rules/qradar/` |
+| Microsoft Sentinel | 902 | KQL analytics rules | `rules/sentinel/` |
+| Wazuh | 10,152 | Custom rules (XML) | `rules/wazuh/` |
+| Zeek (Bro) | 403 | Zeek script signatures | `rules/zeek/` |
+| Suricata | 2,319 | Emerging threats + custom | `rules/suricata/` |
+| Oracle Cloud Infrastructure | 1,292 | OCI Alarm + Event rules | `rules/oracle/` |
+| Microsoft Azure | 978 | Azure Monitor + Policy | `rules/azure/` |
+| AWS | 823 | CloudWatch + EventBridge + GuardDuty | `rules/aws/` |
 
 ## Regulatory Cross-Mapping
 
@@ -97,95 +97,3 @@ Each mapping links: `Test ID → SIEM Rule IDs (per platform) → Regulatory Con
 | AI Act | 311 | 622 |
 | + Platform-specific variations | — | ~5,000+ |
 | **Grand Total** | — | **~20,000+** |
-
-## Database Security Coverage
-
-SQL: PostgreSQL, MySQL, SQL Server, Oracle, SQLite
-NoSQL: MongoDB, DynamoDB, Cassandra, CouchDB, Firestore
-Graph: Neo4j, ArangoDB, Amazon Neptune
-Time-series: InfluxDB, TimescaleDB, Prometheus
-Vector: Pinecone, Weaviate, Milvus, ChromaDB, Qdrant
-Key-value: Redis, Memcached
-Column-family: HBase
-
-## Quick Start
-
-```bash
-# Clone
-git clone https://github.com/SEC-APAC-MB/siem-alert-rules.git
-cd siem-alert-rules
-
-# Validate all rules
-./scripts/validate.sh
-
-# Deploy to Elastic
-./scripts/deploy.sh elastic --dry-run
-./scripts/deploy.sh elastic
-
-# Deploy to Splunk
-./scripts/deploy.sh splunk --dry-run
-./scripts/deploy.sh splunk
-
-# Deploy to Sentinel
-./scripts/deploy.sh sentinel --dry-run
-./scripts/deploy.sh sentinel
-
-# Deploy to AWS
-./scripts/deploy.sh aws --dry-run
-./scripts/deploy.sh aws
-
-# Deploy to Azure
-./scripts/deploy.sh azure --dry-run
-./scripts/deploy.sh azure
-
-# Deploy to Oracle Cloud
-./scripts/deploy.sh oracle --dry-run
-./scripts/deploy.sh oracle
-
-# Deploy to all platforms
-./scripts/deploy.sh all
-```
-
-## Mappings
-
-The `mappings/` directory contains cross-reference files:
-- `test-to-siem.json` — Maps every test catalog ID to SIEM rule IDs across all 11 platforms
-- `mitre-to-siem.json` — Maps MITRE ATT&CK techniques to SIEM rules
-- `regulatory-cross-map.json` — Maps every test to all 8 compliance frameworks
-- `pci-dss-mappings.json` — PCI-DSS control → SIEM rule mapping
-- `gdpr-mappings.json` — GDPR article → SIEM rule mapping
-- `hipaa-mappings.json` — HIPAA safeguard → SIEM rule mapping
-- `nist-mappings.json` — NIST 800-53 control → SIEM rule mapping
-- `nis2-mappings.json` — NIS2 article → SIEM rule mapping
-- `dora-mappings.json` — DORA article → SIEM rule mapping
-- `data-act-mappings.json` — Data Act article → SIEM rule mapping
-- `ai-act-mappings.json` — AI Act article → SIEM rule mapping
-- `database-to-siem.json` — Database-specific tests → SIEM rules
-- `elastic-mappings.json` — Elastic-specific ID mapping
-- `splunk-mappings.json` — Splunk-specific ID mapping
-- `fortisiem-mappings.json` — FortiSIEM-specific ID mapping
-- `qradar-mappings.json` — QRadar-specific ID mapping
-- `sentinel-mappings.json` — Sentinel-specific ID mapping
-- `wazuh-mappings.json` — Wazuh-specific ID mapping
-- `zeek-mappings.json` — Zeek-specific ID mapping
-- `suricata-mappings.json` — Suricata-specific ID mapping
-- `oracle-mappings.json` — Oracle Cloud-specific ID mapping
-- `azure-mappings.json` — Azure-specific ID mapping
-- `aws-mappings.json` — AWS-specific ID mapping
-
-## Related Projects
-
-- [security-testing-pentest](https://github.com/SEC-APAC-MB/security-testing-pentest) — 10,426+ security test checks
-- [MITRE ATT&CK Chain Scripts](https://github.com/SEC-APAC-MB/security-testing-pentest/tree/main/scripts/mitre-attack-chains) — 10 exploit chain scripts
-
-## License
-
-MIT
-
-## Contributing
-
-Contributions welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details.
-
----
-
-**37,286 SIEM alert rules. 11 platforms. 8 regulatory frameworks. Full cross-mapping. Production-ready.**
