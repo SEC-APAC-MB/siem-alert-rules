@@ -1,0 +1,238 @@
+# Suricata Detection Rules - Generated 2026-10-13 14:01 UTC
+# Source: GitHub Advisory Database CVEs, MITRE ATT&CK, Current Threat Landscape
+# Total Rules: 100
+# SID Range: 521275500 - 521275599
+
+# === CVE-2026-63354: Visual Marker CSV Injection (GHSA-42fq-r5j4-9gwp) ===
+alert http any any -> any any (msg:"CVE-2026-63354 Visual Marker CSV Trace File Injection Attempt"; content:"trace"; nocase; content:".csv"; nocase; pcre:"/visual_marker|marker_data|trace_import/Ui"; content:"|3C 73 63 72 69 70 74|"; nocase; classtype:attempted-user; sid:521275500; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-63354 Malicious CSV Trace File Upload Detected"; flow:to_server; content:"POST"; http_method; content:"/import"; nocase; content:"filename="; nocase; pcre:"/filename=[^\"]*\.(csv|trace)/Hi"; classtype:attempted-user; sid:521275501; rev:1;)
+
+# === CVE-2026-63353: Comment Field Sanitization Bypass (GHSA-qm94-q84w-4cgf) ===
+alert http any any -> any any (msg:"CVE-2026-63353 Trace Comment Field XSS Injection"; flow:to_server; content:"comment"; nocase; pcre:"/(<img|<script|onerror|onload|javascript:)/Ui"; content:"trace"; nocase; classtype:web-application-attack; sid:521275502; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-63353 Stored XSS via Trace Comment Import"; flow:to_server; content:"POST"; http_method; content:"comment"; nocase; content:"<svg"; nocase; classtype:web-application-attack; sid:521275503; rev:1;)
+
+# === CVE-2026-109157: TRENDnet TEW-432BRP Vulnerability ===
+alert http any any -> any any (msg:"CVE-2026-109157 TRENDnet TEW-432BRP Authentication Bypass Attempt"; flow:to_server; content:"/login.htm"; nocase; content:"TRENDnet"; http_header; nocase; pcre:"/(admin|root|super)/Ui"; classtype:attempted-admin; sid:521275504; rev:1;)
+
+# === CVE-2026-89199: RUGGEDCOM CROSSBOW < V6.0 ===
+alert http any any -> any any (msg:"CVE-2026-89199 RUGGEDCOM CROSSBOW Pre-Auth Command Injection"; flow:to_server; content:"/crosbow"; nocase; pcre:"/(;|\|)&.*(cat|ls|id|whoami)/Ui"; classtype:attempted-admin; sid:521275505; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-89199 RUGGEDCOM CROSSBOW Directory Traversal"; flow:to_server; content:"../"; nocase; content:"crosbow"; nocase; classtype:attempted-recon; sid:521275506; rev:1;)
+
+# === CVE-2026-109832: gnome-remote-desktop Flaw (RHEL) ===
+alert tcp any any -> any 3389 (msg:"CVE-2026-109832 gnome-remote-desktop RDP Exploit Attempt"; flow:to_server; content:"rdp"; nocase; pcre:"/\\x03\\x00.*cookie=mstshash/U"; classtype:attempted-admin; sid:521275507; rev:1;)
+
+# === CVE-2026-63316: Payload CMS SQL Injection ===
+alert http any any -> any any (msg:"CVE-2026-63316 Payload CMS SQL Injection Attempt"; flow:to_server; content:"/api/"; nocase; content:"payload"; http_header; nocase; pcre:"/(UNION|SELECT|INSERT|DROP|OR 1=1|--)/Ui"; classtype:sql-injection; sid:521275508; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-63316 Payload CMS Time-Based SQL Injection"; flow:to_server; content:"/api/"; nocase; pcre:"/(SLEEP|BENCHMARK|WAITFOR|pg_sleep)/Ui"; classtype:sql-injection; sid:521275509; rev:1;)
+
+# === CVE-2026-89202: RUGGEDCOM CROSSBOW Authentication Bypass ===
+alert http any any -> any any (msg:"CVE-2026-89202 RUGGEDCOM CROSSBOW Auth Bypass via Header Manipulation"; flow:to_server; content:"X-Auth-Token"; http_header; pcre:"/(admin|root| bypass)/Ui"; content:"crosbow"; nocase; classtype:attempted-admin; sid:521275510; rev:1;)
+
+# === CVE-2026-89201: RUGGEDCOM CROSSBOW SSRF ===
+alert http any any -> any any (msg:"CVE-2026-89201 RUGGEDCOM CROSSBOW SSRF Attempt"; flow:to_server; content:"url="; nocase; pcre:"/(http|file|gopher|dict|ftp):\/\//Ui"; content:"crosbow"; nocase; classtype:web-application-attack; sid:521275511; rev:1;)
+
+# === CVE-2026-89200: RUGGEDCOM CROSSBOW XSS ===
+alert http any any -> any any (msg:"CVE-2026-89200 RUGGEDCOM CROSSBOW Reflected XSS"; flow:to_server; content:"/crosbow"; nocase; pcre:"/(<script|<iframe|<svg|onerror=)/Ui"; classtype:web-application-attack; sid:521275512; rev:1;)
+
+# === CVE-2026-89198: RUGGEDCOM CROSSBOW Path Traversal ===
+alert http any any -> any any (msg:"CVE-2026-89198 RUGGEDCOM CROSSBOW Path Traversal Read"; flow:to_server; content:"..%2f"; nocase; content:"..%5c"; nocase; pcre:"/(%2e%2e|%2e%2e%2f|..\/)/Ui"; classtype:attempted-recon; sid:521275513; rev:1;)
+
+# === CVE-2026-78557: Industrial Edge App Publisher ===
+alert http any any -> any any (msg:"CVE-2026-78557 Siemens Industrial Edge App Publisher Auth Bypass"; flow:to_server; content:"/ie-app-publisher"; nocase; pcre:"/(token|auth|session)=/Ui"; classtype:attempted-admin; sid:521275514; rev:1;)
+
+# === CVE-2026-89196: RUGGEDCOM CROSSBOW Code Execution ===
+alert http any any -> any any (msg:"CVE-2026-89196 RUGGEDCOM CROSSBOW Remote Code Execution"; flow:to_server; content:"/crosbow"; nocase; pcre:"/(system|exec|eval|passthru|shell_exec)/Ui"; classtype:attempted-admin; sid:521275515; rev:1;)
+
+# === CVE-2026-89197: RUGGEDCOM CROSSBOW Information Disclosure ===
+alert http any any -> any any (msg:"CVE-2026-89197 RUGGEDCOM CROSSBOW Sensitive Info Disclosure"; flow:to_server; content:"/crosbow"; nocase; pcre:"/(\/etc\/passwd|\/etc\/shadow|config|\.env)/Ui"; classtype:attempted-recon; sid:521275516; rev:1;)
+
+# === CVE-2026-78556: Industrial Edge App Publisher Path Traversal ===
+alert http any any -> any any (msg:"CVE-2026-78556 Siemens IE App Publisher Path Traversal"; flow:to_server; content:"/ie-app-publisher"; nocase; content:"../"; nocase; classtype:attempted-recon; sid:521275517; rev:1;)
+
+# === CVE-2026-72895: SIMATIC IPC BX-21A ===
+alert tcp any any -> any 102 (msg:"CVE-2026-72895 Siemens SIMATIC IPC BX-21A ISO-TSAP Exploit"; flow:to_server; content:"\x03\x00"; depth:2; pcre:"/\x02\xf0\x80/U"; classtype:attempted-admin; sid:521275518; rev:1;)
+
+# === MITRE ATT&CK T1046: Network Service Scanning ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1046 Network Service Scan - Nmap TCP Connect"; flow:to_server; dsize:0; flags:S; detection_filter:track by_src, count 20, seconds 10; classtype:network-scan; sid:521275519; rev:1;)
+alert udp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1046 Network Service Scan - UDP Sweep"; dsize:0; detection_filter:track by_src, count 30, seconds 15; classtype:network-scan; sid:521275520; rev:1;)
+
+# === MITRE ATT&CK T1047: Windows Management Instrumentation ===
+alert tcp any any -> any 135 (msg:"MITRE T1047 WMI Remote DCOM Connection"; flow:to_server; content:"\x05\x00"; depth:2; pcre:"/\x0b\x00/U"; classtype:remote-access; sid:521275521; rev:1;)
+alert http any any -> any any (msg:"MITRE T1047 WMI HTTP Transport Detection"; flow:to_server; content:"/wsman"; nocase; content:"wsa:NotifyTo"; nocase; classtype:remote-access; sid:521275522; rev:1;)
+
+# === MITRE ATT&CK T1053: Scheduled Task/Job ===
+alert http any any -> any any (msg:"MITRE T1053 Scheduled Task Creation via HTTP C2"; flow:to_server; content:"schtasks"; nocase; content:"/create"; nocase; pcre:"/\/sc\s+(MINUTE|HOURLY|ONSTART)/Ui"; classtype:execution; sid:521275523; rev:1;)
+alert tcp any any -> any 445 (msg:"MITRE T1053 Remote Scheduled Task via SMB RPC"; flow:to_server; content:"\x05\x00"; depth:2; content:"ITaskScheduler"; nocase; classtype:execution; sid:521275524; rev:1;)
+
+# === MITRE ATT&CK T1059: Command and Scripting Interpreter ===
+alert http any any -> any any (msg:"MITRE T1059 PowerShell Encoded Command via HTTP"; flow:to_server; content:"powershell"; nocase; pcre:"/-(enc|e|encodedcommand)/Ui"; classtype:execution; sid:521275525; rev:1;)
+alert http any any -> any any (msg:"MITRE T1059 Python Reverse Shell via HTTP Upload"; flow:to_server; content:"python"; nocase; pcre:"/(socket|connect|bind|pty\.spawn)/Ui"; classtype:execution; sid:521275526; rev:1;)
+alert http any any -> any any (msg:"MITRE T1059 Bash Command Injection Pattern"; flow:to_server; pcre:"/(\$\(|`|;\s*(cat|id|whoami|uname)|&&\s*(curl|wget))/Ui"; classtype:execution; sid:521275527; rev:1;)
+
+# === MITRE ATT&CK T1071: Application Layer Protocol ===
+alert dns $HOME_NET any -> any 53 (msg:"MITRE T1071 DNS Tunneling - Long Subdomain Query"; dns.query; pcre:"/^[a-zA-Z0-9]{40,}\./"; classtype:trojan-activity; sid:521275528; rev:1;)
+alert dns $HOME_NET any -> any 53 (msg:"MITRE T1071 DNS Tunneling - Base64 Encoded Query"; dns.query; pcre:"/[A-Za-z0-9+\/]{30,}={0,2}\./"; classtype:trojan-activity; sid:521275529; rev:1;)
+alert http any any -> any any (msg:"MITRE T1071 HTTP C2 Beacon Pattern - Uniform Interval"; flow:to_server; content:"/api/v1/"; nocase; content:"User-Agent|3a| Mozilla"; nocase; detection_filter:track by_src, count 10, seconds 60; classtype:trojan-activity; sid:521275530; rev:1;)
+
+# === MITRE ATT&CK T1078: Valid Accounts ===
+alert http any any -> any any (msg:"MITRE T1078 Valid Account Abuse - Multiple Failed Logins Then Success"; flow:to_server; content:"/login"; nocase; pcre:"/(401|403|login_failed)/Ui"; threshold:type threshold, track by_src, count 5, seconds 60; classtype:authentication; sid:521275531; rev:1;)
+alert tcp any any -> any 22 (msg:"MITRE T1078 SSH Brute Force - Multiple Auth Failures"; flow:to_server; content:"SSH-2.0"; depth:8; detection_filter:track by_src, count 10, seconds 30; classtype:authentication; sid:521275532; rev:1;)
+
+# === MITRE ATT&CK T1110: Brute Force ===
+alert http any any -> any any (msg:"MITRE T1110 Credential Stuffing - Password Spray Pattern"; flow:to_server; content:"password"; nocase; detection_filter:track by_src, count 20, seconds 300; classtype:authentication; sid:521275533; rev:1;)
+alert tcp any any -> any 3389 (msg:"MITRE T1110 RDP Brute Force - Multiple Connection Attempts"; flow:to_server; detection_filter:track by_src, count 15, seconds 60; classtype:authentication; sid:521275534; rev:1;)
+alert http any any -> any any (msg:"MITRE T1110 Password Spraying via OAuth2 Token Endpoint"; flow:to_server; content:"/oauth/token"; nocase; content:"grant_type=password"; nocase; detection_filter:track by_src, count 10, seconds 120; classtype:authentication; sid:521275535; rev:1;)
+
+# === MITRE ATT&CK T1133: External Remote Services ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"MITRE T1133 External RDP Connection Attempt"; flow:to_server; content:"\x03\x00"; depth:2; classtype:remote-access; sid:521275536; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5900 (msg:"MITRE T1133 External VNC Connection Attempt"; flow:to_server; content:"RFB"; depth:3; classtype:remote-access; sid:521275537; rev:1;)
+
+# === MITRE ATT&CK T1136: Create Account ===
+alert http any any -> any any (msg:"MITRE T1136 Account Creation via HTTP API"; flow:to_server; content:"POST"; http_method; pcre:"/\/(api|users|accounts)\/(create|register|add)/Ui"; content:"username"; nocase; content:"password"; nocase; classtype:authentication; sid:521275538; rev:1;)
+
+# === MITRE ATT&CK T1486: Data Encrypted for Impact ===
+alert http any any -> any any (msg:"MITRE T1486 Ransomware File Encryption Activity - Mass File Extension Change"; flow:to_server; content:".locked"; nocase; detection_filter:track by_src, count 50, seconds 60; classtype:trojan-activity; sid:521275539; rev:1;)
+alert tcp any any -> any 445 (msg:"MITRE T1486 SMB Ransomware File Rename Pattern - Mass Activity"; flow:to_server; content:"\x05\x00"; depth:2; detection_filter:track by_src, count 100, seconds 30; classtype:trojan-activity; sid:521275540; rev:1;)
+
+# === MITRE ATT&CK T1567: Exfiltration Over Web Service ===
+alert http $HOME_NET any -> any any (msg:"MITRE T1567 Data Exfil to Cloud Storage - S3 Upload Pattern"; flow:to_server; content:".s3.amazonaws.com"; http_host; pcre:"/(PUT|POST)/Ui"; content:"filename"; nocase; dsize:>1000000; classtype:exfiltration; sid:521275541; rev:1;)
+alert http $HOME_NET any -> any any (msg:"MITRE T1567 Data Exfil to Cloud Storage - Azure Blob Upload"; flow:to_server; content:".blob.core.windows.net"; http_host; content:"PUT"; http_method; dsize:>1000000; classtype:exfiltration; sid:521275542; rev:1;)
+alert http $HOME_NET any -> any any (msg:"MITRE T1567 Data Exfil via Pastebin-like Service"; flow:to_server; content:"pastebin.com"; http_host; content:"POST"; http_method; dsize:>50000; classtype:exfiltration; sid:521275543; rev:1;)
+
+# === MITRE ATT&CK T1190: Exploit Public-Facing Application ===
+alert http any any -> any any (msg:"MITRE T1190 Web Shell Upload - PHP File Upload to Web Root"; flow:to_server; content:"POST"; http_method; content:"filename="; nocase; pcre:"/filename=[^\"]*\.(php|phtml|php5|php7)/Hi"; classtype:web-application-attack; sid:521275544; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 Apache Struts OGNL Injection"; flow:to_server; content:"ognl"; nocase; pcre:"/(\$\{|%24\{|ognl\.|#_memberAccess)/Ui"; classtype:web-application-attack; sid:521275545; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 Log4Shell JNDI Injection Attempt"; flow:to_server; pcre:"/\$\{jndi:(ldap|rmi|dns|iiop|nis|nds|corba)/Ui"; classtype:web-application-attack; sid:521275546; rev:1;)
+
+# === MITRE ATT&CK T1505: Server Software Component ===
+alert http any any -> any any (msg:"MITRE T1505 Web Shell Access - China Chopper Pattern"; flow:to_server; pcre:"/(cmd=|command=|eval=|assert=)/Ui"; content:"POST"; http_method; pcre:"/(system|exec|passthru|shell_exec|eval)/Ui"; classtype:web-application-attack; sid:521275547; rev:1;)
+
+# === MITRE ATT&CK T1547: Boot or Logon Autostart Execution ===
+alert http any any -> any any (msg:"MITRE T1547 Registry Run Key Modification via HTTP C2"; flow:to_server; content:"reg"; nocase; content:"add"; nocase; pcre:"/(HKLM|HKCU)\\\(Software|Microsoft)\\\(Windows|CurrentVersion)\\\Run/U"; classtype:execution; sid:521275548; rev:1;)
+
+# === MITRE ATT&CK T1027: Obfuscated Files or Information ===
+alert http any any -> any any (msg:"MITRE T1027 Base64 Encoded Payload Delivery via HTTP"; flow:to_server; pcre:"/[A-Za-z0-9+\/]{200,}={0,2}/"; classtype:trojan-activity; sid:521275549; rev:1;)
+alert http any any -> any any (msg:"MITRE T1027 XOR Encoded Data Transfer"; flow:to_server; pcre:"/(\x41\x42\x43|\x5c\x78)/Ui"; dsize:>500; classtype:trojan-activity; sid:521275550; rev:1;)
+
+# === MITRE ATT&CK T1568: Dynamic Resolution ===
+alert dns $HOME_NET any -> any 53 (msg:"MITRE T1568 Dynamic DNS C2 Resolution - Frequent DGA Pattern"; dns.query; pcre:"/^[a-z0-9]{8,12}\.(duckdns|ddns|no-ip|dynu)\./"; detection_filter:track by_src, count 5, seconds 60; classtype:trojan-activity; sid:521275551; rev:1;)
+
+# === MITRE ATT&CK T1090: Proxy ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1090 TOR Exit Node Connection Detected"; flow:to_server; dsize:>0; threshold:type threshold, track by_src, count 1, seconds 60; classtype:trojan-activity; sid:521275552; rev:1;)
+
+# === MITRE ATT&CK T1008: Fallback Channels ===
+alert http any any -> any any (msg:"MITRE T1008 Fallback C2 Channel - Primary Blocked Secondary HTTP"; flow:to_server; content:"/fallback/"; nocase; pcre:"/(beacon|checkin|register)/Ui"; classtype:trojan-activity; sid:521275553; rev:1;)
+
+# === MITRE ATT&CK T1572: Protocol Tunneling ===
+alert tcp any any -> any 443 (msg:"MITRE T1572 HTTPS Tunneling - Suspicious TLS in TLS Pattern"; flow:to_server; dsize:>2000; content:"\x16\x03"; depth:2; classtype:trojan-activity; sid:521275554; rev:1;)
+alert tcp any any -> any 22 (msg:"MITRE T1572 SSH Tunneling - Excessive Data Transfer"; flow:to_server,established; dsize:>1000000; classtype:exfiltration; sid:521275555; rev:1;)
+
+# === MITRE ATT&CK T1573: Encrypted Channel ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"MITRE T1573 Suspicious Outbound TLS to Known Bad Certificate"; flow:to_server; tls.cert_subject; pcre:"/(CN=localhost|CN=test|CN=unknown|O=N\/A)/"; classtype:trojan-activity; sid:521275556; rev:1;)
+
+# === MITRE ATT&CK T1105: Ingress Tool Transfer ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1105 Tool Download - Executable via HTTP"; flow:to_server; content:"GET"; http_method; pcre:"/\/(payload|dropper|loader|beacon)\.(exe|dll|sh|py)/Ui"; classtype:trojan-activity; sid:521275557; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1105 Suspicious File Download - Raw Content from GitHub"; flow:to_server; content:"raw.githubusercontent.com"; http_host; pcre:"/\/(main|master)\/.*(exe|sh|ps1|py|dll)/Ui"; classtype:trojan-activity; sid:521275558; rev:1;)
+
+# === MITRE ATT&CK T1021: Remote Services ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"MITRE T1021 RDP from Suspicious Geographic Source"; flow:to_server; content:"\x03\x00"; depth:2; detection_filter:track by_src, count 5, seconds 300; classtype:remote-access; sid:521275559; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5985 (msg:"MITRE T1021 WinRM Remote Execution Attempt"; flow:to_server; content:"POST"; depth:4; content:"/wsman"; nocase; classtype:remote-access; sid:521275560; rev:1;)
+
+# === MITRE ATT&CK T1550: Use Alternate Authentication Material ===
+alert tcp any any -> any 88 (msg:"MITRE T1550 Kerberos Golden Ticket - Suspicious TGS Request"; flow:to_server; content:"\x6e\x82"; depth:2; dsize:>1000; classtype:authentication; sid:521275561; rev:1;)
+alert tcp any any -> any 445 (msg:"MITRE T1550 Pass-the-Hash SMB Authentication - NTLM Hash"; flow:to_server; content:"NTLM"; nocase; pcre:"/\x53\x53\x50/U"; classtype:authentication; sid:521275562; rev:1;)
+
+# === MITRE ATT&CK T1003: OS Credential Dumping ===
+alert http any any -> any any (msg:"MITRE T1003 LSASS Memory Dump via HTTP Exfil"; flow:to_server; content:"POST"; http_method; pcre:"/(lsass|lsass\.dmp|memory\.dmp)/Ui"; classtype:credential-access; sid:521275563; rev:1;)
+alert tcp any any -> any 445 (msg:"MITRE T1003 SAM Database Access via SMB - Registry Hive Copy"; flow:to_server; content:"\x05\x00"; depth:2; pcre:"/(SAM|SECURITY|SYSTEM)/Ui"; classtype:credential-access; sid:521275564; rev:1;)
+
+# === MITRE ATT&CK T1055: Process Injection ===
+alert http any any -> any any (msg:"MITRE T1055 Process Injection - DLL Injection via HTTP Download"; flow:to_server; content:"POST"; http_method; pcre:"/(VirtualAlloc|WriteProcessMemory|CreateRemoteThread|NtMapViewOfSection)/Ui"; classtype:execution; sid:521275565; rev:1;)
+
+# === MITRE ATT&CK T1571: Non-Standard Port ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 1337 (msg:"MITRE T1571 C2 on Non-Standard Port 1337"; flow:to_server; classtype:trojan-activity; sid:521275566; rev:1;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET 31337 (msg:"MITRE T1571 C2 on Non-Standard Port 31337"; flow:to_server; classtype:trojan-activity; sid:521275567; rev:1;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET 8443 (msg:"MITRE T1571 Suspicious C2 on Port 8443 with Non-TLS Traffic"; flow:to_server; content:"\x16\x03"; depth:2; negated; classtype:trojan-activity; sid:521275568; rev:1;)
+
+# === MITRE ATT&CK T1041: Exfiltration Over C2 Channel ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1041 Large Data Transfer to C2 - Beacon Pattern"; flow:to_server,established; dsize:>500000; detection_filter:track by_src, count 3, seconds 60; classtype:exfiltration; sid:521275569; rev:1;)
+
+# === MITRE ATT&CK T1059.004: PowerShell ===
+alert http any any -> any any (msg:"MITRE T1059.004 PowerShell AMSI Bypass Attempt"; flow:to_server; pcre:"/(amsiInitFailed|AMSI_INIT|AmsiUtils|System\.Reflection)/Ui"; classtype:execution; sid:521275570; rev:1;)
+
+# === MITRE ATT&CK T1218: System Binary Proxy Execution ===
+alert http any any -> any any (msg:"MITRE T1218 LOLBin - Regsvr32 via HTTP Download"; flow:to_server; content:"regsvr32"; nocase; pcre:"/(\/u|\/s|scrobj|scriptlet)/Ui"; classtype:execution; sid:521275571; rev:1;)
+alert http any any -> any any (msg:"MITRE T1218 LOLBin - Mshta HTA Execution"; flow:to_server; content:"mshta"; nocase; pcre:"/\.(hta|http)/Ui"; classtype:execution; sid:521275572; rev:1;)
+
+# === MITRE ATT&CK T1036: Masquerading ===
+alert http any any -> any any (msg:"MITRE T1036 Masquerading - svchost.exe from Non-System Path"; flow:to_server; pcre:"/(temp|downloads|appdata|programdata).*svchost\.(exe|dll)/Ui"; classtype:trojan-activity; sid:521275573; rev:1;)
+
+# === MITRE ATT&CK T1490: Inhibit System Recovery ===
+alert http any any -> any any (msg:"MITRE T1490 VSS Shadow Copy Deletion via HTTP C2 Command"; flow:to_server; content:"vssadmin"; nocase; content:"delete"; nocase; content:"shadows"; nocase; classtype:trojan-activity; sid:521275574; rev:1;)
+alert http any any -> any any (msg:"MITRE T1490 WBAdmin System Recovery Deletion"; flow:to_server; content:"wbadmin"; nocase; content:"delete"; nocase; content:"catalog"; nocase; classtype:trojan-activity; sid:521275575; rev:1;)
+
+# === MITRE ATT&CK T1489: Service Stop ===
+alert http any any -> any any (msg:"MITRE T1489 Security Service Stop - Defender Disable Attempt"; flow:to_server; content:"Set-MpPreference"; nocase; content:"DisableRealtimeMonitoring"; nocase; classtype:trojan-activity; sid:521275576; rev:1;)
+
+# === MITRE ATT&CK T1620: Reflective Code Loading ===
+alert http any any -> any any (msg:"MITRE T1620 Reflective DLL Loading - Memory Module Pattern"; flow:to_server; pcre:"/(ReflectiveLoader|DLL_PROCESS_ATTACH|MemoryModule)/Ui"; classtype:execution; sid:521275577; rev:1;)
+
+# === MITRE ATT&CK T1140: Deobfuscate/Decode Files ===
+alert http any any -> any any (msg:"MITRE T1140 Encoded Script Decoding - certutil Usage"; flow:to_server; content:"certutil"; nocase; content:"-decode"; nocase; classtype:execution; sid:521275578; rev:1;)
+alert http any any -> any any (msg:"MITRE T1140 Base64 Decode and Execute - certutil fdecode"; flow:to_server; content:"certutil"; nocase; pcre:"/(decode|fdecode)/Ui"; classtype:execution; sid:521275579; rev:1;)
+
+# === MITRE ATT&CK T1129: Shared Modules ===
+alert tcp any any -> any 445 (msg:"MITRE T1129 SMB DLL Loading from Untrusted Share"; flow:to_server; content:"\x05\x00"; depth:2; pcre:"/\.dll$/Ui"; classtype:execution; sid:521275580; rev:1;)
+
+# === MITRE ATT&CK T1074: Data Staged ===
+alert http any any -> any any (msg:"MITRE T1074 Data Staging - Mass File Collection in Temp Directory"; flow:to_server; pcre:"/(temp|tmp|cache|stage|staging)\/.*\.(zip|rar|7z|tar)/Ui"; dsize:>10000000; classtype:exfiltration; sid:521275581; rev:1;)
+
+# === MITRE ATT&CK T1560: Archive Collected Data ===
+alert http any any -> any any (msg:"MITRE T1560 Data Archival - 7zip Password Protected Archive Creation"; flow:to_server; content:"7z"; nocase; content:"-p"; nocase; pcre:"/(a\s|u\s)/Ui"; classtype:exfiltration; sid:521275582; rev:1;)
+
+# === MITRE ATT&CK T1119: Automated Collection ===
+alert http any any -> any any (msg:"MITRE T1119 Automated Data Collection - Batch File Enumeration"; flow:to_server; pcre:"/(dir\s|find\s|where\s).*(\.doc|\.pdf|\.xls|\.ppt|\.txt)/Ui"; classtype:reconnaissance; sid:521275583; rev:1;)
+
+# === MITRE ATT&CK T1087: Account Discovery ===
+alert http any any -> any any (msg:"MITRE T1087 Account Discovery - net user Enumeration via C2"; flow:to_server; content:"net"; nocase; content:"user"; nocase; pcre:"/(\/domain|\/active)/Ui"; classtype:reconnaissance; sid:521275584; rev:1;)
+alert http any any -> any any (msg:"MITRE T1087 Account Discovery - PowerShell ADUser Query"; flow:to_server; content:"Get-ADUser"; nocase; content:"-Filter"; nocase; classtype:reconnaissance; sid:521275585; rev:1;)
+
+# === MITRE ATT&CK T1018: Remote System Discovery ===
+alert http any any -> any any (msg:"MITRE T1018 Remote System Discovery - nmap via HTTP C2"; flow:to_server; content:"nmap"; nocase; pcre:"/(-sS|-sT|-sV|-O|-A)/Ui"; classtype:reconnaissance; sid:521275586; rev:1;)
+
+# === MITRE ATT&CK T1049: System Network Connections Discovery ===
+alert http any any -> any any (msg:"MITRE T1049 Network Connection Discovery - netstat via HTTP"; flow:to_server; content:"netstat"; nocase; pcre:"/(-an|-ano|-rn)/Ui"; classtype:reconnaissance; sid:521275587; rev:1;)
+
+# === MITRE ATT&CK T1069: Permission Groups Discovery ===
+alert http any any -> any any (msg:"MITRE T1069 Domain Group Discovery - net group via HTTP C2"; flow:to_server; content:"net"; nocase; content:"group"; nocase; content:"/domain"; nocase; classtype:reconnaissance; sid:521275588; rev:1;)
+
+# === MITRE ATT&CK T1082: System Information Discovery ===
+alert http any any -> any any (msg:"MITRE T1082 System Info Discovery - systeminfo via HTTP Exfil"; flow:to_server; content:"systeminfo"; nocase; classtype:reconnaissance; sid:521275589; rev:1;)
+alert http any any -> any any (msg:"MITRE T1082 System Info Discovery - wmic OS query via HTTP"; flow:to_server; content:"wmic"; nocase; content:"os"; nocase; content:"get"; nocase; classtype:reconnaissance; sid:521275590; rev:1;)
+
+# === MITRE ATT&CK T1497: Virtualization/Sandbox Evasion ===
+alert http any any -> any any (msg:"MITRE T1497 Sandbox Evasion - VM Detection via HTTP"; flow:to_server; pcre:"/(vmware|virtualbox|qemu|hyperv|xen)/Ui"; content:"check"; nocase; classtype:trojan-activity; sid:521275591; rev:1;)
+
+# === MITRE ATT&CK T1497.001: System Checks ===
+alert http any any -> any any (msg:"MITRE T1497.001 Sandbox Check - Sleep Bypass Pattern"; flow:to_server; content:"Sleep"; nocase; pcre:"/(GetTickCount|QueryPerformanceCounter)/Ui"; classtype:trojan-activity; sid:521275592; rev:1;)
+
+# === MITRE ATT&CK T1518: Software Discovery ===
+alert http any any -> any any (msg:"MITRE T1518 Security Software Discovery - Defender Check via HTTP"; flow:to_server; content:"Get-MpComputerStatus"; nocase; classtype:reconnaissance; sid:521275593; rev:1;)
+
+# === MITRE ATT&CK T1518.001: Security Software Discovery ===
+alert http any any -> any any (msg:"MITRE T1518.001 Security Software Discovery - Tasklist AV Query"; flow:to_server; content:"tasklist"; nocase; pcre:"/(defender|avast|kaspersky|symantec|mcafee|bitdefender)/Ui"; classtype:reconnaissance; sid:521275594; rev:1;)
+
+# === MITRE ATT&CK T1614: System Location Discovery ===
+alert http any any -> any any (msg:"MITRE T1614 Geolocation Check - IP API Query via HTTP"; flow:to_server; pcre:"/(ip-api|ipinfo|checkip|whatismyip|geoip)/Ui"; classtype:reconnaissance; sid:521275595; rev:1;)
+
+# === MITRE ATT&CK T1016: System Network Configuration Discovery ===
+alert http any any -> any any (msg:"MITRE T1016 Network Config Discovery - ipconfig via HTTP C2"; flow:to_server; content:"ipconfig"; nocase; pcre:"/(\/all|\/release|\/renew)/Ui"; classtype:reconnaissance; sid:521275596; rev:1;)
+
+# === MITRE ATT&CK T1135: Network Share Discovery ===
+alert http any any -> any any (msg:"MITRE T1135 Network Share Discovery - net share via HTTP C2"; flow:to_server; content:"net"; nocase; content:"share"; nocase; classtype:reconnaissance; sid:521275597; rev:1;)
+
+# === MITRE ATT&CK T1485: Data Destruction ===
+alert http any any -> any any (msg:"MITRE T1485 Data Destruction - Mass Delete via cipher /w"; flow:to_server; content:"cipher"; nocase; content:"/w"; nocase; classtype:trojan-activity; sid:521275598; rev:1;)
+
+# === MITRE ATT&CK T1222: File and Directory Permissions Modification ===
+alert http any any -> any any (msg:"MITRE T1222 File Permission Modification - icacls via HTTP C2"; flow:to_server; content:"icacls"; nocase; pcre:"/(grant|deny|setintegritylevel)/Ui"; classtype:execution; sid:521275599; rev:1;)
