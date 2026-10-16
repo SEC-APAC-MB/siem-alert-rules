@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-general (converted)",
   "version": "2.0.0",
-  "converted": "2026-10-15T04:05:40.337451Z",
-  "total_rules": 267,
+  "converted": "2026-10-16T04:05:04.746312Z",
+  "total_rules": 270,
   "rules": [
     {
       "rule_id": "ES-DATABASE-001",
@@ -7394,22 +7394,119 @@
       "references": [
         "CVE-2016-3081"
       ],
+      "threat": [],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "web-application",
+        "cve",
+        "cve-2016-3081",
+        "exploited"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
+    },
+    {
+      "rule_id": "ES-ENDPOINT-007",
+      "name": "CVE-2026-96951 \u2014 Windows Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-96951: Microsoft Windows Shell contains a command injection vulnerability that allows an unauthorized attacker to bypass a security feature over a network.. Product: Windows",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"authentication\" AND event.outcome:\"success\" AND (user.name:(*admin* OR *root* OR *service*) OR (source.ip:(NOT 10.* AND NOT 172.16.* AND NOT 192.168.*) AND event.action:\"login\"))",
+      "index": [
+        "logs-*",
+        "apm-*"
+      ],
+      "references": [
+        "CVE-2026-96951"
+      ],
       "threat": [
         {
           "framework": "MITRE ATT&CK",
           "tactic": {
-            "id": "TA0001",
-            "name": "InitialAccess",
-            "reference": "https://attack.mitre.org/tactics/TA0001/"
+            "id": "TA0005",
+            "name": "DefenseEvasion",
+            "reference": "https://attack.mitre.org/tactics/TA0005/"
           },
           "technique": [
             {
-              "id": "T1190",
-              "name": "Exploit Public-Facing Application",
-              "reference": "https://attack.mitre.org/techniques/T1190/"
+              "id": "T1078",
+              "name": "Valid Accounts",
+              "reference": "https://attack.mitre.org/techniques/T1078/"
             }
           ]
         },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0006",
+            "name": "CredentialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0006/"
+          },
+          "technique": [
+            {
+              "id": "T1110",
+              "name": "Brute Force",
+              "reference": "https://attack.mitre.org/techniques/T1110/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0004",
+            "name": "PrivilegeEscalation",
+            "reference": "https://attack.mitre.org/tactics/TA0004/"
+          },
+          "technique": [
+            {
+              "id": "T1548",
+              "name": "Abuse Elevation Control Mechanism",
+              "reference": "https://attack.mitre.org/techniques/T1548/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "endpoint",
+        "cve",
+        "cve-2026-96951",
+        "exploited"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
+    },
+    {
+      "rule_id": "ES-WEB-APPLICATION-009",
+      "name": "CVE-2016-3081 \u2014 Struts Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2016-3081: Apache Struts contains a command injection vulnerability that could allow remote attackers to execute arbitrary code via method:prefix when Dynamic Method Invocation is enabled.. Product: Struts",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"process\" AND process.name:(\"powershell.exe\" OR \"cmd.exe\" OR \"bash\" OR \"sh\" OR \"python*\" OR \"perl\" OR \"ruby\") AND process.command_line:(\"*-enc*\" OR \"*-exec*\" OR \"*base64*\" OR \"*import*\" OR \"*eval*\" OR \"*system(*\")",
+      "index": [
+        "logs-*",
+        "apm-*"
+      ],
+      "references": [
+        "CVE-2016-3081"
+      ],
+      "threat": [
         {
           "framework": "MITRE ATT&CK",
           "tactic": {
@@ -7424,6 +7521,21 @@
               "reference": "https://attack.mitre.org/techniques/T1059/"
             }
           ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
         }
       ],
       "risk_score": 95,
@@ -7432,6 +7544,70 @@
         "web-application",
         "cve",
         "cve-2016-3081",
+        "exploited"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "author": [
+        "SIEM Alert Rules"
+      ],
+      "license": "Elastic License v2"
+    },
+    {
+      "rule_id": "ES-REMOTE-CODE-EXECUTION-019",
+      "name": "CVE-2026-88772 \u2014 NetScaler Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-88772: Citrix NetScaler ADC and NetScaler Gateway contain an improper restriction of operations within the bounds of a memory buffer vulnerability that could allow for remote code execution or denial of service. Product: NetScaler",
+      "severity": "critical",
+      "type": "query",
+      "query": "event.category:\"process\" AND process.name:(\"powershell.exe\" OR \"cmd.exe\" OR \"bash\" OR \"sh\" OR \"python*\" OR \"perl\" OR \"ruby\") AND process.command_line:(\"*-enc*\" OR \"*-exec*\" OR \"*base64*\" OR \"*import*\" OR \"*eval*\" OR \"*system(*\")",
+      "index": [
+        "logs-*",
+        "apm-*"
+      ],
+      "references": [
+        "CVE-2026-88772"
+      ],
+      "threat": [
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0002",
+            "name": "Execution",
+            "reference": "https://attack.mitre.org/tactics/TA0002/"
+          },
+          "technique": [
+            {
+              "id": "T1059",
+              "name": "Command and Scripting Interpreter",
+              "reference": "https://attack.mitre.org/techniques/T1059/"
+            }
+          ]
+        },
+        {
+          "framework": "MITRE ATT&CK",
+          "tactic": {
+            "id": "TA0001",
+            "name": "InitialAccess",
+            "reference": "https://attack.mitre.org/tactics/TA0001/"
+          },
+          "technique": [
+            {
+              "id": "T1190",
+              "name": "Exploit Public-Facing Application",
+              "reference": "https://attack.mitre.org/techniques/T1190/"
+            }
+          ]
+        }
+      ],
+      "risk_score": 95,
+      "interval": "5m",
+      "tags": [
+        "remote-code-execution",
+        "cve",
+        "cve-2026-88772",
         "exploited"
       ],
       "compliance": [

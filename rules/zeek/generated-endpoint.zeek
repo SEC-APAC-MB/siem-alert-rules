@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-endpoint
-# Auto-generated: 2026-10-15T04:05:41.320600Z
+# Auto-generated: 2026-10-16T04:05:06.237748Z
 # Load in local.zeek: @load ./generated-endpoint
 
 signature ZK-ENDPOINT-006 {
@@ -77,4 +77,11 @@ signature ZK-ENDPOINT-015 {
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*((powershell|cmd\.exe|wmic|rundll32|regsvr32|mshta)).*/ regex
 	event "CVE-2026-85880 — Windows Exploitation"
+}
+
+signature ZK-ENDPOINT-007 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((login|auth|admin|root)).*/ regex
+	event "CVE-2026-96951 — Windows Exploitation"
 }

@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-remote-code-execution
-# Auto-generated: 2026-10-15T04:05:41.324929Z
+# Auto-generated: 2026-10-16T04:05:06.242342Z
 # Load in local.zeek: @load ./generated-remote-code-execution
 
 signature ZK-REMOTE-CODE-EXECUTION-003 {
@@ -133,4 +133,11 @@ signature ZK-REMOTE-CODE-EXECUTION-017 {
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*((powershell|cmd\.exe|bash|python|perl|ruby)).*/ regex
 	event "CVE-2026-42018 — Artifactory Exploitation"
+}
+
+signature ZK-REMOTE-CODE-EXECUTION-019 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((powershell|cmd\.exe|bash|python|perl|ruby)).*/ regex
+	event "CVE-2026-88772 — NetScaler Exploitation"
 }

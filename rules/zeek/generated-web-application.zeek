@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-web-application
-# Auto-generated: 2026-10-15T04:05:41.327295Z
+# Auto-generated: 2026-10-16T04:05:06.244513Z
 # Load in local.zeek: @load ./generated-web-application
 
 signature ZK-WEB-APPLICATION-017 {
@@ -13,5 +13,12 @@ signature ZK-WEB-APPLICATION-008 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*((union|select|script|alert|onload|onerror|\.\./|\.\.\\)).*/ regex
+	event "CVE-2016-3081 — Struts Exploitation"
+}
+
+signature ZK-WEB-APPLICATION-009 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((powershell|cmd\.exe|bash|python|perl|ruby)).*/ regex
 	event "CVE-2016-3081 — Struts Exploitation"
 }
