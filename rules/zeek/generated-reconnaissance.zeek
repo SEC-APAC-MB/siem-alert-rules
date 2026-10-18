@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-reconnaissance
-# Auto-generated: 2026-10-15T04:05:41.324593Z
+# Auto-generated: 2026-10-18T04:05:06.479319Z
 # Load in local.zeek: @load ./generated-reconnaissance
 
 signature ZK-RECONNAISSANCE-097 {

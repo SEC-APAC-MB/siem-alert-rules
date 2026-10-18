@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-ai_llm_attacks
-# Auto-generated: 2026-10-15T04:05:41.317830Z
+# Auto-generated: 2026-10-18T04:05:06.472816Z
 # Load in local.zeek: @load ./generated-ai_llm_attacks
 
 signature ZK-AI_LLM_ATTACKS-041 {

@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-web-application (converted)",
   "version": "2.0.0",
-  "converted": "2026-10-15T04:05:41.203149Z",
-  "total_rules": 2,
+  "converted": "2026-10-18T04:05:06.367532Z",
+  "total_rules": 3,
   "rules": [
     {
       "rule_id": "AZ-WEB-APPLICATION-017",
@@ -40,9 +40,35 @@
       "queryPeriod": "10m",
       "triggerOperator": "gt",
       "triggerThreshold": 5,
+      "tactics": [],
+      "techniques": [],
+      "references": [],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "tags": [
+        "web-application",
+        "cve",
+        "cve-2016-3081",
+        "exploited"
+      ],
+      "risk_score": 50
+    },
+    {
+      "rule_id": "AZ-WEB-APPLICATION-011",
+      "name": "CVE-2016-3081 \u2014 Struts Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2016-3081: Apache Struts contains a command injection vulnerability that could allow remote attackers to execute arbitrary code via method:prefix when Dynamic Method Invocation is enabled.. Product: Struts",
+      "severity": "Medium",
+      "query": "AzureDiagnostics | where httpStatusCode_d in (400, 403, 500) and RequestMethod_s == \"POST\" | summarize count() by bin(TimeGenerated, 5m), clientIp_s | where count_ > 5",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "gt",
+      "triggerThreshold": 5,
       "tactics": [
-        "InitialAccess",
-        "Execution"
+        "Execution",
+        "InitialAccess"
       ],
       "techniques": [
         "T1190",

@@ -1,13 +1,13 @@
 {
-  "description": "SIEM alert rules \u2014 generated-web-application (converted)",
+  "description": "SIEM alert rules — generated-web-application (converted)",
   "version": "2.0.0",
-  "converted": "2026-10-15T04:05:41.372429Z",
-  "total_rules": 2,
+  "converted": "2026-10-18T04:05:06.521076Z",
+  "total_rules": 3,
   "rules": [
     {
       "rule_id": "OCI-WEB-APPLICATION-017",
-      "name": "CVE-2026-34486 \u2014 Tomcat Exploitation",
-      "description": "Detects exploitation attempts targeting CVE-2026-34486: Apache Tomcat contains a missing encryption of sensitive data vulnerability that allows the bypass of the EncryptInterceptor. This vulnerability can be chained with CVE\u20112025\u201124813.. Product: Tomcat",
+      "name": "CVE-2026-34486 — Tomcat Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2026-34486: Apache Tomcat contains a missing encryption of sensitive data vulnerability that allows the bypass of the EncryptInterceptor. This vulnerability can be chained with CVE‑2025‑24813.. Product: Tomcat",
       "severity": "MEDIUM",
       "category": "web-application",
       "mitre_attack": [
@@ -49,7 +49,7 @@
     },
     {
       "rule_id": "OCI-WEB-APPLICATION-008",
-      "name": "CVE-2016-3081 \u2014 Struts Exploitation",
+      "name": "CVE-2016-3081 — Struts Exploitation",
       "description": "Detects exploitation attempts targeting CVE-2016-3081: Apache Struts contains a command injection vulnerability that could allow remote attackers to execute arbitrary code via method:prefix when Dynamic Method Invocation is enabled.. Product: Struts",
       "severity": "MEDIUM",
       "category": "web-application",
@@ -71,6 +71,46 @@
         ],
         "compartmentId": "$COMPARTMENT_ID",
         "metric": "siem_web_application_web_application_008",
+        "operator": "GT",
+        "threshold": 3
+      },
+      "actions": [
+        {
+          "actionType": "ONS",
+          "description": "Send alert notification"
+        }
+      ],
+      "tags": [
+        "web-application",
+        "cve",
+        "cve-2016-3081",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "OCI-WEB-APPLICATION-011",
+      "name": "CVE-2016-3081 — Struts Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2016-3081: Apache Struts contains a command injection vulnerability that could allow remote attackers to execute arbitrary code via method:prefix when Dynamic Method Invocation is enabled.. Product: Struts",
+      "severity": "MEDIUM",
+      "category": "web-application",
+      "mitre_attack": [
+        "T1190",
+        "T1059"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "SELECT \"siem_web_application_web_application_011\", \"data__json.message\" FROM \"oci_monitoring_metricexplorer_metrics\" WHERE \"compartmentId\" = '$COMPARTMENT_ID' AND \"namespace\" = 'OciLoggingService' AND (\"data__json.message\" LIKE '%cve%' OR \"data__json.message\" LIKE '%2016%') AND (\"data__json.message\" LIKE '%CVE-%' OR \"data__json.message\" LIKE '%exploit%') AND \"value\" > 0",
+      "rule_type": "query",
+      "interval": "5m",
+      "condition": {
+        "eventType": [
+          "com.oracle.cloud.monitoring"
+        ],
+        "compartmentId": "$COMPARTMENT_ID",
+        "metric": "siem_web_application_web_application_011",
         "operator": "GT",
         "threshold": 3
       },

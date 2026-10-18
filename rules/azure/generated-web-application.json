@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-web-application (converted)",
   "version": "2.0.0",
-  "converted": "2026-10-15T04:05:41.446404Z",
-  "total_rules": 2,
+  "converted": "2026-10-18T04:05:06.591631Z",
+  "total_rules": 3,
   "rules": [
     {
       "rule_id": "AZ-WEB-APPLICATION-017",
@@ -13,9 +13,9 @@
       "category": "web-application",
       "tactics": [
         "Collection",
-        "PrivilegeEscalation",
+        "Execution",
         "InitialAccess",
-        "Execution"
+        "PrivilegeEscalation"
       ],
       "mitre_attack": [
         "T1059",
@@ -49,8 +49,8 @@
       "severity_label": "Medium",
       "category": "web-application",
       "tactics": [
-        "InitialAccess",
-        "Execution"
+        "Execution",
+        "InitialAccess"
       ],
       "mitre_attack": [
         "T1190",
@@ -62,6 +62,38 @@
         "GDPR-32A"
       ],
       "query": "union CommonSecurityLog, SecurityEvent | where Message has \"CVE-2016-3081\" or RuleName has \"CVE-2016-3081\" or ProcessName has \"CVE-2016-3081\" | summarize count() by bin(TimeGenerated, 5m), Computer, EventID | where count_ > 5 // AZ-WEB-APPLICATION-008",
+      "queryFrequency": "5m",
+      "queryPeriod": "10m",
+      "triggerOperator": "GreaterThan",
+      "triggerThreshold": 5,
+      "tags": [
+        "web-application",
+        "cve",
+        "cve-2016-3081",
+        "exploited"
+      ]
+    },
+    {
+      "rule_id": "AZ-WEB-APPLICATION-011",
+      "name": "CVE-2016-3081 \u2014 Struts Exploitation",
+      "description": "Detects exploitation attempts targeting CVE-2016-3081: Apache Struts contains a command injection vulnerability that could allow remote attackers to execute arbitrary code via method:prefix when Dynamic Method Invocation is enabled.. Product: Struts",
+      "severity": 2,
+      "severity_label": "Medium",
+      "category": "web-application",
+      "tactics": [
+        "Execution",
+        "InitialAccess"
+      ],
+      "mitre_attack": [
+        "T1190",
+        "T1059"
+      ],
+      "compliance": [
+        "PCI-DSS-6.5",
+        "NIST-800-53-SI-4",
+        "GDPR-32A"
+      ],
+      "query": "AzureDiagnostics | where httpStatusCode_d in (400, 403, 500) and RequestMethod_s == \"POST\" | summarize count() by bin(TimeGenerated, 5m), clientIp_s | where count_ > 5",
       "queryFrequency": "5m",
       "queryPeriod": "10m",
       "triggerOperator": "GreaterThan",
