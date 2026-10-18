@@ -1,0 +1,187 @@
+# Suricata Detection Rules - Generated 2026-10-18
+# Based on: GitHub Advisory Database CVEs (Oct 2026), MITRE ATT&CK, Current Threat Landscape
+# SID Range: 521277901 - 521278000
+# Total Rules: 100
+
+# === CVE-2026-111911: phpMyFAQ WebAuthn Authentication Bypass (CRITICAL) ===
+alert http any any -> any any (msg:"CVE-2026-111911 phpMyFAQ WebAuthn Authentication Bypass Attempt"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/"; content:"webauthn"; nocase; content:"auth"; nocase; pcre:"/webauthn.*(?:auth|login|verify)/Ui"; reference:cve,CVE-2026-111911; reference:url,github.com/advisories/GHSA-768h-xwv2-fwp3; classtype:attempted-admin; sid:521277901; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111911 phpMyFAQ WebAuthn Bypass - No Credential Required"; flow:established,to_server; http.uri; content:"/api/authentication"; content:"webauthn"; nocase; http.request_body; content:"{"; pcre:"/\"(credentialId|authenticatorData|clientDataJSON)\"\s*:\s*\"\"/"; reference:cve,CVE-2026-111911; classtype:attempted-admin; sid:521277902; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111911 phpMyFAQ Auth Bypass - Empty WebAuthn Response"; flow:established,to_server; http.uri; content:"/api/v1/"; content:"webauthn"; nocase; http.request_body; pcre:"/\{.*\"type\"\s*:\s*\"webauthn.create\".*\"response\"\s*:\s*\{\s*\}/"; reference:cve,CVE-2026-111911; classtype:attempted-admin; sid:521277903; rev:1;)
+
+# === CVE-2026-111923: Fleet Apple MDM Unbounded Recursion DoS (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111923 Fleet MDM Unbounded Recursion DoS Attempt"; flow:established,to_server; http.uri; content:"/api/v1/fleet/mdm"; content:"enroll"; nocase; http.request_body; pcre:"/\{(?:[^{}]*\{){5,}/"; reference:cve,CVE-2026-111923; classtype:attempted-dos; sid:521277904; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111923 Fleet MMD Deep Nested JSON Recursion Attack"; flow:established,to_server; http.uri; content:"/api/mdm/enroll"; http.request_body; pcre:"/(?:\{[^{}]*\{){10,}/"; reference:cve,CVE-2026-111923; classtype:attempted-dos; sid:521277905; rev:1;)
+
+# === CVE-2026-111927: Coder Incorrect Authorization (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111927 Coder Authorization Bypass - Workspace Access"; flow:established,to_server; http.uri; content:"/api/v2/workspaces/"; pcre:"/\/api\/v2\/workspaces\/[^\/]+\/(build|parameters|resources)/"; http.header; content:"Authorization"; content:"Bearer"; distance:0; reference:cve,CVE-2026-111927; classtype:attempted-admin; sid:521277906; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111927 Coder Privilege Escalation via Template API"; flow:established,to_server; http.uri; content:"/api/v2/templates/"; http.method; content:"PUT"; pcre:"/\"(acl|permissions|users)\"\s*:\s*\[.*\"admin\"/"; reference:cve,CVE-2026-111927; classtype:attempted-admin; sid:521277907; rev:1;)
+
+# === CVE-2026-111924: Fleet Unauthenticated DoS (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111924 Fleet Unauthenticated DoS - Rapid Request Flood"; flow:established,to_server; http.uri; content:"/api/v1/fleet/"; content:"device"; nocase; threshold:type both, track by_src, count 50, seconds 10; reference:cve,CVE-2026-111924; classtype:attempted-dos; sid:521277908; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111924 Fleet DoS - No Auth Header on Sensitive Endpoint"; flow:established,to_server; http.uri; content:"/api/v1/fleet/devices/"; http.header; content:"!Authorization"; reference:cve,CVE-2026-111924; classtype:attempted-dos; sid:521277909; rev:1;)
+
+# === CVE-2026-111922: Vikunja Permissive CORS (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111922 Vikunja Permissive CORS - Wildcard Origin Reflected"; flow:established,to_client; http.response_header; content:"Access-Control-Allow-Origin"; content:"*"; distance:0; http.request_header; content:"Origin"; pcre:"/Origin\s*:\s*https?:\/\/(?!vikunja)/"; reference:cve,CVE-2026-111922; classtype:web-application-activity; sid:521277910; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111922 Vikunja CORS Misconfiguration - Credentials with Wildcard"; flow:established,to_client; http.response_header; content:"Access-Control-Allow-Origin"; content:"*"; distance:0; http.response_header; content:"Access-Control-Allow-Credentials"; content:"true"; distance:0; reference:cve,CVE-2026-111922; classtype:web-application-activity; sid:521277911; rev:1;)
+
+# === CVE-2026-111919: Vikunja Improper Access Revocation (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111919 Vikunja Access Revocation Bypass - Post-Logout API Access"; flow:established,to_server; http.uri; content:"/api/v1/"; content:"token"; nocase; http.header; content:"Authorization"; content:"Bearer"; distance:0; content:"expired"; nocase; distance:0; reference:cve,CVE-2026-111919; classtype:web-application-activity; sid:521277912; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111919 Vikunja Revoked Token Reuse - Team Endpoint Access"; flow:established,to_server; http.uri; content:"/api/v1/teams/"; http.header; content:"Authorization"; content:"Bearer"; distance:0; threshold:type both, track by_src, count 3, seconds 60; reference:cve,CVE-2026-111919; classtype:web-application-activity; sid:521277913; rev:1;)
+
+# === CVE-2026-111914: Admidio Broken Access Control (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111914 Admidio Broken Access Control - Module Access Without Role"; flow:established,to_server; http.uri; content:"/adm_program/modules/"; http.method; content:"POST"; pcre:"/\/adm_program\/modules\/(announcements|events|links)\/.*\?(mode|action)=edit/"; reference:cve,CVE-2026-111914; classtype:web-application-activity; sid:521277914; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111914 Admidio Access Control Bypass - Direct Module POST"; flow:established,to_server; http.uri; content:"/adm_program/"; content:"role_id"; nocase; http.request_body; pcre:"/\"role_id\"\s*:\s*(?:0|1|null)/"; reference:cve,CVE-2026-111914; classtype:web-application-activity; sid:521277915; rev:1;)
+
+# === CVE-2026-111910: phpMyFAQ Authorization Bypass (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111910 phpMyFAQ Authorization Bypass - Admin API Without Session"; flow:established,to_server; http.uri; content:"/api/"; content:"admin"; nocase; http.header; content:"!Authorization"; http.cookie; content:"!PHPSESSID"; reference:cve,CVE-2026-111910; classtype:attempted-admin; sid:521277916; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111910 phpMyFAQ Auth Bypass - Missing CSRF Token on Admin Action"; flow:established,to_server; http.uri; content:"/api/"; content:"delete"; nocase; http.method; content:"POST"; http.request_body; pcre:"/\"(csrf|token)\"\s*:\s*(?:\"\"|null|undefined)/"; reference:cve,CVE-2026-111910; classtype:attempted-admin; sid:521277917; rev:1;)
+
+# === CVE-2026-111917: Vikunja Improper Session Validation (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111917 Vikunja Session Validation Bypass - Forged Session Token"; flow:established,to_server; http.uri; content:"/api/v1/"; http.header; content:"Authorization"; pcre:"/Bearer\s+[A-Za-z0-9+\/]{40,}/"; http.uri; content:"login"; nocase; reference:cve,CVE-2026-111917; classtype:web-application-activity; sid:521277918; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111917 Vikunja Session Fixation - Pre-Auth Session Token"; flow:established,to_server; http.uri; content:"/api/v1/login"; http.method; content:"POST"; http.cookie; content:"session="; pcre:"/session=[a-f0-9]{32}/"; reference:cve,CVE-2026-111917; classtype:web-application-activity; sid:521277919; rev:1;)
+
+# === CVE-2026-111912: Admidio IDOR (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111912 Admidio IDOR - Direct Object Reference in Profile"; flow:established,to_server; http.uri; content:"/adm_program/modules/profile/"; pcre:"/\?user_id=\d{1,5}$/"; http.method; content:"GET"; reference:cve,CVE-2026-111912; classtype:web-application-activity; sid:521277920; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111912 Admidio IDOR - Sequential User ID Enumeration"; flow:established,to_server; http.uri; content:"/adm_program/modules/profile/profile.php"; pcre:"/\?user_id=\d+/"; threshold:type both, track by_src, count 20, seconds 30; reference:cve,CVE-2026-111912; classtype:web-application-activity; sid:521277921; rev:1;)
+
+# === CVE-2026-111909: phpMyFAQ Missing Authorization deleteUser (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111909 phpMyFAQ Missing Auth on deleteUser API"; flow:established,to_server; http.uri; content:"/api/"; content:"deleteUser"; nocase; http.method; content:"POST"; http.header; content:"!Authorization"; reference:cve,CVE-2026-111909; classtype:attempted-admin; sid:521277922; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111909 phpMyFAQ Unauthorized User Deletion"; flow:established,to_server; http.uri; content:"/api/v1/user"; http.method; content:"DELETE"; http.request_body; pcre:"/\"(user_id|loginname)\"\s*:/"; reference:cve,CVE-2026-111909; classtype:attempted-admin; sid:521277923; rev:1;)
+
+# === CVE-2026-111908: phpMyFAQ BOLA (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111908 phpMyFAQ BOLA - Object Level Authorization Missing"; flow:established,to_server; http.uri; content:"/api/"; content:"user"; nocase; pcre:"/\/api\/.*\?user_id=(?!0)\d+/"; http.method; content:"GET"; http.header; content:"!Authorization"; reference:cve,CVE-2026-111908; classtype:web-application-activity; sid:521277924; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111908 phpMyFAQ Broken Object Level Auth - User Data Access"; flow:established,to_server; http.uri; content:"/api/v1/user/"; pcre:"/\/api\/v1\/user\/\d+\/(profile|settings|data)/"; http.method; content:"GET"; reference:cve,CVE-2026-111908; classtype:web-application-activity; sid:521277925; rev:1;)
+
+# === CVE-2026-111905: phpMyFAQ IDOR (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111905 phpMyFAQ IDOR - Direct FAQ Entry Access"; flow:established,to_server; http.uri; content:"/api/"; content:"faq"; nocase; pcre:"/\/api\/.*\?id=\d+/"; http.method; content:"GET"; http.header; content:"!Authorization"; reference:cve,CVE-2026-111905; classtype:web-application-activity; sid:521277926; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111905 phpMyFAQ IDOR - Sequential FAQ ID Enumeration"; flow:established,to_server; http.uri; content:"/api/v1/faq/"; pcre:"/\/api\/v1\/faq\/\d+/"; threshold:type both, track by_src, count 30, seconds 60; reference:cve,CVE-2026-111905; classtype:web-application-activity; sid:521277927; rev:1;)
+
+# === CVE-2026-111907: phpMyFAQ CSRF (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111907 phpMyFAQ CSRF - POST Without CSRF Token"; flow:established,to_server; http.uri; content:"/admin/"; http.method; content:"POST"; http.request_body; pcre:"/\"(csrf_token|_token)\"\s*:\s*(?:\"\"|null|missing)/"; reference:cve,CVE-2026-111907; classtype:web-application-activity; sid:521277928; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111907 phpMyFAQ CSRF - Cross-Origin State Change"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/admin/"; http.header; content:"Referer"; pcre:"/Referer\s*:\s*https?:\/\/(?!.*phpmyfaq)/"; reference:cve,CVE-2026-111907; classtype:web-application-activity; sid:521277929; rev:1;)
+
+# === CVE-2026-111906: phpMyFAQ CSRF (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111906 phpMyFAQ CSRF - Settings Modification Without Token"; flow:established,to_server; http.uri; content:"/admin/settings"; http.method; content:"POST"; http.request_body; pcre:"/\"(csrf|token)\"\s*:\s*(?:\"\"|null)/"; reference:cve,CVE-2026-111906; classtype:web-application-activity; sid:521277930; rev:1;)
+
+# === CVE-2026-111897: phpMyFAQ Authorization Bypass (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-111897 phpMyFAQ Auth Bypass - API Access Without Credentials"; flow:established,to_server; http.uri; content:"/api/v1/"; http.method; content:"POST"; http.header; content:"!Authorization"; http.cookie; content:"!PHPSESSID"; reference:cve,CVE-2026-111897; classtype:attempted-admin; sid:521277931; rev:1;)
+
+# === MITRE ATT&CK T1046: Network Service Discovery ===
+alert tcp any any -> any any (msg:"MITRE T1046 Network Service Discovery - Nmap OS Detection Probe"; flow:stateless; dsize:0; flags:S,12; window:1024; reference:url,attack.mitre.org/techniques/T1046/; classtype:network-scan; sid:521277932; rev:1;)
+alert udp any any -> any any (msg:"MITRE T1046 Network Service Discovery - UDP Port Scan Sweep"; dsize:0; threshold:type both, track by_src, count 20, seconds 10; reference:url,attack.mitre.org/techniques/T1046/; classtype:network-scan; sid:521277933; rev:1;)
+alert icmp any any -> any any (msg:"MITRE T1046 Network Service Discovery - ICMP Echo Sweep"; itype:8; threshold:type both, track by_src, count 20, seconds 10; reference:url,attack.mitre.org/techniques/T1046/; classtype:network-scan; sid:521277934; rev:1;)
+
+# === MITRE ATT&CK T1059: Command and Scripting Interpreter ===
+alert http any any -> any any (msg:"MITRE T1059 Command Injection - PowerShell Download Cradle"; flow:established,to_server; http.request_body; content:"powershell"; nocase; content:"IEX"; nocase; content:"New-Object"; nocase; content:"Net.WebClient"; nocase; reference:url,attack.mitre.org/techniques/T1059/; classtype:trojan-activity; sid:521277935; rev:1;)
+alert http any any -> any any (msg:"MITRE T1059 Command Injection - Bash Reverse Shell Pattern"; flow:established,to_server; http.request_body; content:"bash"; nocase; content:"-i"; pcre:"/bash\s+-i\s+.*>&\s*\/dev\/tcp\//"; reference:url,attack.mitre.org/techniques/T1059/; classtype:trojan-activity; sid:521277936; rev:1;)
+alert http any any -> any any (msg:"MITRE T1059 Command Injection - Python Exec Payload"; flow:established,to_server; http.request_body; content:"python"; nocase; pcre:"/(?:exec|eval|compile)\s*\(\s*(?:open|__import__)/"; reference:url,attack.mitre.org/techniques/T1059/; classtype:trojan-activity; sid:521277937; rev:1;)
+alert http any any -> any any (msg:"MITRE T1059 Command Injection - Perl Execution Payload"; flow:established,to_server; http.request_body; content:"perl"; nocase; pcre:"/perl\s+-e\s+['\"]system/"; reference:url,attack.mitre.org/techniques/T1059/; classtype:trojan-activity; sid:521277938; rev:1;)
+
+# === MITRE ATT&CK T1110: Brute Force ===
+alert http any any -> any any (msg:"MITRE T1110 Brute Force - HTTP Basic Auth Credential Stuffing"; flow:established,to_server; http.header; content:"Authorization"; content:"Basic"; distance:0; threshold:type both, track by_src, count 50, seconds 60; reference:url,attack.mitre.org/techniques/T1110/; classtype:attempted-admin; sid:521277939; rev:1;)
+alert http any any -> any any (msg:"MITRE T1110 Brute Force - Login Form Rapid Submission"; flow:established,to_server; http.uri; content:"/login"; nocase; http.method; content:"POST"; http.request_body; content:"password"; nocase; threshold:type both, track by_src, count 30, seconds 60; reference:url,attack.mitre.org/techniques/T1110/; classtype:attempted-admin; sid:521277940; rev:1;)
+alert ssh any any -> any any (msg:"MITRE T1110 Brute Force - SSH Authentication Flood"; flow:established,to_server; threshold:type both, track by_src, count 20, seconds 60; reference:url,attack.mitre.org/techniques/T1110/; classtype:attempted-admin; sid:521277941; rev:1;)
+
+# === MITRE ATT&CK T1190: Exploit Public-Facing Application ===
+alert http any any -> any any (msg:"MITRE T1190 Exploit Public App - Log4Shell JNDI Injection"; flow:established,to_server; http.header; pcre:"/\$\{jndi:(ldap|dns|rmi|http):\/\//i"; reference:url,attack.mitre.org/techniques/T1190/; classtype:attempted-admin; sid:521277942; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 Exploit Public App - Spring4Shell Class Loader"; flow:established,to_server; http.uri; pcre:"/class\.module\.classLoader\.resources/i"; reference:url,attack.mitre.org/techniques/T1190/; classtype:attempted-admin; sid:521277943; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 Exploit Public App - Prototype Pollution Injection"; flow:established,to_server; http.request_body; pcre:"/__proto__|constructor\.prototype/i"; reference:url,attack.mitre.org/techniques/T1190/; classtype:web-application-attack; sid:521277944; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 Exploit Public App - SSTI Jinja2 Template Injection"; flow:established,to_server; http.request_body; pcre:"/\{\{.*(?:config|self|request|application|globals)|%\s*(?:import|print)/"; reference:url,attack.mitre.org/techniques/T1190/; classtype:web-application-attack; sid:521277945; rev:1;)
+
+# === MITRE ATT&CK T1505: Server Software Component ===
+alert http any any -> any any (msg:"MITRE T1505 Server Software Component - Web Shell Upload"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/upload"; nocase; http.request_body; content:"<?php"; nocase; content:"eval"; nocase; reference:url,attack.mitre.org/techniques/T1505/; classtype:trojan-activity; sid:521277946; rev:1;)
+alert http any any -> any any (msg:"MITRE T1505 Server Software Component - JSP Web Shell Detection"; flow:established,to_server; http.method; content:"PUT"; http.uri; content:".jsp"; nocase; http.request_body; content:"Runtime.getRuntime"; nocase; reference:url,attack.mitre.org/techniques/T1505/; classtype:trojan-activity; sid:521277947; rev:1;)
+alert http any any -> any any (msg:"MITRE T1505 Server Software Component - ASPX Web Shell Upload"; flow:established,to_server; http.method; content:"PUT"; http.uri; content:".aspx"; nocase; http.request_body; content:"Process.Start"; nocase; reference:url,attack.mitre.org/techniques/T1505/; classtype:trojan-activity; sid:521277948; rev:1;)
+
+# === MITRE ATT&CK T1071: Application Layer Protocol ===
+alert dns any any -> any any (msg:"MITRE T1071 DNS Tunneling - Long TXT Record Query"; dns.query; pcre:"/[a-z0-9]{50,}\.txt/"; reference:url,attack.mitre.org/techniques/T1071/; classtype:trojan-activity; sid:521277949; rev:1;)
+alert dns any any -> any any (msg:"MITRE T1071 DNS Tunneling - High Volume Subdomain Queries"; dns.query; pcre:"/^[a-z0-9]{20,}\./"; threshold:type both, track by_src, count 100, seconds 60; reference:url,attack.mitre.org/techniques/T1071/; classtype:trojan-activity; sid:521277950; rev:1;)
+alert http any any -> any any (msg:"MITRE T1071 Application Layer Protocol - HTTP C2 Beacon Pattern"; flow:established,to_server; http.uri; content:"/api/v1/"; http.method; content:"POST"; http.request_body; pcre:"/\{\"id\"\s*:\s*\"[a-f0-9]{32}\"\s*,\s*\"cmd\"\s*:/"; reference:url,attack.mitre.org/techniques/T1071/; classtype:trojan-activity; sid:521277951; rev:1;)
+
+# === MITRE ATT&CK T1566: Phishing ===
+alert http any any -> any any (msg:"MITRE T1566 Phishing - Credential Harvesting POST to Suspicious Domain"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/login"; nocase; http.request_body; content:"password"; nocase; http.host; pcre:"/[a-z0-9-]+\.(?:tk|ml|ga|cf|gq)$/"; reference:url,attack.mitre.org/techniques/T1566/; classtype:trojan-activity; sid:521277952; rev:1;)
+alert http any any -> any any (msg:"MITRE T1566 Phishing - Microsoft 365 Credential Harvest Form"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/submit"; nocase; http.request_body; content:"email"; nocase; content:"password"; nocase; http.host; pcre:"/(?!.*microsoft\.com).*office|365|outlook/i"; reference:url,attack.mitre.org/techniques/T1566/; classtype:trojan-activity; sid:521277953; rev:1;)
+
+# === MITRE ATT&CK T1027: Obfuscated Files ===
+alert http any any -> any any (msg:"MITRE T1027 Obfuscated File - Base64 Encoded Payload in HTTP"; flow:established,to_server; http.request_body; pcre:"/(?:eval|atob|decode)\s*\(\s*['\"]?[A-Za-z0-9+\/]{200,}={0,2}/"; reference:url,attack.mitre.org/techniques/T1027/; classtype:trojan-activity; sid:521277954; rev:1;)
+alert http any any -> any any (msg:"MITRE T1027 Obfuscated File - Hex Encoded Shellcode"; flow:established,to_server; http.request_body; pcre:"/\\x[0-9a-f]{2}(?:\\x[0-9a-f]{2}){20,}/i"; reference:url,attack.mitre.org/techniques/T1027/; classtype:trojan-activity; sid:521277955; rev:1;)
+alert http any any -> any any (msg:"MITRE T1027 Obfuscated File - JavaScript.fromCharCode Obfuscation"; flow:established,to_server; http.request_body; pcre:"/String\.fromCharCode\s*\(\s*\d+(?:\s*,\s*\d+){10,}/"; reference:url,attack.mitre.org/techniques/T1027/; classtype:trojan-activity; sid:521277956; rev:1;)
+
+# === MITRE ATT&CK T1048: Exfiltration Over Alternative Protocol ===
+alert tcp any any -> any any (msg:"MITRE T1048 Exfiltration - Large DNS Query Data Exfiltration"; dns.query; pcre:"/^[a-z0-9]{60,}/"; threshold:type both, track by_src, count 10, seconds 60; reference:url,attack.mitre.org/techniques/T1048/; classtype:exfiltration; sid:521277957; rev:1;)
+alert http any any -> any any (msg:"MITRE T1048 Exfiltration - HTTPS POST to Cloud Storage Provider"; flow:established,to_server; http.method; content:"PUT"; http.uri; pcre:"/https?:\/\/(?:storage\.googleapis\.com|.*s3\.amazonaws\.com|.*blob\.core\.windows\.net)/"; dsize:100000; reference:url,attack.mitre.org/techniques/T1048/; classtype:exfiltration; sid:521277958; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1048 Exfiltration - Large Outbound Transfer to Unknown IP"; flow:established,to_server; dsize:500000; threshold:type both, track by_src, count 5, seconds 300; reference:url,attack.mitre.org/techniques/T1048/; classtype:exfiltration; sid:521277959; rev:1;)
+
+# === MITRE ATT&CK T1003: OS Credential Dumping ===
+alert tcp any any -> any any (msg:"MITRE T1003 Credential Dumping - LSASS Process Memory Access via SMB"; flow:established,to_server; content:"|5c 70 69 70 65 5c 6c 73 61 73 73|"; nocase; content:"READ"; nocase; reference:url,attack.mitre.org/techniques/T1003/; classtype:attempted-admin; sid:521277960; rev:1;)
+alert http any any -> any any (msg:"MITRE T1003 Credential Dumping - SAM Database Access via reg save"; flow:established,to_server; http.request_body; content:"reg"; nocase; content:"save"; nocase; content:"HKLM\\SAM"; nocase; reference:url,attack.mitre.org/techniques/T1003/; classtype:attempted-admin; sid:521277961; rev:1;)
+alert http any any -> any any (msg:"MITRE T1003 Credential Dumping - NTDS.dit Extraction Command"; flow:established,to_server; http.request_body; content:"ntdsutil"; nocase; content:"create full"; nocase; reference:url,attack.mitre.org/techniques/T1003/; classtype:attempted-admin; sid:521277962; rev:1;)
+
+# === MITRE ATT&CK T1486: Data Encrypted for Impact ===
+alert http any any -> any any (msg:"MITRE T1486 Ransomware - Mass File Extension Change to .locked"; flow:established,to_server; http.request_body; pcre:"/\.(?:locked|encrypted|crypto|locky|wcry)$/"; threshold:type both, track by_src, count 100, seconds 60; reference:url,attack.mitre.org/techniques/T1486/; classtype:trojan-activity; sid:521277963; rev:1;)
+alert http any any -> any any (msg:"MITRE T1486 Ransomware - Ransom Note Creation"; flow:established,to_server; http.request_body; content:"HOW_TO_DECRYPT"; nocase; content:"YOUR FILES"; nocase; content:"BITCOIN"; nocase; reference:url,attack.mitre.org/techniques/T1486/; classtype:trojan-activity; sid:521277964; rev:1;)
+alert http any any -> any any (msg:"MITRE T1486 Ransomware - vssadmin Shadow Copy Deletion"; flow:established,to_server; http.request_body; content:"vssadmin"; nocase; content:"delete"; nocase; content:"shadows"; nocase; reference:url,attack.mitre.org/techniques/T1486/; classtype:trojan-activity; sid:521277965; rev:1;)
+
+# === MITRE ATT&CK T1133: External Remote Services ===
+alert tcp any any -> any any (msg:"MITRE T1133 External Remote Services - RDP from External IP"; flow:established,to_server; dport:3389; threshold:type both, track by_src, count 5, seconds 300; reference:url,attack.mitre.org/techniques/T1133/; classtype:trojan-activity; sid:521277967; rev:1;)
+
+# === MITRE ATT&CK T1133: External Remote Services (cont) ===
+alert tcp any any -> any any (msg:"MITRE T1133 External Remote Services - VPN Connection from Unusual Geo"; flow:established,to_server; dsize:0; threshold:type both, track by_src, count 1, seconds 86400; reference:url,attack.mitre.org/techniques/T1133/; classtype:trojan-activity; sid:521277966; rev:1;)
+# === MITRE ATT&CK T1548: Abuse Elevation Control Mechanism ===
+alert http any any -> any any (msg:"MITRE T1548 Privilege Escalation - SUID Binary via chmod"; flow:established,to_server; http.request_body; content:"chmod"; nocase; content:"4755"; nocase; pcre:"/chmod\s+[4-7]755\s+\/(?:usr|bin|sbin)/"; reference:url,attack.mitre.org/techniques/T1548/; classtype:attempted-privilege-escalation; sid:521277968; rev:1;)
+alert http any any -> any any (msg:"MITRE T1548 Privilege Escalation - Setcap Capabilities Abuse"; flow:established,to_server; http.request_body; content:"setcap"; nocase; content:"cap_setuid"; nocase; reference:url,attack.mitre.org/techniques/T1548/; classtype:attempted-privilege-escalation; sid:521277969; rev:1;)
+
+# === MITRE ATT&CK T1490: Inhibit System Recovery ===
+alert http any any -> any any (msg:"MITRE T1490 Inhibit Recovery - bcdedit Recovery Disable"; flow:established,to_server; http.request_body; content:"bcdedit"; nocase; content:"recoveryenabled"; nocase; content:"no"; nocase; reference:url,attack.mitre.org/techniques/T1490/; classtype:trojan-activity; sid:521277970; rev:1;)
+alert http any any -> any any (msg:"MITRE T1490 Inhibit Recovery - wbadmin Delete Catalog"; flow:established,to_server; http.request_body; content:"wbadmin"; nocase; content:"delete"; nocase; content:"catalog"; nocase; reference:url,attack.mitre.org/techniques/T1490/; classtype:trojan-activity; sid:521277971; rev:1;)
+
+# === MITRE ATT&CK T1078: Valid Accounts ===
+alert http any any -> any any (msg:"MITRE T1078 Valid Accounts - Login from New Geographic Location"; flow:established,to_server; http.uri; content:"/login"; nocase; http.method; content:"POST"; http.response_header; content:"200"; threshold:type both, track by_src, count 1, seconds 86400; reference:url,attack.mitre.org/techniques/T1078/; classtype:trojan-activity; sid:521277972; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1078 Valid Accounts - After-Hours Admin Login"; flow:established,to_server; dport:22; threshold:type both, track by_src, count 5, seconds 3600; reference:url,attack.mitre.org/techniques/T1078/; classtype:trojan-activity; sid:521277973; rev:1;)
+
+# === MITRE ATT&CK T1068: Exploitation for Privilege Escalation ===
+alert http any any -> any any (msg:"MITRE T1068 Privilege Escalation Exploit - Dirty Pipe Kernel Exploit"; flow:established,to_server; http.request_body; content:"dirty_pipe"; nocase; pcre:"/\/proc\/self\/mem|O_RDWR/"; reference:url,attack.mitre.org/techniques/T1068/; classtype:attempted-privilege-escalation; sid:521277974; rev:1;)
+alert http any any -> any any (msg:"MITRE T1068 Privilege Escalation Exploit - Kernel Exploit via NVIDIA GPU"; flow:established,to_server; http.request_body; content:"CVE-2023-0186"; nocase; content:"nvidia"; nocase; reference:url,attack.mitre.org/techniques/T1068/; classtype:attempted-privilege-escalation; sid:521277975; rev:1;)
+
+# === MITRE ATT&CK T1053: Scheduled Task/Job ===
+alert http any any -> any any (msg:"MITRE T1053 Scheduled Task - Crontab Modification via Web"; flow:established,to_server; http.request_body; content:"crontab"; nocase; content:"-e"; nocase; pcre:"/\*\s+\*\s+\*\s+\*\s+\*\s+(?:wget|curl|python)/"; reference:url,attack.mitre.org/techniques/T1053/; classtype:trojan-activity; sid:521277976; rev:1;)
+alert http any any -> any any (msg:"MITRE T1053 Scheduled Task - Windows Schtasks Creation"; flow:established,to_server; http.request_body; content:"schtasks"; nocase; content:"/create"; nocase; content:"/sc"; nocase; reference:url,attack.mitre.org/techniques/T1053/; classtype:trojan-activity; sid:521277977; rev:1;)
+
+# === MITRE ATT&CK T1555: Credentials from Password Stores ===
+alert http any any -> any any (msg:"MITRE T1555 Credential Store - Browser Password Extraction"; flow:established,to_server; http.request_body; content:"Login Data"; nocase; content:"Chrome"; nocase; reference:url,attack.mitre.org/techniques/T1555/; classtype:trojan-activity; sid:521277978; rev:1;)
+alert http any any -> any any (msg:"MITRE T1555 Credential Store - KeePass Database Access"; flow:established,to_server; http.request_body; content:".kdbx"; nocase; content:"keepass"; nocase; reference:url,attack.mitre.org/techniques/T1555/; classtype:trojan-activity; sid:521277979; rev:1;)
+
+# === Current Threat Landscape - AI/LLM Attacks ===
+alert http any any -> any any (msg:"AI/LLM Security - Prompt Injection via API"; flow:established,to_server; http.uri; content:"/v1/chat/completions"; nocase; http.request_body; pcre:"/\"role\"\s*:\s*\"system\".*\"ignore.*(?:previous|above).*instructions\"/i"; classtype:web-application-attack; sid:521277980; rev:1;)
+alert http any any -> any any (msg:"AI/LLM Security - Model Exfiltration Attempt via API"; flow:established,to_server; http.uri; content:"/v1/models/"; nocase; http.method; content:"GET"; pcre:"/\/v1\/models\/[^\/]+\/(weights|parameters|export)/"; classtype:exfiltration; sid:521277981; rev:1;)
+alert http any any -> any any (msg:"AI/LLM Security - Jailbreak Attempt via DAN Pattern"; flow:established,to_server; http.uri; content:"/v1/chat"; nocase; http.request_body; pcre:"/(?:DAN|do anything now|jailbreak|developer mode)/i"; classtype:web-application-attack; sid:521277982; rev:1;)
+
+# === Supply Chain Attacks ===
+alert http any any -> any any (msg:"Supply Chain Attack - Malicious NPM Package Installation"; flow:established,to_server; http.uri; content:"/registry/"; nocase; http.request_body; pcre:"/\"name\"\s*:\s*\"[a-z0-9-]+\"\s*,\s*\"scripts\".*\"postinstall\".*\"curl|wget/i"; classtype:trojan-activity; sid:521277983; rev:1;)
+alert http any any -> any any (msg:"Supply Chain Attack - PyPI Package Typosquatting Detection"; flow:established,to_server; http.uri; content:"/simple/"; nocase; http.host; content:"pypi.org"; pcre:"/\/simple\/(?:requets|django-rst-framework|python-dateutil|requiremts)\//i"; classtype:trojan-activity; sid:521277984; rev:1;)
+alert http any any -> any any (msg:"Supply Chain Attack - Malicious Container Image Pull"; flow:established,to_server; http.uri; content:"/v2/"; nocase; content:"/manifests/"; nocase; http.host; pcre:"/(?!.*docker\.io)(?!.*gcr\.io)(?!.*quay\.io)[a-z0-9-]+\.[a-z]{2,}\/v2\//"; classtype:trojan-activity; sid:521277985; rev:1;)
+
+# === Cloud Security ===
+alert http any any -> any any (msg:"Cloud Security - AWS IMDSv1 Metadata Access Attempt"; flow:established,to_server; http.uri; content:"/latest/meta-data/"; nocase; http.host; content:"169.254.169.254"; reference:url,attack.mitre.org/techniques/T1552/; classtype:attempted-admin; sid:521277986; rev:1;)
+alert http any any -> any any (msg:"Cloud Security - AWS STS AssumeRole Credential Harvesting"; flow:established,to_server; http.uri; content:"/sts/"; content:"AssumeRole"; nocase; http.method; content:"POST"; threshold:type both, track by_src, count 10, seconds 300; classtype:attempted-admin; sid:521277987; rev:1;)
+alert http any any -> any any (msg:"Cloud Security - Azure Managed Identity Token Abuse"; flow:established,to_server; http.uri; content:"/metadata/identity/oauth2/token"; nocase; http.header; content:"Metadata"; content:"true"; distance:0; http.host; content:"169.254.169.254"; classtype:attempted-admin; sid:521277988; rev:1;)
+
+# === Container/Kubernetes Security ===
+alert tcp any any -> any any (msg:"Kubernetes Security - API Server Anonymous Access"; flow:established,to_server; dport:6443; content:"GET /api/v1/"; content:"Authorization"; content:"Bearer Anonymous"; distance:0; classtype:attempted-admin; sid:521277989; rev:1;)
+alert tcp any any -> any any (msg:"Kubernetes Security - Pod Creation with Privileged Container"; flow:established,to_server; dport:6443; content:"POST /api/v1/namespaces"; content:"privileged"; nocase; content:"true"; nocase; distance:0; classtype:attempted-privilege-escalation; sid:521277990; rev:1;)
+alert tcp any any -> any any (msg:"Kubernetes Security - Service Account Token Secret Access"; flow:established,to_server; dport:6443; content:"GET /api/v1/secrets"; content:"service-account"; nocase; classtype:attempted-admin; sid:521277991; rev:1;)
+
+# === Web Application Security ===
+alert http any any -> any any (msg:"Web App Security - SSRF via URL Parameter to Internal IP"; flow:established,to_server; http.uri; pcre:"/(?:url|redirect|target|dest|return)=(?:https?:)?\/\/(?:127\.0\.0\.1|localhost|10\.|192\.168\.|172\.(?:1[6-9]|2[0-9]|3[01])\.)/i"; classtype:web-application-attack; sid:521277992; rev:1;)
+alert http any any -> any any (msg:"Web App Security - XXE External Entity Injection"; flow:established,to_server; http.request_body; pcre:"/<!ENTITY\s+\w+\s+SYSTEM\s+['\"](?:file|http|https|ftp):\/\//i"; classtype:web-application-attack; sid:521277993; rev:1;)
+alert http any any -> any any (msg:"Web App Security - Open Redirect via Unvalidated Parameter"; flow:established,to_server; http.uri; pcre:"/(?:redirect|return|next|goto|url)=https?:\/\/[^a-z]*[a-z0-9-]+\.[a-z]{2,}/i"; http.response_header; content:"302"; classtype:web-application-attack; sid:521277994; rev:1;)
+
+# === Network Security ===
+alert tcp any any -> any any (msg:"Network Security - Suspicious Outbound Cobalt Strike C2 Beacon"; flow:established,to_server; dsize:0; http.uri; content:"/dpixel"; nocase; http.header; content:"Cookie"; pcre:"/Cookie\s*:\s*[A-Za-z0-9+\/]{40,}={0,2}/"; classtype:trojan-activity; sid:521277995; rev:1;)
+alert tcp any any -> any any (msg:"Network Security - Metasploit Meterpreter Reverse Shell"; flow:established,to_client; dsize:0; content:"MZF"; depth:3; classtype:trojan-activity; sid:521277996; rev:1;)
+alert tcp any any -> any any (msg:"Network Security - Sliver C2 Framework HTTP Beacon"; flow:established,to_server; http.uri; pcre:"/^\/[a-z0-9]{8,16}$/"; http.method; content:"POST"; http.request_body; pcre:"/^[A-Za-z0-9+\/]{100,}={0,2}$/"; classtype:trojan-activity; sid:521277997; rev:1;)
+
+# === Data Exfiltration ===
+alert http any any -> any any (msg:"Data Exfiltration - CSV/Database Content in HTTP POST"; flow:established,to_server; http.method; content:"POST"; http.request_body; pcre:"/(?:^|,)(?:[\w\s]+,){10,}(?:[\w\s]+)\n(?:[\w\s]+,){10,}/"; classtype:exfiltration; sid:521277998; rev:1;)
+alert http any any -> any any (msg:"Data Exfiltration - Encrypted Archive Upload to File Sharing"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"upload"; nocase; http.host; pcre:"/(?:wetransfer|sendgb|filebin|gofile)/"; dsize:1000000; classtype:exfiltration; sid:521277999; rev:1;)
+alert http any any -> any any (msg:"Data Exfiltration - PII Pattern in Outbound HTTP Traffic"; flow:established,to_server; http.request_body; pcre:"/\b\d{3}-\d{2}-\d{4}\b.*\b\d{16}\b/"; classtype:exfiltration; sid:521278000; rev:1;)
