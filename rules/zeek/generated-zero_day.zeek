@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-zero_day
-# Auto-generated: 2026-10-15T04:05:41.327630Z
+# Auto-generated: 2026-10-19T04:05:05.807386Z
 # Load in local.zeek: @load ./generated-zero_day
 
 signature ZK-ZERO_DAY-087 {
