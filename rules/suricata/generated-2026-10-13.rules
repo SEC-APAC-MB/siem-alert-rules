@@ -1,307 +1,201 @@
 # Suricata Detection Rules - Generated 2026-10-13
 # Based on: GitHub Advisory Database CVEs (2026-08-27+), MITRE ATT&CK, current threat landscape
 # SID range: 521275300 - 521275399
-
 # === CVE-Based Rules (from GitHub Advisory fetch 2026-10-13) ===
-
 # CVE-2026-89110 - SAP NetWeaver Visual Composer auth bypass (CRITICAL)
 alert http any any -> any any (msg:"CVE-2026-89110 SAP NetWeaver Visual Composer Authorization Bypass Attempt"; flow:established,to_server; content:"/VC"; http_uri; content:"composer"; http_uri; nocase; content:"action="; http_uri; nocase; pcre:"/action=(?![a-z]*(login|auth))[a-z]+/Ui"; flowbits:set,sap.vc.auth_bypass; flowbits:noalert; classtype:attempted-admin; sid:521275300; rev:1;)
-
 # CVE-2026-89108 - SAP Manufacturing Integration auth bypass (CRITICAL)
 alert http any any -> any any (msg:"CVE-2026-89108 SAP MII Authentication Bypass - Unauthenticated Resource Access"; flow:established,to_server; content:"/XMII/"; http_uri; nocase; content:"Servlet"; http_uri; nocase; content:"Command="; http_uri; nocase; pcre:"/Command=(Execute|GetPropertyList)/Ui"; classtype:attempted-admin; sid:521275301; rev:1;)
-
 # CVE-2026-89105 - SAP Cloud SDK Python OAuth2 SSRF (CRITICAL)
 alert http any any -> any any (msg:"CVE-2026-89105 SAP Cloud SDK Python OAuth2 SSRF Attempt"; flow:established,to_server; content:"token"; http_uri; nocase; content:"redirect_uri"; http_client_body; nocase; pcre:"/redirect_uri=(file|gopher|dict|ftp|http):\/\//Ui"; classtype:attempted-admin; sid:521275302; rev:1;)
-
 # CVE-2026-97229 - GitLab CE/EE critical vulnerability (CRITICAL)
 alert http any any -> any any (msg:"CVE-2026-97229 GitLab CE/EE Critical Vulnerability Exploit Attempt"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"import"; http_uri; nocase; content:"url="; http_uri; nocase; pcre:"/url=(file|gopher|dict|ldap|ssrf):\/\//Ui"; classtype:attempted-admin; sid:521275303; rev:1;)
-
 # CVE-2026-87689 - Metasploit Framework Web Service REST API credential exposure (CRITICAL)
 alert http any any -> any any (msg:"CVE-2026-87689 Metasploit msf-ws REST API Credential Store Access"; flow:established,to_server; content:"/api/"; http_uri; nocase; content:"v1/"; http_uri; nocase; pcre:"/\/api\/v[0-9]+\/(creds|credentials|workspaces|sessions)/Ui"; content:"Authorization"; http_header; nocase; classtype:attempted-admin; sid:521275304; rev:1;)
-
 # CVE-2026-89121 - SAP S/4HANA insufficient authorization checks (HIGH)
 alert http any any -> any any (msg:"CVE-2026-89121 SAP S/4HANA Instance-Level Authorization Bypass"; flow:established,to_server; content:"/sap/"; http_uri; nocase; content:"/bc/"; http_uri; nocase; pcre:"/\/sap\/(bc|gui)\/[a-z]+\/[a-z0-9_]+/Ui"; content:"sap-user"; http_header; nocase; classtype:attempted-user; sid:521275305; rev:1;)
-
 # CVE-2026-89120 - SAP ABAP Platform API regression (HIGH)
 alert http any any -> any any (msg:"CVE-2026-89120 SAP ABAP Platform API Regression Exploit"; flow:established,to_server; content:"/sap/opu/odata/"; http_uri; nocase; content:"$expand"; http_uri; nocase; pcre:"/\$expand=[a-z_]+\/[a-z_]+/Ui"; classtype:attempted-user; sid:521275306; rev:1;)
-
 # CVE-2026-89117 - SAP NetWeaver Enterprise Portal XSS injection (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-89117 SAP NetWeaver Enterprise Portal XSS Injection"; flow:established,to_server; content:"/irj/"; http_uri; nocase; content:"/portal/"; http_uri; nocase; pcre:"/(<script|javascript:|onerror=|onload=)/Ui"; http_client_body; classtype:web-application-attack; sid:521275307; rev:1;)
-
 # CVE-2026-89118 - SAP NetWeaver Enterprise Portal unauthenticated resource access (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-89118 SAP NetWeaver EP Unauthenticated Resource Access"; flow:established,to_server; content:"/irj/"; http_uri; nocase; content:"/servlet/"; http_uri; nocase; content:"com.sap"; http_uri; nocase; pcre:"/com\.sap\.[a-z.]+/Ui"; classtype:attempted-recon; sid:521275308; rev:1;)
-
 # CVE-2026-35001 - OpenS100 integer overflow (HIGH)
 alert http any any -> any any (msg:"CVE-2026-35001 OpenS100 Integer Overflow Exploit Attempt"; flow:established,to_server; pcre:"/Content-Length:\s*(\d{10,}|9999999999)/Hi"; content:"POST"; http_method; content:"upload"; http_uri; nocase; classtype:attempted-dos; sid:521275309; rev:1;)
-
 # CVE-2026-81839 - GitLab EE vulnerability (HIGH)
 alert http any any -> any any (msg:"CVE-2026-81839 GitLab EE Privilege Escalation via API"; flow:established,to_server; content:"/api/v4/"; http_uri; nocase; content:"/groups/"; http_uri; nocase; content:"/members"; http_uri; nocase; content:"POST"; http_method; content:"access_level"; http_client_body; nocase; pcre:"/access_level[\"\\s:=]+(50|60)/Ui"; classtype:attempted-user; sid:521275310; rev:1;)
-
 # CVE-2026-16301 - GitLab CE/EE vulnerability (HIGH)
 alert http any any -> any any (msg:"CVE-2026-16301 GitLab CE/EE High Severity Exploit"; flow:established,to_server; content:"/api/v4/projects/"; http_uri; nocase; content:"/export"; http_uri; nocase; content:"POST"; http_method; content:"description"; http_client_body; nocase; pcre:"/(<script|<img|javascript:)/Ui"; http_client_body; classtype:web-application-attack; sid:521275311; rev:1;)
-
 # CVE-2026-14814 - GitLab CE/EE vulnerability (HIGH)
 alert http any any -> any any (msg:"CVE-2026-14814 GitLab CE/EE Vulnerability Pre-19 Exploit"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/-/"; http_uri; nocase; content:"issues"; http_uri; nocase; pcre:"/\/-\/(issues|merge_requests)\/[0-9]+/Ui"; content:"confidential"; http_client_body; nocase; classtype:attempted-user; sid:521275312; rev:1;)
-
 # CVE-2026-5954 - GitLab CE/EE vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-5954 GitLab CE/EE Medium Severity Vulnerability"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v4/"; http_uri; nocase; content:"/user/"; http_uri; nocase; pcre:"/\/api\/v4\/user(s)?\/[0-9]+/Ui"; content:"email"; http_client_body; nocase; classtype:attempted-recon; sid:521275313; rev:1;)
-
 # CVE-2026-14210 - GitLab CE/EE vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-14210 GitLab CE/EE 18.11 Vulnerability Exploit"; flow:established,to_server; content:"/api/v4/"; http_uri; nocase; content:"/projects/"; http_uri; nocase; content:"/hooks"; http_uri; nocase; content:"url"; http_client_body; nocase; pcre:"/url=(file|gopher|http|ldap):\/\//Ui"; classtype:web-application-attack; sid:521275314; rev:1;)
-
 # CVE-2026-6567 - GitLab CE/EE vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-6567 GitLab CE/EE 13.8+ Vulnerability"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/admin"; http_uri; nocase; content:"/users"; http_uri; nocase; pcre:"/\/admin\/users\/[0-9]+/Ui"; content:"DELETE"; http_method; classtype:attempted-admin; sid:521275315; rev:1;)
-
 # CVE-2026-76976 - SAP GUI for HTML XSS (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-76976 SAP GUI for HTML DOM-Based XSS Attempt"; flow:established,to_server; content:"/sap/"; http_uri; nocase; content:"bc/"; http_uri; nocase; content:"gui"; http_uri; nocase; pcre:"/(<svg|<iframe|<script|javascript:)/Ui"; http_uri; classtype:web-application-attack; sid:521275316; rev:1;)
-
 # CVE-2026-76975 - SAP NetWeaver DOM-Based XSS (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-76975 SAP NetWeaver DOM-Based XSS Vulnerability"; flow:established,to_server; content:"/sap/bc/"; http_uri; nocase; pcre:"/document\.write|innerHTML|outerHTML/i"; http_client_body; pcre:"/(<script|<img[^>]+onerror)/Ui"; http_client_body; classtype:web-application-attack; sid:521275317; rev:1;)
-
 # CVE-2026-89106 - SAP UI5 input validation bypass (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-89106 SAP UI5 Input Validation Bypass Attempt"; flow:established,to_server; content:"/sap/ui5/"; http_uri; nocase; pcre:"/(\.\.\/|%2e%2e%2f)/Ui"; http_uri; classtype:web-application-attack; sid:521275318; rev:1;)
-
 # CVE-2026-89124 - SAP Product Catalog auth bypass (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-89124 SAP Product Catalog Customs Declaration Auth Bypass"; flow:established,to_server; content:"/sap/"; http_uri; nocase; content:"product"; http_uri; nocase; content:"catalog"; http_uri; nocase; content:"customs"; http_uri; nocase; classtype:attempted-user; sid:521275319; rev:1;)
-
 # CVE-2026-89122 - SAP NetWeaver Enterprise Portal input validation (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-89122 SAP NetWeaver EP Insufficient Input Validation"; flow:established,to_server; content:"/irj/"; http_uri; nocase; content:"/go/"; http_uri; nocase; pcre:"/\/go\/[a-z]+\?(.*?)=/Ui"; pcre:"/[<>\"]{1,}/Ui"; http_uri; classtype:web-application-attack; sid:521275320; rev:1;)
-
 # CVE-2026-89116 - child_process.execSync injection (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-89116 Node.js child_process.execSync Shell Injection"; flow:established,to_server; content:"POST"; http_method; pcre:"/(;|\||\$\(|\`).*?(cat|ls|id|whoami|uname|wget|curl)/Ui"; http_client_body; classtype:attempted-user; sid:521275321; rev:1;)
-
 # CVE-2026-89111 - SAP Cloud SDK Python OAuth2 SSRF (CRITICAL) - additional detection
 alert http any any -> any any (msg:"CVE-2026-89111 SAP Cloud SDK Python OAuth2 SSRF - Internal Target Probe"; flow:established,to_server; content:"oauth"; http_uri; nocase; content:"callback"; http_uri; nocase; pcre:"/(169\.254\.169\.254|127\.0\.0\.1|localhost|10\.\d+|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/Ui"; http_client_body; classtype:attempted-recon; sid:521275322; rev:1;)
-
 # CVE-2026-84284 - GitLab CE/EE 17.11 vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-84284 GitLab CE/EE 17.11 Vulnerability Attempt"; flow:established,to_server; content:"/api/v4/"; http_uri; nocase; content:"/projects/"; http_uri; nocase; content:"/pipeline"; http_uri; nocase; content:"POST"; http_method; pcre:"/variables\[.*\]/Ui"; http_client_body; classtype:web-application-attack; sid:521275323; rev:1;)
-
 # CVE-2026-85529 - GitLab CE/EE 19.2 vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-85529 GitLab CE/EE 19.2 Vulnerability Exploit"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v4/"; http_uri; nocase; content:"/broadcast_messages"; http_uri; nocase; content:"POST"; http_method; classtype:attempted-admin; sid:521275324; rev:1;)
-
 # CVE-2026-78335 - GitLab CE/EE 19.1 vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-78335 GitLab CE/EE 19.1 Vulnerability Attempt"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v4/"; http_uri; nocase; content:"/feature_flags"; http_uri; nocase; pcre:"/feature_flags\/[a-z0-9_]+/Ui"; classtype:attempted-admin; sid:521275325; rev:1;)
-
 # CVE-2026-9268 - GitLab EE 13.6 vulnerability (LOW)
 alert http any any -> any any (msg:"CVE-2026-9268 GitLab EE 13.6 Vulnerability Probe"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/help"; http_uri; nocase; pcre:"/\/help\/[a-z]+\/[a-z]+/Ui"; classtype:attempted-recon; sid:521275326; rev:1;)
-
 # CVE-2026-92528 - GitLab EE 16.11 vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-92528 GitLab EE 16.11 Vulnerability"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v4/"; http_uri; nocase; content:"/templates/"; http_uri; nocase; pcre:"/templates\/(dockerfiles|gitlab_ci)/Ui"; classtype:attempted-recon; sid:521275327; rev:1;)
-
 # CVE-2026-14552 - GitLab CE/EE 17.0 vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-14552 GitLab CE/EE 17.0 Vulnerability"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v4/"; http_uri; nocase; content:"/application/appearance"; http_uri; nocase; content:"PUT"; http_method; classtype:attempted-admin; sid:521275328; rev:1;)
-
 # CVE-2026-7767 - GitLab CE/EE 13.11 vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-7767 GitLab CE/EE 13.11 Vulnerability"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/profile"; http_uri; nocase; content:"/account"; http_uri; nocase; content:"DELETE"; http_method; classtype:attempted-user; sid:521275329; rev:1;)
-
 # CVE-2026-104661 - GitLab EE 17.0 vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-104661 GitLab EE 17.0 Vulnerability Exploit"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v4/"; http_uri; nocase; content:"/clusters"; http_uri; nocase; content:"POST"; http_method; classtype:attempted-admin; sid:521275330; rev:1;)
-
 # CVE-2026-100104 - GitLab CE/EE 10.3 vulnerability (LOW)
 alert http any any -> any any (msg:"CVE-2026-100104 GitLab CE/EE 10.3 Legacy Vulnerability Probe"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v3/"; http_uri; nocase; classtype:attempted-recon; sid:521275331; rev:1;)
-
 # CVE-2026-100755 - GitLab CE/EE 16.2 vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-100755 GitLab CE/EE 16.2 Vulnerability Attempt"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v4/"; http_uri; nocase; content:"/runners"; http_uri; nocase; content:"POST"; http_method; classtype:attempted-admin; sid:521275332; rev:1;)
-
 # CVE-2026-105458 - GitLab EE 19.1 vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-105458 GitLab EE 19.1 Vulnerability"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v4/"; http_uri; nocase; content:"/resource_groups"; http_uri; nocase; classtype:attempted-recon; sid:521275333; rev:1;)
-
 # CVE-2026-101168 - GitLab CE/EE 12.0 vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-101168 GitLab CE/EE 12.0 Legacy Vulnerability"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v4/"; http_uri; nocase; content:"/deploy_keys"; http_uri; nocase; classtype:attempted-recon; sid:521275334; rev:1;)
-
 # CVE-2026-16275 - GitLab CE/EE 17.4 vulnerability (MEDIUM)
 alert http any any -> any any (msg:"CVE-2026-16275 GitLab CE/EE 17.4 Vulnerability"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v4/"; http_uri; nocase; content:"/personal_access_tokens"; http_uri; nocase; classtype:attempted-user; sid:521275335; rev:1;)
-
 # CVE-2026-82632 - GitLab CE/EE 18.9 vulnerability (LOW)
 alert http any any -> any any (msg:"CVE-2026-82632 GitLab CE/EE 18.9 Vulnerability"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v4/"; http_uri; nocase; content:"/snippets"; http_uri; nocase; content:"POST"; http_method; classtype:attempted-user; sid:521275336; rev:1;)
-
 # CVE-2026-96893 - GitLab EE 19.1 vulnerability (HIGH)
 alert http any any -> any any (msg:"CVE-2026-96893 GitLab EE 19.1 High Severity Vulnerability"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v4/"; http_uri; nocase; content:"/projects/"; http_uri; nocase; content:"/access_tokens"; http_uri; nocase; classtype:attempted-user; sid:521275337; rev:1;)
-
 # CVE-2026-92883 - GitLab CE/EE 19.1 vulnerability (HIGH)
 alert http any any -> any any (msg:"CVE-2026-92883 GitLab CE/EE 19.1 High Severity Vulnerability Exploit"; flow:established,to_server; content:"/gitlab"; http_uri; nocase; content:"/api/v4/"; http_uri; nocase; content:"/groups/"; http_uri; nocase; content:"/ldap"; http_uri; nocase; classtype:attempted-admin; sid:521275338; rev:1;)
-
 # CVE-2026-89117 - SAP NetWeaver EP XSS - additional variant
 alert http any any -> any any (msg:"CVE-2026-89117 SAP NetWeaver EP XSS Variant - SVG Injection"; flow:established,to_server; content:"/irj/"; http_uri; nocase; pcre:"/<svg[^>]+onload=[^>]*>/Ui"; http_client_body; classtype:web-application-attack; sid:521275339; rev:1;)
-
 # CVE-2026-87689 - Metasploit msf-ws - additional credential access pattern
 alert http any any -> any any (msg:"CVE-2026-87689 Metasploit msf-ws Additional Credential Access Pattern"; flow:established,to_server; content:"/api/"; http_uri; nocase; pcre:"/\/api\/(v1|v2)\/(hosts|services|vulns|notes)/Ui"; content:"GET"; http_method; classtype:attempted-recon; sid:521275340; rev:1;)
-
 # === MITRE ATT&CK Technique-Based Rules ===
-
 # T1046 - Network Service Scanning
 alert tcp any any -> any any (msg:"MITRE T1046 Network Service Scanning - Rapid Port Sweep"; flags:S; detection_filter:track by_src, count 20, seconds 10; classtype:attempted-recon; sid:521275341; rev:1;)
-
 # T1046 - Network Service Scanning via UDP
 alert udp any any -> any any (msg:"MITRE T1046 UDP Network Service Scanning - Rapid UDP Probe"; detection_filter:track by_src, count 15, seconds 5; classtype:attempted-recon; sid:521275342; rev:1;)
-
 # T1595 - Active Scanning
 alert tcp any any -> any any (msg:"MITRE T1595 Active Scanning - Nmap-style TCP Connect Scan"; flags:S; ttl:64; dsize:0; detection_filter:track by_src, count 30, seconds 30; classtype:attempted-recon; sid:521275343; rev:1;)
-
 # T1595.002 - Active Scanning Vulnerability Scanning
 alert http any any -> any any (msg:"MITRE T1595.002 Vulnerability Scanning - Scanner User-Agent Detection"; flow:established,to_server; pcre:"/(Nikto|Nmap|Nessus|OpenVAS|sqlmap|Acunetix|wpscan|masscan|ZAP)/Ui"; http_header; classtype:attempted-recon; sid:521275344; rev:1;)
-
 # T1190 - Exploit Public-Facing Application
 alert http any any -> any any (msg:"MITRE T1190 Exploit Public Application - Known Exploit Kit Payload Delivery"; flow:established,to_server; pcre:"/(\.php\?(cmd|cmd1|c)=|\/wp-content\/uploads\/.*\.php|\/tmp\/.*\.php)/Ui"; http_uri; classtype:attempted-user; sid:521275345; rev:1;)
-
 # T1059.004 - Command and Scripting Interpreter: Unix Shell
 alert http any any -> any any (msg:"MITRE T1059.004 Unix Shell Command Injection via HTTP"; flow:established,to_server; pcre:"/(;|\|)\s*(cat|ls|id|whoami|uname|wget|curl|bash|sh|nc|python|perl|ruby)\s/U"; http_uri; classtype:attempted-user; sid:521275346; rev:1;)
-
 # T1059.001 - PowerShell
 alert http any any -> any any (msg:"MITRE T1059.001 PowerShell Command Execution via HTTP"; flow:established,to_server; pcre:"/(powershell|pwsh)\.exe\s+-(e|ec|enc|enco|encod|encoded)/Ui"; http_client_body; classtype:attempted-user; sid:521275347; rev:1;)
-
 # T1059.003 - Windows Command Shell
 alert http any any -> any any (msg:"MITRE T1059.003 Windows Command Shell Execution via Web"; flow:established,to_server; pcre:"/(cmd\.exe|command\.com)\s+\/c\s/U"; http_client_body; classtype:attempted-user; sid:521275348; rev:1;)
-
 # T1071 - Application Layer Protocol
 alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1071 Application Layer Protocol C2 - Non-Standard Port HTTP"; flow:established; content:"HTTP/1"; depth:6; content:"Host|3a|"; http_header; pcre:"/Host:\s*(?!.*\.(google|facebook|amazon|microsoft|cloudflare)\.)/Hi"; port:!80; classtype:trojan-activity; sid:521275349; rev:1;)
-
 # T1071.001 - Web Protocols
 alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1071.001 Web Protocol C2 - Suspicious TLS to Dynamic DNS Domain"; flow:established; tls.sni; pcre:"/[a-z0-9]+\.(duckdns|ddns|noip|dynu|freedns|changeip)\./"; classtype:trojan-activity; sid:521275350; rev:1;)
-
 # T1568 - Dynamic Resolution
 alert dns $HOME_NET any -> any 53 (msg:"MITRE T1568 Dynamic Resolution - Dynamic DNS Query"; dns.query.name; pcre:"/[a-z0-9]+\.(duckdns|ddns|noip|dynu|freedns|changeip)\./"; classtype:trojan-activity; sid:521275351; rev:1;)
-
 # T1568.002 - Domain Generation Algorithms
 alert dns $HOME_NET any -> any 53 (msg:"MITRE T1568.002 DGA Domain Query - High Entropy DNS Lookup"; dns.query.name; pcre:"/[a-z0-9]{15,}\.(ru|cn|tk|ml|ga|cf|gq)$/"; classtype:trojan-activity; sid:521275352; rev:1;)
-
 # T1078 - Valid Accounts
 alert http any any -> any any (msg:"MITRE T1078 Valid Accounts - Brute Force Login Attempt"; flow:established,to_server; content:"POST"; http_method; content:"password"; http_client_body; nocase; content:"login"; http_client_body; nocase; detection_filter:track by_src, count 10, seconds 60; classtype:attempted-user; sid:521275353; rev:1;)
-
 # T1110 - Brute Force
 alert ssh $EXTERNAL_NET any -> $HOME_NET 22 (msg:"MITRE T1110 SSH Brute Force - Rapid Authentication Failures"; flow:established; content:"SSH-2.0"; depth:7; detection_filter:track by_src, count 5, seconds 30; classtype:attempted-user; sid:521275354; rev:1;)
-
 # T1110.001 - Password Guessing
 alert http any any -> any any (msg:"MITRE T1110.001 Password Guessing - HTTP Basic Auth Brute Force"; flow:established,to_server; content:"Authorization"; http_header; nocase; content:"Basic"; http_header; nocase; detection_filter:track by_src, count 20, seconds 60; classtype:attempted-user; sid:521275355; rev:1;)
-
 # T1505.003 - Server Software Component: Web Shell
 alert http any any -> any any (msg:"MITRE T1505.003 Web Shell Detection - Suspicious PHP File Access"; flow:established,to_server; pcre:"/\.(php|jsp|asp|aspx)\?(cmd|c|exec|command|do|action)=/Ui"; http_uri; classtype:web-application-attack; sid:521275356; rev:1;)
-
 # T1505.003 - Web Shell - China Chopper
 alert http any any -> any any (msg:"MITRE T1505.003 Web Shell China Chopper Command Execution"; flow:established,to_server; pcre:"/(cmd=|eval\(|assert\(|base64_decode\()/Ui"; http_client_body; pcre:"/[a-zA-Z0-9+\/]{50,}={0,2}/Ui"; http_client_body; classtype:web-application-attack; sid:521275357; rev:1;)
-
 # T1053.003 - Scheduled Task/Job: Cron
 alert tcp $HOME_NET any -> $HOME_NET 22 (msg:"MITRE T1053.003 Cron Manipulation via SSH - crontab Command"; flow:established; content:"crontab"; nocase; content:"-l"; nocase; distance:0; within:10; classtype:attempted-user; sid:521275358; rev:1;)
-
 # T1547.001 - Boot or Logon Autostart Execution: Registry Run Keys
 alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1547.001 Registry Run Key Modification via SMB"; flow:established; content:"|5C|SOFTWARE|5C|Microsoft|5C|Windows|5C|CurrentVersion|5C|Run"; nocase; content:"SMB"; depth:3; classtype:attempted-user; sid:521275359; rev:1;)
-
 # T1027 - Obfuscated Files or Information
 alert http any any -> any any (msg:"MITRE T1027 Obfuscated Payload - Base64 Encoded Content in URI"; flow:established,to_server; pcre:"/[A-Za-z0-9+\/]{100,}={0,2}/U"; http_uri; classtype:trojan-activity; sid:521275360; rev:1;)
-
 # T1027.010 - Command Obfuscation
 alert http any any -> any any (msg:"MITRE T1027.010 Command Obfuscation - Hex Encoded Command in HTTP"; flow:established,to_server; pcre:"/(%5c|\\x[0-9a-f]{2}){10,}/Ui"; http_uri; classtype:trojan-activity; sid:521275361; rev:1;)
-
 # T1140 - Deobfuscate/Decode Files or Information
 alert http any any -> any any (msg:"MITRE T1140 Deobfuscation - Base64 Decode in HTTP Request"; flow:established,to_server; pcre:"/(base64\s+-d|base64\s+--decode|openssl\s+enc\s+-d)/Ui"; http_client_body; classtype:trojan-activity; sid:521275362; rev:1;)
-
 # T1039 - Data from Network Shared Drive
 alert tcp $HOME_NET any -> $EXTERNAL_NET 445 (msg:"MITRE T1039 Data from Network Shared Drive - SMB Exfiltration"; flow:established; content:"|00 00 00 2f|"; depth:4; content:"NTLMSSP"; depth:8; offset:12; detection_filter:track by_src, count 50, seconds 60; classtype:trojan-activity; sid:521275363; rev:1;)
-
 # T1041 - Exfiltration Over C2 Channel
 alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1041 Exfiltration Over C2 - Large Outbound Data Transfer"; flow:established; dsize:>1000000; detection_filter:track by_src, count 5, seconds 60; classtype:trojan-activity; sid:521275364; rev:1;)
-
 # T1048 - Exfiltration Over Alternative Protocol
 alert tcp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"MITRE T1048 Exfiltration Over DNS - Large DNS Query"; flow:established; dsize:>200; content:"|00|"; depth:1; classtype:trojan-activity; sid:521275365; rev:1;)
-
 # T1048.003 - Exfiltration Over Unencrypted Non-C2 Protocol
 alert tcp $HOME_NET any -> $EXTERNAL_NET 21 (msg:"MITRE T1048.003 Exfiltration Over FTP - Anonymous FTP Upload"; flow:established; content:"USER anonymous"; nocase; depth:15; content:"PASS"; nocase; distance:0; within:30; classtype:trojan-activity; sid:521275366; rev:1;)
-
 # T1567 - Exfiltration Over Web Service
 alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1567 Exfiltration Over Web Service - Suspicious Cloud Upload"; flow:established; tls.sni; pcre:"/(upload|transfer|send|share|storage|drop)\.(com|net|io|app)/"; dsize:>500000; classtype:trojan-activity; sid:521275367; rev:1;)
-
 # T1567.002 - Exfiltration to Cloud Storage
 alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1567.002 Exfiltration to Cloud Storage - Large Transfer to S3/Azure/GCS"; flow:established; tls.sni; pcre:"/(s3\.amazonaws|blob\.core\.windows|storage\.googleapis)\./"; dsize:>1000000; classtype:trojan-activity; sid:521275368; rev:1;)
-
 # T1090 - Proxy
 alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1090 Proxy Connection - TOR Node Connection"; flow:established; content:"|00 00 00 03|"; depth:4; pcre:"/^\x00\x00\x00\x03[\x01\x02\x03]/"; dsize:>50; classtype:trojan-activity; sid:521275369; rev:1;)
-
 # T1090.003 - Proxy: Multi-hop Proxy
 alert tcp $HOME_NET any -> $EXTERNAL_NET 9001 (msg:"MITRE T1090.003 Multi-hop Proxy - TOR Relay Connection on Port 9001"; flow:established; flags:S; classtype:trojan-activity; sid:521275370; rev:1;)
-
 # T1133 - External Remote Services
 alert ssh $EXTERNAL_NET any -> $HOME_NET 22 (msg:"MITRE T1133 External Remote Services - SSH from Unusual Geographic Source"; flow:established; content:"SSH-2.0"; depth:7; flowbits:set,ssh.external_access; classtype:trojan-activity; sid:521275371; rev:1;)
-
 # T1021 - Remote Services
 alert ssh $EXTERNAL_NET any -> $HOME_NET 22 (msg:"MITRE T1021 Remote Services - SSH with X11 Forwarding Enabled"; flow:established; content:"SSH-2.0"; depth:7; content:"x11"; nocase; distance:0; within:100; classtype:trojan-activity; sid:521275372; rev:1;)
-
 # T1021.002 - Remote Services: SMB/Windows Admin Shares
 alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"MITRE T1021.002 SMB/Admin Share Access from External Network"; flow:established; flags:S; classtype:attempted-admin; sid:521275373; rev:1;)
-
 # T1021.001 - Remote Desktop Protocol
 alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"MITRE T1021.001 RDP Access from External Network"; flow:established; flags:S; classtype:attempted-user; sid:521275374; rev:1;)
-
 # T1559 - Inter-Process Communication
 alert tcp $HOME_NET any -> $HOME_NET 135 (msg:"MITRE T1559 IPC via MSRPC - DCOM Activation Request"; flow:established; content:"|05 00|"; depth:2; dsize:>50; classtype:attempted-user; sid:521275375; rev:1;)
-
 # T1210 - Exploitation of Remote Services
 alert tcp $EXTERNAL_NET any -> $HOME_NET 135 (msg:"MITRE T1210 Exploitation of Remote Services - MSRPC from External"; flow:established; flags:S; classtype:attempted-admin; sid:521275376; rev:1;)
-
 # T1218 - System Binary Proxy Execution
 alert http any any -> any any (msg:"MITRE T1218 System Binary Proxy Execution - regsvr32 via HTTP"; flow:established,to_server; pcre:"/regsvr32\s+\/s\s+\/u\s+\/i:/Ui"; http_client_body; classtype:trojan-activity; sid:521275377; rev:1;)
-
 # T1218.011 - Rundll32
 alert http any any -> any any (msg:"MITRE T1218.011 Rundll32 Execution via Web Shell"; flow:established,to_server; pcre:"/rundll32\s+(javascript|mshtml|mshta|advpack)/Ui"; http_client_body; classtype:trojan-activity; sid:521275378; rev:1;)
-
 # T1055 - Process Injection
 alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1055 Process Injection - Remote DLL Injection via SMB"; flow:established; content:"|00 00 00 2f|"; depth:4; content:"|5C|pipe|5C|"; nocase; pcre:"/\\pipe\\(samr|srvsvc|wkssvc|atsvc)/"; classtype:attempted-user; sid:521275379; rev:1;)
-
 # T1003 - OS Credential Dumping
 alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1003 OS Credential Dumping - SAM Database Access via SMB"; flow:established; content:"|5C|WINDOWS|5C|System32|5C|config|5C|SAM"; nocase; classtype:attempted-admin; sid:521275380; rev:1;)
-
 # T1003.001 - LSASS Memory
 alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1003.001 LSASS Memory Dump - lsass.exe Access via SMB"; flow:established; content:"|5C|lsass"; nocase; pcre:"/\\(lsass|lsass\.exe|lsass\.dmp)/"; classtype:attempted-admin; sid:521275381; rev:1;)
-
 # T1003.006 - DCSync
 alert tcp $HOME_NET any -> $HOME_NET 88 (msg:"MITRE T1003.006 DCSync Attack - Kerberos DRSUAPI Request"; flow:established; content:"|30|"; depth:1; pcre:"/DSGetNCChanges/"; classtype:attempted-admin; sid:521275382; rev:1;)
-
 # T1558 - Steal or Forge Kerberos Tickets
 alert tcp $HOME_NET any -> $HOME_NET 88 (msg:"MITRE T1558 Kerberos Ticket Forge - AS-REP Roasting"; flow:established; content:"|30|"; depth:1; dsize:>100; detection_filter:track by_src, count 20, seconds 60; classtype:attempted-user; sid:521275383; rev:1;)
-
 # T1558.003 - Kerberoasting
 alert tcp $HOME_NET any -> $HOME_NET 88 (msg:"MITRE T1558.003 Kerberoasting - RC4-HMAC TGS Request"; flow:established; content:"|30|"; depth:1; pcre:"/\x06\x0a\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a/"; classtype:attempted-user; sid:521275384; rev:1;)
-
 # T1098 - Account Manipulation
 alert tcp $HOME_NET any -> $HOME_NET 389 (msg:"MITRE T1098 Account Manipulation - LDAP Modify Operation"; flow:established; content:"|30|"; depth:1; pcre:"/\x66\x4e/"; content:"member"; nocase; distance:0; within:100; classtype:attempted-admin; sid:521275385; rev:1;)
-
 # T1087 - Account Discovery
 alert tcp $HOME_NET any -> $HOME_NET 389 (msg:"MITRE T1087 Account Discovery - LDAP User Enumeration Search"; flow:established; content:"|30|"; depth:1; pcre:"/\x63\x84/"; content:"objectClass"; nocase; distance:0; within:200; content:"user"; nocase; distance:0; within:50; classtype:attempted-recon; sid:521275386; rev:1;)
-
 # T1018 - Remote System Discovery
 alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1018 Remote System Discovery - SMB Null Session"; flow:established; content:"|00 00 00 2f|"; depth:4; content:"IPC$"; nocase; content:"|5C|pipe|5C|srvsvc"; nocase; classtype:attempted-recon; sid:521275387; rev:1;)
-
 # T1069 - Permission Groups Discovery
 alert tcp $HOME_NET any -> $HOME_NET 389 (msg:"MITRE T1069 Permission Groups Discovery - LDAP Group Enum"; flow:established; content:"|30|"; depth:1; pcre:"/\x63\x84/"; content:"objectClass"; nocase; distance:0; within:200; content:"group"; nocase; distance:0; within:50; classtype:attempted-recon; sid:521275388; rev:1;)
-
 # T1486 - Data Encrypted for Impact
 alert tcp $HOME_NET any -> $HOME_NET any (msg:"MITRE T1486 Ransomware - Mass File Extension Change"; flow:established; dsize:>50000; detection_filter:track by_src, count 100, seconds 30; classtype:trojan-activity; sid:521275389; rev:1;)
-
 # T1486 - Ransomware Note Delivery
 alert http any any -> any any (msg:"MITRE T1486 Ransomware - README Ransom Note Upload"; flow:established,to_server; content:"POST"; http_method; pcre:"/(HOW_TO_DECRYPT|READ_ME|RESTORE_FILES|YOUR_FILES|ransom_note|ransom_decrypt)\.(txt|html)/Ui"; http_uri; classtype:trojan-activity; sid:521275390; rev:1;)
-
 # T1490 - Inhibit System Recovery
 alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1490 Inhibit System Recovery - vssadmin Delete Shadows"; flow:established; content:"vssadmin"; nocase; content:"delete"; nocase; distance:0; within:20; content:"shadows"; nocase; distance:0; within:20; classtype:trojan-activity; sid:521275391; rev:1;)
-
-# T1562 - Impair Defenses
-alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1562 Impair Defenses - Disable Windows Defender via SMB"; flow:established; content:"Set-MpPreference"; nocase; content:"DisableRealtimeMonitoring"; nocase; distance:0; within:50; classtype:trojan-activity; sid:521275392; rev:1;)
-
-# T1562.001 - Disable or Modify Tools
-alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1562.001 Disable Security Tools - Stop WinDefend Service"; flow:established; content:"net"; nocase; content:"stop"; nocase; distance:0; within:10; content:"WinDefend"; nocase; distance:0; within:20; classtype:trojan-activity; sid:521275393; rev:1;)
-
 # T1564 - Hide Artifacts
 alert http any any -> any any (msg:"MITRE T1564 Hide Artifacts - Hidden File Creation via Web"; flow:established,to_server; pcre:"/\.(\/|\\)[a-zA-Z0-9_]+\.(sh|py|pl|php|jsp|exe|dll|bat|ps1)/Ui"; http_uri; pcre:"/\/\.[a-zA-Z]/"; classtype:trojan-activity; sid:521275394; rev:1;)
-
 # T1070 - Indicator Removal
 alert tcp $HOME_NET any -> $HOME_NET 22 (msg:"MITRE T1070 Indicator Removal - Log File Clearing via SSH"; flow:established; content:"rm"; nocase; content:"-f"; nocase; distance:0; within:5; content:"/var/log"; nocase; distance:0; within:30; classtype:trojan-activity; sid:521275395; rev:1;)
-
 # T1070.004 - File Deletion
 alert tcp $HOME_NET any -> $HOME_NET 22 (msg:"MITRE T1070.004 File Deletion - Secure Shred of Evidence"; flow:established; content:"shred"; nocase; content:"-u"; nocase; distance:0; within:5; content:"-z"; nocase; distance:0; within:5; classtype:trojan-activity; sid:521275396; rev:1;)
-
 # T1620 - Reflective Code Loading
 alert http any any -> any any (msg:"MITRE T1620 Reflective Code Loading - DLL Injection via HTTP"; flow:established,to_server; pcre:"/(LoadLibrary|VirtualAlloc|WriteProcessMemory|CreateRemoteThread)/Ui"; http_client_body; classtype:trojan-activity; sid:521275397; rev:1;)
-
 # T1105 - Ingress Tool Transfer
 alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1105 Ingress Tool Transfer - Suspicious Executable Download"; flow:established,to_client; content:"Content-Disposition"; http_header; nocase; pcre:"/filename=.*\.(exe|dll|sh|bat|ps1|vbs)/Ui"; http_header; classtype:trojan-activity; sid:521275398; rev:1;)
-
 # T1105 - Ingress Tool Transfer via curl
 alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"MITRE T1105 Ingress Tool Transfer - curl Download over TLS"; flow:established; content:"curl"; nocase; dsize:>10000; classtype:trojan-activity; sid:521275399; rev:1;)
