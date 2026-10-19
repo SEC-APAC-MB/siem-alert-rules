@@ -196,3 +196,17 @@ alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1195.002 Supply Chain
 alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1195.001 Supply Chain Dependency Confusion Attack"; flow:established,to_server; http.host; pcre:"/registry\.(npmjs|pypi|rubygems|maven)/i"; http.request_body; pcre:"/(version|versions).*\d+\.\d+\.\d+(rc|alpha|beta|dev)/i"; classtype:trojan-activity; sid:521278199; rev:1;)
 # T1558.001 - Steal or Forge Kerberos Tickets: Golden Ticket
 alert tcp $HOME_NET any -> $HOME_NET 88 (msg:"MITRE T1558.001 Kerberos Golden Ticket Forged TGT"; flow:established; content:"krbtgt"; nocase; content:"|a0 13 00|"; within:10; dsize:>1500; classtype:credential-theft; sid:521278200; rev:1;)
+
+# --- Additional CVE-based detections (continued) ---
+
+# CVE-2026-112042 - diem-project Vulnerability
+alert http any any -> $HOME_NET any (msg:"CVE-2026-112042 diem-project Path Disclosure Attempt"; flow:established,to_server; http.uri; content:"/diem/"; nocase; http.response_body; content:"Fatal error"; nocase; content:"path"; nocase; within:50; classtype:web-application-attack; sid:521278301; rev:1;)
+
+# CVE-2026-112041 - diem-project XSS
+alert http any any -> $HOME_NET any (msg:"CVE-2026-112041 diem-project Cross Site Scripting Attempt"; flow:established,to_server; http.uri; content:"/diem/"; nocase; pcre:"/<script[^>]*>.*alert\s*\(/i"; classtype:web-application-attack; sid:521278302; rev:1;)
+
+# CVE-2026-112040 - diem-project SQL Injection
+alert http any any -> $HOME_NET any (msg:"CVE-2026-112040 diem-project SQL Injection Attempt"; flow:established,to_server; http.uri; content:"/diem/"; nocase; pcre:"/(union|select|insert|drop|delete).*from.*information_schema/i"; classtype:web-application-attack; sid:521278303; rev:1;)
+
+# CVE-2026-112038 - diem-project Authentication Bypass
+alert http any any -> $HOME_NET any (msg:"CVE-2026-112038 diem-project Authentication Bypass Attempt"; flow:established,to_server; http.uri; content:"/diem/login"; nocase; http.request_body; pcre:"/(password|passwd).*(--|#|\/\*)/i"; classtype:attempted-admin; sid:521278304; rev:1;)
