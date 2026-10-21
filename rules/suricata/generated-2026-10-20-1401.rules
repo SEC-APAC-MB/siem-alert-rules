@@ -1,0 +1,242 @@
+# Suricata Detection Rules - Generated 2026-10-20 14:01 UTC
+# Based on: GitHub Advisory Database CVEs, MITRE ATT&CK, threat landscape
+# SIDs: 521280201 - 521280300
+# Total Rules: 100
+
+# === CVE-2026-105312: Kubernetes Console CR privilege escalation (CRITICAL) ===
+alert http any any -> any any (msg:"CVE-2026-105312 Kubernetes Console CR arbitrary image deployment privilege escalation"; flow:established,to_server; content:"/apis/console.strimzi.io"; content:"spec.containers.api.spec.image"; nocase; pcre:"/spec\.containers\.api\.spec\.image\s*=/Ui"; classtype:attempted-admin; sid:521280201; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-105312 Kubernetes Console CR image override - cross-tenant SA token theft"; flow:established,to_server; content:"kafkauser"; content:"clusterrolebinding"; nocase; content:"cluster-monitoring-view"; nocase; classtype:attempted-admin; sid:521280202; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-105312 Strimzi operator cross-tenant CRD write via projected SA token"; flow:established,to_server; content:"/apis/kafka.strimzi.io"; content:"serviceaccount"; nocase; pcre:"/Bearer\s+[A-Za-z0-9._-]+/Hi"; classtype:attempted-admin; sid:521280203; rev:1;)
+
+# === CVE-2026-9589: Unblu Spark missing authorization (CRITICAL) ===
+alert http any any -> any any (msg:"CVE-2026-9589 Unblu Spark configuration cascade unauthorized read/write"; flow:established,to_server; content:"/cooperation/rest/configuration"; nocase; pcre:"/(read|write|cascade)/i"; classtype:attempted-admin; sid:521280204; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-9589 Unblu Spark cross-account configuration manipulation"; flow:established,to_server; content:"configuration"; content:"entity"; nocase; content:"account"; nocase; pcre:"/accountId\s*=/Ui"; classtype:attempted-admin; sid:521280205; rev:1;)
+
+# === CVE-2026-14933: Unblu Spark co-browsing XSS (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-14933 Unblu Spark embedded co-browsing XSS via crafted page content"; flow:established,to_client; content:"unblu"; content:"<script"; nocase; pcre:"/<script[^>]*>.*innerHTML/Ui"; classtype:web-application-attack; sid:521280206; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-14933 Unblu Spark agent desk JavaScript injection via co-browsed page"; flow:established,to_client; content:"unblu"; content:"agent"; nocase; content:"javascript"; nocase; pcre:"/javascript:\s*\w+/Ui"; classtype:web-application-attack; sid:521280207; rev:1;)
+
+# === CVE-2026-113389: DrayTek Vigor2960 command injection (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-113389 DrayTek Vigor2960 CGI command injection via set_table sectiontype"; flow:established,to_server; content:"/cgi-bin/mainfunction.cgi"; nocase; content:"set_table"; nocase; content:"sectiontype"; nocase; pcre:"/sectiontype=[^&;|]*[;&|`$()]/Ui"; classtype:web-application-attack; sid:521280208; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-113389 DrayTek Vigor2960 authenticated RCE via CGI parameter manipulation"; flow:established,to_server; content:"/cgi-bin/mainfunction.cgi"; nocase; pcre:"/(;|\|)`|nc\s|sh\s|wget\s|curl\s/Ui"; classtype:attempted-user; sid:521280209; rev:1;)
+
+# === CVE-2026-105949: Cruise Control authentication bypass (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-105949 Cruise Control admin endpoint auth bypass via path manipulation"; flow:established,to_server; content:"/kafkacruisecontrol/"; pcre:"/\/kafkacruisecontrol\/[^\/]+\/(rebalance|stop|pause|resume|fix|trigger)/Ui"; content:"Authorization"; nocase; pcre:"/!Authorization/Hi"; classtype:web-application-attack; sid:521280210; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-105949 Cruise Control Jetty Path.of fileName bypass on admin endpoints"; flow:established,to_server; content:"rebalance"; content:"kafkacruisecontrol"; nocase; pcre:"/\/x\/rebalance|\/\.\.\/rebalance/Ui"; classtype:attempted-admin; sid:521280211; rev:1;)
+
+# === CVE-2026-105311: StreamsHub Console operator confused deputy (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-105311 StreamsHub Console operator cross-namespace secret exfiltration"; flow:established,to_server; content:"/api/v1/namespaces/"; content:"/secrets/"; content:"kafkauser"; nocase; pcre:"/namespace\s*=\s*[a-z0-9-]+/Ui"; classtype:attempted-recon; sid:521280212; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-105311 Strimzi KafkaUser secret plaintext material write to attacker namespace"; flow:established,to_server; content:"/secrets"; content:"sasl"; nocase; pcre:"/(SASL|tls\.crt|tls\.key)/Ui"; classtype:attempted-admin; sid:521280213; rev:1;)
+
+# === CVE-2026-113356: DokuWiki PHP object injection (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-113356 DokuWiki PHP object injection via draft unserialize race"; flow:established,to_server; content:"/doku.php"; content:"do=edit"; nocase; content:"draft"; nocase; pcre:"/O:\d+:\x22[^\x22]+\x22/Ui"; classtype:web-application-attack; sid:521280214; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-113356 DokuWiki gadget chain MemoryIndex Installer file write via draft"; flow:established,to_server; content:"/doku.php"; content:"draft"; nocase; pcre:"/(MemoryIndex|Installer|Doku_Event)/Ui"; classtype:attempted-admin; sid:521280215; rev:1;)
+
+# === CVE-2026-113358: LavaLite CMS missing auth (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-113358 LavaLite CMS unauthenticated file download via filer/download route"; flow:established,to_server; content:"/filer/download"; nocase; pcre:"/(disk|path)=/Ui"; classtype:web-application-attack; sid:521280216; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-113358 LavaLite CMS unauthenticated file display via filer/display route"; flow:established,to_server; content:"/filer/display"; nocase; pcre:"/(disk|path)=/Ui"; classtype:web-application-attack; sid:521280217; rev:1;)
+
+# === CVE-2026-113354: Dockhand arbitrary file read (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-113354 Dockhand arbitrary file read via /api/system/files/content path"; flow:established,to_server; content:"/api/system/files/content"; nocase; pcre:"/path=\/(etc|root|var|home|proc)/Ui"; classtype:web-application-attack; sid:521280218; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-113354 Dockhand SSH key exfiltration via path traversal in file content API"; flow:established,to_server; content:"/api/system/files/content"; nocase; pcre:"/(\/\.ssh\/|id_rsa|id_ed25519|\.git\/config)/Ui"; classtype:attempted-recon; sid:521280219; rev:1;)
+
+# === CVE-2026-113352: uTox path traversal (HIGH) ===
+alert tcp any any -> any any (msg:"CVE-2026-113352 uTox path traversal via auto-accepted file transfer absolute path"; flow:established; content:"auto-accept"; nocase; pcre:"/(\/etc\/|\/home\/|\/root\/|\.\.\/)/"; classtype:misc-activity; sid:521280220; rev:1;)
+alert tcp any any -> any any (msg:"CVE-2026-113352 uTox .ftinfo resume record abuse for /proc/self/mem write"; flow:established; content:".ftinfo"; nocase; pcre:"/proc\/self\/mem/"; classtype:attempted-admin; sid:521280221; rev:1;)
+
+# === CVE-2026-113351: libexpat DoS (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-113351 libexpat XML_ParserReset heap allocation DoS via large document"; flow:established,to_server; content:"Content-Type"; content:"xml"; nocase; dsize:>1000000; pcre:"/Content-Type:\s*text\/xml/iH"; classtype:attempted-dos; sid:521280222; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-113351 libexpat reset parser XML_ERROR_NO_MEMORY exhaustion"; flow:established,to_client; content:"XML_ERROR_NO_MEMORY"; nocase; classtype:attempted-dos; sid:521280223; rev:1;)
+
+# === CVE-2026-18205: Ticimax E-Commerce XSS (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-18205 Ticimax E-Commerce Platform reflected XSS"; flow:established,to_client; content:"ticimax"; nocase; pcre:"/<script[^>]*>.*document\.cookie/Ui"; classtype:web-application-attack; sid:521280224; rev:1;)
+
+# === CVE-2026-113583: Cypht webmail DOM XSS (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-113583 Cypht webmail DOM XSS via external image alt text innerHTML"; flow:established,to_client; content:"externalResources"; nocase; pcre:"/innerHTML\s*=.*alt\s*=/Ui"; classtype:web-application-attack; sid:521280225; rev:1;)
+
+# === CVE-2026-113495: cockpit-machines RHSM token disclosure (MEDIUM) ===
+alert tcp any any -> any any (msg:"CVE-2026-113495 cockpit-machines RHSM token in command-line arguments"; flow:established; content:"subscription-manager"; nocase; pcre:"/--token\s+[A-Fa-f0-9-]{20,}/"; classtype:sensitive-information; sid:521280226; rev:1;)
+
+# === CVE-2026-113496: cockpit-machines VNC password disclosure (MEDIUM) ===
+alert tcp any any -> any any (msg:"CVE-2026-113496 cockpit-machines VNC password exposed in process arguments"; flow:established; content:"vnc"; nocase; pcre:"/--password\s+\S+/"; classtype:sensitive-information; sid:521280227; rev:1;)
+
+# === CVE-2026-113388: opensource-socialnetwork code injection (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-113388 OSSN cache settings code injection via admin panel"; flow:established,to_server; content:"/actions/administrator/cache/dynamic.php"; nocase; pcre:"/(host|port|username|password|type|status)=[^&]*[;|`$()]/Ui"; classtype:web-application-attack; sid:521280228; rev:1;)
+
+# === CVE-2026-113357: e2e-dev/github CI report hijacking (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-113357 e2e-dev github CI report hijack via predictable comment marker"; flow:established,to_server; content:"github.com"; content:"comment"; nocase; pcre:"/<!--\s*e2e-test-report\s*-->/Ui"; classtype:web-application-attack; sid:521280229; rev:1;)
+
+# === CVE-2026-113355: Chatwoot stored XSS (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-113355 Chatwoot stored XSS via Help Center video embed iframe injection"; flow:established,to_client; content:"chatwoot"; nocase; pcre:"/<iframe[^>]*src=\x22javascript:/Ui"; classtype:web-application-attack; sid:521280230; rev:1;)
+
+# === CVE-2026-113353: LearnPress missing authorization (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-113353 LearnPress instructor content modification via nonce reuse IDOR"; flow:established,to_server; content:"/wp-admin/admin-ajax.php"; content:"lp-ajax"; nocase; content:"admin_course_editor"; nocase; pcre:"/id=\d+/Ui"; classtype:web-application-attack; sid:521280231; rev:1;)
+
+# === CVE-2026-112786: OpenCATS missing authorization (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-112786 OpenCATS import revert unauthorized data deletion"; flow:established,to_server; content:"/import.php"; content:"revert"; nocase; content:"importID"; nocase; pcre:"/importID=\d+/Ui"; classtype:web-application-attack; sid:521280232; rev:1;)
+
+# === CVE-2026-113384: OptimalCloud open redirect (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-113384 OptimalCloud open redirect via /v5.0/social state parameter"; flow:established,to_server; content:"/v5.0/social"; content:"state"; nocase; pcre:"/state=https?:\/\/[^\/]*[a-z0-9-]+\.[a-z]{2,}/Ui"; classtype:web-application-attack; sid:521280233; rev:1;)
+
+# === CVE-2026-113383: OptimalCloud XSS (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-113383 OptimalCloud XSS via login page tz parameter"; flow:established,to_server; content:"/v5.0/webapps/pages/public/Login"; content:"tz"; nocase; pcre:"/tz=[^&]*[<>\x27\x22]+/Ui"; classtype:web-application-attack; sid:521280234; rev:1;)
+
+# === CVE-2026-113382: fast-tunnel unrestricted upload (LOW) ===
+alert http any any -> any any (msg:"CVE-2026-113382 fast-tunnel plugin installer unrestricted file upload via ZipArchive"; flow:established,to_server; content:"/backend/api_plugins.php"; nocase; content:"plugin_file"; nocase; pcre:"/plugin_file=[^&]*\.zip/Ui"; classtype:web-application-attack; sid:521280235; rev:1;)
+
+# === CVE-2026-113385: Shortcutter Android component export (LOW) ===
+alert tcp any any -> any any (msg:"CVE-2026-113385 Shortcutter Android improper component export via Class.forName"; flow:established; content:"Class.forName"; nocase; pcre:"/(com\.leedroid\.shortcutter)/"; classtype:misc-activity; sid:521280236; rev:1;)
+
+# === CVE-2026-43850: Command injection (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-43850 authenticated command injection via crafted message"; flow:established,to_server; pcre:"/[;&|`]\s*(nc|bash|sh|wget|curl|python|perl)\s/Ui"; content:"Authorization"; nocase; classtype:attempted-user; sid:521280237; rev:1;)
+
+# === CVE-2026-43851: Path traversal file read (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-43851 authenticated path traversal arbitrary file read"; flow:established,to_server; pcre:"/(\.\.\/){2,}|\/etc\/passwd|\/etc\/shadow/Ui"; content:"Authorization"; nocase; classtype:web-application-attack; sid:521280238; rev:1;)
+
+# === CVE-2026-43852: Arbitrary file write (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-43852 authenticated arbitrary file write via path manipulation"; flow:established,to_server; content:"PUT"; pcre:"/(\.\.\/|\/etc\/|\/var\/www\/)/Ui"; content:"Authorization"; nocase; classtype:web-application-attack; sid:521280239; rev:1;)
+
+# === CVE-2026-43853: Crafted message trigger (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-43853 crafted message remote trigger via authenticated session"; flow:established,to_server; pcre:"/(%00|null\\x00|\\x00)/"; content:"Authorization"; nocase; classtype:attempted-user; sid:521280240; rev:1;)
+
+# === CVE-2026-43855: Heap buffer overflow (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-43855 heap-based buffer overflow via remote authenticated crafted packet"; flow:established; dsize:>1400; pcre:"/AAAA(AAA)*/"; content:"Authorization"; nocase; classtype:attempted-user; sid:521280241; rev:1;)
+
+# === CVE-2026-43856: Stack buffer overflow in FileProcess::CheckDir (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-43856 stack-based buffer overflow in FileProcess CheckDir function"; flow:established,to_server; pcre:"/(AAAA){100,}/"; content:"Authorization"; nocase; classtype:attempted-user; sid:521280242; rev:1;)
+
+# === CVE-2026-43857: Remote authenticated arbitrary code execution (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-43857 remote authenticated arbitrary code execution via crafted request"; flow:established,to_server; pcre:"/(system|exec|eval|popen)\s*\(/Ui"; content:"Authorization"; nocase; classtype:attempted-user; sid:521280243; rev:1;)
+
+# === CVE-2026-43858: Stack buffer overflow (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-43858 stack-based buffer overflow remote authenticated attacker"; flow:established; dsize:>2000; pcre:"/(\x90){50,}/"; content:"Authorization"; nocase; classtype:attempted-user; sid:521280244; rev:1;)
+
+# === CVE-2026-85267: Cloud Shell WebSocket hijacking (HIGH) ===
+alert tcp any any -> any any (msg:"CVE-2026-85267 Cloud Shell cross-site WebSocket hijacking via crafted page"; flow:established; content:"Upgrade"; content:"websocket"; nocase; pcre:"/Sec-WebSocket-Key:\s*[A-Za-z0-9+\/=]{24}/Hi"; classtype:web-application-attack; sid:521280245; rev:1;)
+
+# === CVE-2026-113459: TYPO3 OpenAI API key disclosure (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-113459 TYPO3 OpenAI API key embedded in frontend response"; flow:established,to_client; pcre:"/sk-[A-Za-z0-9]{20,}/Ui"; classtype:sensitive-information; sid:521280246; rev:1;)
+
+# === CVE-2026-112239: TYPO3 backend unauthorized page modification (HIGH) ===
+alert http any any -> any any (msg:"CVE-2026-112239 TYPO3 backend endpoint missing authorization page record write"; flow:established,to_server; content:"/typo3/"; content:"page"; nocase; pcre:"/(action|cmd)=save/i"; content:"Authorization"; nocase; classtype:web-application-attack; sid:521280247; rev:1;)
+
+# === CVE-2026-113442: TYPO3 HTML injection in summary email (MEDIUM) ===
+alert http any any -> any any (msg:"CVE-2026-113442 TYPO3 HTML injection in form summary email"; flow:established,to_server; pcre:"/<(iframe|img|a)\s+[^>]*(onload|onerror|onclick)/Ui"; content:"form"; nocase; content:"email"; nocase; classtype:web-application-attack; sid:521280248; rev:1;)
+
+# === MITRE ATT&CK T1595: Active Scanning ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1595 Active scanning - rapid port sweep detected"; flow:to_server; flags:S; detection_filter:track by_src, count 20, seconds 10; classtype:network-scan; sid:521280249; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1595.001 inbound scanning - TCP SYN sweep across multiple ports"; flow:to_server; flags:S; detection_filter:track by_src, count 30, seconds 30; classtype:network-scan; sid:521280250; rev:1;)
+
+# === MITRE ATT&CK T1592: Gather Victim Host Information ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1592 Host info exfiltration via HTTP to known recon endpoint"; flow:to_server; content:"/api/v1/system/info"; nocase; pcre:"/(uname|os_release|kernel_version|hostname)/Ui"; classtype:trojan-activity; sid:521280251; rev:1;)
+
+# === MITRE ATT&CK T1580: Cloud Infrastructure Discovery ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1580 Cloud infrastructure discovery via API enumeration"; flow:to_server; content:"/api/v2/instances"; nocase; pcre:"/(aws|azure|gcp)[-_](instances|vms|compute)/Ui"; classtype:trojan-activity; sid:521280252; rev:1;)
+
+# === MITRE ATT&CK T1613: Container and Resource Discovery ===
+alert http any any -> any any (msg:"MITRE T1613 Container discovery via Kubernetes API enumeration"; flow:to_server; content:"/api/v1/namespaces"; content:"/pods"; nocase; pcre:"/list|get|watch/iH"; classtype:trojan-activity; sid:521280253; rev:1;)
+alert http any any -> any any (msg:"MITRE T1613 Container runtime discovery via docker socket access"; flow:to_server; content:"/containers/json"; nocase; pcre:"/docker\.sock/Ui"; classtype:trojan-activity; sid:521280254; rev:1;)
+
+# === MITRE ATT&CK T1190: Exploit Public-Facing Application ===
+alert http any any -> any any (msg:"MITRE T1190 Exploit public-facing app - known CVE exploit pattern in URI"; flow:to_server; pcre:"/\/(wp-content|wp-admin|administrator|cgi-bin)\/[^\?]*\.(php|cgi|asp)\?[^\&]*\=(select|union|script)/Ui"; classtype:web-application-attack; sid:521280255; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 Exploit public-facing app - server-side request forgery pattern"; flow:to_server; pcre:"/(url|uri|target|callback|redirect|next|dest|path|file)\=(https?:\/\/|file:\/\/|gopher:\/\/|dict:\/\/)/Ui"; classtype:web-application-attack; sid:521280256; rev:1;)
+
+# === MITRE ATT&CK T1059: Command and Scripting Interpreter ===
+alert http any any -> any any (msg:"MITRE T1059.004 Unix shell command execution via web parameter"; flow:to_server; pcre:"/[;&|`]\s*(cat|ls|id|whoami|uname|wget|curl|bash|sh|nc|ncat|python|perl|ruby|php)\s/Ui"; classtype:command-execution; sid:521280257; rev:1;)
+alert http any any -> any any (msg:"MITRE T1059.001 PowerShell command execution via web request"; flow:to_server; pcre:"/(powershell|pwsh)\s+-(enc|e|c|command|encodedcommand)/Ui"; classtype:command-execution; sid:521280258; rev:1;)
+
+# === MITRE ATT&CK T1078: Valid Accounts ===
+alert http any any -> any any (msg:"MITRE T1078 Valid account abuse - authentication from anomalous geolocation"; flow:established,to_server; content:"/login"; nocase; pcre:"/(X-Forwarded-For|CF-Connecting-IP):\s*\d+/Hi"; classtype:trojan-activity; sid:521280259; rev:1;)
+
+# === MITRE ATT&CK T1110: Brute Force ===
+alert http any any -> any any (msg:"MITRE T1110.001 Credential brute force - rapid login attempts from single source"; flow:to_server; content:"/login"; nocase; content:"POST"; detection_filter:track by_src, count 15, seconds 60; classtype:attempted-admin; sid:521280260; rev:1;)
+alert http any any -> any any (msg:"MITRE T1110.004 Credential stuffing - multiple usernames single password pattern"; flow:to_server; content:"/auth"; nocase; pcre:"/(username|user|email)=([^&]+).*?(password|passwd|pass)=([^&\s]+)/Ui"; detection_filter:track by_src, count 10, seconds 60; classtype:attempted-admin; sid:521280261; rev:1;)
+
+# === MITRE ATT&CK T1046: Network Service Discovery ===
+alert tcp any any -> any any (msg:"MITRE T1046 Network service discovery - Nmap-style OS fingerprint probe"; flow:to_server; flags:S; pcre:"/^\x16\x03\x01/"; dsize:<100; classtype:network-scan; sid:521280262; rev:1;)
+
+# === MITRE ATT&CK T1053: Scheduled Task/Job ===
+alert http any any -> any any (msg:"MITRE T1053.003 Cron job creation via web shell command injection"; flow:to_server; pcre:"/(crontab|cron\.d|\/etc\/cron)/Ui"; classtype:trojan-activity; sid:521280263; rev:1;)
+alert http any any -> any any (msg:"MITRE T1053.005 Scheduled task creation via schtasks in web request"; flow:to_server; pcre:"/schtasks\s+\/(create|change|run)/Ui"; classtype:trojan-activity; sid:521280264; rev:1;)
+
+# === MITRE ATT&CK T1548: Abuse Elevation Control Mechanism ===
+alert http any any -> any any (msg:"MITRE T1548.001 setuid bit set on uploaded binary via web shell"; flow:to_server; pcre:"/chmod\s+[0-7]*[0-7][0-7][0-7]/Ui"; classtype:trojan-activity; sid:521280265; rev:1;)
+
+# === MITRE ATT&CK T1003: OS Credential Dumping ===
+alert http any any -> any any (msg:"MITRE T1003.001 LSASS memory dump access via web shell"; flow:to_server; pcre:"/(procdump|lsass|minidump|comsvcs)/Ui"; classtype:trojan-activity; sid:521280266; rev:1;)
+alert http any any -> any any (msg:"MITRE T1003.002 SAM database access via web shell reg save"; flow:to_server; pcre:"/reg\s+save\s+(HKLM\\SAM|HKLM\\SYSTEM)/Ui"; classtype:trojan-activity; sid:521280267; rev:1;)
+alert http any any -> any any (msg:"MITRE T1003.008 /etc/passwd and /etc/shadow access via web parameter"; flow:to_server; pcre:"/\/etc\/(passwd|shadow|gshadow)/Ui"; classtype:trojan-activity; sid:521280268; rev:1;)
+
+# === MITRE ATT&CK T1567: Exfiltration Over Web Service ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1567.002 Exfiltration to cloud storage - large POST to S3-like endpoint"; flow:to_server; content:".s3.amazonaws.com"; nocase; content:"PUT"; dsize:>1000000; classtype:trojan-activity; sid:521280269; rev:1;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1567.002 Exfiltration to Azure Blob storage via PUT"; flow:to_server; pcre:"/\.blob\.core\.windows\.net/i"; content:"PUT"; dsize:>1000000; classtype:trojan-activity; sid:521280270; rev:1;)
+
+# === MITRE ATT&CK T1071: Application Layer Protocol ===
+alert dns $HOME_NET any -> any 53 (msg:"MITRE T1071.004 DNS exfiltration - unusually long subdomain query"; dns.query; pcre:"/[a-zA-Z0-9]{40,}\./"; classtype:trojan-activity; sid:521280271; rev:1;)
+alert dns $HOME_NET any -> any 53 (msg:"MITRE T1071.004 DNS tunneling - high frequency TXT record queries"; dns.query; content:"TXT"; detection_filter:track by_src, count 20, seconds 30; classtype:trojan-activity; sid:521280272; rev:1;)
+
+# === MITRE ATT&CK T1133: External Remote Services ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"MITRE T1133 External RDP connection from non-corporate IP range"; flow:to_server; flags:S; classtype:trojan-activity; sid:521280273; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"MITRE T1133 External SSH brute force from non-corporate IP"; flow:to_server; flags:S; detection_filter:track by_src, count 10, seconds 60; classtype:attempted-admin; sid:521280274; rev:1;)
+
+# === MITRE ATT&CK T1486: Data Encrypted for Impact ===
+alert http any any -> any any (msg:"MITRE T1486 Ransomware indicator - mass file extension change to .locked"; flow:to_server; pcre:"/\.(locked|encrypted|crypto|ransom|locky)/Ui"; detection_filter:track by_src, count 50, seconds 60; classtype:trojan-activity; sid:521280275; rev:1;)
+
+# === MITRE ATT&CK T1490: Inhibit System Recovery ===
+alert http any any -> any any (msg:"MITRE T1490 vssadmin delete shadows via web shell command injection"; flow:to_server; pcre:"/vssadmin\s+delete\s+shadows/i"; classtype:trojan-activity; sid:521280276; rev:1;)
+alert http any any -> any any (msg:"MITRE T1490 wbadmin delete system state backup via web shell"; flow:to_server; pcre:"/wbadmin\s+delete\s+(systemstatebackup|catalog)/i"; classtype:trojan-activity; sid:521280277; rev:1;)
+
+# === MITRE ATT&CK T1566: Phishing ===
+alert http any any -> any any (msg:"MITRE T1566.002 Spearphishing link - credential harvesting fake login page"; flow:to_server; content:"/login"; nocase; pcre:"/(google|office365|microsoft|outlook|aws)[^-]*\.(tk|ml|ga|cf|gq|xyz)/Ui"; classtype:trojan-activity; sid:521280278; rev:1;)
+
+# === MITRE ATT&CK T1027: Obfuscated Files or Information ===
+alert http any any -> any any (msg:"MITRE T1027 Base64 encoded payload in web request parameter"; flow:to_server; pcre:"/[?&]\w+=([A-Za-z0-9+\/]{200,}={0,2})/Ui"; classtype:trojan-activity; sid:521280279; rev:1;)
+alert http any any -> any any (msg:"MITRE T1027.013 Hex encoding obfuscation in URI path"; flow:to_server; pcre:"/%(2[0-9a-f]|3[0-9a-f]|4[0-9a-f]|5[0-9a-f]|[67][0-9a-f])/i"; detection_filter:track by_src, count 30, seconds 10; classtype:trojan-activity; sid:521280280; rev:1;)
+
+# === MITRE ATT&CK T1620: Reflective Code Loading ===
+alert http any any -> any any (msg:"MITRE T1620 Reflective DLL loading via web shell - memory injection pattern"; flow:to_server; pcre:"/(VirtualAlloc|WriteProcessMemory|CreateRemoteThread|NtMapViewOfSection)/Ui"; classtype:trojan-activity; sid:521280281; rev:1;)
+
+# === MITRE ATT&CK T1555: Credentials from Password Stores ===
+alert http any any -> any any (msg:"MITRE T1555.003 Chrome credential theft via web shell access to Login Data"; flow:to_server; pcre:"/(Login\s*Data|Cookies|Local\s*State)/Ui"; content:"Chrome"; nocase; classtype:trojan-activity; sid:521280282; rev:1;)
+
+# === MITRE ATT&CK T1572: Protocol Tunneling ===
+alert tcp any any -> any 443 (msg:"MITRE T1572 Protocol tunneling - non-TLS traffic on port 443"; flow:to_server; flags:S; pcre:"/^\x16\x03/"; classtype:trojan-activity; sid:521280283; rev:1;)
+
+# === MITRE ATT&CK T1090: Proxy ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1090.001 Internal traffic to known TOR exit node"; flow:to_server; pcre:"/(tor|exit-node|relay)/i"; classtype:trojan-activity; sid:521280284; rev:1;)
+
+# === MITRE ATT&CK T1568: Dynamic Resolution ===
+alert dns $HOME_NET any -> any 53 (msg:"MITRE T1568.001 Fast flux domain - rapid DNS A record changes"; dns.query; pcre:"/[a-z0-9-]+\.(ru|cn|tk|ml|xyz|top)/i"; detection_filter:track by_src, count 10, seconds 60; classtype:trojan-activity; sid:521280285; rev:1;)
+
+# === MITRE ATT&CK T1505: Server Software Component ===
+alert http any any -> any any (msg:"MITRE T1505.003 Web shell upload - PHP file with suspicious function names"; flow:to_server; pcre:"/(eval|assert|system|exec|passthru|shell_exec|base64_decode)\s*\(/Ui"; content:".php"; nocase; classtype:trojan-activity; sid:521280286; rev:1;)
+alert http any any -> any any (msg:"MITRE T1505.003 Web shell detection - common webshell names in upload"; flow:to_server; pcre:"/(c99|r57|wso|shell|b374k|indoxploit|weevely)\.php/i"; classtype:trojan-activity; sid:521280287; rev:1;)
+
+# === MITRE ATT&CK T1210: Exploitation of Remote Services ===
+alert tcp any any -> any 445 (msg:"MITRE T1210 SMB exploit attempt - suspicious SMB1 negotiate pattern"; flow:to_server; pcre:"/\xffSMB/u"; dsize:>100; classtype:attempted-admin; sid:521280288; rev:1;)
+
+# === MITRE ATT&CK T1055: Process Injection ===
+alert http any any -> any any (msg:"MITRE T1055 Process injection via LD_PRELOAD in web request"; flow:to_server; pcre:"/LD_PRELOAD\s*=/Ui"; classtype:trojan-activity; sid:521280289; rev:1;)
+
+# === MITRE ATT&CK T1547: Boot or Logon Autostart Execution ===
+alert http any any -> any any (msg:"MITRE T1547.001 Registry Run key modification via web shell reg add"; flow:to_server; pcre:"/reg\s+add\s+.*\\(Run|RunOnce)/i"; classtype:trojan-activity; sid:521280290; rev:1;)
+alert http any any -> any any (msg:"MITRE T1547.006 Kernel module loading via web shell insmod"; flow:to_server; pcre:"/(insmod|modprobe)\s+\S+\.ko/Ui"; classtype:trojan-activity; sid:521280291; rev:1;)
+
+# === MITRE ATT&CK T1550: Use Alternate Authentication Material ===
+alert tcp any any -> any 88 (msg:"MITRE T1550.002 Kerberos golden ticket - AS-REQ with pre-auth bypass pattern"; flow:to_server; pcre:"/\x6e\x82/u"; classtype:attempted-admin; sid:521280292; rev:1;)
+
+# === MITRE ATT&CK T1485: Data Destruction ===
+alert http any any -> any any (msg:"MITRE T1485 Data destruction - rm -rf via web shell command injection"; flow:to_server; pcre:"/rm\s+-rf\s+\//Ui"; classtype:trojan-activity; sid:521280293; rev:1;)
+alert http any any -> any any (msg:"MITRE T1485 Data destruction - shred command via web shell"; flow:to_server; pcre:"/shred\s+-u\s+-z/i"; classtype:trojan-activity; sid:521280294; rev:1;)
+
+# === MITRE ATT&CK T1136: Create Account ===
+alert http any any -> any any (msg:"MITRE T1136.001 Account creation - useradd via web shell injection"; flow:to_server; pcre:"/useradd\s+-m?\s+-[a-z]*\s+/Ui"; classtype:trojan-activity; sid:521280295; rev:1;)
+alert http any any -> any any (msg:"MITRE T1136.002 Windows account creation via net user in web request"; flow:to_server; pcre:"/net\s+user\s+\S+\s+\S+\s+\/add/i"; classtype:trojan-activity; sid:521280296; rev:1;)
+
+# === MITRE ATT&CK T1070: Indicator Removal ===
+alert http any any -> any any (msg:"MITRE T1070.002 Clear command history via web shell - history deletion"; flow:to_server; pcre:"/(history\s+-c|unset\s+HISTFILE|cat\s+\/dev\/null\s*>\s*~\/\.bash_history)/Ui"; classtype:trojan-activity; sid:521280297; rev:1;)
+alert http any any -> any any (msg:"MITRE T1070.004 File deletion - mass rm via web shell on log files"; flow:to_server; pcre:"/rm\s+.*(\/var\/log|\.log|syslog|messages)/Ui"; classtype:trojan-activity; sid:521280298; rev:1;)
+
+# === Current threat landscape: AI/LLM attacks ===
+alert http any any -> any any (msg:"AI LLM prompt injection - attempt to override system instructions via user input"; flow:to_server; content:"/chat/completions"; nocase; pcre:"/(ignore\s+(previous|above|all)\s+instructions|disregard\s+(your|the)\s+(system|rules|guidelines))/Ui"; classtype:web-application-attack; sid:521280299; rev:1;)
+alert http any any -> any any (msg:"AI LLM data exfiltration - sensitive data request via crafted prompt"; flow:to_server; content:"/api/v1/prompt"; nocase; pcre:"/(reveal|show|print|output)\s+(your|the|system|api|secret|key|token|password)/Ui"; classtype:web-application-attack; sid:521280300; rev:1;)
