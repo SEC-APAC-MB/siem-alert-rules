@@ -1,0 +1,147 @@
+# Suricata Detection Rules - Generated 2026-10-16 08:01 CEST
+# Based on: Latest CVEs from GitHub Advisory Database (2026-10-16)
+# MITRE ATT&CK techniques, current threat landscape
+# SIDs: 521277001 - 521277100
+# === FreeRDP CVE-2026-111389 / CVE-2026-111388 / CVE-2026-111387 ===
+alert tls any any -> any 3389 (msg:"CVE-2026-111389 Frappe HRMS SQL Injection via RDP session metadata"; content:"GET"; http_method; content:"/api/method/hrms"; http_uri; pcre:"/UNION|SELECT|INSERT|DROP/i"; classtype:web-application-attack; sid:521277001; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111388 Frappe Framework restrict_ip bypass via API key auth"; content:"Authorization"; http_header; content:"token"; http_header; classtype:attempted-bypass; sid:521277002; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111387 Nezha information disclosure via DDNS webhook endpoint"; content:"/api/v1/ddns"; http_uri; content:"WebhookURL"; nocase; classtype:sensitive-information-disclosure; sid:521277003; rev:1;)
+# === FreeRDP CVEs (CVE-2026-111382 through CVE-2026-111373) ===
+alert tcp any any -> any 3389 (msg:"CVE-2026-111382 FreeRDP heap OOB write via AVC444 YUV444 frame"; content:"|03 00|"; depth:2; byte_test:1,&,0x08,0,relative; dsize:>1024; classtype:attempted-admin; sid:521277004; rev:1;)
+alert tcp any 3389 -> any any (msg:"CVE-2026-111381 FreeRDP heap buffer overflow via persistent cache v2"; content:"RDPGFX"; nocase; dsize:>16384; classtype:attempted-admin; sid:521277005; rev:1;)
+alert tcp any any -> any 3389 (msg:"CVE-2026-111380 FreeRDP integer overflow Apple audin FramesPerPacket"; content:"audin"; nocase; byte_test:4,>,0x40000000,0,relative; classtype:attempted-admin; sid:521277006; rev:1;)
+alert tcp any any -> any 3389 (msg:"CVE-2026-111379 FreeRDP heap overflow via persistent cache v3 file"; content:"|52 44 50 43|"; depth:4; dsize:>8192; classtype:attempted-admin; sid:521277007; rev:1;)
+alert tcp any any -> any 3389 (msg:"CVE-2026-111378 FreeRDP NLA memory exhaustion via non-DER stream"; content:"|03 00|"; depth:2; pcre:"/^(?!\\x30)/"; dsize:>65535; classtype:denial-of-service; sid:521277008; rev:1;)
+alert tcp any any -> any 3389 (msg:"CVE-2026-111377 FreeRDP unbounded channel reassembly via static virtual channel"; content:"|03 00|"; depth:2; byte_test:1,&,0x02,0,relative; flow:to_server; classtype:denial-of-service; sid:521277009; rev:1;)
+alert tcp any 3389 -> any any (msg:"CVE-2026-111376 FreeRDP heap over-read via Cliprdr FILECONTENTS_SIZE short response"; content:"CLIPRDR"; nocase; dsize:<8; classtype:attempted-admin; sid:521277010; rev:1;)
+alert tcp any 3389 -> any any (msg:"CVE-2026-111375 FreeRDP RAIL window title OOB read via non-NUL-terminated string"; content:"RAIL"; nocase; byte_test:2,>,0x0100,0,relative; classtype:attempted-admin; sid:521277011; rev:1;)
+alert tcp any any -> any 3389 (msg:"CVE-2026-111374 FreeRDP rdpecam resource exhaustion via oversized StartStreamsRequest"; content:"rdpecam"; nocase; dsize:>4096; classtype:denial-of-service; sid:521277012; rev:1;)
+alert tcp any 3389 -> any any (msg:"CVE-2026-111373 FreeRDP NULL dereference via zero-length websocket ping"; content:"|89 00|"; depth:2; classtype:denial-of-service; sid:521277013; rev:1;)
+# === Nezha CVEs ===
+alert http any any -> any any (msg:"CVE-2026-111385 Nezha host header injection via MCP transfer tools"; content:"Host|3a|"; http_header; pcre:"/Host:[^\\r\\n]*(download_url|upload_url)/Hi"; classtype:web-application-attack; sid:521277014; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111386 Nezha cross-tenant server ID enumeration via getServerConfig"; content:"/api/v1/server"; http_uri; content:"config"; nocase; threshold:rate,both,10/60; classtype:web-application-attack; sid:521277015; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111384 Nezha memory exhaustion via file manager WebSocket oversized message"; content:"/api/v1/ws/file"; http_uri; dsize:>1048576; classtype:denial-of-service; sid:521277016; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111383 Nezha resource exhaustion via unbounded WebSocket transfer connections"; content:"/api/v1/ws/transfer"; http_uri; threshold:rate,both,100/10; classtype:denial-of-service; sid:521277017; rev:1;)
+# === Moxa Industrial CVEs ===
+alert tcp any any -> any 8443 (msg:"CVE-2026-109813 Moxa hard-coded cryptographic key in sysman"; content:"sysman"; nocase; content:"|00 00 00 00|"; depth:4; classtype:successful-admin; sid:521277018; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-109812 Moxa missing authorization in /api/v1/secrets/"; content:"/api/v1/secrets/"; http_uri; content:"GET"; http_method; classtype:web-application-attack; sid:521277019; rev:1;)
+# === Delta ISPSoft CVEs ===
+alert tcp any any -> any any (msg:"CVE-2026-105227 Delta ISPSoft OOB read information disclosure"; content:"ISPSoft"; nocase; dsize:>4096; classtype:successful-recon-limited; sid:521277020; rev:1;)
+alert tcp any any -> any any (msg:"CVE-2026-105228 Delta ISPSoft second OOB read variant"; content:"ISPSoft"; nocase; content:"|ff fe|"; depth:2; classtype:successful-recon-limited; sid:521277021; rev:1;)
+# === WordPress Plugin CVE ===
+alert http any any -> any any (msg:"CVE-2026-100159 WordPress Popup Box arbitrary shortcode execution via X-Forwarded-For"; content:"X-Forwarded-For"; nocase; pcre:"/\\[[a-z_]+[^\\]]*\\]/i"; classtype:web-application-attack; sid:521277022; rev:1;)
+# === BillionMail CVE ===
+alert http any any -> any any (msg:"CVE-2026-111367 BillionMail JWT forgery via hard-coded key on unsubscribe endpoint"; content:"/api/unsubscribe"; http_uri; content:"Bearer"; nocase; classtype:web-application-attack; sid:521277023; rev:1;)
+# === cool-admin-midway CVEs ===
+alert http any any -> any any (msg:"CVE-2026-111366 cool-admin-midway authorization bypass"; content:"/api/admin"; http_uri; content:"GET"; http_method; content:"X-Token"; nocase; classtype:web-application-attack; sid:521277024; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111365 cool-admin-midway non-admin role bypass"; content:"/api/"; http_uri; content:"role|3d|guest"; nocase; classtype:web-application-attack; sid:521277025; rev:1;)
+# === ClassroomIO CVEs ===
+alert http any any -> any any (msg:"CVE-2026-111369 ClassroomIO incorrect authorization on PUT/DELETE"; content:"DELETE"; http_method; content:"/api/"; http_uri; classtype:web-application-attack; sid:521277026; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111368 ClassroomIO IDOR via Hono framework"; content:"/api/"; http_uri; pcre:"/[0-9]{1,10}$/"; classtype:web-application-attack; sid:521277027; rev:1;)
+# === MinDoc CVE ===
+alert http any any -> any any (msg:"CVE-2026-111364 MinDoc IDOR via document access endpoint"; content:"/document/"; http_uri; pcre:"/\\d{1,10}/"; classtype:web-application-attack; sid:521277028; rev:1;)
+# === MacCMS CVE ===
+alert http any any -> any any (msg:"CVE-2026-111356 MacCMS password recovery brute force - 6-digit code"; content:"/api/password/recovery"; http_uri; threshold:rate,both,20/60; classtype:web-application-attack; sid:521277029; rev:1;)
+# === Lenovo CVEs ===
+alert tcp any any -> any any (msg:"CVE-2026-89062 Lenovo Energy Management driver OOB write"; content:"|5c 00|IoControlCode"; depth:12; byte_test:4,==,0x22E000,0,relative; classtype:attempted-admin; sid:521277030; rev:1;)
+alert tcp any any -> any any (msg:"CVE-2026-92777 Lenovo tablet physical access bypass"; content:"Lenovo"; nocase; content:"fastboot"; nocase; classtype:attempted-admin; sid:521277031; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-89057 Lenovo tablet authentication bypass"; content:"/auth/bypass"; nocase; http_uri; classtype:web-application-attack; sid:521277032; rev:1;)
+# === WildFly CVE ===
+alert http any any -> any any (msg:"CVE-2026-84823 WildFly Monitor role privilege escalation"; content:"/management"; http_uri; content:"Monitor"; nocase; content:"deploy"; nocase; classtype:web-application-attack; sid:521277033; rev:1;)
+# === Lenovo Baiying / Legion Zone ===
+alert http any any -> any any (msg:"CVE-2026-92629 Lenovo Baiying PC Client improper authorization"; content:"/api/"; http_uri; content:"token"; nocase; content:"admin"; nocase; classtype:web-application-attack; sid:521277034; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-75941 Lenovo Legion Zone arbitrary code execution"; content:"/legion/"; http_uri; content:"cmd"; nocase; classtype:web-application-attack; sid:521277035; rev:1;)
+# === Lenovo Smart Camera ===
+alert tls any any -> any any (msg:"CVE-2026-16754 Lenovo Smart Camera C33 improper certificate validation"; content:"|16 03 01|"; depth:3; content:"Lenovo"; nocase; classtype:trojan-activity; sid:521277036; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-16755 Lenovo Smart Camera C33 vulnerability"; content:"/camera/"; http_uri; content:"config"; nocase; classtype:web-application-attack; sid:521277037; rev:1;)
+# === Apache Airflow CVEs ===
+alert http any any -> any any (msg:"CVE-2026-96806 Apache Airflow Keycloak session not ended on logout"; content:"/logout"; http_uri; content:"Set-Cookie"; nocase; content:"token"; nocase; classtype:web-application-attack; sid:521277038; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-94135 Apache Airflow SFTP provider async code path vulnerability"; content:"SFTPTrigger"; nocase; content:"defer"; nocase; classtype:web-application-attack; sid:521277039; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-92228 Apache Airflow Keycloak multi-team provisioning issue"; content:"_attach_team_permissions"; nocase; classtype:web-application-attack; sid:521277040; rev:1;)
+alert tcp any any -> any 22 (msg:"CVE-2026-94134 Apache Airflow SSH provider host-key verification disabled"; content:"SSH-2.0"; nocase; content:"StrictHostKeyChecking"; nocase; content:"no"; classtype:web-application-attack; sid:521277041; rev:1;)
+# === ML/AI Framework CVEs ===
+alert http any any -> any any (msg:"CVE-2026-111212 ImprintLab Medical-SAM-Adapter code injection via imgsz"; content:"autobackend"; nocase; content:"imgsz"; nocase; content:"eval"; nocase; classtype:web-application-attack; sid:521277042; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-111237 Ultralytics FastSAM code injection via autobackend"; content:"FastSAM"; nocase; content:"kpt_shape"; nocase; content:"exec"; nocase; classtype:web-application-attack; sid:521277043; rev:1;)
+# === bitcoinj CVE ===
+alert http any any -> any any (msg:"CVE-2026-111210 bitcoinj URL handling vulnerability"; content:"bitcoin"; nocase; content:"url"; nocase; pcre:"/%[0-9a-f]{2}/i"; classtype:web-application-attack; sid:521277044; rev:1;)
+# === MITRE ATT&CK T1566 Phishing ===
+alert http any any -> any any (msg:"MITRE T1566.001 Phishing spearphishing attachment - suspicious Office file download"; content:"Content-Disposition"; nocase; content:"attachment"; nocase; pcre:"/\\.(docm|xlsm|pptm|js|vbs|hta)$/i"; classtype:trojan-activity; sid:521277045; rev:1;)
+alert http any any -> any any (msg:"MITRE T1566.002 Phishing malicious link - shortened URL redirect to executable"; content:"Location"; nocase; pcre:"/\\.(exe|scr|bat|ps1)$/i"; classtype:trojan-activity; sid:521277046; rev:1;)
+# === MITRE ATT&CK T1190 Exploit Public-Facing Application ===
+alert http any any -> any any (msg:"MITRE T1190 Log4Shell JNDI injection attempt"; content:"jndi"; nocase; pcre:"/\\$\\{jndi:(ldap|rmi|dns|iiop)/i"; classtype:web-application-attack; sid:521277047; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 Spring4Shell class loader manipulation"; content:"class.module.classLoader"; nocase; classtype:web-application-attack; sid:521277048; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 SSRF via internal metadata endpoint access"; pcre:"/(169\\.254\\.169\\.254|metadata\\.google\\.internal|169\\.254\\.170\\.2)/"; http_uri; classtype:web-application-attack; sid:521277049; rev:1;)
+# === MITRE ATT&CK T1059 Command and Scripting Interpreter ===
+alert http any any -> any any (msg:"MITRE T1059.001 PowerShell encoded command execution via web"; content:"powershell"; nocase; content:"-enc"; nocase; pcre:"/[A-Za-z0-9+/]{50,}={0,2}/"; classtype:trojan-activity; sid:521277050; rev:1;)
+alert http any any -> any any (msg:"MITRE T1059.003 Windows Command Shell via web parameter"; content:"cmd"; nocase; content:"/c"; nocase; pcre:"/(whoami|ipconfig|net user|systeminfo)/i"; classtype:trojan-activity; sid:521277051; rev:1;)
+alert http any any -> any any (msg:"MITRE T1059.004 Unix shell injection via web parameter"; pcre:"/[;&|`\\$\\(].*\\b(cat|ls|id|whoami|uname|wget|curl)\\b/i"; classtype:web-application-attack; sid:521277052; rev:1;)
+# === MITRE ATT&CK T1046 Network Service Discovery ===
+alert tcp any any -> any any (msg:"MITRE T1046 Network service scan - sequential port sweep"; flags:S; threshold:rate,both,20/10; classtype:network-scan; sid:521277053; rev:1;)
+alert udp any any -> any any (msg:"MITRE T1046 UDP service enumeration via nmap-style probes"; dsize:0; threshold:rate,both,10/5; classtype:network-scan; sid:521277054; rev:1;)
+# === MITRE ATT&CK T1110 Brute Force ===
+alert http any any -> any any (msg:"MITRE T1110.001 Password spraying - multiple usernames same password"; content:"POST"; http_method; content:"password"; nocase; threshold:rate,both,15/60; classtype:web-application-attack; sid:521277055; rev:1;)
+alert ssh any any -> any any (msg:"MITRE T1110.002 SSH brute force - rapid authentication failures"; flow:to_server; content:"SSH"; depth:3; threshold:rate,both,10/30; classtype:attempted-admin; sid:521277056; rev:1;)
+alert http any any -> any any (msg:"MITRE T1110.003 Kerberos brute force - AS-REP flood"; content:"|6a 00|"; depth:2; dsize:>50; threshold:rate,both,20/60; classtype:attempted-admin; sid:521277057; rev:1;)
+# === MITRE ATT&CK T1003 OS Credential Dumping ===
+alert tcp any any -> any 445 (msg:"MITRE T1003.001 LSASS memory access via SMB - credential dumping"; content:"|00 00 00 2f|"; depth:4; content:"lsass.exe"; nocase; classtype:attempted-admin; sid:521277058; rev:1;)
+alert tcp any any -> any 445 (msg:"MITRE T1003.002 SAM database access via registry copy"; content:"|00 00 00 2f|"; depth:4; content:"SAM"; nocase; content:"|5c 00|"; classtype:attempted-admin; sid:521277059; rev:1;)
+# === MITRE ATT&CK T1055 Process Injection ===
+alert tcp any any -> any any (msg:"MITRE T1055.001 DLL injection via CreateRemoteThread pattern"; content:"CreateRemoteThread"; nocase; content:"LoadLibrary"; nocase; classtype:trojan-activity; sid:521277060; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1055.003 Process hollowing via NTFS sparse file manipulation"; content:"NtUnmapViewOfSection"; nocase; classtype:trojan-activity; sid:521277061; rev:1;)
+# === MITRE ATT&CK T1071 Application Layer Protocol ===
+alert dns any any -> any any (msg:"MITRE T1071.004 DNS tunneling - excessive TXT record queries"; pcre:"/[a-z0-9]{40,}/i"; threshold:rate,both,5/10; classtype:trojan-activity; sid:521277062; rev:1;)
+alert dns any any -> any any (msg:"MITRE T1071.004 DNS tunneling - high-entropy subdomain data exfil"; pcre:"/[a-zA-Z0-9]{30,}\\./"; threshold:rate,both,10/30; classtype:trojan-activity; sid:521277063; rev:1;)
+alert tls any any -> any any (msg:"MITRE T1071.001 HTTPS C2 beaconing with regular intervals"; threshold:rate,both,20/300; flowbits:set,beacon.candidate; classtype:trojan-activity; sid:521277064; rev:1;)
+# === MITRE ATT&CK T1568 Dynamic Resolution ===
+alert dns any any -> any any (msg:"MITRE T1568.002 DGA - pseudo-random DNS query pattern"; pcre:"/[a-z0-9]{8,}\\.(top|xyz|click|loan|work|country|stream)$/i"; threshold:rate,both,5/60; classtype:trojan-activity; sid:521277065; rev:1;)
+alert dns any any -> any any (msg:"MITRE T1568.001 Fast flux domain - rapid DNS A record changes"; threshold:rate,both,10/30; classtype:trojan-activity; sid:521277066; rev:1;)
+# === MITRE ATT&CK T1048 Exfiltration Over Alternative Protocol ===
+alert http any any -> any any (msg:"MITRE T1048.002 Exfiltration via HTTPS POST large body upload"; content:"POST"; http_method; content:"Content-Length"; nocase; pcre:"/Content-Length:\\s*[0-9]{7,}/i"; classtype:exfiltration; sid:521277067; rev:1;)
+alert dns any any -> any any (msg:"MITRE T1048.003 Exfiltration via DNS TXT record large response"; dsize:>400; classtype:exfiltration; sid:521277068; rev:1;)
+alert tcp any any -> any 21 (msg:"MITRE T1048.001 Exfiltration via FTP anonymous upload"; content:"USER anonymous"; nocase; content:"STOR"; nocase; classtype:exfiltration; sid:521277069; rev:1;)
+# === MITRE ATT&CK T1133 External Remote Services ===
+alert tcp any any -> any 3389 (msg:"MITRE T1133 RDP access from external IP - suspicious"; flags:S; flow:to_server; threshold:rate,both,5/60; classtype:attempted-admin; sid:521277070; rev:1;)
+alert tcp any any -> any 22 (msg:"MITRE T1133 SSH access from external source - geo anomaly"; flags:S; flow:to_server; threshold:rate,both,10/60; classtype:attempted-admin; sid:521277071; rev:1;)
+# === MITRE ATT&CK T1547 Boot or Logon Autostart Execution ===
+alert http any any -> any any (msg:"MITRE T1547.001 Registry Run key modification via remote management"; content:"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run"; nocase; classtype:trojan-activity; sid:521277072; rev:1;)
+alert http any any -> any any (msg:"MITRE T1547.009 Shortcut modification for persistence"; content:".lnk"; nocase; content:"target"; nocase; classtype:trojan-activity; sid:521277073; rev:1;)
+# === MITRE ATT&CK T1486 Data Encrypted for Impact ===
+alert http any any -> any any (msg:"MITRE T1486 Ransomware file extension pattern - mass encryption"; content:"POST"; http_method; pcre:"/\\.(locked|encrypted|crypto|ransom|wcry|enc)$/i"; threshold:rate,both,50/60; classtype:trojan-activity; sid:521277074; rev:1;)
+alert tcp any any -> any 445 (msg:"MITRE T1486 SMB mass file rename - ransomware indicator"; content:"|00 00 00 2f|"; depth:4; content:"SMB2"; nocase; pcre:"/\\.(encrypted|locked|ransom)/i"; threshold:rate,both,30/60; classtype:trojan-activity; sid:521277075; rev:1;)
+# === MITRE ATT&CK T1490 Inhibit System Recovery ===
+alert http any any -> any any (msg:"MITRE T1490 VSS deletion via vssadmin - recovery inhibition"; content:"vssadmin"; nocase; content:"delete"; nocase; content:"shadows"; nocase; classtype:trojan-activity; sid:521277076; rev:1;)
+alert http any any -> any any (msg:"MITRE T1490 bcdedit recoveryenabled no - system recovery disabled"; content:"bcdedit"; nocase; content:"recoveryenabled"; nocase; content:"no"; classtype:trojan-activity; sid:521277077; rev:1;)
+# === MITRE ATT&CK T1027 Obfuscated Files or Information ===
+alert http any any -> any any (msg:"MITRE T1027 Base64 encoded payload in HTTP header"; content:"Authorization"; nocase; pcre:"/Bearer\\s+[A-Za-z0-9+/]{100,}={0,2}/"; classtype:trojan-activity; sid:521277078; rev:1;)
+alert http any any -> any any (msg:"MITRE T1027 XOR encoded data transfer via HTTP cookie"; content:"Cookie"; nocase; pcre:"/[^\x20-\x7e]{20,}/"; classtype:trojan-activity; sid:521277079; rev:1;)
+# === MITRE ATT&CK T1078 Valid Accounts ===
+alert http any any -> any any (msg:"MITRE T1078.004 Cloud account abuse - API key from unexpected IP"; content:"X-API-Key"; nocase; threshold:rate,both,50/300; classtype:web-application-attack; sid:521277080; rev:1;)
+alert ssh any any -> any any (msg:"MITRE T1078.003 Local account usage from new geography - SSH"; flow:to_server; content:"SSH-2.0"; depth:7; threshold:rate,both,3/3600; classtype:attempted-admin; sid:521277081; rev:1;)
+# === MITRE ATT&CK T1195 Supply Chain Compromise ===
+alert http any any -> any any (msg:"MITRE T1195.002 Compromised npm package - post-install script execution"; content:"npm"; nocase; content:"postinstall"; nocase; content:"curl"; nocase; classtype:trojan-activity; sid:521277082; rev:1;)
+alert http any any -> any any (msg:"MITRE T1195.001 Compromised pip package - typosquatting detection"; content:"pip"; nocase; content:"install"; nocase; pcre:"/(requets|pillw|numpyy|tensorflow-gpup)/i"; classtype:trojan-activity; sid:521277083; rev:1;)
+# === MITRE ATT&CK T1555 Credentials from Password Stores ===
+alert http any any -> any any (msg:"MITRE T1555.003 Chrome browser credential extraction via debugger"; content:"Login Data"; nocase; content:"chrome"; nocase; content:"decrypt"; nocase; classtype:trojan-activity; sid:521277084; rev:1;)
+alert http any any -> any any (msg:"MITRE T1555.001 Keychain credential access via security command"; content:"security"; nocase; content:"find-generic-password"; nocase; classtype:trojan-activity; sid:521277085; rev:1;)
+# === MITRE ATT&CK T1136 Create Account ===
+alert http any any -> any any (msg:"MITRE T1136.002 Suspicious account creation via net user command"; content:"net user"; nocase; content:"/add"; nocase; classtype:attempted-admin; sid:521277086; rev:1;)
+alert http any any -> any any (msg:"MITRE T1136.003 Cloud account creation - unexpected IAM user creation"; content:"CreateUser"; nocase; content:"iam"; nocase; classtype:attempted-admin; sid:521277087; rev:1;)
+# === MITRE ATT&CK T1090 Proxy ===
+alert tls any any -> any any (msg:"MITRE T1090.003 TOR exit node connection - proxy chain usage"; pcre:"/(tor|onion)\\./i"; classtype:trojan-activity; sid:521277088; rev:1;)
+alert http any any -> any any (msg:"MITRE T1090.002 Web proxy chaining via X-Forwarded-For header injection"; content:"X-Forwarded-For"; nocase; pcre:"/\\d+\\.\\d+\\.\\d+\\.\\d+,\\s*\\d+\\.\\d+\\.\\d+\\.\\d+/"; classtype:web-application-attack; sid:521277089; rev:1;)
+# === MITRE ATT&CK T1218 System Binary Proxy Execution ===
+alert http any any -> any any (msg:"MITRE T1218.005 mshta.exe execution of remote HTA payload"; content:"mshta"; nocase; content:"http"; nocase; classtype:trojan-activity; sid:521277090; rev:1;)
+alert http any any -> any any (msg:"MITRE T1218.010 regsvr32 remote scriptlet execution (squiblydoo)"; content:"regsvr32"; nocase; content:"scrobj.dll"; nocase; classtype:trojan-activity; sid:521277091; rev:1;)
+alert http any any -> any any (msg:"MITRE T1218.011 rundll32 execution of suspicious DLL"; content:"rundll32"; nocase; content:"|2e 64 6c 6c|"; classtype:trojan-activity; sid:521277092; rev:1;)
+# === MITRE ATT&CK T1039 Data from Network Shared Drive ===
+alert tcp any any -> any 445 (msg:"MITRE T1039 Mass file access on SMB share - data staging"; content:"SMB2"; nocase; content:"READ"; nocase; threshold:rate,both,100/60; classtype:exfiltration; sid:521277093; rev:1;)
+# === MITRE ATT&CK T1567 Exfiltration Over Web Service ===
+alert tls any any -> any any (msg:"MITRE T1567.002 Exfiltration to cloud storage - MEGA upload"; tls.sni; content:"mega.nz"; classtype:exfiltration; sid:521277094; rev:1;)
+alert tls any any -> any any (msg:"MITRE T1567.002 Exfiltration to Google Drive"; tls.sni; content:"drive.google.com"; threshold:rate,both,20/300; classtype:exfiltration; sid:521277095; rev:1;)
+alert tls any any -> any any (msg:"MITRE T1567.001 Exfiltration to code repository - suspicious git push"; tls.sni; content:"github.com"; content:"git-receive-pack"; nocase; classtype:exfiltration; sid:521277096; rev:1;)
+# === MITRE ATT&CK T1485 Data Destruction ===
+alert http any any -> any any (msg:"MITRE T1485 Mass file deletion via shred command"; content:"shred"; nocase; content:"-u"; nocase; threshold:rate,both,20/60; classtype:trojan-activity; sid:521277097; rev:1;)
+alert http any any -> any any (msg:"MITRE T1485 Cipher.exe data wiping of free space"; content:"cipher"; nocase; content:"/w"; nocase; classtype:trojan-activity; sid:521277098; rev:1;)
+# === MITRE ATT&CK T1496 Resource Hijacking (Cryptomining) ===
+alert http any any -> any any (msg:"MITRE T1496 Cryptomining pool connection - stratum protocol"; content:"mining."; nocase; content:"stratum"; nocase; classtype:trojan-activity; sid:521277099; rev:1;)
+alert http any any -> any any (msg:"MITRE T1496 XMRig coinminer user-agent pattern"; content:"xmr-stone-cpu"; nocase; content:"monero"; nocase; classtype:trojan-activity; sid:521277100; rev:1;)

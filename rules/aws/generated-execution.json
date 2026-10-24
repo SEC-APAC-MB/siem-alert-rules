@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-execution (converted)",
   "version": "2.0.0",
-  "converted": "2026-10-07T04:05:05.548939Z",
-  "total_rules": 10,
+  "converted": "2026-10-15T04:05:41.489528Z",
+  "total_rules": 14,
   "rules": [
     {
       "rule_id": "AWS-EXECUTION-137",
@@ -503,6 +503,214 @@
       "tags": [
         "execution"
       ]
+    },
+    {
+      "rule_id": "AWS-EXECUTION-097",
+      "name": "PowerShell Suspicious Execution",
+      "description": "Detect encoded PowerShell, -bypass, hidden window, and download cradle patterns",
+      "severity": "critical",
+      "category": "execution",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": "pentest",
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = RunCommand) || ($.eventName = RunInstances) }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "PowerShellSuspiciousExecution",
+        "threshold": 5,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        },
+        {
+          "type": "Lambda",
+          "description": "Trigger automated remediation Lambda function"
+        }
+      ],
+      "tags": [
+        "execution"
+      ],
+      "response_workflow": {
+        "description": "Suspicious code execution detected",
+        "triage": [
+          "Review the executed command and its context",
+          "Determine if the execution is legitimate admin activity",
+          "Check for encoded content and decode for analysis"
+        ],
+        "containment": [
+          "Kill the process if malicious",
+          "Isolate the host",
+          "Block the source of the command"
+        ],
+        "eradication": [
+          "Check for persistence enabled by the execution",
+          "Review child processes for additional payloads",
+          "Scan for malware planted by the execution"
+        ]
+      }
+    },
+    {
+      "rule_id": "AWS-EXECUTION-098",
+      "name": "WMI Remote Execution",
+      "description": "Detect WMI-based remote command execution via wmiprvse",
+      "severity": "critical",
+      "category": "execution",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": "pentest",
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = RunCommand) || ($.eventName = RunInstances) }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "WMIRemoteExecution",
+        "threshold": 5,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        },
+        {
+          "type": "Lambda",
+          "description": "Trigger automated remediation Lambda function"
+        }
+      ],
+      "tags": [
+        "execution"
+      ],
+      "response_workflow": {
+        "description": "Suspicious code execution detected",
+        "triage": [
+          "Review the executed command and its context",
+          "Determine if the execution is legitimate admin activity",
+          "Check for encoded content and decode for analysis"
+        ],
+        "containment": [
+          "Kill the process if malicious",
+          "Isolate the host",
+          "Block the source of the command"
+        ],
+        "eradication": [
+          "Check for persistence enabled by the execution",
+          "Review child processes for additional payloads",
+          "Scan for malware planted by the execution"
+        ]
+      }
+    },
+    {
+      "rule_id": "AWS-EXECUTION-099",
+      "name": "Scheduled Task/At Job Creation",
+      "description": "Detect suspicious scheduled task creation for persistence or execution",
+      "severity": "high",
+      "category": "execution",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": "pentest",
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = RunCommand) || ($.eventName = RunInstances) }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ScheduledTask/AtJobCreation",
+        "threshold": 5,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        },
+        {
+          "type": "Lambda",
+          "description": "Trigger automated remediation Lambda function"
+        }
+      ],
+      "tags": [
+        "execution"
+      ],
+      "response_workflow": {
+        "description": "Suspicious code execution detected",
+        "triage": [
+          "Review the executed command and its context",
+          "Determine if the execution is legitimate admin activity",
+          "Check for encoded content and decode for analysis"
+        ],
+        "containment": [
+          "Kill the process if malicious",
+          "Isolate the host",
+          "Block the source of the command"
+        ],
+        "eradication": [
+          "Check for persistence enabled by the execution",
+          "Review child processes for additional payloads",
+          "Scan for malware planted by the execution"
+        ]
+      }
+    },
+    {
+      "rule_id": "AWS-EXECUTION-100",
+      "name": "LSASS Memory Dumping",
+      "description": "Detect procdump, comsvcs.dll minidump, or direct LSASS access",
+      "severity": "critical",
+      "category": "execution",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": "pentest",
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = RunCommand) || ($.eventName = RunInstances) }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "LSASSMemoryDumping",
+        "threshold": 5,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        },
+        {
+          "type": "Lambda",
+          "description": "Trigger automated remediation Lambda function"
+        }
+      ],
+      "tags": [
+        "execution"
+      ],
+      "response_workflow": {
+        "description": "Suspicious code execution detected",
+        "triage": [
+          "Review the executed command and its context",
+          "Determine if the execution is legitimate admin activity",
+          "Check for encoded content and decode for analysis"
+        ],
+        "containment": [
+          "Kill the process if malicious",
+          "Isolate the host",
+          "Block the source of the command"
+        ],
+        "eradication": [
+          "Check for persistence enabled by the execution",
+          "Review child processes for additional payloads",
+          "Scan for malware planted by the execution"
+        ]
+      }
     }
   ]
 }
