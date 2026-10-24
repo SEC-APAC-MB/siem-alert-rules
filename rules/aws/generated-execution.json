@@ -1,8 +1,8 @@
 {
   "description": "SIEM alert rules \u2014 generated-execution (converted)",
   "version": "2.0.0",
-  "converted": "2026-10-07T04:05:05.548939Z",
-  "total_rules": 10,
+  "converted": "2026-10-12T06:00:32.510191Z",
+  "total_rules": 14,
   "rules": [
     {
       "rule_id": "AWS-EXECUTION-137",
@@ -489,6 +489,206 @@
           "detail": {
             "eventName": [
               "SQL Command Execution via Web App"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "execution"
+      ]
+    },
+    {
+      "rule_id": "AWS-EXECUTION-097",
+      "name": "PowerShell Suspicious Execution",
+      "description": "Detect encoded PowerShell, -bypass, hidden window, and download cradle patterns",
+      "severity": "critical",
+      "category": "execution",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"execution\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "PowerShellSuspiciousExecution",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "PowerShell Suspicious Execution"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "execution"
+      ]
+    },
+    {
+      "rule_id": "AWS-EXECUTION-098",
+      "name": "WMI Remote Execution",
+      "description": "Detect WMI-based remote command execution via wmiprvse",
+      "severity": "critical",
+      "category": "execution",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"execution\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "WMIRemoteExecution",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "WMI Remote Execution"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "execution"
+      ]
+    },
+    {
+      "rule_id": "AWS-EXECUTION-099",
+      "name": "Scheduled Task/At Job Creation",
+      "description": "Detect suspicious scheduled task creation for persistence or execution",
+      "severity": "high",
+      "category": "execution",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"execution\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "ScheduledTaskAtJobCreation",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "Scheduled Task/At Job Creation"
+            ]
+          }
+        },
+        "state": "ENABLED"
+      },
+      "actions": [
+        {
+          "type": "SNS",
+          "description": "Send alert to security team SNS topic"
+        }
+      ],
+      "tags": [
+        "execution"
+      ]
+    },
+    {
+      "rule_id": "AWS-EXECUTION-100",
+      "name": "LSASS Memory Dumping",
+      "description": "Detect procdump, comsvcs.dll minidump, or direct LSASS access",
+      "severity": "critical",
+      "category": "execution",
+      "mitre_attack": [],
+      "compliance": [],
+      "source": [
+        "aws.cloudtrail"
+      ],
+      "detection": {
+        "query_type": "cloudwatch_metric_filter",
+        "filter_pattern": "{ ($.eventName = \"*\") && ($.sourceIPAddress != \"10.*\") && ($.requestParameters.* \"execution\") }",
+        "log_group": "/aws/cloudtrail",
+        "metric_namespace": "Security/Monitoring",
+        "metric_name": "LSASSMemoryDumping",
+        "threshold": 3,
+        "evaluation_periods": 1,
+        "statistic": "Sum",
+        "period": 300
+      },
+      "eventbridge": {
+        "pattern": {
+          "source": [
+            "aws.security",
+            "aws.guardduty"
+          ],
+          "detail-type": [
+            "AWS API Call via CloudTrail",
+            "GuardDuty Finding"
+          ],
+          "detail": {
+            "eventName": [
+              "LSASS Memory Dumping"
             ]
           }
         },

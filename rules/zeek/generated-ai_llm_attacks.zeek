@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-ai_llm_attacks
-# Auto-generated: 2026-10-07T04:05:05.393786Z
+# Auto-generated: 2026-10-12T06:00:32.457121Z
 # Load in local.zeek: @load ./generated-ai_llm_attacks
 
 signature ZK-AI_LLM_ATTACKS-041 {
@@ -220,6 +220,118 @@ signature ZK-AI_LLM_ATTACKS-035 {
 }
 
 signature ZK-AI_LLM_ATTACKS-036 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "AI Bias Detection"
+}
+
+signature ZK-AI_LLM_ATTACKS-001 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "Direct Prompt Injection"
+}
+
+signature ZK-AI_LLM_ATTACKS-002 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "Indirect Prompt Injection"
+}
+
+signature ZK-AI_LLM_ATTACKS-003 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "System Prompt Extraction"
+}
+
+signature ZK-AI_LLM_ATTACKS-004 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "Jailbreak Attempt"
+}
+
+signature ZK-AI_LLM_ATTACKS-005 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "Token Smuggling"
+}
+
+signature ZK-AI_LLM_ATTACKS-006 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "Training Data Extraction"
+}
+
+signature ZK-AI_LLM_ATTACKS-007 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "Model Inversion Attack"
+}
+
+signature ZK-AI_LLM_ATTACKS-008 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "PII Disclosure via LLM"
+}
+
+signature ZK-AI_LLM_ATTACKS-009 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "Credential Leakage in AI Response"
+}
+
+signature ZK-AI_LLM_ATTACKS-010 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "Temperature Manipulation"
+}
+
+signature ZK-AI_LLM_ATTACKS-011 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "Max Tokens Abuse"
+}
+
+signature ZK-AI_LLM_ATTACKS-012 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "Parameter Manipulation"
+}
+
+signature ZK-AI_LLM_ATTACKS-013 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "AI Supply Chain Attack"
+}
+
+signature ZK-AI_LLM_ATTACKS-014 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "Model Poisoning Detection"
+}
+
+signature ZK-AI_LLM_ATTACKS-015 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex
+	event "AI Governance Policy Violation"
+}
+
+signature ZK-AI_LLM_ATTACKS-016 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*((ignore\ previous|jailbreak|DAN|system\ prompt|pretend\ you\ are)).*/ regex

@@ -1,5 +1,5 @@
 # Zeek SIEM Alert Rules — generated-cloud_native
-# Auto-generated: 2026-10-07T04:05:05.395304Z
+# Auto-generated: 2026-10-12T06:00:32.457496Z
 # Load in local.zeek: @load ./generated-cloud_native
 
 signature ZK-CLOUD_NATIVE-067 {
@@ -136,6 +136,76 @@ signature ZK-CLOUD_NATIVE-055 {
 }
 
 signature ZK-CLOUD_NATIVE-056 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((CreateUser|CreateAccessKey|AttachRolePolicy|DeleteFlowLog)).*/ regex
+	event "Service Mesh Policy Bypass"
+}
+
+signature ZK-CLOUD_NATIVE-027 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((CreateUser|CreateAccessKey|AttachRolePolicy|DeleteFlowLog)).*/ regex
+	event "Container Escape via Privileged Pod"
+}
+
+signature ZK-CLOUD_NATIVE-028 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((CreateUser|CreateAccessKey|AttachRolePolicy|DeleteFlowLog)).*/ regex
+	event "Kubernetes RBAC Privilege Escalation"
+}
+
+signature ZK-CLOUD_NATIVE-029 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((CreateUser|CreateAccessKey|AttachRolePolicy|DeleteFlowLog)).*/ regex
+	event "Serverless Function Injection"
+}
+
+signature ZK-CLOUD_NATIVE-030 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((CreateUser|CreateAccessKey|AttachRolePolicy|DeleteFlowLog)).*/ regex
+	event "Cloud Metadata Service SSRF"
+}
+
+signature ZK-CLOUD_NATIVE-031 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((CreateUser|CreateAccessKey|AttachRolePolicy|DeleteFlowLog)).*/ regex
+	event "IAM Role Assumption Chain"
+}
+
+signature ZK-CLOUD_NATIVE-032 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((CreateUser|CreateAccessKey|AttachRolePolicy|DeleteFlowLog)).*/ regex
+	event "S3 Bucket Policy Misconfiguration"
+}
+
+signature ZK-CLOUD_NATIVE-033 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((CreateUser|CreateAccessKey|AttachRolePolicy|DeleteFlowLog)).*/ regex
+	event "ECS Task Definition Tampering"
+}
+
+signature ZK-CLOUD_NATIVE-034 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((CreateUser|CreateAccessKey|AttachRolePolicy|DeleteFlowLog)).*/ regex
+	event "Lambda Environment Variable Exfiltration"
+}
+
+signature ZK-CLOUD_NATIVE-035 {
+	ip-proto tcp
+	dst-port = { 80 443 8080 8443 }
+	http-request /.*((CreateUser|CreateAccessKey|AttachRolePolicy|DeleteFlowLog)).*/ regex
+	event "Kubernetes Secret Decryption"
+}
+
+signature ZK-CLOUD_NATIVE-036 {
 	ip-proto tcp
 	dst-port = { 80 443 8080 8443 }
 	http-request /.*((CreateUser|CreateAccessKey|AttachRolePolicy|DeleteFlowLog)).*/ regex
