@@ -2,7 +2,7 @@
 
 **Production-ready SIEM alert rules mapped from security test checks, live threat intel, and pentest techniques.**
 
-> **Verified count**: 43,664 rules across 11 platforms as of 2026-10-19. Daily generation engine
+> **Verified count**: 46,137 rules across 11 platforms as of 2026-10-19. Daily generation engine
 > adds rules from CISA KEV, NVD CVE, and MITRE ATT&CK. Target: 2,500+ per platform.
 > Weekly cleanup: stale CVEs (>12 months) removed, revoked MITRE techniques flagged, XML validation enforced.
 
@@ -12,17 +12,17 @@ Covers OWASP WSTG, API Security, Mobile Security, AI/LLM Security, MITRE ATT&CK,
 
 | Platform | Rules | Format | Directory |
 |----------|-------|--------|------------|
-| Elastic Security (Kibana) | 5,395 | KQL/EQL + Rule API JSON | `rules/elastic/` |
-| Splunk Enterprise | 4,776 | SPL + correlation searches | `rules/splunk/` |
-| FortiSIEM | 718 | Pattern-based XML | `rules/fortisiem/` |
-| IBM QRadar | 781 | AQL + custom rules | `rules/qradar/` |
-| Microsoft Sentinel | 801 | KQL analytics rules | `rules/sentinel/` |
-| Wazuh | 9,841 | Custom rules (XML) | `rules/wazuh/` |
-| Zeek (Bro) | 971 | Zeek script signatures | `rules/zeek/` |
-| Suricata | 17,609 | Emerging threats + custom | `rules/suricata/` |
-| Oracle Cloud Infrastructure | 1,181 | OCI Alarm + Event rules | `rules/oracle/` |
-| Microsoft Azure | 874 | Azure Monitor + Policy | `rules/azure/` |
-| AWS | 717 | CloudWatch + EventBridge + GuardDuty | `rules/aws/` |
+| Elastic Security (Kibana) | 5,495 | KQL/EQL + Rule API JSON | `rules/elastic/` |
+| Splunk Enterprise | 4,876 | SPL + correlation searches | `rules/splunk/` |
+| FortiSIEM | 773 | Pattern-based XML | `rules/fortisiem/` |
+| IBM QRadar | 881 | AQL + custom rules | `rules/qradar/` |
+| Microsoft Sentinel | 901 | KQL analytics rules | `rules/sentinel/` |
+| Wazuh | 9,941 | Custom rules (XML) | `rules/wazuh/` |
+| Zeek (Bro) | 366 | Zeek script signatures | `rules/zeek/` |
+| Suricata | 17,687 | Emerging threats + custom | `rules/suricata/` |
+| Oracle Cloud Infrastructure | 1,281 | OCI Alarm + Event rules | `rules/oracle/` |
+| Microsoft Azure | 974 | Azure Monitor + Policy | `rules/azure/` |
+| AWS | 817 | CloudWatch + EventBridge + GuardDuty | `rules/aws/` |
 
 ## Regulatory Cross-Mapping
 
