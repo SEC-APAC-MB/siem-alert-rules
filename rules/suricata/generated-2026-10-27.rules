@@ -1,0 +1,304 @@
+# Suricata Detection Rules - Generated 2026-10-27
+# Based on latest CVEs from GitHub Advisory Database (2026-10-26 batch)
+# MITRE ATT&CK techniques and current threat landscape
+# SIDs: 521293719 - 521293818
+
+# === CVE-2026-86987: Apple iOS authorization bypass - sensitive user data access ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86987 Apple iOS entitlement check bypass attempt"; flow:established,to_server; content:"entitlement"; nocase; http_header; pcre:"/X-Apple-Entitlement|com\.apple\.entitlement/i"; reference:cve,2026-86987; classtype:attempted-recon; sid:521293719; rev:1;)
+
+# === CVE-2026-86992: Apple memory handling - malicious video file ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86992 Apple iOS malicious video file delivery"; flow:established,to_client; file_data; content:"|00 00 00 18|ftyp"; within:8; file_size:>50000000; reference:cve,2026-86992; classtype:trojan-activity; sid:521293720; rev:1;)
+
+# === CVE-2026-86989: Apple authorization state management - fingerprint user ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86989 Apple iOS user fingerprinting via state management"; flow:established,to_server; content:"fingerprint"; nocase; http_uri; pcre:"/device.?fingerprint|user.?identifier/i"; reference:cve,2026-86989; classtype:policy-violation; sid:521293721; rev:1;)
+
+# === CVE-2026-86991: Apple buffer overflow - malicious file processing ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86991 Apple buffer overflow via crafted file"; flow:established,to_client; file_data; content:"|FF D8 FF|"; within:4; file_size:>1048576; pcre:"/\xff\xd8\xff[\xe0-\xef]/"; reference:cve,2026-86991; classtype:attempted-admin; sid:521293722; rev:1;)
+
+# === CVE-2026-86990: Apple camera access without permission ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86990 Apple camera unauthorized access indicator"; flow:established,to_server; content:"avcapture"; nocase; http_uri; pcre:"/AVCaptureSession|camera.?access/i"; reference:cve,2026-86990; classtype:privacy-violation; sid:521293723; rev:1;)
+
+# === CVE-2026-86986: Safari use-after-free - malicious web content ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86986 Safari use-after-free via malicious web content"; flow:established,to_client; http_response_body; content:"<script"; nocase; pcre:"/document\.createExpression|window\.performance\.getEntries/i"; reference:cve,2026-86986; classtype:browser-activity; sid:521293724; rev:1;)
+
+# === CVE-2026-86985: Safari input validation - process crash ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86985 Safari crafted web content crash attempt"; flow:established,to_client; http_response_body; content:"<iframe"; nocase; pcre:"/<iframe[^>]*srcdoc=["'][^"']{10000,}/i"; reference:cve,2026-86985; classtype:attempted-dos; sid:521293725; rev:1;)
+
+# === CVE-2026-86988: Apple image processing - process memory disclosure ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86988 Apple image processing memory disclosure"; flow:established,to_client; file_data; content:"|89 50 4E 47|"; within:4; pcre:"/\x89PNG[\x00-\xff]{4,}IHDR/i"; file_size:>50000000; reference:cve,2026-86988; classtype:info-leak; sid:521293726; rev:1;)
+
+# === CVE-2026-86954: Apple out-of-bounds read - malicious image ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86954 Apple OOB read via crafted image file"; flow:established,to_client; file_data; content:"|00 00 00 0C|JFIF"; within:8; pcre:"/\x00\x00\x00\x0cJFIF[\x00-\xff]{2}\x01[\x00-\x02]/"; reference:cve,2026-86954; classtype:trojan-activity; sid:521293727; rev:1;)
+
+# === CVE-2026-86970: Apple font processing - process memory disclosure ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86970 Apple font processing memory disclosure"; flow:established,to_client; file_data; content:"|00 01 00 00|"; within:4; pcre:"/\x00\x01\x00\x00[\x00-\xff]{4}OTTO|\x00\x01\x00\x00[\x00-\xff]{4}true/i"; reference:cve,2026-86970; classtype:info-leak; sid:521293728; rev:1;)
+
+# === CVE-2026-86984: Apple file access - contacts info access ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86984 Apple contacts database unauthorized access"; flow:established,to_server; content:"Contacts"; nocase; pcre:"/AddressBook|contacts\.db|com\.apple\.contacts/i"; reference:cve,2026-86984; classtype:privacy-violation; sid:521293729; rev:1;)
+
+# === CVE-2026-86973: Safari OOB read - process crash ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86973 Safari OOB read crash via web content"; flow:established,to_client; http_response_body; content:"canvas"; nocase; pcre:"/canvas\.getContext|OffscreenCanvas/i"; reference:cve,2026-86973; classtype:browser-activity; sid:521293730; rev:1;)
+
+# === CVE-2026-86972: Apple buffer overflow - malicious audio file ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86972 Apple audio buffer overflow via crafted file"; flow:established,to_client; file_data; content:"RIFF"; within:4; pcre:"/^RIFF[\x00-\xff]{4}WAVE/i"; file_size:>100000000; reference:cve,2026-86972; classtype:attempted-admin; sid:521293731; rev:1;)
+
+# === CVE-2026-86978: Apple sensitive user data access ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86978 Apple unauthorized sensitive data access"; flow:established,to_server; content:"keychain"; nocase; pcre:"/SecItemCopyMatching|kSecClassGenericPassword/i"; reference:cve,2026-86978; classtype:privacy-violation; sid:521293732; rev:1;)
+
+# === CVE-2026-86974: Apple type confusion - memory corruption ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86974 Apple type confusion memory corruption via web content"; flow:established,to_client; http_response_body; content:"WebAssembly"; nocase; pcre:"/WebAssembly\.Module|wasm_compile/i"; reference:cve,2026-86974; classtype:attempted-admin; sid:521293733; rev:1;)
+
+# === CVE-2026-86971: Apple OOB write - image processing ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86971 Apple OOB write via crafted image"; flow:established,to_client; file_data; content:"|89 50 4E 47 0D 0A 1A 0A|"; within:8; pcre:"/\x89PNG[\x00-\xff]+IDAT/i"; file_size:>30000000; reference:cve,2026-86971; classtype:attempted-admin; sid:521293734; rev:1;)
+
+# === CVE-2026-86943: Apple DoS - remote attacker ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"CVE-2026-86943 Apple macOS remote DoS attempt"; flow:established,to_server; dsize:>1400; flags:S; ttl:<64; reference:cve,2026-86943; classtype:attempted-dos; sid:521293735; rev:1;)
+
+# === CVE-2026-86964: Apple null pointer dereference ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86964 Apple null pointer dereference trigger"; flow:established,to_client; http_response_body; content:"null"; nocase; pcre:"/ArrayBuffer|null\b.*prototype/i"; reference:cve,2026-86964; classtype:attempted-dos; sid:521293736; rev:1;)
+
+# === CVE-2026-86936: Apple privilege escalation to root ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86936 Apple local privilege escalation to root"; flow:established,to_server; content:"sudo"; nocase; pcre:"/sudo|setuid|chmod\s\+s|/usr/bin/sudo/i"; reference:cve,2026-86936; classtype:privilege-escalation; sid:521293737; rev:1;)
+
+# === CVE-2026-86941: Apple Gatekeeper bypass ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86941 Apple Gatekeeper bypass via file quarantine"; flow:established,to_client; file_data; content:"|CA FE BA BE|"; within:4; pcre:"/\xca\xfe\xba\xbe[\x00-\xff]{4}/"; reference:cve,2026-86941; classtype:trojan-activity; sid:521293738; rev:1;)
+
+# === CVE-2026-86966: Apple symlink - protected filesystem modification ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86966 Apple symlink protected filesystem modification"; flow:established,to_server; content:"symlink"; nocase; pcre:"/symlink|ln\s+-s|readlink/i"; reference:cve,2026-86966; classtype:privilege-escalation; sid:521293739; rev:1;)
+
+# === CVE-2026-86968: Apple restricted system interface access ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86968 Apple restricted system interface access attempt"; flow:established,to_server; content:"IOKit"; nocase; pcre:"/IOKit|IOServiceMatching|IORegistryEntryCreateCFProperties/i"; reference:cve,2026-86968; classtype:privilege-escalation; sid:521293740; rev:1;)
+
+# === CVE-2026-86923: Apple information disclosure ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86923 Apple sensitive user data information disclosure"; flow:established,to_server; content:"privacy"; nocase; pcre:"/NSPrivacyAccessedAPIType|PrivacyInfo\.xcprivacy/i"; reference:cve,2026-86923; classtype:info-leak; sid:521293741; rev:1;)
+
+# === CVE-2026-86939: Apple root access to protected user data ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86939 Apple root privilege protected data access"; flow:established,to_server; content:"root"; nocase; pcre:"/uid=0|getuid|setuid\(0\)/i"; reference:cve,2026-86939; classtype:privilege-escalation; sid:521293742; rev:1;)
+
+# === CVE-2026-86969: Apple kernel memory corruption ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86969 Apple kernel memory corruption attempt"; flow:established,to_server; content:"kernel"; nocase; pcre:"/kernel_task|/System/Library/Kernels|kernel_extension/i"; reference:cve,2026-86969; classtype:attempted-admin; sid:521293743; rev:1;)
+
+# === CVE-2026-86958: Apple pointer authentication bypass ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86958 Apple PAC bypass via memory write"; flow:established,to_server; content:"pac"; nocase; pcre:"/ptrauth|ARM64e|pointer.?authentication/i"; reference:cve,2026-86958; classtype:attempted-admin; sid:521293744; rev:1;)
+
+# === CVE-2026-86931: Apple privacy issue - sensitive data access ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86931 Apple privacy bypass sensitive data access"; flow:established,to_server; content:"UIPasteboard"; nocase; pcre:"/UIPasteboard|NSPasteboard|clipboard/i"; reference:cve,2026-86931; classtype:privacy-violation; sid:521293745; rev:1;)
+
+# === CVE-2026-86946: Apple use-after-free kernel memory corruption ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86946 Apple UAF kernel memory corruption"; flow:established,to_server; content:"mach"; nocase; pcre:"/mach_port|task_for_pid|mach_msg/i"; reference:cve,2026-86946; classtype:attempted-admin; sid:521293746; rev:1;)
+
+# === CVE-2026-86942: Apple OOB read DoS ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86942 Apple OOB read denial of service"; flow:established; dsize:0; window:0; reference:cve,2026-86942; classtype:attempted-dos; sid:521293747; rev:1;)
+
+# === CVE-2026-86925: Apple authorization state management bypass ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86925 Apple authorization bypass via state management"; flow:established,to_server; content:"auth"; nocase; http_header; pcre:"/Authorization:\s*Bearer/i"; reference:cve,2026-86925; classtype:policy-violation; sid:521293748; rev:1;)
+
+# === CVE-2026-86945: Apple protected directory file creation ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86945 Apple protected directory file creation"; flow:established,to_server; content:"mkdir"; nocase; pcre:"/mkdir|NSFileManager.*createDirectory/i"; reference:cve,2026-86945; classtype:privilege-escalation; sid:521293749; rev:1;)
+
+# === CVE-2026-86920: Apple authorization sensitive data access ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-86920 Apple authorization bypass sensitive data"; flow:established,to_server; content:"UserDefaults"; nocase; pcre:"/NSUserDefaults|defaults\.read|CFPreferences/i"; reference:cve,2026-86920; classtype:privacy-violation; sid:521293750; rev:1;)
+
+# === CVE-2026-86937: Apple Gatekeeper bypass via state management ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86937 Apple Gatekeeper bypass via state management"; flow:established,to_client; file_data; content:"|D0 CF 11 E0|"; within:4; pcre:"/\xd0\xcf\x11\xe0[\x00-\xff]{4}/"; reference:cve,2026-86937; classtype:trojan-activity; sid:521293751; rev:1;)
+
+# === CVE-2026-86916: HIGH severity - Apple arbitrary code execution ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-86916 HIGH Apple arbitrary code execution attempt"; flow:established,to_client; http_response_body; pcre:"/<script[^>]*>[\s\S]*?(eval|Function|setTimeout|setInterval)\(/i"; content:"script"; nocase; reference:cve,2026-86916; classtype:attempted-user; priority:1; sid:521293752; rev:1;)
+
+# === CVE-2026-84627: Apple buffer overflow - remote heap corruption ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-84627 Apple remote heap corruption via buffer overflow"; flow:established,to_client; file_data; content:"|7F 45 4C 46|"; within:4; pcre:"/\x7fELF[\x00-\xff]+\.shstrtab/i"; reference:cve,2026-84627; classtype:attempted-admin; sid:521293753; rev:1;)
+
+# === CVE-2026-84604: Apple stack buffer overflow ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-84604 Apple stack buffer overflow attempt"; flow:established,to_client; http_response_body; content:"overflow"; nocase; pcre:"/buffer.*overflow|stack.*smashing|__stack_chk_fail/i"; reference:cve,2026-84604; classtype:attempted-admin; sid:521293754; rev:1;)
+
+# === CVE-2026-84590: Apple OOB write - remote app termination ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-84590 Apple OOB write remote termination"; flow:established,to_client; file_data; content:"|4D 5A|"; within:2; pcre:"/^MZ[\x00-\xff]{4}/"; reference:cve,2026-84590; classtype:attempted-dos; sid:521293755; rev:1;)
+
+# === CVE-2026-84545: Apple sandbox escape to root ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-84545 Apple sandbox escape to root privileges"; flow:established,to_server; content:"sandbox"; nocase; pcre:"/sandbox-exec|App Sandbox|seatbelt/i"; reference:cve,2026-84545; classtype:privilege-escalation; sid:521293756; rev:1;)
+
+# === MITRE ATT&CK T1595: Active Scanning ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1595 Active scanning - rapid port sweep"; flow:stateless; flags:S; detection_filter:track by_src, count 20, seconds 10; reference:url,attack.mitre.org/techniques/T1595; classtype:network-scan; sid:521293757; rev:1;)
+
+# === MITRE ATT&CK T1592: Gather Victim Host Info ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1592 Host info gathering via HTTP headers"; flow:established,to_server; content:"User-Agent"; http_header; pcre:"/^User-Agent:[^\r\n]*(nmap|nikto|masscan|zgrab)/i"; reference:url,attack.mitre.org/techniques/T1592; classtype:network-scan; sid:521293758; rev:1;)
+
+# === MITRE ATT&CK T1190: Exploit Public-Facing Application ===
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1190 Exploit public-facing app - suspicious HTTP method"; flow:established,to_server; pcre:"/^(PUT|DELETE|TRACE|CONNECT|PATCH)\s/[^\s]+\sHTTP\/1\.[01]$/"; reference:url,attack.mitre.org/techniques/T1190; classtype:attempted-exploit; sid:521293759; rev:1;)
+
+# === MITRE ATT&CK T1059: Command and Scripting Interpreter ===
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1059 Command scripting via web shell"; flow:established,to_server; content:"cmd"; http_uri; pcre:"/(\.\.\/|;\||%3B\|).*(cmd|bash|sh|powershell)/i"; reference:url,attack.mitre.org/techniques/T1059; classtype:trojan-activity; sid:521293760; rev:1;)
+
+# === MITRE ATT&CK T1548: Abuse Elevation Control Mechanism ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1548 Elevation control abuse - setuid binary"; flow:established,to_server; pcre:"/chmod\s+[0-7]*[1-7][0-7]*[0-7]*\s|chown\s+root|setcap/i"; reference:url,attack.mitre.org/techniques/T1548; classtype:privilege-escalation; sid:521293761; rev:1;)
+
+# === MITRE ATT&CK T1005: Data from Local System ===
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"MITRE T1005 Local data exfiltration via HTTP POST"; flow:established,to_server; http_method; content:"POST"; pcre:"/POST\s+\/(upload|send|exfil|data|backup)/i"; reference:url,attack.mitre.org/techniques/T1005; classtype:exfiltration; sid:521293762; rev:1;)
+
+# === MITRE ATT&CK T1041: Exfiltration Over C2 Channel ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"MITRE T1041 Exfiltration over C2 channel - large HTTPS upload"; flow:established,to_server; dsize:>1048576; reference:url,attack.mitre.org/techniques/T1041; classtype:exfiltration; sid:521293763; rev:1;)
+
+# === MITRE ATT&CK T1071: Application Layer Protocol ===
+alert dns $HOME_NET any -> any 53 (msg:"MITRE T1071 DNS tunneling - long subdomain query"; flow:to_server; dns.query; pcre:"/^[a-zA-Z0-9]{50,}\./"; reference:url,attack.mitre.org/techniques/T1071; classtype:trojan-activity; sid:521293764; rev:1;)
+
+# === MITRE ATT&CK T1567: Exfiltration Over Web Service ===
+alert http $HOME_NET any -> any any (msg:"MITRE T1567 Data exfil to cloud storage service"; flow:established,to_server; pcre:"/(s3\.amazonaws|blob\.core\.windows|storage\.googleapis|cdn\.discordapp)\.com/i"; http_method; content:"PUT"; reference:url,attack.mitre.org/techniques/T1567; classtype:exfiltration; sid:521293765; rev:1;)
+
+# === MITRE ATT&CK T1110: Brute Force ===
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1110 Brute force - rapid authentication failures"; flow:established,to_server; content:"401"; http_stat_code; detection_filter:track by_src, count 10, seconds 60; reference:url,attack.mitre.org/techniques/T1110; classtype:attempted-login; sid:521293766; rev:1;)
+
+# === MITRE ATT&CK T1053: Scheduled Task/Job ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1053 Scheduled task creation for persistence"; flow:established,to_server; pcre:"/(crontab|schtasks|at\s+\d|launchctl\s+load)/i"; reference:url,attack.mitre.org/techniques/T1053; classtype:persistence; sid:521293767; rev:1;)
+
+# === MITRE ATT&CK T1543: Create or Modify System Process ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1543 System process modification - systemd/plist"; flow:established,to_server; pcre:"/(systemctl\s+(enable|start|create)|launchctl\s+(load|bootstrap)|/Library\/LaunchDaemons)/i"; reference:url,attack.mitre.org/techniques/T1543; classtype:persistence; sid:521293768; rev:1;)
+
+# === MITRE ATT&CK T1027: Obfuscated Files or Information ===
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1027 Obfuscated payload delivery - base64 encoded"; flow:established,to_client; http_response_body; pcre:"/[A-Za-z0-9+\/]{500,}={0,2}/"; reference:url,attack.mitre.org/techniques/T1027; classtype:trojan-activity; sid:521293769; rev:1;)
+
+# === MITRE ATT&CK T1140: Deobfuscate/Decode Files ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1140 Deobfuscation command execution"; flow:established,to_server; pcre:"/(base64\s+-d|openssl\s+enc.*-d|python.*decode|perl.*pack)/i"; reference:url,attack.mitre.org/techniques/T1140; classtype:execution; sid:521293770; rev:1;)
+
+# === MITRE ATT&CK T1218: System Binary Proxy Execution ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1218 System binary proxy execution - certutil/regsvr32"; flow:established,to_server; pcre:"/(certutil\s+-urlcache|regsvr32\s+\/s\s+\/u|mshta\s+http|rundll32\s+shell32)/i"; reference:url,attack.mitre.org/techniques/T1218; classtype:execution; sid:521293771; rev:1;)
+
+# === MITRE ATT&CK T1036: Masquerading ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1036 Masquerading - process name spoofing"; flow:established,to_server; pcre:"/(cp\s+\S+\s+(svchost|lsass|csrss|explorer)|mv\s+\S+\s+(chrome|firefox|safari))/i"; reference:url,attack.mitre.org/techniques/T1036; classtype:trojan-activity; sid:521293772; rev:1;)
+
+# === MITRE ATT&CK T1070: Indicator Removal ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1070 Indicator removal - log clearing"; flow:established,to_server; pcre:"/(rm\s+-rf\s+\/var\/log|history\s+-c|wevtutil\s+cl|auditctl\s+-D)/i"; reference:url,attack.mitre.org/techniques/T1070; classtype:defense-evasion; sid:521293773; rev:1;)
+
+# === MITRE ATT&CK T1562: Impair Defenses ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1562 Defense impairment - AV/EDR disabling"; flow:established,to_server; pcre:"/(taskkill\s+.*av|systemctl\s+stop\s+(clamav|falcon|crowdstrike)|killall\s+(Cylance|Sentinel))/i"; reference:url,attack.mitre.org/techniques/T1562; classtype:defense-evasion; sid:521293774; rev:1;)
+
+# === MITRE ATT&CK T1486: Data Encrypted for Impact ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1486 Ransomware encryption activity indicator"; flow:established,to_server; pcre:"/(vssadmin\s+delete|cipher\s+\/s|gpg\s+-c|openssl\s+enc.*-aes-256)/i"; reference:url,attack.mitre.org/techniques/T1486; classtype:ransomware; sid:521293775; rev:1;)
+
+# === MITRE ATT&CK T1490: Inhibit System Recovery ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1490 System recovery inhibition - backup deletion"; flow:established,to_server; pcre:"/(wbadmin\s+delete|vssadmin\s+delete|bcdedit\s+\/set.*recoveryenabled|reagentc\s+\/disable)/i"; reference:url,attack.mitre.org/techniques/T1490; classtype:ransomware; sid:521293776; rev:1;)
+
+# === MITRE ATT&CK T1566: Phishing ===
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1566 Phishing - suspicious login form on non-standard port"; flow:established,to_client; http_response_body; content:"password"; nocase; content:"<form"; nocase; pcre:"/<form[^>]*action=["'](https?:\/\/[^"']+)["'][^>]*>.*password/i"; reference:url,attack.mitre.org/techniques/T1566; classtype:phishing; sid:521293777; rev:1;)
+
+# === MITRE ATT&CK T1534: Internal Spearphishing ===
+alert smtp $HOME_NET any -> $EXTERNAL_NET 25 (msg:"MITRE T1534 Internal spearphishing - outbound SMTP with attachment"; flow:established,to_server; content:"Content-Disposition"; nocase; content:"attachment"; nocase; pcre:"/filename="?\.(exe|scr|js|vbs|hta|dll)"?/i"; reference:url,attack.mitre.org/techniques/T1534; classtype:phishing; sid:521293778; rev:1;)
+
+# === MITRE ATT&CK T1055: Process Injection ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1055 Process injection - ptrace/dlopen"; flow:established,to_server; pcre:"/(ptrace\s+PTRACE_ATTACH|dlopen\(|VirtualAllocEx|WriteProcessMemory)/i"; reference:url,attack.mitre.org/techniques/T1055; classtype:execution; sid:521293779; rev:1;)
+
+# === MITRE ATT&CK T1572: Protocol Encrypted Tunneling ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 8443 (msg:"MITRE T1572 Encrypted tunnel on non-standard port"; flow:established,to_server; tls.sni; pcre:"/[a-z0-9-]+\.(ngrok|cloudflare|trycloudflare)\.com/i"; reference:url,attack.mitre.org/techniques/T1572; classtype:command-and-control; sid:521293780; rev:1;)
+
+# === MITRE ATT&CK T1105: Ingress Tool Transfer ===
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"MITRE T1105 Tool transfer - download executable"; flow:established,to_client; file_data; content:"|7F 45 4C 46|"; within:4; pcre:"/\x7fELF/"; reference:url,attack.mitre.org/techniques/T1105; classtype:execution; sid:521293781; rev:1;)
+
+# === MITRE ATT&CK T1518: Software Discovery ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1518 Software discovery - package manager queries"; flow:established,to_server; pcre:"/(dpkg\s+-l|rpm\s+-qa|brew\s+list|pip\s+list|npm\s+list)/i"; reference:url,attack.mitre.org/techniques/T1518; classtype:discovery; sid:521293782; rev:1;)
+
+# === MITRE ATT&CK T1087: Account Discovery ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1087 Account discovery - enumeration"; flow:established,to_server; pcre:"/(net\s+user|dscl.*list.*users|/etc/passwd|id\s+-a|whoami)/i"; reference:url,attack.mitre.org/techniques/T1087; classtype:discovery; sid:521293783; rev:1;)
+
+# === MITRE ATT&CK T1069: Permission Groups Discovery ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1069 Permission groups discovery"; flow:established,to_server; pcre:"/(net\s+group|net\s+localgroup|dscl.*list.*groups|/etc/group)/i"; reference:url,attack.mitre.org/techniques/T1069; classtype:discovery; sid:521293784; rev:1;)
+
+# === MITRE ATT&CK T1135: Network Share Discovery ===
+alert smb $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1135 Network share discovery - SMB enumeration"; flow:established; pcre:"/TreeConnectAndX|NetShareEnumAll/i"; reference:url,attack.mitre.org/techniques/T1135; classtype:discovery; sid:521293785; rev:1;)
+
+# === MITRE ATT&CK T1046: Network Service Discovery ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1046 Network service discovery - internal scan"; flow:stateless; flags:S; detection_filter:track by_src, count 30, seconds 30; reference:url,attack.mitre.org/techniques/T1046; classtype:network-scan; sid:521293786; rev:1;)
+
+# === MITRE ATT&CK T1018: Remote System Discovery ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1018 Remote system discovery - ARP/nmap"; flow:established,to_server; pcre:"/(nmap\s+-sn|arp\s+-a|arping|fping)/i"; reference:url,attack.mitre.org/techniques/T1018; classtype:discovery; sid:521293787; rev:1;)
+
+# === MITRE ATT&CK T1083: File and Directory Discovery ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1083 File directory discovery - mass find"; flow:established,to_server; pcre:"/(find\s+\/\s+-name|find\s+\/home|dir\s+\/s|ls\s+-laR)/i"; reference:url,attack.mitre.org/techniques/T1083; classtype:discovery; sid:521293788; rev:1;)
+
+# === MITRE ATT&CK T1136: Create Account ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1136 Account creation - new user via command line"; flow:established,to_server; pcre:"/(useradd|adduser|net\s+user\s+\/add|dscl.*-create)/i"; reference:url,attack.mitre.org/techniques/T1136; classtype:persistence; sid:521293789; rev:1;)
+
+# === MITRE ATT&CK T1098: Account Manipulation ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1098 Account manipulation - privilege grant"; flow:established,to_server; pcre:"/(usermod\s+-aG\s+(sudo|wheel|admin)|net\s+localgroup\s+administrators\s+\/add|dscl.*-append.*admin)/i"; reference:url,attack.mitre.org/techniques/T1098; classtype:persistence; sid:521293790; rev:1;)
+
+# === MITRE ATT&CK T1003: OS Credential Dumping ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1003 Credential dumping - LSASS/Sam access"; flow:established,to_server; pcre:"/(mimikatz|procdump.*lsass|/etc/shadow|sam\.hives|secretsdump)/i"; reference:url,attack.mitre.org/techniques/T1003; classtype:credential-access; sid:521293791; rev:1;)
+
+# === MITRE ATT&CK T1119: Automated Collection ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1119 Automated collection - bulk file archival"; flow:established,to_server; pcre:"/(tar\s+czf|zip\s+-r|7z\s+a|rar\s+a).*(Documents|Desktop|Downloads)/i"; reference:url,attack.mitre.org/techniques/T1119; classtype:collection; sid:521293792; rev:1;)
+
+# === MITRE ATT&CK T1560: Archive Collected Data ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1560 Archive collected data - encrypted archive"; flow:established,to_server; pcre:"/(zip\s+--password|7z\s+.*-p|gpg\s+-c|tar\s+.*--encrypt)/i"; reference:url,attack.mitre.org/techniques/T1560; classtype:collection; sid:521293793; rev:1;)
+
+# === MITRE ATT&CK T1057: Process Discovery ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1057 Process discovery - ps enumeration"; flow:established,to_server; pcre:"/(ps\s+aux|ps\s+-ef|top\s+-l|htop|tasklist)/i"; reference:url,attack.mitre.org/techniques/T1057; classtype:discovery; sid:521293794; rev:1;)
+
+# === MITRE ATT&CK T1016: System Network Configuration Discovery ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1016 Network config discovery - ifconfig/ipconfig"; flow:established,to_server; pcre:"/(ifconfig|ipconfig\s+\/all|ip\s+addr|netstat\s+-rn|route\s+print)/i"; reference:url,attack.mitre.org/techniques/T1016; classtype:discovery; sid:521293795; rev:1;)
+
+# === MITRE ATT&CK T1049: System Network Connections Discovery ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1049 Network connections discovery - netstat"; flow:established,to_server; pcre:"/(netstat\s+-an|ss\s+-tunap|lsof\s+-i)/i"; reference:url,attack.mitre.org/techniques/T1049; classtype:discovery; sid:521293796; rev:1;)
+
+# === MITRE ATT&CK T1082: System Information Discovery ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1082 System info discovery - uname/sysinfo"; flow:established,to_server; pcre:"/(uname\s+-a|systeminfo|sysctl|hwinfo|dmidecode)/i"; reference:url,attack.mitre.org/techniques/T1082; classtype:discovery; sid:521293797; rev:1;)
+
+# === MITRE ATT&CK T1497: Virtualization/Sandbox Evasion ===
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1497 VM sandbox evasion check"; flow:established,to_client; http_response_body; pcre:"/(VMware|VirtualBox|QEMU|vbox|sandboxie)/i"; reference:url,attack.mitre.org/techniques/T1497; classtype:trojan-activity; sid:521293798; rev:1;)
+
+# === MITRE ATT&CK T1498: Network DoS ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1498 Network DoS - SYN flood pattern"; flow:stateless; flags:S; detection_filter:track by_src, count 100, seconds 5; reference:url,attack.mitre.org/techniques/T1498; classtype:attempted-dos; sid:521293799; rev:1;)
+
+# === MITRE ATT&CK T1529: System Shutdown/Reboot ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1529 System shutdown/reboot command"; flow:established,to_server; pcre:"/(shutdown\s+-[hr]|reboot|halt|init\s+0)/i"; reference:url,attack.mitre.org/techniques/T1529; classtype:impact; sid:521293800; rev:1;)
+
+# === MITRE ATT&CK T1485: Data Destruction ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1485 Data destruction - shred/wipe command"; flow:established,to_server; pcre:"/(shred\s+-u|wipe|dd\s+if=\/dev\/urandom|srm)/i"; reference:url,attack.mitre.org/techniques/T1485; classtype:impact; sid:521293801; rev:1;)
+
+# === MITRE ATT&CK T1489: Service Stop ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1489 Service stop - critical service termination"; flow:established,to_server; pcre:"/(systemctl\s+stop\s+(nginx|apache2|mysqld|postgresql|docker)|service\s+\w+\s+stop)/i"; reference:url,attack.mitre.org/techniques/T1489; classtype:impact; sid:521293802; rev:1;)
+
+# === MITRE ATT&CK T1130: Install Root Certificate ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1130 Root certificate installation - trust bypass"; flow:established,to_server; pcre:"/(security\s+add-trusted-cert|certutil\s+-addstore\s+Root|update-ca-certificates)/i"; reference:url,attack.mitre.org/techniques/T1130; classtype:defense-evasion; sid:521293803; rev:1;)
+
+# === MITRE ATT&CK T1552: Unsecured Credentials ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1552 Unsecured credentials in files"; flow:established,to_server; pcre:"/(cat\s+.*\.(env|pem|key|pfx)|type\s+.*\.(env|pem|key|pfx))/i"; reference:url,attack.mitre.org/techniques/T1552; classtype:credential-access; sid:521293804; rev:1;)
+
+# === MITRE ATT&CK T1539: Steal Web Session Cookie ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1539 Session cookie theft - exfil via HTTP"; flow:established,to_server; pcre:"/cookie|session[_-]?id|JSESSIONID|PHPSESSID/i"; http_header; content:"Cookie"; http_header; reference:url,attack.mitre.org/techniques/T1539; classtype:credential-access; sid:521293805; rev:1;)
+
+# === MITRE ATT&CK T1528: Steal Application Access Token ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1528 Access token theft - OAuth/JWT exfil"; flow:established,to_server; pcre:"/(eyJ[a-zA-Z0-9_-]{10,}|ya29\.|access_token=)/i"; reference:url,attack.mitre.org/techniques/T1528; classtype:credential-access; sid:521293806; rev:1;)
+
+# === MITRE ATT&CK T1557: Adversary-in-the-Middle ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 443 (msg:"MITRE T1557 AitM - SSL stripping attempt"; flow:established; content:"HTTP/1"; within:8; pcre:"/^HTTP\/1\.[01]\s30[12]/"; reference:url,attack.mitre.org/techniques/T1557; classtype:credential-access; sid:521293807; rev:1;)
+
+# === MITRE ATT&CK T1606: Forge Web Credentials ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1606 Forged web credentials - token generation"; flow:established,to_server; pcre:"/(jwt\.sign|jose\.JWT|createToken|forge.*token)/i"; reference:url,attack.mitre.org/techniques/T1606; classtype:credential-access; sid:521293808; rev:1;)
+
+# === MITRE ATT&CK T1620: Reflective Code Loading ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1620 Reflective code loading - DLL injection"; flow:established,to_server; pcre:"/(LoadLibraryEx|ReflectiveDLLInjection|ManualMapping|memfd_create)/i"; reference:url,attack.mitre.org/techniques/T1620; classtype:execution; sid:521293809; rev:1;)
+
+# === MITRE ATT&CK T1621: Multi-Stage Channels ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 8080 (msg:"MITRE T1621 Multi-stage C2 channel on alt port"; flow:established,to_server; dsize:>100; pcre:"/[\x00-\xff]{100,}/"; reference:url,attack.mitre.org/techniques/T1621; classtype:command-and-control; sid:521293810; rev:1;)
+
+# === MITRE ATT&CK T1090: Proxy ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1090 Proxy chain - TOR exit node traffic"; flow:established,to_server; pcre:"/(TorExitNode|tor-exit|\.exit\.tor|proxychains)/i"; reference:url,attack.mitre.org/techniques/T1090; classtype:command-and-control; sid:521293811; rev:1;)
+
+# === MITRE ATT&CK T1008: Fallback Channels ===
+alert dns $HOME_NET any -> any 53 (msg:"MITRE T1008 Fallback channel - DNS TXT record exfil"; flow:to_server; dns.query; pcre:"/txt|TXT/"; dns.query; pcre:"/[a-z0-9]{40,}/i"; reference:url,attack.mitre.org/techniques/T1008; classtype:exfiltration; sid:521293812; rev:1;)
+
+# === MITRE ATT&CK T1104: Multi-Stage Channels ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1104 Multi-stage channel - beaconing pattern"; flow:established,to_server; detection_filter:track by_src, count 5, seconds 60; pcre:"/(\/beacon|\/checkin|\/register|\/heartbeat)/i"; reference:url,attack.mitre.org/techniques/T1104; classtype:command-and-control; sid:521293813; rev:1;)
+
+# === MITRE ATT&CK T1095: Non-Application Layer Protocol ===
+alert icmp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1095 Non-app protocol - ICMP tunneling"; flow:to_server; dsize:>200; itype:8; detection_filter:track by_src, count 20, seconds 60; reference:url,attack.mitre.org/techniques/T1095; classtype:command-and-control; sid:521293814; rev:1;)
+
+# === MITRE ATT&CK T1571: Non-Standard Port ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 1337 (msg:"MITRE T1571 Non-standard port C2 - 1337"; flow:established,to_server; reference:url,attack.mitre.org/techniques/T1571; classtype:command-and-control; sid:521293815; rev:1;)
+
+# === MITRE ATT&CK T1573: Encrypted Channel ===
+alert tls $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1573 Encrypted channel - suspicious TLS SNI"; flow:to_server; tls.sni; pcre:"/[a-z0-9]{16,}\.(xyz|top|tk|ml|ga|cf)$/i"; reference:url,attack.mitre.org/techniques/T1573; classtype:command-and-control; sid:521293816; rev:1;)
+
+# === MITRE ATT&CK T1505: Server Software Component ===
+alert http $EXTERNAL_NET any -> $HOME_NET $HTTP_PORTS (msg:"MITRE T1505 Web shell upload - PHP/JSP file"; flow:established,to_server; content:"POST"; http_method; pcre:"/filename="?(.*?)\.(php|phtml|jsp|jspx|asp|aspx)"?/i"; reference:url,attack.mitre.org/techniques/T1505; classtype:persistence; sid:521293817; rev:1;)
+
+# === MITRE ATT&CK T1195: Supply Chain Compromise ===
+alert http $HOME_NET any -> $EXTERNAL_NET $HTTP_PORTS (msg:"MITRE T1195 Supply chain - compromised package registry"; flow:established,to_client; pcre:"/(registry\.npmjs|pypi\.org|rubygems|nuget\.org|crates\.io)/i"; http_response_body; content:"install"; nocase; reference:url,attack.mitre.org/techniques/T1195; classtype:execution; sid:521293818; rev:1;)
