@@ -1,229 +1,100 @@
-# Suricata Detection Rules - Generated 2026-10-31
-# Based on latest CVEs from GitHub Advisory Database, MITRE ATT&CK, threat landscape
-# SID range: 521297122 - 521297221
-
-# === CVE-2026-119193: PHPUnit local code execution via shared temp directory ===
-alert http any any -> any any (msg:"CVE-2026-119193 PHPUnit PHPT code execution via shared temp directory"; flow:established,to_server; content:"phpunit_phpt_"; nocase; content:".php"; nocase; content:"/tmp/phpunit-phpt"; nocase; classtype:attempted-user; sid:521297122; rev:1;)
-alert http any any -> any any (msg:"CVE-2026-119193 PHPUnit temp directory file replacement attack pattern"; flow:established,to_server; content:".orig"; nocase; content:"phpunit"; nocase; content:"payload"; nocase; classtype:attempted-user; sid:521297123; rev:1;)
-
-# === CVE-2026-119201: Nuxt dev server appSecret exposure via Vite ===
-alert http any any -> any any (msg:"CVE-2026-119201 Nuxt dev server appSecret exposure via Vite file serving"; flow:established,to_server; content:"/_nuxt/@fs/"; nocase; content:"app-secret"; nocase; classtype:attempted-recon; sid:521297124; rev:1;)
-alert http any any -> any any (msg:"CVE-2026-119201 Nuxt appSecret file access attempt"; flow:established,to_client; content:"appSecret"; nocase; content:"deriveSecret"; nocase; classtype:informational-disclosure; sid:521297125; rev:1;)
-
-# === CVE-2026-119200: Nuxt dot segment path bypass ===
-alert http any any -> any any (msg:"CVE-2026-119200 Nuxt dot segment path bypass for server middleware"; flow:established,to_server; pcre:"/\/(%2e|\.{1,2})(\/|%2f)/i"; content:"admin"; nocase; classtype:attempted-bypass; sid:521297126; rev:1;)
-alert http any any -> any any (msg:"CVE-2026-119200 Nuxt percent-encoded dot segment bypass attempt"; flow:established,to_server; content:"/%2e/"; nocase; content:"admin"; nocase; classtype:attempted-bypass; sid:521297127; rev:1;)
-alert http any any -> any any (msg:"CVE-2026-119200 Nuxt path traversal via dot segments to bypass auth"; flow:established,to_server; pcre:"/(%2e%2e|\.\.)/i"; content:"/admin"; nocase; classtype:attempted-bypass; sid:521297128; rev:1;)
-
-# === CVE-2026-119198: Nuxt dev server arbitrary file read ===
-alert http any any -> any any (msg:"CVE-2026-119198 Nuxt dev server arbitrary file read via client error reports"; flow:established,to_server; content:"nuxt:dev:client-error"; nocase; classtype:attempted-read; sid:521297129; rev:1;)
-alert http any any -> any any (msg:"CVE-2026-119198 Nuxt HMR socket file read via error path"; flow:established,to_server; content:"dev:error"; nocase; content:".env"; nocase; classtype:attempted-read; sid:521297130; rev:1;)
-
-# === CVE-2026-119199: Nuxt dev server private runtime config exposure ===
-alert http any any -> any any (msg:"CVE-2026-119199 Nuxt dev server Nitro bundle runtime config exposure"; flow:established,to_server; content:"/_nuxt/@fs/"; nocase; content:".nuxt/dev/index.mjs"; nocase; classtype:informational-disclosure; sid:521297131; rev:1;)
-alert http any any -> any any (msg:"CVE-2026-119199 Nuxt private runtimeConfig leaked via dev bundle"; flow:established,to_client; content:"runtimeConfig"; nocase; content:"apiSecret"; nocase; classtype:informational-disclosure; sid:521297132; rev:1;)
-
-# === CVE-2026-118763: @sigstore/oci credential leak to cross-host ===
-alert http any any -> any any (msg:"CVE-2026-118763 sigstore OCI Authorization header leak to cross-host blob upload"; flow:established,to_server; content:"Authorization"; nocase; http_header; content:"Bearer"; nocase; http_header; pcre:"/Location:\s*https?:\/\/(?!.*registry)/Hi"; classtype:credential-leak; sid:521297133; rev:1;)
-alert http any any -> any any (msg:"CVE-2026-118763 sigstore OCI cross-host credential forwarding via blob upload Location"; flow:established,to_server; content:"PUT"; http_method; content:"Authorization"; nocase; http_header; pcre:"/blob-upload/i"; classtype:credential-leak; sid:521297134; rev:1;)
-
-# === CVE-2026-119276: MariaDB Connector/J heap allocation DoS ===
-alert tcp any any -> any 3306 (msg:"CVE-2026-119276 MariaDB Connector/J rogue server heap allocation via OK packet lengths"; flow:established,to_client; content:"|00 00|"; depth:3; byte_test:4,>,8388608,0,relative; classtype:attempted-dos; sid:521297135; rev:1;)
-alert tcp any 3306 -> any any (msg:"CVE-2026-119276 MariaDB OK packet oversized session-track allocation"; flow:established,to_client; content:"CLIENT_SESSION_TRACK"; nocase; dsize:>100; classtype:attempted-dos; sid:521297136; rev:1;)
-
-# === CVE-2026-119279: MariaDB Connector/J integer truncation ===
-alert tcp any any -> any 3306 (msg:"CVE-2026-119279 MariaDB Connector/J length-encoded integer truncation exploit"; flow:established,to_client; byte_test:8,>,2147483647,0,relative; classtype:attempted-dos; sid:521297137; rev:1;)
-alert tcp any 3306 -> any any (msg:"CVE-2026-119279 MariaDB negative array size via truncated length"; flow:established,to_client; content:"|ff|"; depth:1; byte_test:8,>,2147483647,1,relative; classtype:attempted-dos; sid:521297138; rev:1;)
-
-# === CVE-2026-116689: follow-redirects cross-realm header leak ===
-alert http any any -> any any (msg:"CVE-2026-116689 follow-redirects cross-realm sensitiveHeaders leak"; flow:established,to_server; content:"Authorization"; nocase; http_header; pcre:"/cross-realm/i"; classtype:credential-leak; sid:521297139; rev:1;)
-alert http any any -> any any (msg:"CVE-2026-116689 follow-redirects custom credentials following redirect"; flow:established,to_server; content:"Cookie"; nocase; http_header; content:"Location"; nocase; http_header; classtype:credential-leak; sid:521297140; rev:1;)
-
-# === CVE-2026-116794: russh agent confirm bypass ===
-alert tcp any any -> any 22 (msg:"CVE-2026-116794 russh SSH agent confirm constraint bypass"; flow:established,to_server; content:"SSH_AGENTC_SIGN_REQUEST"; nocase; classtype:attempted-bypass; sid:521297141; rev:1;)
-alert tcp any any -> any any (msg:"CVE-2026-116794 russh confirm-constrained key signing without confirmation"; flow:established,to_server; content:"ssh-add"; nocase; content:"-c"; nocase; classtype:attempted-bypass; sid:521297142; rev:1;)
-
-# === CVE-2026-119286: graphql-core DoS via memory leak ===
-alert http any any -> any any (msg:"CVE-2026-119286 GraphQL-core memory leak DoS via aborted validations"; flow:established,to_server; content:"graphql"; nocase; http_uri; pcre:"/query|mutation|subscription/i"; dsize:>10000; classtype:attempted-dos; sid:521297143; rev:1;)
-alert http any any -> any any (msg:"CVE-2026-119286 GraphQL validation abort memory exhaustion attack"; flow:established,to_server; content:"application/graphql"; nocase; http_header; content:"{"; depth:1; classtype:attempted-dos; sid:521297144; rev:1;)
-
-# === CVE-2026-118669: oauthlib client_id confusion ===
-alert http any any -> any any (msg:"CVE-2026-118669 OAuthLib token grant attacker-supplied client_id confusion"; flow:established,to_server; content:"grant_type"; nocase; content:"client_id"; nocase; pcre:"/grant_type=token/i"; classtype:attempted-bypass; sid:521297145; rev:1;)
-alert http any any -> any any (msg:"CVE-2026-118669 OAuthLib authorization code grant client_id mismatch"; flow:established,to_server; content:"authorization_code"; nocase; content:"client_id"; nocase; pcre:"/redirect_uri/i"; classtype:attempted-bypass; sid:521297146; rev:1;)
-
-# === MITRE ATT&CK T1595: Active Scanning ===
-alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1595 Active scanning - rapid port sweep detection"; flow:to_server; flags:S; threshold:rate:both,rate_ip_src_gt,30,60; classtype:network-scan; sid:521297147; rev:1;)
-alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1595.002 Active scanning - vulnerability scanning user-agent"; flow:established,to_server; content:"User-Agent"; nocase; http_header; pcre:"/nikto|nmap|nessus|openvas|acunetix|sqlmap|dirbuster/i"; classtype:network-scan; sid:521297148; rev:1;)
-
-# === MITRE ATT&CK T1592: Gather Victim Host Information ===
-alert http any any -> any any (msg:"MITRE T1592 Gather victim host info via HTTP fingerprinting headers"; flow:established,to_server; content:"X-Forwarded-For"; nocase; http_header; content:"X-Real-IP"; nocase; http_header; classtype:recon-limited; sid:521297149; rev:1;)
-
-# === MITRE ATT&CK T1190: Exploit Public-Facing Application ===
-alert http any any -> any any (msg:"MITRE T1190 Exploit public-facing app - Spring4Shell pattern"; flow:established,to_server; content:"class.module.classLoader"; nocase; http_uri; classtype:attempted-admin; sid:521297150; rev:1;)
-alert http any any -> any any (msg:"MITRE T1190 Exploit public-facing app - Log4Shell JNDI injection"; flow:established,to_server; pcre:"/\$\{jndi:(ldap|rmi|dns|http):\/\//i"; classtype:attempted-rce; sid:521297151; rev:1;)
-alert http any any -> any any (msg:"MITRE T1190 Exploit public-facing app - deserialization attack"; flow:established,to_server; content:"rO0AB"; nocase; classtype:attempted-rce; sid:521297152; rev:1;)
-
-# === MITRE ATT&CK T1505.003: Server Software Component - Web Shell ===
-alert http any any -> any any (msg:"MITRE T1505.003 Web shell detection - suspicious PHP file upload"; flow:established,to_server; content:"filename="; nocase; pcre:"/\.(php|phtml|php5|php7|phps)$/i"; classtype:web-shell-upload; sid:521297153; rev:1;)
-alert http any any -> any any (msg:"MITRE T1505.003 Web shell command execution via web parameter"; flow:established,to_server; pcre:"/(cmd|command|exec|do)=/i"; content:"whoami"; nocase; classtype:attempted-rce; sid:521297154; rev:1;)
-alert http any any -> any any (msg:"MITRE T1505.003 Web shell - eval base64_decode pattern"; flow:established,to_server; content:"eval"; nocase; content:"base64_decode"; nocase; classtype:web-shell-upload; sid:521297155; rev:1;)
-
-# === MITRE ATT&CK T1059.004: Command and Scripting Interpreter - Unix Shell ===
-alert http any any -> any any (msg:"MITRE T1059.004 Unix shell command injection via HTTP"; flow:established,to_server; pcre:"/(;|\|)\s*(cat|ls|id|whoami|uname|wget|curl)\s/i"; classtype:attempted-rce; sid:521297156; rev:1;)
-alert http any any -> any any (msg:"MITRE T1059.004 Unix reverse shell command injection attempt"; flow:established,to_server; pcre:"/(bash|sh|nc|ncat|python)\s+-c.*[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/i"; classtype:attempted-rce; sid:521297157; rev:1;)
-
-# === MITRE ATT&CK T1059.001: PowerShell ===
-alert http any any -> any any (msg:"MITRE T1059.001 PowerShell encoded command via HTTP"; flow:established,to_server; content:"powershell"; nocase; content:"-enc"; nocase; content:"-EncodedCommand"; nocase; classtype:attempted-rce; sid:521297158; rev:1;)
-alert http any any -> any any (msg:"MITRE T1059.001 PowerShell download cradle injection"; flow:established,to_server; pcre:"/DownloadString|DownloadFile|Invoke-Expression|iex/i"; classtype:attempted-rce; sid:521297159; rev:1;)
-
-# === MITRE ATT&CK T1110: Brute Force ===
-alert http any any -> any any (msg:"MITRE T1110 Brute force - rapid authentication failures"; flow:established,to_client; content:"401"; nocase; http_stat_code; threshold:rate:track by_src, count 20, seconds 60; classtype:attempted-admin; sid:521297160; rev:1;)
-alert ssh any any -> any 22 (msg:"MITRE T1110.001 SSH password brute force attempt"; flow:established,to_server; content:"SSH-2.0"; nocase; threshold:rate:track by_src, count 10, seconds 30; classtype:attempted-admin; sid:521297161; rev:1;)
-
-# === MITRE ATT&CK T1048: Exfiltration Over Alternative Protocol ===
-alert tcp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"MITRE T1048 DNS tunneling exfiltration - long query detection"; flow:to_server; dsize:>100; content:"|00|"; depth:1; offset:50; classtype:exfiltration; sid:521297162; rev:1;)
-alert tcp $HOME_NET any -> $EXTERNAL_NET !53 (msg:"MITRE T1048 Data exfiltration over non-standard port"; flow:to_server; dsize:>10000; classtype:exfiltration; sid:521297163; rev:1;)
-
-# === MITRE ATT&CK T1071: Application Layer Protocol ===
-alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1071.001 C2 beacon via HTTP periodic callback"; flow:established,to_server; threshold:rate:track by_src, count 5, seconds 60; content:"POST"; nocase; http_method; dsize:<200; classtype:c2-activity; sid:521297164; rev:1;)
-alert http any any -> any any (msg:"MITRE T1071.001 HTTP C2 check-in with minimal POST body"; flow:established,to_server; content:"POST"; nocase; http_method; dsize:<50; content:"Content-Type"; nocase; http_header; content:"application/octet-stream"; nocase; classtype:c2-activity; sid:521297165; rev:1;)
-
-# === MITRE ATT&CK T1566: Phishing ===
-alert http any any -> any any (msg:"MITRE T1566.002 Spearphishing link - credential harvesting page pattern"; flow:established,to_server; pcre:"/(login|signin|account|verify|secure).*(\.tk|\.ml|\.ga|\.cf|\.gq)/i"; classtype:phishing; sid:521297166; rev:1;)
-alert http any any -> any any (msg:"MITRE T1566.002 Phishing - suspicious redirect to credential capture"; flow:established,to_client; content:"302"; nocase; http_stat_code; pcre:"/login.*token=/i"; classtype:phishing; sid:521297167; rev:1;)
-
-# === MITRE ATT&CK T1053: Scheduled Task/Job ===
-alert http any any -> any any (msg:"MITRE T1053 Cron job creation via web shell"; flow:established,to_server; pcre:"/(crontab|at\s+\d|systemctl\s+enable)/i"; classtype:attempted-persistence; sid:521297168; rev:1;)
-alert http any any -> any any (msg:"MITRE T1053.005 Scheduled task creation via schtasks"; flow:established,to_server; content:"schtasks"; nocase; content:"/create"; nocase; classtype:attempted-persistence; sid:521297169; rev:1;)
-
-# === MITRE ATT&CK T1547: Boot or Logon Autostart Execution ===
-alert http any any -> any any (msg:"MITRE T1547.001 Registry Run key modification via web request"; flow:established,to_server; content:"HKLM"; nocase; content:"Run"; nocase; content:"reg"; nocase; classtype:attempted-persistence; sid:521297170; rev:1;)
-
-# === MITRE ATT&CK T1003: OS Credential Dumping ===
-alert http any any -> any any (msg:"MITRE T1003.001 LSASS memory dump access pattern via web shell"; flow:established,to_server; content:"lsass"; nocase; content:"procdump"; nocase; classtype:credential-access; sid:521297171; rev:1;)
-alert http any any -> any any (msg:"MITRE T1003.002 SAM database access via web shell"; flow:established,to_server; content:"reg"; nocase; content:"save"; nocase; content:"SAM"; nocase; classtype:credential-access; sid:521297172; rev:1;)
-
-# === MITRE ATT&CK T1218: System Binary Proxy Execution ===
-alert http any any -> any any (msg:"MITRE T1218.011 Rundll32 execution via HTTP parameter"; flow:established,to_server; content:"rundll32"; nocase; content:"javascript"; nocase; classtype:attempted-evasion; sid:521297173; rev:1;)
-alert http any any -> any any (msg:"MITRE T1218.005 Mshta execution of remote HTA via HTTP"; flow:established,to_server; content:"mshta"; nocase; content:"http"; nocase; classtype:attempted-evasion; sid:521297174; rev:1;)
-
-# === MITRE ATT&CK T1490: Inhibit System Recovery ===
-alert http any any -> any any (msg:"MITRE T1490 Volume shadow copy deletion via web shell"; flow:established,to_server; content:"vssadmin"; nocase; content:"delete"; nocase; content:"shadows"; nocase; classtype:attempted-recovery-inhibit; sid:521297175; rev:1;)
-alert http any any -> any any (msg:"MITRE T1490 wbadmin delete system recovery via HTTP"; flow:established,to_server; content:"wbadmin"; nocase; content:"delete"; nocase; content:"catalog"; nocase; classtype:attempted-recovery-inhibit; sid:521297176; rev:1;)
-
-# === MITRE ATT&CK T1486: Data Encrypted for Impact ===
-alert tcp $HOME_NET any -> $HOME_NET any (msg:"MITRE T1486 Ransomware file encryption activity - mass file access"; flow:to_server; dsize:>50000; threshold:rate:track by_src, count 100, seconds 10; classtype:ransomware; sid:521297177; rev:1;)
-
-# === MITRE ATT&CK T1027: Obfuscated Files or Information ===
-alert http any any -> any any (msg:"MITRE T1027 Base64 encoded payload in HTTP header"; flow:established,to_server; content:"Authorization"; nocase; http_header; pcre:"/Bearer\s+[A-Za-z0-9+\/]{200,}={0,2}/"; classtype:obfuscation; sid:521297178; rev:1;)
-alert http any any -> any any (msg:"MITRE T1027 Hex encoded command in HTTP request"; flow:established,to_server; pcre:"/0x[0-9a-f]{40,}/i"; classtype:obfuscation; sid:521297179; rev:1;)
-
-# === MITRE ATT&CK T1036: Masquerading ===
-alert http any any -> any any (msg:"MITRE T1036 Masquerading - fake system process name in request"; flow:established,to_server; pcre:"/(svchost|lsass|csrss|winlogon)\.(exe|dll)/i"; content:"filename="; nocase; classtype:masquerading; sid:521297180; rev:1;)
-
-# === MITRE ATT&CK T1078: Valid Accounts ===
-alert http any any -> any any (msg:"MITRE T1078 Valid account abuse - login from anomalous geography"; flow:established,to_server; content:"login"; nocase; http_uri; pcre:"/(CN|RU|KP|IR)/i"; content:"X-Forwarded-For"; nocase; http_header; classtype:anomalous-login; sid:521297181; rev:1;)
-
-# === MITRE ATT&CK T1133: External Remote Services ===
-alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"MITRE T1133 External RDP connection attempt"; flow:to_server; flags:S; classtype:remote-access; sid:521297182; rev:1;)
-alert tcp $EXTERNAL_NET any -> $HOME_NET 5900 (msg:"MITRE T1133 External VNC connection attempt"; flow:to_server; flags:S; classtype:remote-access; sid:521297183; rev:1;)
-
-# === MITRE ATT&CK T1199: Trusted Relationship ===
-alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1199 Trusted relationship - OAuth token to external service"; flow:established,to_server; content:"Bearer"; nocase; http_header; content:"api"; nocase; http_uri; classtype:anomalous-activity; sid:521297184; rev:1;)
-
-# === MITRE ATT&CK T1550: Use Alternate Authentication Material ===
-alert tcp $HOME_NET any -> $HOME_NET 88 (msg:"MITRE T1550.002 Kerberos ticket use - pass-the-ticket pattern"; flow:established,to_server; content:"|06 06 2b 06 01 05 02|"; classtype:credential-use; sid:521297185; rev:1;)
-alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1550.001 Pass-the-hash SMB authentication"; flow:established,to_server; content:"NTLM"; nocase; dsize:>100; classtype:credential-use; sid:521297186; rev:1;)
-
-# === MITRE ATT&CK T1572: Protocol Tunneling ===
-alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"MITRE T1572 Protocol tunneling - DNS over HTTPS tunnel detection"; flow:established,to_server; content:"application/dns-message"; nocase; http_header; content:"POST"; nocase; http_method; classtype:tunneling; sid:521297187; rev:1;)
-alert tcp any any -> any 22 (msg:"MITRE T1572 SSH tunneling - dynamic port forwarding"; flow:established,to_server; content:"SSH-2.0"; nocase; dsize:>10000; classtype:tunneling; sid:521297188; rev:1;)
-
-# === MITRE ATT&CK T1090: Proxy ===
-alert http any any -> any any (msg:"MITRE T1090 Proxy chain detection - Tor exit node user agent"; flow:established,to_server; content:"Tor"; nocase; http_header; classtype:proxy-use; sid:521297189; rev:1;)
-alert tcp $HOME_NET any -> $EXTERNAL_NET 1080 (msg:"MITRE T1090.001 SOCKS proxy connection to external proxy"; flow:to_server; flags:S; classtype:proxy-use; sid:521297190; rev:1;)
-
-# === MITRE ATT&CK T1059.006: Python ===
-alert http any any -> any any (msg:"MITRE T1059.006 Python script execution via HTTP"; flow:established,to_server; content:"python"; nocase; content:"-c"; nocase; pcre:"/import\s+(os|subprocess|socket)/i"; classtype:attempted-rce; sid:521297191; rev:1;)
-
-# === MITRE ATT&CK T1195: Supply Chain Compromise ===
-alert http any any -> any any (msg:"MITRE T1195.002 Compromised software update - unsigned package download"; flow:established,to_client; content:"Content-Type"; nocase; http_header; content:"application/octet-stream"; nocase; content:"update"; nocase; http_uri; dsize:>1000000; classtype:supply-chain; sid:521297192; rev:1;)
-
-# === MITRE ATT&CK T1555: Credentials from Password Stores ===
-alert http any any -> any any (msg:"MITRE T1555.003 Credentials from web browser password store exfiltration"; flow:established,to_server; content:"Login Data"; nocase; content:"cookies.db"; nocase; classtype:credential-access; sid:521297193; rev:1;)
-
-# === MITRE ATT&CK T1119: Automated Collection ===
-alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1119 Automated data collection - bulk file upload"; flow:established,to_server; content:"POST"; nocase; http_method; dsize:>100000; threshold:rate:track by_src, count 10, seconds 60; classtype:exfiltration; sid:521297194; rev:1;)
-
-# === MITRE ATT&CK T1029: Data Transfer Size Limits ===
-alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"MITRE T1029 Large data transfer to cloud storage provider"; flow:established,to_server; dsize:>50000000; classtype:exfiltration; sid:521297195; rev:1;)
-
-# === MITRE ATT&CK T1567: Exfiltration Over Web Service ===
-alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1567.002 Exfiltration to cloud storage - file upload to external service"; flow:established,to_server; content:"PUT"; nocase; http_method; pcre:"/(s3|blob|storage|drive)/i"; dsize:>1000000; classtype:exfiltration; sid:521297196; rev:1;)
-
-# === MITRE ATT&CK T1105: Ingress Tool Transfer ===
-alert http any any -> any any (msg:"MITRE T1105 Ingress tool transfer - executable download from suspicious source"; flow:established,to_client; content:"Content-Type"; nocase; http_header; content:"application/x-msdownload"; nocase; pcre:"/(cdn|temp|cache|tmp)/i"; classtype:malware-download; sid:521297197; rev:1;)
-alert http any any -> any any (msg:"MITRE T1105 Ingress tool transfer - shell script download"; flow:established,to_client; content:"Content-Type"; nocase; http_header; content:"application/x-sh"; nocase; classtype:malware-download; sid:521297198; rev:1;)
-
-# === MITRE ATT&CK T1620: Reflective Code Loading ===
-alert http any any -> any any (msg:"MITRE T1620 Reflective DLL loading via HTTP injection"; flow:established,to_server; content:"LoadLibrary"; nocase; content:"VirtualAlloc"; nocase; pcre:"/(ReflectiveLoader|DllMain)/i"; classtype:attempted-rce; sid:521297199; rev:1;)
-
-# === MITRE ATT&CK T1496: Resource Hijacking ===
-alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1496 Cryptocurrency miner C2 communication"; flow:established,to_server; pcre:"/(xmr|monero|stratum|cryptonight)/i"; content:"POST"; nocase; http_method; classtype:resource-hijack; sid:521297200; rev:1;)
-alert tcp $HOME_NET any -> $EXTERNAL_NET 3333 (msg:"MITRE T1496 Cryptocurrency mining pool connection"; flow:to_server; flags:S; content:"mining.subscribe"; nocase; classtype:resource-hijack; sid:521297201; rev:1;)
-
-# === MITRE ATT&CK T1057: Process Discovery ===
-alert http any any -> any any (msg:"MITRE T1057 Process discovery via web shell - tasklist/ps execution"; flow:established,to_server; pcre:"/(tasklist|ps\s+aux|top|procps)\s/i"; classtype:discovery; sid:521297202; rev:1;)
-
-# === MITRE ATT&CK T1087: Account Discovery ===
-alert http any any -> any any (msg:"MITRE T1087 Account discovery - net user/whoami via HTTP"; flow:established,to_server; pcre:"/(net\s+user|net\s+localgroup|getent\s+passwd)/i"; classtype:discovery; sid:521297203; rev:1;)
-
-# === MITRE ATT&CK T1018: Remote System Discovery ===
-alert http any any -> any any (msg:"MITRE T1018 Remote system discovery - arp/nmap via web shell"; flow:established,to_server; pcre:"/(arp\s+-a|nmap\s+|netdiscover)/i"; classtype:discovery; sid:521297204; rev:1;)
-
-# === MITRE ATT&CK T1046: Network Service Discovery ===
-alert tcp $HOME_NET any -> $HOME_NET any (msg:"MITRE T1046 Network service scan - internal port sweep"; flow:to_server; flags:S; threshold:rate:track by_src, count 20, seconds 10; classtype:network-scan; sid:521297205; rev:1;)
-
-# === MITRE ATT&CK T1082: System Information Discovery ===
-alert http any any -> any any (msg:"MITRE T1082 System information discovery - uname/systeminfo via HTTP"; flow:established,to_server; pcre:"/(uname\s+-a|systeminfo|hostname)/i"; classtype:discovery; sid:521297206; rev:1;)
-
-# === MITRE ATT&CK T1069: Permission Groups Discovery ===
-alert http any any -> any any (msg:"MITRE T1069 Permission groups discovery - net group/whoami via HTTP"; flow:established,to_server; pcre:"/(net\s+group|net\s+localgroup|id\s+-aG|whoami\s+\/groups)/i"; classtype:discovery; sid:521297207; rev:1;)
-
-# === MITRE ATT&CK T1135: Network Share Discovery ===
-alert http any any -> any any (msg:"MITRE T1135 Network share discovery - net share/smbclient via HTTP"; flow:established,to_server; pcre:"/(net\s+share|smbclient|smbmap)/i"; classtype:discovery; sid:521297208; rev:1;)
-
-# === MITRE ATT&CK T1049: System Network Connections Discovery ===
-alert http any any -> any any (msg:"MITRE T1049 Network connections discovery - netstat via web shell"; flow:established,to_server; content:"netstat"; nocase; pcre:"/(-an|-tuln|-ano)/i"; classtype:discovery; sid:521297209; rev:1;)
-
-# === MITRE ATT&CK T1059.009 Cloud API ===
-alert http any any -> any any (msg:"MITRE T1059.009 Cloud API enumeration - AWS CLI via HTTP"; flow:established,to_server; content:"aws"; nocase; content:"sts"; nocase; content:"get-caller-identity"; nocase; classtype:discovery; sid:521297210; rev:1;)
-
-# === MITRE ATT&CK T1530: Data from Cloud Storage Object ===
-alert http any any -> any any (msg:"MITRE T1530 Cloud storage object enumeration - S3 bucket listing"; flow:established,to_server; pcre:"/(s3|aws|gs|azure).*list/i"; content:"ListObjects"; nocase; classtype:discovery; sid:521297211; rev:1;)
-
-# === MITRE ATT&CK T1613: Container and Resource Discovery ===
-alert http any any -> any any (msg:"MITRE T1613 Container discovery - docker/kubectl via web shell"; flow:established,to_server; pcre:"/(docker\s+ps|kubectl\s+get|crictl\s+ps)/i"; classtype:discovery; sid:521297212; rev:1;)
-
-# === MITRE ATT&CK T1525: Implant Internal Image ===
-alert http any any -> any any (msg:"MITRE T1525 Implant internal image - container registry tampering"; flow:established,to_server; content:"docker"; nocase; content:"push"; nocase; pcre:"/(registry|harbor|ecr)/i"; classtype:supply-chain; sid:521297213; rev:1;)
-
-# === MITRE ATT&CK T1609: Container and Resource Discovery ===
-alert http any any -> any any (msg:"MITRE T1609 Container execution via kubectl exec"; flow:established,to_server; content:"kubectl"; nocase; content:"exec"; nocase; pcre:"/--|sh|bash/i"; classtype:attempted-rce; sid:521297214; rev:1;)
-
-# === MITRE ATT&CK T1611: Escape to Host ===
-alert http any any -> any any (msg:"MITRE T1611 Container escape to host - privileged container detection"; flow:established,to_server; content:"privileged"; nocase; content:"--pid"; nocase; content:"/host"; nocase; classtype:container-escape; sid:521297215; rev:1;)
-
-# === MITRE ATT&CK T1610: Deploy Container ===
-alert http any any -> any any (msg:"MITRE T1610 Deploy container for execution - docker run with suspicious image"; flow:established,to_server; content:"docker"; nocase; content:"run"; nocase; pcre:"/(alpine|busybox|ubuntu):latest/i"; pcre:"/(--rm|--privileged|--net=host)/i"; classtype:malware-deployment; sid:521297216; rev:1;)
-
-# === MITRE ATT&CK T1008: Fallback Channels ===
-alert tcp $HOME_NET any -> $EXTERNAL_NET 4444 (msg:"MITRE T1008 Fallback C2 channel - default Metasploit port"; flow:to_server; flags:S; classtype:c2-activity; sid:521297217; rev:1;)
-alert tcp $HOME_NET any -> $EXTERNAL_NET 8080 (msg:"MITRE T1008 Fallback C2 channel - alternative HTTP port beacon"; flow:established,to_server; content:"POST"; nocase; http_method; dsize:<100; threshold:rate:track by_src, count 10, seconds 60; classtype:c2-activity; sid:521297218; rev:1;)
-
-# === MITRE ATT&CK T1098: Account Manipulation ===
-alert http any any -> any any (msg:"MITRE T1098.001 Account manipulation - adding SSH authorized key via web"; flow:established,to_server; content:"authorized_keys"; nocase; pcre:"/(ssh-rsa|ssh-ed25519|ecdsa-sha2)/i"; classtype:account-manipulation; sid:521297219; rev:1;)
-alert http any any -> any any (msg:"MITRE T1098.005 Account manipulation - adding user to admin group via HTTP"; flow:established,to_server; pcre:"/(usermod|net\s+localgroup\s+administrators|gpasswd)/i"; content:"admin"; nocase; classtype:account-manipulation; sid:521297220; rev:1;)
-
-# === MITRE ATT&CK T1136: Create Account ===
-alert http any any -> any any (msg:"MITRE T1136.001 Create local account via web shell - useradd/net user"; flow:established,to_server; pcre:"/(useradd|net\s+user\s+\S+\s+\S+\/add)/i"; classtype:account-creation; sid:521297221; rev:1;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-118235 SimpleForm WordPress Unauthenticated Arbitrary File Upload"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/wp-json/simpleform/"; content:"filename"; nocase; pcre:"/filename=[^\x00-\x7f]|filename=\.\.\//Ui"; classtype:attempted-admin; sid:521297522; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_118235, severity Critical, tag WordPress;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-103882 Acadlix LMS WordPress SQL Injection via quiz_id"; flow:established,to_server; http.uri; content:"/wp-admin/admin-ajax.php"; content:"action=acadlix_quiz"; content:"quiz_id"; pcre:"/quiz_id=[0-9]+[^0-9]/Ui"; classtype:attempted-admin; sid:521297523; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_103882, severity Critical, tag WordPress;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-119096 Uncanny Toolkit LearnDash Authentication Bypass"; flow:established,to_server; http.uri; content:"/wp-admin/admin-ajax.php"; content:"action=uncanny_toolkit"; content:"user_id"; pcre:"/user_id=1(&|$)/Ui"; classtype:attempted-admin; sid:521297524; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_119096, severity Critical, tag WordPress;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-116512 Project Manager WordPress Authentication Bypass"; flow:established,to_server; http.uri; content:"/wp-admin/admin-ajax.php"; content:"action=pm_"; pcre:"/action=pm_(login|auth|register)/Ui"; content:"nonce"; classtype:attempted-admin; sid:521297525; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_116512, severity Critical, tag WordPress;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-89270 Popup Builder WordPress Critical SQL Injection"; flow:established,to_server; http.uri; content:"/wp-admin/admin-ajax.php"; content:"action=sg_popup"; pcre:"/(SLEEP|BENCHMARK|UNION.*SELECT)/Ui"; classtype:attempted-admin; sid:521297526; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_89270, severity Critical, tag WordPress;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-120114 Debug Log Manager WordPress Stored XSS via pageUrl"; flow:established,to_server; http.uri; content:"/wp-json/dlm/"; content:"pageUrl"; pcre:"/pageUrl=[^&]*<script/i"; classtype:web-application-attack; sid:521297527; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_120114, severity High, tag WordPress, tag XSS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-76010 NextGEN Gallery WordPress Remote Code Execution"; flow:established,to_server; http.uri; content:"/wp-content/plugins/nextgen-gallery/"; content:"render_image"; pcre:"/(\.php|\.phtml|\.phar)/Ui"; classtype:attempted-admin; sid:521297528; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_76010, severity High, tag WordPress, tag RCE;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-120194 json-glib JSONPath Infinite Loop DoS"; flow:established,to_server; content:"json_path_query"; pcre:"/\[.*:.*:-[0-9]+\]/"; classtype:attempted-dos; sid:521297529; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_120194, severity High, tag DoS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-109197 WP Directory Kit WordPress SQL Injection via idfield"; flow:established,to_server; http.uri; content:"idfield"; pcre:"/idfield=[^a-zA-Z0-9]/Ui"; content:"wpdirectorykit"; classtype:web-application-attack; sid:521297530; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_109197, severity High, tag SQLi;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-120075 WP Activity Log WordPress Stored XSS"; flow:established,to_server; http.request_body; content:"<script"; nocase; content:"wp-security-audit-log"; classtype:web-application-attack; sid:521297531; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_120075, severity High, tag XSS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-116964 konflux-ci CI/CD Code Injection via environment scripts"; flow:established,to_server; content:"export"; pcre:"/(\$\(|`|;\s*(curl|wget|bash|sh)\s)/Ui"; content:"konflux"; classtype:trojan-activity; sid:521297532; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_116964, severity High, tag CI_CD;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-120070 User Frontend WordPress Arbitrary Post Creation"; flow:established,to_server; http.uri; content:"/wp-admin/admin-ajax.php"; content:"action=wpuf_"; content:"post_id"; pcre:"/post_title=[^&]*<script/i"; classtype:attempted-user; sid:521297533; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_120070, severity High, tag WordPress;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-110530 FeedWordPress Stored XSS via feed title"; flow:established,to_server; http.request_body; content:"feedwordpress"; content:"<script"; nocase; classtype:web-application-attack; sid:521297534; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_110530, severity High, tag XSS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-118057 Shield Security WordPress Stored XSS"; flow:established,to_server; http.uri; content:"/wp-admin/admin-ajax.php"; content:"action=shield_"; pcre:"/<script|javascript:/i"; classtype:web-application-attack; sid:521297535; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_118057, severity High, tag XSS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-114217 konflux-ci CI Secret Exposure in automation scripts"; flow:established,to_server; content:"token"; content:"konflux"; pcre:"/(Bearer|api_key|secret|password)\s*[=:]/i"; classtype:sensitive-data; sid:521297536; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_114217, severity High, tag CI_CD;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-116086 konflux-ci Unauthorized Workflow Trigger"; flow:established,to_server; http.method; content:"POST"; content:"/api/v1/workflow"; content:"trigger"; classtype:attempted-admin; sid:521297537; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_116086, severity High, tag CI_CD;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-117681 konflux-ci Privilege Escalation via user role manipulation"; flow:established,to_server; http.method; content:"PUT"; content:"/api/v1/users"; content:"role"; pcre:"/role=(admin|root|superuser)/i"; classtype:attempted-admin; sid:521297538; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_117681, severity High, tag CI_CD;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-103898 WP Social Login Authentication Bypass"; flow:established,to_server; http.uri; content:"/wp-admin/admin-ajax.php"; content:"action=wpsl_"; content:"user_id"; pcre:"/user_id=1(&|$)/Ui"; classtype:attempted-admin; sid:521297539; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_103898, severity High, tag WordPress;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-107759 WPO365 Microsoft 365 Graph Mailer Stored XSS"; flow:established,to_server; http.uri; content:"/wp-admin/"; content:"wpo365"; pcre:"/<script|onerror=/i"; classtype:web-application-attack; sid:521297540; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_107759, severity High, tag XSS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-104012 Rox Appointment Booking WordPress SQL Injection"; flow:established,to_server; http.uri; content:"rox-appointment"; pcre:"/(UNION|SLEEP|BENCHMARK)/Ui"; classtype:web-application-attack; sid:521297541; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_104012, severity High, tag SQLi;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-120040 Mail Logging WordPress Sensitive Information Exposure"; flow:established,to_server; http.uri; content:"/wp-admin/"; content:"mail-logging"; content:"export"; classtype:sensitive-data; sid:521297542; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_120040, severity High, tag Info_Leak;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-119163 FunnelKit Automations WordPress SQL Injection"; flow:established,to_server; http.uri; content:"funnelkit"; pcre:"/(SLEEP|UNION.*SELECT|BENCHMARK)/Ui"; classtype:web-application-attack; sid:521297543; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_119163, severity High, tag SQLi;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-119162 User Submitted Posts WordPress Stored XSS"; flow:established,to_server; http.uri; content:"/wp-admin/admin-ajax.php"; content:"action=usp_"; pcre:"/<script|javascript:/i"; classtype:web-application-attack; sid:521297544; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_119162, severity High, tag XSS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-118599 Epiphany WebExtension XPI File Overwrite via TAR hardlink"; flow:established,to_server; content:".xpi"; http.header; content:"Content-Type"; content:"application/x-xpinstall"; classtype:attempted-admin; sid:521297545; rev:1; metadata:attack_target_client, created_at 2026_10_31, cve CVE_2026_118599, severity Medium, tag Epiphany;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-118598 Epiphany Permission Confusion Camera Mic Access"; flow:established,to_client; content:"getUserMedia"; content:"clipboard"; classtype:attempted-recon; sid:521297546; rev:1; metadata:attack_target_client, created_at 2026_10_31, cve CVE_2026_118598, severity Medium, tag Epiphany;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-15272 Web 2.0 Directory WordPress Time-based SQL Injection"; flow:established,to_server; http.uri; content:"w2dc_level_filter"; pcre:"/SLEEP|BENCHMARK/i"; classtype:web-application-attack; sid:521297547; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_15272, severity Medium, tag SQLi;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-96554 BuddyBoss Platform WordPress Stored XSS via Group Name"; flow:established,to_server; http.uri; content:"/groups/create/"; http.request_body; content:"group_name"; pcre:"/group_name=[^&]*<script/i"; classtype:web-application-attack; sid:521297548; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_96554, severity Medium, tag XSS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-109231 Germanized WooCommerce Activation Token Reuse"; flow:established,to_server; http.uri; content:"activate="; content:"woocommerce-germanized"; classtype:attempted-user; sid:521297549; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_109231, severity Medium, tag WooCommerce;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-116752 GeoDirectory WordPress Stored XSS via post_images"; flow:established,to_server; http.uri; content:"geodirectory"; content:"post_images"; pcre:"/<script|javascript:/i"; classtype:web-application-attack; sid:521297550; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_116752, severity Medium, tag XSS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-107711 FlexStock WooCommerce Stored XSS via post_content"; flow:established,to_server; http.uri; content:"stock-sync"; content:"post_content"; pcre:"/<script|javascript:/i"; classtype:web-application-attack; sid:521297551; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_107711, severity Medium, tag XSS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-100151 Ninja Forms WordPress DOM-Based XSS via querystring"; flow:established,to_client; content:"ninja-forms"; content:"field:"; pcre:"/field:[^&]*<script/i"; classtype:web-application-attack; sid:521297552; rev:1; metadata:attack_target_client, created_at 2026_10_31, cve CVE_2026_100151, severity Medium, tag XSS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-104926 WooCommerce Extra Product Options Reflected XSS"; flow:established,to_server; http.uri; pcre:"/_start=|_end=[^&]*<script/i"; content:"themehigh"; classtype:web-application-attack; sid:521297553; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_104926, severity Medium, tag XSS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-109367 All in One SEO Sensitive Post Meta Exposure"; flow:established,to_server; http.uri; content:"/?s="; pcre:"/s=.*/Ui"; content:"all-in-one-seo"; classtype:sensitive-data; sid:521297554; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_109367, severity Medium, tag Info_Leak;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-103915 Amelia Booking WordPress Staff PII Exposure"; flow:established,to_server; http.uri; content:"/wp-json/amelia/"; content:"providers"; classtype:sensitive-data; sid:521297555; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_103915, severity Medium, tag Info_Leak;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-101325 Newsletters WordPress Time-based SQL Injection via id"; flow:established,to_server; http.uri; content:"wp-newsletters"; content:"id="; pcre:"/SLEEP|BENCHMARK/i"; classtype:web-application-attack; sid:521297556; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_101325, severity Medium, tag SQLi;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-119160 Smart Post Gutenberg Blocks Stored XSS"; flow:established,to_server; http.uri; content:"smart-post"; pcre:"/<script|javascript:/i"; classtype:web-application-attack; sid:521297557; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_119160, severity Medium, tag XSS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-110023 WP Data Access WordPress SQL Injection"; flow:established,to_server; http.uri; content:"wp-data-access"; pcre:"/(UNION|SLEEP|BENCHMARK)/Ui"; classtype:web-application-attack; sid:521297558; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_110023, severity Medium, tag SQLi;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-116535 SEOPress WordPress Stored XSS"; flow:established,to_server; http.uri; content:"seopress"; pcre:"/<script|javascript:/i"; classtype:web-application-attack; sid:521297559; rev:1; metadata:attack_target_server, created_at 2026_10_31, cve CVE_2026_116535, severity Medium, tag XSS;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1595 Active Scanning - Nmap User-Agent Detected"; flow:established,to_server; http.user_agent; content:"Nmap"; classtype:network-scan; sid:521297560; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0043, mitre_technique_id T1595;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1595.002 Vulnerability Scanning - Nikto Scanner Detected"; flow:established,to_server; http.user_agent; content:"Nikto"; classtype:network-scan; sid:521297561; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0043, mitre_technique_id T1595_002;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1595.003 Wordlist Scanning - DirBuster Gobuster FFuf"; flow:established,to_server; http.user_agent; pcre:"/(DirBuster|Gobuster|ffuf|dirbuster|wpscan)/i"; classtype:network-scan; sid:521297562; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0043, mitre_technique_id T1595_003;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1190 Exploit Public-Facing Application - Shell Injection"; flow:established,to_server; http.uri; pcre:"/(;|\|)\s*(cat|ls|id|whoami|uname|wget|curl)\s/Ui"; classtype:attempted-admin; sid:521297563; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0001, mitre_technique_id T1190;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1059.004 Unix Shell Command Injection via HTTP"; flow:established,to_server; http.request_body; pcre:"/(\$\(|`|\|\|*(sh|bash)\s)/Ui"; classtype:attempted-admin; sid:521297564; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0002, mitre_technique_id T1059_004;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1059.001 PowerShell Command via HTTP"; flow:established,to_server; content:"powershell"; nocase; pcre:"/(powershell|pwsh)\s+-enc/i"; classtype:attempted-admin; sid:521297565; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0002, mitre_technique_id T1059_001;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1110 Credential Brute Force - Multiple Failed Login Attempts"; flow:established,to_server; http.uri; content:"/wp-login.php"; content:"log="; content:"pwd="; detection:filter,track by_src,count 10,seconds 60; classtype:attempted-admin; sid:521297566; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0006, mitre_technique_id T1110;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1110.001 Password Guessing - HTTP Basic Auth Brute Force"; flow:established,to_server; http.header; content:"Authorization"; content:"Basic"; detection:filter,track by_src,count 20,seconds 30; classtype:attempted-admin; sid:521297567; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0006, mitre_technique_id T1110_001;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1504 Web Shell Upload Attempt - PHP File Upload"; flow:established,to_server; http.method; content:"POST"; http.uri; pcre:"/\.php$/Ui"; content:"filename"; pcre:"/filename=[^&]*\.php/i"; classtype:trojan-activity; sid:521297568; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0003, mitre_technique_id T1504;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1053.003 Cron Job Manipulation via HTTP"; flow:established,to_server; content:"crontab"; pcre:"/(crontab|cron\.)\s/Ui"; classtype:attempted-admin; sid:521297569; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0002, mitre_technique_id T1053_003;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1048 Data Exfiltration via DNS Tunneling Pattern"; flow:established,to_server; dns.query; pcre:"/[a-z0-9](40,)\.\w+/i"; classtype:exfiltration; sid:521297570; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0010, mitre_technique_id T1048;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1041 C2 Beacon - Suspicious Regular HTTP POST"; flow:established,to_server; http.method; content:"POST"; detection:filter,track by_src,count 5,seconds 60; classtype:trojan-activity; sid:521297571; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0010, mitre_technique_id T1041;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1071.001 Web Protocol - Suspicious POST with Base64 Payload"; flow:established,to_server; http.method; content:"POST"; http.request_body; pcre:"/base64,[A-Za-z0-9+/=](100,)/"; classtype:trojan-activity; sid:521297572; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0011, mitre_technique_id T1071_001;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"MITRE T1133 External Remote Services - RDP from External IP"; flow:established,to_server; content:"|00 00 00 00|"; classtype:attempted-admin; sid:521297573; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0001, mitre_technique_id T1133;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"MITRE T1021 SSH Brute Force from External Source"; flow:established,to_server; content:"SSH-"; detection:filter,track by_src,count 10,seconds 30; classtype:attempted-admin; sid:521297574; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0008, mitre_technique_id T1021;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1059.009 Cloud API - Suspicious AWS CLI Invocation"; flow:established,to_server; content:"aws"; pcre:"/(aws\s+(s3|ec2|iam|lambda)|X-Amz-)/i"; classtype:attempted-admin; sid:521297575; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0002, mitre_technique_id T1059_009;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 (msg:"MITRE T1210 SMB Exploitation Attempt - Remote Service Exploit"; flow:established,to_server; content:"|FF SMB|"; classtype:attempted-admin; sid:521297576; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0008, mitre_technique_id T1210;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1068 Privilege Escalation - sudo via Web Shell"; flow:established,to_server; content:"sudo"; pcre:"/sudo\s+(su|bash|sh|cat|vi)/i"; classtype:attempted-admin; sid:521297577; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0004, mitre_technique_id T1068;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1003 OS Credential Dumping - /etc/shadow Access via HTTP"; flow:established,to_server; content:"/etc/shadow"; classtype:attempted-admin; sid:521297578; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0006, mitre_technique_id T1003;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1003.001 LSASS Memory Dump via HTTP Transfer"; flow:established,to_server; content:"lsass"; pcre:"/(lsass\.dmp|procdump.*lsass)/i"; classtype:attempted-admin; sid:521297579; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0006, mitre_technique_id T1003_001;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1555 Credentials from Password Stores - Browser Password Extraction"; flow:established,to_server; content:"Login Data"; pcre:"/(Login Data|cookies\.sqlite|key4\.db)/i"; classtype:attempted-admin; sid:521297580; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0006, mitre_technique_id T1555;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1078 Valid Accounts - Admin Login from Unusual Source"; flow:established,to_server; http.uri; content:"/wp-login.php"; content:"log="; content:"admin"; classtype:attempted-admin; sid:521297581; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0001, mitre_technique_id T1078;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1566 Phishing - Suspicious Login Page Impersonation"; flow:established,to_server; http.uri; pcre:"/(login|signin|authenticate|account).*(\.php|\.html)/i"; classtype:trojan-activity; sid:521297582; rev:1; metadata:attack_target_client, created_at 2026_10_31, mitre_tactic_id TA0001, mitre_technique_id T1566;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1566.002 Spearphishing Link - Credential Harvester Form"; flow:established,to_client; http.response_body; pcre:"/<form[^>]*action=["\x27]https?:\/\/[^"\x27]*(login|signin|account)/i"; classtype:trojan-activity; sid:521297583; rev:1; metadata:attack_target_client, created_at 2026_10_31, mitre_tactic_id TA0001, mitre_technique_id T1566_002;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1486 Data Encrypted for Impact - Ransomware Note Pattern"; flow:established,to_server; http.request_body; pcre:"/(YOUR FILES ARE ENCRYPTED|ransom|bitcoin|decrypt|wallet)/i"; classtype:trojan-activity; sid:521297584; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0040, mitre_technique_id T1486;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1490 Inhibit System Recovery - vssadmin Delete Shadows"; flow:established,to_server; content:"vssadmin"; pcre:"/vssadmin\s+delete\s+shadows/i"; classtype:attempted-admin; sid:521297585; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0040, mitre_technique_id T1490;)
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1567 Exfiltration Over Web Service - Large Upload to File Sharing"; flow:established,to_server; http.host; pcre:"/(dropbox|mega\.nz|uploadfiles\.io|wetransfer|filebin|gofile)/i"; content:"POST"; dsize:1000000; classtype:exfiltration; sid:521297586; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0010, mitre_technique_id T1567;)
+alert dns $HOME_NET any -> any 53 (msg:"MITRE T1071.004 DNS C2 - TXT Record Excessive Length"; flow:to_server; dns.query; pcre:"/[a-z0-9](50,)\./i"; classtype:trojan-activity; sid:521297587; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0011, mitre_technique_id T1071_004;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1090 Proxy - TOR Exit Node Traffic Detected"; flow:established,to_server; http.header; content:"X-Tor"; pcre:"/(tor|onion)/i"; classtype:trojan-activity; sid:521297588; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0011, mitre_technique_id T1090;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1136 Create Account - WordPress User Registration Spam"; flow:established,to_server; http.uri; content:"/wp-login.php"; content:"action=register"; pcre:"/user_login=[^&](15,)/Ui"; classtype:attempted-user; sid:521297589; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0003, mitre_technique_id T1136;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1098 Account Manipulation - WordPress Role Escalation"; flow:established,to_server; http.uri; content:"/wp-admin/"; content:"user-new.php"; content:"role"; pcre:"/role=administrator/i"; classtype:attempted-admin; sid:521297590; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0003, mitre_technique_id T1098;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1548.003 Sudo Caching Abuse via Web Shell"; flow:established,to_server; content:"sudo"; pcre:"/sudo\s+-S|sudo\s+-k|sudoers/i"; classtype:attempted-admin; sid:521297591; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0004, mitre_technique_id T1548_003;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1027 Obfuscated Files - Base64 Encoded Payload in HTTP"; flow:established,to_server; pcre:"/eval\s*\(\s*atob\s*\(/i"; classtype:trojan-activity; sid:521297592; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0005, mitre_technique_id T1027;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1140 Deobfuscate Decode - PowerShell Base64 Decoding"; flow:established,to_server; content:"powershell"; pcre:"/-Enc\s+[A-Za-z0-9+/=](50,)/i"; classtype:attempted-admin; sid:521297593; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0005, mitre_technique_id T1140;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET 445 (msg:"MITRE T1039 Data from Network Shared Drive - SMB External Copy"; flow:established,to_server; dsize:5000000; classtype:exfiltration; sid:521297594; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0009, mitre_technique_id T1039;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1046 Network Service Discovery - Mass Port Scan Detected"; flow:to_server; flags:S; detection:filter,track by_src,count 50,seconds 10; classtype:network-scan; sid:521297595; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0007, mitre_technique_id T1046;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1087 Account Discovery - WordPress User Enumeration via REST API"; flow:established,to_server; http.uri; content:"/wp-json/wp/v2/users"; classtype:attempted-recon; sid:521297596; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0007, mitre_technique_id T1087;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1082 System Information Discovery - uname via HTTP"; flow:established,to_server; content:"uname"; pcre:"/uname\s+-[arn]/i"; classtype:attempted-recon; sid:521297597; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0007, mitre_technique_id T1082;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"AI LLM Prompt Injection Attempt - Ignore Previous Instructions"; flow:established,to_server; pcre:"/(ignore\s+(previous|all|above)\s+instructions|disregard\s+(prior|above|all))/i"; classtype:attempted-admin; sid:521297598; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag AI_LLM;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"AI LLM Data Exfiltration via Prompt Injection - External URL"; flow:established,to_server; pcre:"/(fetch|send|post|upload).*https?:\/\/[^\s]*(attacker|evil|c2|exfil)/i"; classtype:exfiltration; sid:521297599; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag AI_LLM;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Supply Chain Attack - Suspicious npm postinstall Script"; flow:established,to_server; content:"npm"; content:"postinstall"; pcre:"/(curl|wget|http)\s+https?:\/\//i"; classtype:trojan-activity; sid:521297600; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag Supply_Chain;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Cloud Storage Enumeration - AWS S3 Bucket Listing Attempt"; flow:established,to_server; http.host; pcre:"/[a-z0-9-]+\.s3\.amazonaws\.com/i"; http.uri; content:"?listing"; classtype:attempted-recon; sid:521297601; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag Cloud;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Container Escape - Docker Socket Access via HTTP"; flow:established,to_server; http.uri; content:"/var/run/docker.sock"; pcre:"/docker\.sock|containers\/create/i"; classtype:attempted-admin; sid:521297602; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag Container;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Kubernetes API Abuse - Pod Creation via External Request"; flow:established,to_server; http.uri; content:"/api/v1/namespaces/"; content:"/pods"; http.method; content:"POST"; classtype:attempted-admin; sid:521297603; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag Kubernetes;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"OAuth Token Theft - Suspicious Authorization Code Exchange"; flow:established,to_server; http.uri; content:"/oauth/token"; content:"grant_type=authorization_code"; pcre:"/code=[A-Za-z0-9](50,)/i"; classtype:sensitive-data; sid:521297604; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag OAuth;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"JWT Token Tampering - none Algorithm Injection"; flow:established,to_server; http.header; content:"Bearer"; pcre:"/eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\./"; content:"alg"; content:"none"; classtype:attempted-admin; sid:521297605; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag JWT;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"SSRF Attempt - Cloud Metadata Service Access via HTTP"; flow:established,to_server; http.uri; content:"169.254.169.254"; pcre:"/169\.254\.169\.254\/(latest|meta-data|computeMetadata)/i"; classtype:attempted-admin; sid:521297606; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag SSRF;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"GraphQL Introspection Query Abuse - Schema Enumeration"; flow:established,to_server; http.request_body; content:"__schema"; content:"__type"; classtype:attempted-recon; sid:521297607; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag GraphQL;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"WebSocket Abuse - Suspicious WebSocket Upgrade with C2 Pattern"; flow:established,to_server; http.header; content:"Upgrade"; content:"websocket"; pcre:"/Sec-WebSocket-Key:\s*[A-Za-z0-9+/=](40,)/i"; classtype:trojan-activity; sid:521297608; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag WebSocket;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Server-Side Template Injection Attempt - Jinja2 Twig Pattern"; flow:established,to_server; pcre:"/\{\{.*\}\}|\{%.+%\}|\#\{.*\}/"; classtype:web-application-attack; sid:521297609; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag SSTI;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"XXE Injection - External Entity Declaration in XML"; flow:established,to_server; content:"DOCTYPE"; content:"ENTITY"; pcre:"/<!DOCTYPE[^>]*<!ENTITY[^>]*SYSTEM/i"; classtype:web-application-attack; sid:521297610; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag XXE;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"JavaScript Prototype Pollution Attempt via HTTP"; flow:established,to_server; pcre:"/__proto__|constructor\[|constructor\.prototype/i"; classtype:web-application-attack; sid:521297611; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag Prototype_Pollution;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Java Deserialization Attack - Suspicious Serialized Object"; flow:established,to_server; content:"rO0AB"; pcre:"/rO0AB[A-Za-z0-9+/=](20,)/"; classtype:attempted-admin; sid:521297612; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag Deserialization;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Race Condition Exploitation - Concurrent Identical Requests"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/checkout"; detection:filter,track by_src,count 5,seconds 1; classtype:attempted-user; sid:521297613; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag Race_Condition;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"GraphQL Injection - Mutation with Suspicious Nested Query"; flow:established,to_server; http.request_body; content:"mutation"; pcre:"/mutation\s*\{[^}]*\{[^}]*\{[^}]*\{[^}]*\{/"; classtype:web-application-attack; sid:521297614; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag GraphQL;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"NoSQL Injection Attempt - MongoDB Operator in HTTP"; flow:established,to_server; pcre:"/\$where|\$ne|\$gt|\$regex|\$or/i"; content:"POST"; classtype:web-application-attack; sid:521297615; rev:1; metadata:attack_target_server, created_at 2026_10_31, tag NoSQLi;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Cryptocurrency Wallet Clipboard Hijack - Address Substitution"; flow:established,to_client; pcre:"/(bc1[a-z0-9]39|0x[a-f0-9]40|T[A-Za0-9]33)/i"; classtype:trojan-activity; sid:521297616; rev:1; metadata:attack_target_client, created_at 2026_10_31, tag Crypto;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Business Email Compromise - Executive Impersonation Pattern"; flow:established,to_server; pcre:"/(ceo|cfo|president|director).*(urgent|wire|transfer|payment)/i"; http.method; content:"POST"; classtype:trojan-activity; sid:521297617; rev:1; metadata:attack_target_client, created_at 2026_10_31, tag BEC;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1498 Network DoS - SYN Flood Pattern"; flow:to_server; flags:S; detection:filter,track by_src,count 100,seconds 5; classtype:attempted-dos; sid:521297618; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0040, mitre_technique_id T1498;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1499 Endpoint DoS - Application Exhaustion Flood"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/api/"; detection:filter,track by_src,count 200,seconds 10; classtype:attempted-dos; sid:521297619; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0040, mitre_technique_id T1499;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1567.002 Exfiltration to Cloud Storage - AWS S3 Upload"; flow:established,to_server; http.host; pcre:"/[a-z0-9-]+\\.s3\\.amazonaws\\.com/i"; http.method; content:"PUT"; dsize:1000000; classtype:exfiltration; sid:521297620; rev:1; metadata:attack_target_server, created_at 2026_10_31, mitre_tactic_id TA0010, mitre_technique_id T1567_002;)
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1105 Ingress Tool Transfer - Suspicious Binary Download via HTTP"; flow:established,to_client; http.response_body; pcre:"/\\x7fELF|MZ|MZ\\x90/"; dsize:1000000; classtype:trojan-activity; sid:521297621; rev:1; metadata:attack_target_client, created_at 2026_10_31, mitre_tactic_id TA0011, mitre_technique_id T1105;)
