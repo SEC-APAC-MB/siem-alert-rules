@@ -1,0 +1,229 @@
+# Suricata Detection Rules - Generated 2026-10-31
+# Based on latest CVEs from GitHub Advisory Database, MITRE ATT&CK, threat landscape
+# SID range: 521297122 - 521297221
+
+# === CVE-2026-119193: PHPUnit local code execution via shared temp directory ===
+alert http any any -> any any (msg:"CVE-2026-119193 PHPUnit PHPT code execution via shared temp directory"; flow:established,to_server; content:"phpunit_phpt_"; nocase; content:".php"; nocase; content:"/tmp/phpunit-phpt"; nocase; classtype:attempted-user; sid:521297122; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-119193 PHPUnit temp directory file replacement attack pattern"; flow:established,to_server; content:".orig"; nocase; content:"phpunit"; nocase; content:"payload"; nocase; classtype:attempted-user; sid:521297123; rev:1;)
+
+# === CVE-2026-119201: Nuxt dev server appSecret exposure via Vite ===
+alert http any any -> any any (msg:"CVE-2026-119201 Nuxt dev server appSecret exposure via Vite file serving"; flow:established,to_server; content:"/_nuxt/@fs/"; nocase; content:"app-secret"; nocase; classtype:attempted-recon; sid:521297124; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-119201 Nuxt appSecret file access attempt"; flow:established,to_client; content:"appSecret"; nocase; content:"deriveSecret"; nocase; classtype:informational-disclosure; sid:521297125; rev:1;)
+
+# === CVE-2026-119200: Nuxt dot segment path bypass ===
+alert http any any -> any any (msg:"CVE-2026-119200 Nuxt dot segment path bypass for server middleware"; flow:established,to_server; pcre:"/\/(%2e|\.{1,2})(\/|%2f)/i"; content:"admin"; nocase; classtype:attempted-bypass; sid:521297126; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-119200 Nuxt percent-encoded dot segment bypass attempt"; flow:established,to_server; content:"/%2e/"; nocase; content:"admin"; nocase; classtype:attempted-bypass; sid:521297127; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-119200 Nuxt path traversal via dot segments to bypass auth"; flow:established,to_server; pcre:"/(%2e%2e|\.\.)/i"; content:"/admin"; nocase; classtype:attempted-bypass; sid:521297128; rev:1;)
+
+# === CVE-2026-119198: Nuxt dev server arbitrary file read ===
+alert http any any -> any any (msg:"CVE-2026-119198 Nuxt dev server arbitrary file read via client error reports"; flow:established,to_server; content:"nuxt:dev:client-error"; nocase; classtype:attempted-read; sid:521297129; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-119198 Nuxt HMR socket file read via error path"; flow:established,to_server; content:"dev:error"; nocase; content:".env"; nocase; classtype:attempted-read; sid:521297130; rev:1;)
+
+# === CVE-2026-119199: Nuxt dev server private runtime config exposure ===
+alert http any any -> any any (msg:"CVE-2026-119199 Nuxt dev server Nitro bundle runtime config exposure"; flow:established,to_server; content:"/_nuxt/@fs/"; nocase; content:".nuxt/dev/index.mjs"; nocase; classtype:informational-disclosure; sid:521297131; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-119199 Nuxt private runtimeConfig leaked via dev bundle"; flow:established,to_client; content:"runtimeConfig"; nocase; content:"apiSecret"; nocase; classtype:informational-disclosure; sid:521297132; rev:1;)
+
+# === CVE-2026-118763: @sigstore/oci credential leak to cross-host ===
+alert http any any -> any any (msg:"CVE-2026-118763 sigstore OCI Authorization header leak to cross-host blob upload"; flow:established,to_server; content:"Authorization"; nocase; http_header; content:"Bearer"; nocase; http_header; pcre:"/Location:\s*https?:\/\/(?!.*registry)/Hi"; classtype:credential-leak; sid:521297133; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-118763 sigstore OCI cross-host credential forwarding via blob upload Location"; flow:established,to_server; content:"PUT"; http_method; content:"Authorization"; nocase; http_header; pcre:"/blob-upload/i"; classtype:credential-leak; sid:521297134; rev:1;)
+
+# === CVE-2026-119276: MariaDB Connector/J heap allocation DoS ===
+alert tcp any any -> any 3306 (msg:"CVE-2026-119276 MariaDB Connector/J rogue server heap allocation via OK packet lengths"; flow:established,to_client; content:"|00 00|"; depth:3; byte_test:4,>,8388608,0,relative; classtype:attempted-dos; sid:521297135; rev:1;)
+alert tcp any 3306 -> any any (msg:"CVE-2026-119276 MariaDB OK packet oversized session-track allocation"; flow:established,to_client; content:"CLIENT_SESSION_TRACK"; nocase; dsize:>100; classtype:attempted-dos; sid:521297136; rev:1;)
+
+# === CVE-2026-119279: MariaDB Connector/J integer truncation ===
+alert tcp any any -> any 3306 (msg:"CVE-2026-119279 MariaDB Connector/J length-encoded integer truncation exploit"; flow:established,to_client; byte_test:8,>,2147483647,0,relative; classtype:attempted-dos; sid:521297137; rev:1;)
+alert tcp any 3306 -> any any (msg:"CVE-2026-119279 MariaDB negative array size via truncated length"; flow:established,to_client; content:"|ff|"; depth:1; byte_test:8,>,2147483647,1,relative; classtype:attempted-dos; sid:521297138; rev:1;)
+
+# === CVE-2026-116689: follow-redirects cross-realm header leak ===
+alert http any any -> any any (msg:"CVE-2026-116689 follow-redirects cross-realm sensitiveHeaders leak"; flow:established,to_server; content:"Authorization"; nocase; http_header; pcre:"/cross-realm/i"; classtype:credential-leak; sid:521297139; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-116689 follow-redirects custom credentials following redirect"; flow:established,to_server; content:"Cookie"; nocase; http_header; content:"Location"; nocase; http_header; classtype:credential-leak; sid:521297140; rev:1;)
+
+# === CVE-2026-116794: russh agent confirm bypass ===
+alert tcp any any -> any 22 (msg:"CVE-2026-116794 russh SSH agent confirm constraint bypass"; flow:established,to_server; content:"SSH_AGENTC_SIGN_REQUEST"; nocase; classtype:attempted-bypass; sid:521297141; rev:1;)
+alert tcp any any -> any any (msg:"CVE-2026-116794 russh confirm-constrained key signing without confirmation"; flow:established,to_server; content:"ssh-add"; nocase; content:"-c"; nocase; classtype:attempted-bypass; sid:521297142; rev:1;)
+
+# === CVE-2026-119286: graphql-core DoS via memory leak ===
+alert http any any -> any any (msg:"CVE-2026-119286 GraphQL-core memory leak DoS via aborted validations"; flow:established,to_server; content:"graphql"; nocase; http_uri; pcre:"/query|mutation|subscription/i"; dsize:>10000; classtype:attempted-dos; sid:521297143; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-119286 GraphQL validation abort memory exhaustion attack"; flow:established,to_server; content:"application/graphql"; nocase; http_header; content:"{"; depth:1; classtype:attempted-dos; sid:521297144; rev:1;)
+
+# === CVE-2026-118669: oauthlib client_id confusion ===
+alert http any any -> any any (msg:"CVE-2026-118669 OAuthLib token grant attacker-supplied client_id confusion"; flow:established,to_server; content:"grant_type"; nocase; content:"client_id"; nocase; pcre:"/grant_type=token/i"; classtype:attempted-bypass; sid:521297145; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-118669 OAuthLib authorization code grant client_id mismatch"; flow:established,to_server; content:"authorization_code"; nocase; content:"client_id"; nocase; pcre:"/redirect_uri/i"; classtype:attempted-bypass; sid:521297146; rev:1;)
+
+# === MITRE ATT&CK T1595: Active Scanning ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1595 Active scanning - rapid port sweep detection"; flow:to_server; flags:S; threshold:rate:both,rate_ip_src_gt,30,60; classtype:network-scan; sid:521297147; rev:1;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1595.002 Active scanning - vulnerability scanning user-agent"; flow:established,to_server; content:"User-Agent"; nocase; http_header; pcre:"/nikto|nmap|nessus|openvas|acunetix|sqlmap|dirbuster/i"; classtype:network-scan; sid:521297148; rev:1;)
+
+# === MITRE ATT&CK T1592: Gather Victim Host Information ===
+alert http any any -> any any (msg:"MITRE T1592 Gather victim host info via HTTP fingerprinting headers"; flow:established,to_server; content:"X-Forwarded-For"; nocase; http_header; content:"X-Real-IP"; nocase; http_header; classtype:recon-limited; sid:521297149; rev:1;)
+
+# === MITRE ATT&CK T1190: Exploit Public-Facing Application ===
+alert http any any -> any any (msg:"MITRE T1190 Exploit public-facing app - Spring4Shell pattern"; flow:established,to_server; content:"class.module.classLoader"; nocase; http_uri; classtype:attempted-admin; sid:521297150; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 Exploit public-facing app - Log4Shell JNDI injection"; flow:established,to_server; pcre:"/\$\{jndi:(ldap|rmi|dns|http):\/\//i"; classtype:attempted-rce; sid:521297151; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 Exploit public-facing app - deserialization attack"; flow:established,to_server; content:"rO0AB"; nocase; classtype:attempted-rce; sid:521297152; rev:1;)
+
+# === MITRE ATT&CK T1505.003: Server Software Component - Web Shell ===
+alert http any any -> any any (msg:"MITRE T1505.003 Web shell detection - suspicious PHP file upload"; flow:established,to_server; content:"filename="; nocase; pcre:"/\.(php|phtml|php5|php7|phps)$/i"; classtype:web-shell-upload; sid:521297153; rev:1;)
+alert http any any -> any any (msg:"MITRE T1505.003 Web shell command execution via web parameter"; flow:established,to_server; pcre:"/(cmd|command|exec|do)=/i"; content:"whoami"; nocase; classtype:attempted-rce; sid:521297154; rev:1;)
+alert http any any -> any any (msg:"MITRE T1505.003 Web shell - eval base64_decode pattern"; flow:established,to_server; content:"eval"; nocase; content:"base64_decode"; nocase; classtype:web-shell-upload; sid:521297155; rev:1;)
+
+# === MITRE ATT&CK T1059.004: Command and Scripting Interpreter - Unix Shell ===
+alert http any any -> any any (msg:"MITRE T1059.004 Unix shell command injection via HTTP"; flow:established,to_server; pcre:"/(;|\|)\s*(cat|ls|id|whoami|uname|wget|curl)\s/i"; classtype:attempted-rce; sid:521297156; rev:1;)
+alert http any any -> any any (msg:"MITRE T1059.004 Unix reverse shell command injection attempt"; flow:established,to_server; pcre:"/(bash|sh|nc|ncat|python)\s+-c.*[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/i"; classtype:attempted-rce; sid:521297157; rev:1;)
+
+# === MITRE ATT&CK T1059.001: PowerShell ===
+alert http any any -> any any (msg:"MITRE T1059.001 PowerShell encoded command via HTTP"; flow:established,to_server; content:"powershell"; nocase; content:"-enc"; nocase; content:"-EncodedCommand"; nocase; classtype:attempted-rce; sid:521297158; rev:1;)
+alert http any any -> any any (msg:"MITRE T1059.001 PowerShell download cradle injection"; flow:established,to_server; pcre:"/DownloadString|DownloadFile|Invoke-Expression|iex/i"; classtype:attempted-rce; sid:521297159; rev:1;)
+
+# === MITRE ATT&CK T1110: Brute Force ===
+alert http any any -> any any (msg:"MITRE T1110 Brute force - rapid authentication failures"; flow:established,to_client; content:"401"; nocase; http_stat_code; threshold:rate:track by_src, count 20, seconds 60; classtype:attempted-admin; sid:521297160; rev:1;)
+alert ssh any any -> any 22 (msg:"MITRE T1110.001 SSH password brute force attempt"; flow:established,to_server; content:"SSH-2.0"; nocase; threshold:rate:track by_src, count 10, seconds 30; classtype:attempted-admin; sid:521297161; rev:1;)
+
+# === MITRE ATT&CK T1048: Exfiltration Over Alternative Protocol ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 53 (msg:"MITRE T1048 DNS tunneling exfiltration - long query detection"; flow:to_server; dsize:>100; content:"|00|"; depth:1; offset:50; classtype:exfiltration; sid:521297162; rev:1;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET !53 (msg:"MITRE T1048 Data exfiltration over non-standard port"; flow:to_server; dsize:>10000; classtype:exfiltration; sid:521297163; rev:1;)
+
+# === MITRE ATT&CK T1071: Application Layer Protocol ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1071.001 C2 beacon via HTTP periodic callback"; flow:established,to_server; threshold:rate:track by_src, count 5, seconds 60; content:"POST"; nocase; http_method; dsize:<200; classtype:c2-activity; sid:521297164; rev:1;)
+alert http any any -> any any (msg:"MITRE T1071.001 HTTP C2 check-in with minimal POST body"; flow:established,to_server; content:"POST"; nocase; http_method; dsize:<50; content:"Content-Type"; nocase; http_header; content:"application/octet-stream"; nocase; classtype:c2-activity; sid:521297165; rev:1;)
+
+# === MITRE ATT&CK T1566: Phishing ===
+alert http any any -> any any (msg:"MITRE T1566.002 Spearphishing link - credential harvesting page pattern"; flow:established,to_server; pcre:"/(login|signin|account|verify|secure).*(\.tk|\.ml|\.ga|\.cf|\.gq)/i"; classtype:phishing; sid:521297166; rev:1;)
+alert http any any -> any any (msg:"MITRE T1566.002 Phishing - suspicious redirect to credential capture"; flow:established,to_client; content:"302"; nocase; http_stat_code; pcre:"/login.*token=/i"; classtype:phishing; sid:521297167; rev:1;)
+
+# === MITRE ATT&CK T1053: Scheduled Task/Job ===
+alert http any any -> any any (msg:"MITRE T1053 Cron job creation via web shell"; flow:established,to_server; pcre:"/(crontab|at\s+\d|systemctl\s+enable)/i"; classtype:attempted-persistence; sid:521297168; rev:1;)
+alert http any any -> any any (msg:"MITRE T1053.005 Scheduled task creation via schtasks"; flow:established,to_server; content:"schtasks"; nocase; content:"/create"; nocase; classtype:attempted-persistence; sid:521297169; rev:1;)
+
+# === MITRE ATT&CK T1547: Boot or Logon Autostart Execution ===
+alert http any any -> any any (msg:"MITRE T1547.001 Registry Run key modification via web request"; flow:established,to_server; content:"HKLM"; nocase; content:"Run"; nocase; content:"reg"; nocase; classtype:attempted-persistence; sid:521297170; rev:1;)
+
+# === MITRE ATT&CK T1003: OS Credential Dumping ===
+alert http any any -> any any (msg:"MITRE T1003.001 LSASS memory dump access pattern via web shell"; flow:established,to_server; content:"lsass"; nocase; content:"procdump"; nocase; classtype:credential-access; sid:521297171; rev:1;)
+alert http any any -> any any (msg:"MITRE T1003.002 SAM database access via web shell"; flow:established,to_server; content:"reg"; nocase; content:"save"; nocase; content:"SAM"; nocase; classtype:credential-access; sid:521297172; rev:1;)
+
+# === MITRE ATT&CK T1218: System Binary Proxy Execution ===
+alert http any any -> any any (msg:"MITRE T1218.011 Rundll32 execution via HTTP parameter"; flow:established,to_server; content:"rundll32"; nocase; content:"javascript"; nocase; classtype:attempted-evasion; sid:521297173; rev:1;)
+alert http any any -> any any (msg:"MITRE T1218.005 Mshta execution of remote HTA via HTTP"; flow:established,to_server; content:"mshta"; nocase; content:"http"; nocase; classtype:attempted-evasion; sid:521297174; rev:1;)
+
+# === MITRE ATT&CK T1490: Inhibit System Recovery ===
+alert http any any -> any any (msg:"MITRE T1490 Volume shadow copy deletion via web shell"; flow:established,to_server; content:"vssadmin"; nocase; content:"delete"; nocase; content:"shadows"; nocase; classtype:attempted-recovery-inhibit; sid:521297175; rev:1;)
+alert http any any -> any any (msg:"MITRE T1490 wbadmin delete system recovery via HTTP"; flow:established,to_server; content:"wbadmin"; nocase; content:"delete"; nocase; content:"catalog"; nocase; classtype:attempted-recovery-inhibit; sid:521297176; rev:1;)
+
+# === MITRE ATT&CK T1486: Data Encrypted for Impact ===
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"MITRE T1486 Ransomware file encryption activity - mass file access"; flow:to_server; dsize:>50000; threshold:rate:track by_src, count 100, seconds 10; classtype:ransomware; sid:521297177; rev:1;)
+
+# === MITRE ATT&CK T1027: Obfuscated Files or Information ===
+alert http any any -> any any (msg:"MITRE T1027 Base64 encoded payload in HTTP header"; flow:established,to_server; content:"Authorization"; nocase; http_header; pcre:"/Bearer\s+[A-Za-z0-9+\/]{200,}={0,2}/"; classtype:obfuscation; sid:521297178; rev:1;)
+alert http any any -> any any (msg:"MITRE T1027 Hex encoded command in HTTP request"; flow:established,to_server; pcre:"/0x[0-9a-f]{40,}/i"; classtype:obfuscation; sid:521297179; rev:1;)
+
+# === MITRE ATT&CK T1036: Masquerading ===
+alert http any any -> any any (msg:"MITRE T1036 Masquerading - fake system process name in request"; flow:established,to_server; pcre:"/(svchost|lsass|csrss|winlogon)\.(exe|dll)/i"; content:"filename="; nocase; classtype:masquerading; sid:521297180; rev:1;)
+
+# === MITRE ATT&CK T1078: Valid Accounts ===
+alert http any any -> any any (msg:"MITRE T1078 Valid account abuse - login from anomalous geography"; flow:established,to_server; content:"login"; nocase; http_uri; pcre:"/(CN|RU|KP|IR)/i"; content:"X-Forwarded-For"; nocase; http_header; classtype:anomalous-login; sid:521297181; rev:1;)
+
+# === MITRE ATT&CK T1133: External Remote Services ===
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"MITRE T1133 External RDP connection attempt"; flow:to_server; flags:S; classtype:remote-access; sid:521297182; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET 5900 (msg:"MITRE T1133 External VNC connection attempt"; flow:to_server; flags:S; classtype:remote-access; sid:521297183; rev:1;)
+
+# === MITRE ATT&CK T1199: Trusted Relationship ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1199 Trusted relationship - OAuth token to external service"; flow:established,to_server; content:"Bearer"; nocase; http_header; content:"api"; nocase; http_uri; classtype:anomalous-activity; sid:521297184; rev:1;)
+
+# === MITRE ATT&CK T1550: Use Alternate Authentication Material ===
+alert tcp $HOME_NET any -> $HOME_NET 88 (msg:"MITRE T1550.002 Kerberos ticket use - pass-the-ticket pattern"; flow:established,to_server; content:"|06 06 2b 06 01 05 02|"; classtype:credential-use; sid:521297185; rev:1;)
+alert tcp $HOME_NET any -> $HOME_NET 445 (msg:"MITRE T1550.001 Pass-the-hash SMB authentication"; flow:established,to_server; content:"NTLM"; nocase; dsize:>100; classtype:credential-use; sid:521297186; rev:1;)
+
+# === MITRE ATT&CK T1572: Protocol Tunneling ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"MITRE T1572 Protocol tunneling - DNS over HTTPS tunnel detection"; flow:established,to_server; content:"application/dns-message"; nocase; http_header; content:"POST"; nocase; http_method; classtype:tunneling; sid:521297187; rev:1;)
+alert tcp any any -> any 22 (msg:"MITRE T1572 SSH tunneling - dynamic port forwarding"; flow:established,to_server; content:"SSH-2.0"; nocase; dsize:>10000; classtype:tunneling; sid:521297188; rev:1;)
+
+# === MITRE ATT&CK T1090: Proxy ===
+alert http any any -> any any (msg:"MITRE T1090 Proxy chain detection - Tor exit node user agent"; flow:established,to_server; content:"Tor"; nocase; http_header; classtype:proxy-use; sid:521297189; rev:1;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET 1080 (msg:"MITRE T1090.001 SOCKS proxy connection to external proxy"; flow:to_server; flags:S; classtype:proxy-use; sid:521297190; rev:1;)
+
+# === MITRE ATT&CK T1059.006: Python ===
+alert http any any -> any any (msg:"MITRE T1059.006 Python script execution via HTTP"; flow:established,to_server; content:"python"; nocase; content:"-c"; nocase; pcre:"/import\s+(os|subprocess|socket)/i"; classtype:attempted-rce; sid:521297191; rev:1;)
+
+# === MITRE ATT&CK T1195: Supply Chain Compromise ===
+alert http any any -> any any (msg:"MITRE T1195.002 Compromised software update - unsigned package download"; flow:established,to_client; content:"Content-Type"; nocase; http_header; content:"application/octet-stream"; nocase; content:"update"; nocase; http_uri; dsize:>1000000; classtype:supply-chain; sid:521297192; rev:1;)
+
+# === MITRE ATT&CK T1555: Credentials from Password Stores ===
+alert http any any -> any any (msg:"MITRE T1555.003 Credentials from web browser password store exfiltration"; flow:established,to_server; content:"Login Data"; nocase; content:"cookies.db"; nocase; classtype:credential-access; sid:521297193; rev:1;)
+
+# === MITRE ATT&CK T1119: Automated Collection ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1119 Automated data collection - bulk file upload"; flow:established,to_server; content:"POST"; nocase; http_method; dsize:>100000; threshold:rate:track by_src, count 10, seconds 60; classtype:exfiltration; sid:521297194; rev:1;)
+
+# === MITRE ATT&CK T1029: Data Transfer Size Limits ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 443 (msg:"MITRE T1029 Large data transfer to cloud storage provider"; flow:established,to_server; dsize:>50000000; classtype:exfiltration; sid:521297195; rev:1;)
+
+# === MITRE ATT&CK T1567: Exfiltration Over Web Service ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1567.002 Exfiltration to cloud storage - file upload to external service"; flow:established,to_server; content:"PUT"; nocase; http_method; pcre:"/(s3|blob|storage|drive)/i"; dsize:>1000000; classtype:exfiltration; sid:521297196; rev:1;)
+
+# === MITRE ATT&CK T1105: Ingress Tool Transfer ===
+alert http any any -> any any (msg:"MITRE T1105 Ingress tool transfer - executable download from suspicious source"; flow:established,to_client; content:"Content-Type"; nocase; http_header; content:"application/x-msdownload"; nocase; pcre:"/(cdn|temp|cache|tmp)/i"; classtype:malware-download; sid:521297197; rev:1;)
+alert http any any -> any any (msg:"MITRE T1105 Ingress tool transfer - shell script download"; flow:established,to_client; content:"Content-Type"; nocase; http_header; content:"application/x-sh"; nocase; classtype:malware-download; sid:521297198; rev:1;)
+
+# === MITRE ATT&CK T1620: Reflective Code Loading ===
+alert http any any -> any any (msg:"MITRE T1620 Reflective DLL loading via HTTP injection"; flow:established,to_server; content:"LoadLibrary"; nocase; content:"VirtualAlloc"; nocase; pcre:"/(ReflectiveLoader|DllMain)/i"; classtype:attempted-rce; sid:521297199; rev:1;)
+
+# === MITRE ATT&CK T1496: Resource Hijacking ===
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1496 Cryptocurrency miner C2 communication"; flow:established,to_server; pcre:"/(xmr|monero|stratum|cryptonight)/i"; content:"POST"; nocase; http_method; classtype:resource-hijack; sid:521297200; rev:1;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET 3333 (msg:"MITRE T1496 Cryptocurrency mining pool connection"; flow:to_server; flags:S; content:"mining.subscribe"; nocase; classtype:resource-hijack; sid:521297201; rev:1;)
+
+# === MITRE ATT&CK T1057: Process Discovery ===
+alert http any any -> any any (msg:"MITRE T1057 Process discovery via web shell - tasklist/ps execution"; flow:established,to_server; pcre:"/(tasklist|ps\s+aux|top|procps)\s/i"; classtype:discovery; sid:521297202; rev:1;)
+
+# === MITRE ATT&CK T1087: Account Discovery ===
+alert http any any -> any any (msg:"MITRE T1087 Account discovery - net user/whoami via HTTP"; flow:established,to_server; pcre:"/(net\s+user|net\s+localgroup|getent\s+passwd)/i"; classtype:discovery; sid:521297203; rev:1;)
+
+# === MITRE ATT&CK T1018: Remote System Discovery ===
+alert http any any -> any any (msg:"MITRE T1018 Remote system discovery - arp/nmap via web shell"; flow:established,to_server; pcre:"/(arp\s+-a|nmap\s+|netdiscover)/i"; classtype:discovery; sid:521297204; rev:1;)
+
+# === MITRE ATT&CK T1046: Network Service Discovery ===
+alert tcp $HOME_NET any -> $HOME_NET any (msg:"MITRE T1046 Network service scan - internal port sweep"; flow:to_server; flags:S; threshold:rate:track by_src, count 20, seconds 10; classtype:network-scan; sid:521297205; rev:1;)
+
+# === MITRE ATT&CK T1082: System Information Discovery ===
+alert http any any -> any any (msg:"MITRE T1082 System information discovery - uname/systeminfo via HTTP"; flow:established,to_server; pcre:"/(uname\s+-a|systeminfo|hostname)/i"; classtype:discovery; sid:521297206; rev:1;)
+
+# === MITRE ATT&CK T1069: Permission Groups Discovery ===
+alert http any any -> any any (msg:"MITRE T1069 Permission groups discovery - net group/whoami via HTTP"; flow:established,to_server; pcre:"/(net\s+group|net\s+localgroup|id\s+-aG|whoami\s+\/groups)/i"; classtype:discovery; sid:521297207; rev:1;)
+
+# === MITRE ATT&CK T1135: Network Share Discovery ===
+alert http any any -> any any (msg:"MITRE T1135 Network share discovery - net share/smbclient via HTTP"; flow:established,to_server; pcre:"/(net\s+share|smbclient|smbmap)/i"; classtype:discovery; sid:521297208; rev:1;)
+
+# === MITRE ATT&CK T1049: System Network Connections Discovery ===
+alert http any any -> any any (msg:"MITRE T1049 Network connections discovery - netstat via web shell"; flow:established,to_server; content:"netstat"; nocase; pcre:"/(-an|-tuln|-ano)/i"; classtype:discovery; sid:521297209; rev:1;)
+
+# === MITRE ATT&CK T1059.009 Cloud API ===
+alert http any any -> any any (msg:"MITRE T1059.009 Cloud API enumeration - AWS CLI via HTTP"; flow:established,to_server; content:"aws"; nocase; content:"sts"; nocase; content:"get-caller-identity"; nocase; classtype:discovery; sid:521297210; rev:1;)
+
+# === MITRE ATT&CK T1530: Data from Cloud Storage Object ===
+alert http any any -> any any (msg:"MITRE T1530 Cloud storage object enumeration - S3 bucket listing"; flow:established,to_server; pcre:"/(s3|aws|gs|azure).*list/i"; content:"ListObjects"; nocase; classtype:discovery; sid:521297211; rev:1;)
+
+# === MITRE ATT&CK T1613: Container and Resource Discovery ===
+alert http any any -> any any (msg:"MITRE T1613 Container discovery - docker/kubectl via web shell"; flow:established,to_server; pcre:"/(docker\s+ps|kubectl\s+get|crictl\s+ps)/i"; classtype:discovery; sid:521297212; rev:1;)
+
+# === MITRE ATT&CK T1525: Implant Internal Image ===
+alert http any any -> any any (msg:"MITRE T1525 Implant internal image - container registry tampering"; flow:established,to_server; content:"docker"; nocase; content:"push"; nocase; pcre:"/(registry|harbor|ecr)/i"; classtype:supply-chain; sid:521297213; rev:1;)
+
+# === MITRE ATT&CK T1609: Container and Resource Discovery ===
+alert http any any -> any any (msg:"MITRE T1609 Container execution via kubectl exec"; flow:established,to_server; content:"kubectl"; nocase; content:"exec"; nocase; pcre:"/--|sh|bash/i"; classtype:attempted-rce; sid:521297214; rev:1;)
+
+# === MITRE ATT&CK T1611: Escape to Host ===
+alert http any any -> any any (msg:"MITRE T1611 Container escape to host - privileged container detection"; flow:established,to_server; content:"privileged"; nocase; content:"--pid"; nocase; content:"/host"; nocase; classtype:container-escape; sid:521297215; rev:1;)
+
+# === MITRE ATT&CK T1610: Deploy Container ===
+alert http any any -> any any (msg:"MITRE T1610 Deploy container for execution - docker run with suspicious image"; flow:established,to_server; content:"docker"; nocase; content:"run"; nocase; pcre:"/(alpine|busybox|ubuntu):latest/i"; pcre:"/(--rm|--privileged|--net=host)/i"; classtype:malware-deployment; sid:521297216; rev:1;)
+
+# === MITRE ATT&CK T1008: Fallback Channels ===
+alert tcp $HOME_NET any -> $EXTERNAL_NET 4444 (msg:"MITRE T1008 Fallback C2 channel - default Metasploit port"; flow:to_server; flags:S; classtype:c2-activity; sid:521297217; rev:1;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET 8080 (msg:"MITRE T1008 Fallback C2 channel - alternative HTTP port beacon"; flow:established,to_server; content:"POST"; nocase; http_method; dsize:<100; threshold:rate:track by_src, count 10, seconds 60; classtype:c2-activity; sid:521297218; rev:1;)
+
+# === MITRE ATT&CK T1098: Account Manipulation ===
+alert http any any -> any any (msg:"MITRE T1098.001 Account manipulation - adding SSH authorized key via web"; flow:established,to_server; content:"authorized_keys"; nocase; pcre:"/(ssh-rsa|ssh-ed25519|ecdsa-sha2)/i"; classtype:account-manipulation; sid:521297219; rev:1;)
+alert http any any -> any any (msg:"MITRE T1098.005 Account manipulation - adding user to admin group via HTTP"; flow:established,to_server; pcre:"/(usermod|net\s+localgroup\s+administrators|gpasswd)/i"; content:"admin"; nocase; classtype:account-manipulation; sid:521297220; rev:1;)
+
+# === MITRE ATT&CK T1136: Create Account ===
+alert http any any -> any any (msg:"MITRE T1136.001 Create local account via web shell - useradd/net user"; flow:established,to_server; pcre:"/(useradd|net\s+user\s+\S+\s+\S+\/add)/i"; classtype:account-creation; sid:521297221; rev:1;)
