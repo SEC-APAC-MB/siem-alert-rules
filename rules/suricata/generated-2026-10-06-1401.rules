@@ -2,55 +2,40 @@
 # Based on latest CVEs from GitHub Advisory Database, MITRE ATT&CK, and current threat landscape
 # SIDs: 52111600 - 52111699 (100 rules)
 # DO NOT duplicate existing SIDs - verified against all existing .rules files
-
 # === CVE-Based Rules (1-20) ===
-
 # CVE-2026-102422 - shell-quote command injection (CRITICAL)
 alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-102422 shell-quote command injection via comment token newline"; flow:established,to_server; http.uri; content:"%23"; nocase; followed by content:"%0a"; nocase; distance:0; pcre:"/(\x23)([^\x0a]*)(\x0a)/"; reference:cve,2026-102422; classtype:attempted-admin; sid:52111600; rev:1;)
 alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"CVE-2026-102422 shell-quote quote() bypass with line terminator after comment"; flow:established,to_server; http.request_body; content:"{ comment }"; nocase; pcre:"/\x7b\x20comment\x20\x7d.*[\x0a\x0d]/"; reference:cve,2026-102422; classtype:attempted-admin; sid:52111601; rev:1;)
-
 # CVE-2026-10561 - Langflow PythonREPLComponent RCE (CRITICAL)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-10561 Langflow PythonREPLComponent unsandboxed code execution"; flow:established,to_server; http.uri; content:"/api/v1/process"; nocase; http.request_body; content:"PythonREPLComponent"; nocase; reference:cve,2026-10561; classtype:attempted-admin; sid:52111602; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-10561 Langflow Python REPL import os subprocess attempt"; flow:established,to_server; http.request_body; content:"__import__"; nocase; content:"os"; distance:0; content:"system"; distance:0; reference:cve,2026-10561; classtype:attempted-admin; sid:52111603; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-10561 Langflow privilege escalation is_superuser database manipulation"; flow:established,to_server; http.request_body; content:"is_superuser"; nocase; content:"True"; distance:0; reference:cve,2026-10561; classtype:attempted-admin; sid:52111604; rev:1;)
-
 # CVE-2026-105985 - Craft CMS authenticated RCE (HIGH)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-105985 Craft CMS RCE via render-components action"; flow:established,to_server; http.uri; content:"/admin/actions/app/render-components"; nocase; reference:cve,2026-105985; classtype:attempted-admin; sid:52111605; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-105985 Craft CMS Twig template injection via uiLabelFormat override"; flow:established,to_server; http.request_body; content:"uiLabelFormat"; nocase; content:"twig"; distance:0; pcre:"/uiLabelFormat.*\{\{.*\}\}/"; reference:cve,2026-105985; classtype:attempted-admin; sid:52111606; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-105985 Craft CMS PHP system() call via Twig string callable"; flow:established,to_server; http.request_body; pcre:"/[\"']system[\"']| Twig\\\\.*callable/"; reference:cve,2026-105985; classtype:attempted-admin; sid:52111607; rev:1;)
-
 # CVE-2026-103831 - Psr16CacheAdapter insecure deserialization (HIGH)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-103831 Psr16CacheAdapter insecure deserialization attack"; flow:established,to_server; http.request_body; content:"Psr16CacheAdapter"; nocase; content:"unserialize"; distance:0; reference:cve,2026-103831; classtype:attempted-admin; sid:52111608; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-103831 PHP object injection via cache adapter deserialize"; flow:established,to_server; http.cookie; pcre:"/O:\d+:[\"'][^\"']+[\"']:\d+:/"; reference:cve,2026-103831; classtype:attempted-admin; sid:52111609; rev:1;)
-
 # CVE-2026-96889 - sharp/librsvg RCE via SVG (HIGH)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-96889 sharp librsvg use-after-free via crafted SVG image"; flow:established,to_server; http.request_body; content:"image/svg"; nocase; content:"<svg"; distance:0; pcre:"/<svg[^>]*.*onload/"; reference:cve,2026-96889; classtype:attempted-user; sid:52111610; rev:1;)
-
 # CVE-2026-105918 - Learning Management System SQL injection (MEDIUM)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-105918 LMS login.php SQL injection via username parameter"; flow:established,to_server; http.uri; content:"login.php"; nocase; http.request_body; pcre:"/username=.*['\x22].*(OR|UNION|SELECT)/i"; reference:cve,2026-105918; classtype:web-application-attack; sid:52111611; rev:1;)
-
 # CVE-2026-84854 - WibuKey driver Windows input validation (HIGH)
 alert tcp $EXTERNAL_NET any -> $HOME_NET 22347 (msg:"CVE-2026-84854 WibuKey driver insufficient input validation exploit"; flow:established,to_server; dsize:>512; content:"|57 49 42 55|"; offset:0; depth:4; reference:cve,2026-84854; classtype:attempted-admin; sid:52111612; rev:1;)
-
 # CVE-2026-102414 - pbkdf2 DoS via long password (MEDIUM)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-102414 pbkdf2 denial of service via oversized password input"; flow:established,to_server; http.request_body; pcre:"/password=.{100000,}/"; reference:cve,2026-102414; classtype:attempted-dos; sid:52111613; rev:1;)
-
 # CVE-2026-105747 - Docling memory exhaustion via tar archive (MEDIUM)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-105747 Docling memory exhaustion via gzip tar with excessive members"; flow:established,to_server; http.request_header; content:"Content-Encoding"; nocase; content:"gzip"; distance:0; http.request_body; pcre:"/\x1f\x8b.{0,100}\x00/"; reference:cve,2026-105747; classtype:attempted-dos; sid:52111614; rev:1;)
-
 # GHSA-j8f7-x8jm-wmm4 - Langflow SSRF (MEDIUM)
 alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"GHSA-j8f7-x8jm-wmm4 Langflow SSRF attempt targeting metadata endpoint"; flow:established,to_server; http.uri; content:"169.254.169.254"; nocase; reference:ghsa,j8f7-x8jm-wmm4; classtype:attempted-recon; sid:52111615; rev:1;)
 alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"GHSA-j8f7-x8jm-wmm4 Langflow SSRF targeting internal RFC1918 via RSS component"; flow:established,to_server; http.host; pcre:"/^(10\.|172\.(1[6-9]|2[0-9]|3[01])\.|192\.168\.)/"; reference:ghsa,j8f7-x8jm-wmm4; classtype:attempted-recon; sid:52111616; rev:1;)
-
 # CVE-2026-75818/75819/75820 - GNU Aspell vulnerabilities (LOW)
 alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-75818 GNU Aspell prezip-bin heap buffer overflow via crafted compressed file"; flow:established,to_server; dsize:>4096; content:"|50 4b 03 04|"; offset:0; depth:4; reference:cve,2026-75818; classtype:attempted-user; sid:52111617; rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-75820 GNU Aspell integer truncation via oversized wordlist entry"; flow:established,to_server; content:"aspell"; nocase; content:"--master"; distance:0; reference:cve,2026-75820; classtype:attempted-dos; sid:52111618; rev:1;)
-
 # CVE-2026-98366 - Linux kernel IB/rxe use-after-free (UNKNOWN)
 alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"CVE-2026-98366 Linux kernel IB/rxe use-after-free via rereg_mr race condition"; flow:established; dsize:>256; content:"|00 00 00 00|"; offset:0; depth:4; reference:cve,2026-98366; classtype:attempted-admin; sid:52111619; rev:1;)
-
 # === MITRE ATT&CK - Reconnaissance (21-36) ===
-
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1595 Active Scanning - Nmap-style User-Agent detected"; flow:established,to_server; http.user_agent; pcre:"/Nmap|Nikto|Masscan|ZMap|UnicornScan/i"; classtype:network-scan; sid:52111620; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1592 Gather Victim Host Info - excessive header enumeration"; flow:established,to_server; http.request_header; content:"X-Scanned"; nocase; classtype:attempted-recon; sid:52111621; rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1046 Network Service Discovery - rapid port sweep pattern"; flow:stateless; flags:S; detection_filter:track by_src, count:20, seconds:10; classtype:network-scan; sid:52111622; rev:1;)
@@ -67,9 +52,7 @@ alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1592.002 Gather Victi
 alert dns $HOME_NET any -> any 53 (msg:"MITRE T1071.004 Application Layer Protocol - DNS tunneling via long TXT queries"; dns.query.name; pcre:"/[a-zA-Z0-9]{50,}\./"; classtype:trojan-activity; sid:52111633; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1590.002 Gather Victim DNS - DNS reverse lookup enumeration"; flow:established,to_server; http.uri; content:"/dns-reverse"; nocase; classtype:attempted-recon; sid:52111634; rev:1;)
 alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1595.001 Scanning IP Blocks - mass SSH banner grab pattern"; flow:stateless; flags:S; detection_filter:track by_src, count:50, seconds:30; classtype:network-scan; sid:52111635; rev:1;)
-
 # === MITRE ATT&CK - Initial Access (37-51) ===
-
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1190 Exploit Public-Facing App - arbitrary file upload attempt"; flow:established,to_server; http.request_header; content:"Content-Type"; nocase; content:"multipart/form-data"; distance:0; http.request_body; pcre:"/filename=\"[^\"]+\.(php|phtml|php5|pht|phar)/i"; classtype:web-application-attack; sid:52111636; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1190 Exploit Public-Facing App - SSRF via URL parameter"; flow:established,to_server; http.uri; pcre:"/(url|uri|redirect|next|return|dest|target|callback)=[hf]tps?:\/\//i"; classtype:web-application-attack; sid:52111637; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1190 Exploit Public-Facing App - log4j JNDI injection"; flow:established,to_server; http.request_header; pcre:"/\$\{jndi:(ldap|ldaps|rmi|dns|ni|iis|corba|iiop):/i"; classtype:attempted-admin; sid:52111638; rev:1;)
@@ -86,9 +69,7 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET 3389 (msg:"MITRE T1133 External Remote 
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1190 Exploit Public-Facing App - GraphQL introspection query"; flow:established,to_server; http.request_body; content:"__schema"; nocase; content:"__type"; distance:0; classtype:attempted-recon; sid:52111649; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1190 Exploit Public-Facing App - blind SSRF via DNS rebinding"; flow:established,to_server; http.host; pcre:"/^[a-z0-9]{32}\./"; classtype:web-application-attack; sid:52111650; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1195.001 Supply Chain - PyPI package typosquatting download attempt"; flow:established,to_server; http.uri; pcre:"/(requets|pyqt5-spl|hhtplib|urlli3|beautifusoup)/i"; classtype:trojan-activity; sid:52111651; rev:1;)
-
 # === MITRE ATT&CK - Execution & Persistence (52-66) ===
-
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1059.004 PowerShell - remote PowerShell execution via WinRM"; flow:established,to_server; http.request_body; content:"powershell"; nocase; content:"-enc"; distance:0; classtype:attempted-admin; sid:52111652; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1059.001 PowerShell - encoded command execution bypass"; flow:established,to_server; http.request_body; pcre:"/(powershell|pwsh).*( -e | -ec | -encodedcommand )/i"; classtype:attempted-admin; sid:52111653; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1059.003 Windows Command Shell - cmd.exe via web shell"; flow:established,to_server; http.request_body; content:"cmd.exe"; nocase; content:"/c"; distance:0; classtype:attempted-admin; sid:52111654; rev:1;)
@@ -104,9 +85,7 @@ alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1106 Native API - raw
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1129 Shared Modules - DLL side-loading via web shell"; flow:established,to_server; http.uri; pcre:"/\.(dll|ocx|cpl)$/"; classtype:attempted-admin; sid:52111664; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1059.009 Cloud API - unauthorized AWS Lambda function invocation"; flow:established,to_server; http.uri; content:"/2015-03-31/functions/"; nocase; content:"/invocations"; distance:0; classtype:attempted-admin; sid:52111665; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1204.002 User Execution - malicious file download with dual extension"; flow:established,to_server; http.uri; pcre:"/\.(pdf|doc|xls|txt)\.(exe|scr|bat|cmd|js|vbs)$/"; classtype:trojan-activity; sid:52111666; rev:1;)
-
 # === MITRE ATT&CK - Credential Access & Lateral Movement (67-81) ===
-
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1110.001 Brute Force - password spraying across multiple users"; flow:established,to_server; http.uri; content:"/login"; nocase; detection_filter:track by_src, count:20, seconds:300; classtype:attempted-user; sid:52111667; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1110.003 Brute Force - password spraying with single password multiple accounts"; flow:established,to_server; http.request_body; content:"password"; nocase; detection_filter:track by_src, count:15, seconds:60; classtype:attempted-user; sid:52111668; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1552.001 Unsecured Credentials - credentials in web request URL"; flow:established,to_server; http.uri; pcre:"/(password|passwd|pwd|secret|token|apikey|api_key)=[^&]+/i"; classtype:sensitive-data; sid:52111669; rev:1;)
@@ -122,9 +101,7 @@ alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1550.001 Use Alternat
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1555 Credentials from Password Stores - browser credential extraction"; flow:established,to_server; http.request_body; content:"Login Data"; nocase; content:"Chrome"; distance:0; classtype:credential-theft; sid:52111679; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1110.004 Brute Force - credential stuffing with breach corpus"; flow:established,to_server; http.request_body; content:"password"; nocase; http.response_body; content:"incorrect"; distance:0; detection_filter:track by_src, count:30, seconds:60; classtype:attempted-user; sid:52111680; rev:1;)
 alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"MITRE T1056.004 Input Capture - credential harvesting via fake login page"; flow:established,to_server; http.uri; content:"/login"; nocase; http.response_body; content:"<form"; distance:0; content:"password"; distance:0; pcre:"/action=[\"']?https?:\/\/[^\/]*\.(tk|ml|ga|cf|gq)/i"; classtype:credential-theft; sid:52111681; rev:1;)
-
 # === MITRE ATT&CK - Exfiltration & C2 (82-100) ===
-
 alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1041 Exfiltration Over C2 Channel - large data POST to suspicious domain"; flow:established,to_server; http.request_body; dsize:>1000000; http.host; pcre:"/^[a-z0-9]{10,}\.(ru|cn|tk|ml|ga|cf|gq|xyz|top)/"; classtype:exfiltration; sid:52111682; rev:1;)
 alert dns $HOME_NET any -> any 53 (msg:"MITRE T1048.002 Exfiltration Over Alternative Protocol - DNS exfiltration via TXT queries"; dns.query.name; pcre:"/[a-z0-9]{40,}\./"; classtype:exfiltration; sid:52111683; rev:1;)
 alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"MITRE T1048.003 Exfiltration Over Unencrypted Non-C2 - HTTP file upload to file sharing"; flow:established,to_server; http.host; pcre:"/(sendspace|filebin|transfer\.sh|0x0\.st|filetransfer\.io)/"; classtype:exfiltration; sid:52111684; rev:1;)
