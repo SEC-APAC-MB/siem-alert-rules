@@ -1,0 +1,267 @@
+# Suricata Detection Rules - Generated 2026-11-03
+# Based on: Latest CVEs from GitHub Advisory Database (Task 2)
+# MITRE ATT&CK techniques not yet covered
+# Current threat landscape November 2026
+# SIDs: 521300000 - 521300099
+
+# --- CVE-2026-97718: Absolute Secure Access CSRF (CRITICAL) ---
+alert http any any -> any any (msg:"CVE-2026-97718 Absolute Secure Access CSRF admin account creation"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/admin/account/create"; nocase; http.header; content:"Referer|3a| http|3a|//"; nocase; classtype:attempted-admin; sid:521300000; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-97718 Absolute Secure Access CSRF bypassed security control"; flow:established,to_server; http.method; content:"POST"; http.uri; content:"/secureaccess/admin"; nocase; content!"Referer"; classtype:attempted-admin; sid:521300001; rev:1;)
+
+# --- CVE-2026-29508: ReadyMedia/MiniDLNA Stack Buffer Overflow (HIGH) ---
+alert http any any -> any any (msg:"CVE-2026-29508 ReadyMedia DFF file stack buffer overflow exploit"; flow:established,to_server; http.uri; content:".dff"; nocase; http.request_body; depth:512; content:"|46 4F 52 4D|"; nocase; classtype:attempted-user; sid:521300002; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-29508 ReadyMedia PROP chunk oversized value RCE"; flow:established,to_server; http.request_body; content:"|50 52 4F 50|"; nocase; byte_test:4,>,0x0000FFFF,0,relative,little; classtype:attempted-admin; sid:521300003; rev:1;)
+
+# --- CVE-2026-105475: cPanel NUL byte calendar/contact access (HIGH) ---
+alert http any any -> any any (msg:"CVE-2026-105475 cPanel NUL byte injection calendar data access"; flow:established,to_server; http.uri; content:"/cpsess"; nocase; http.uri; content:"%00"; classtype:attempted-recon; sid:521300004; rev:1;)
+alert http any any -> any any (msg:"CVE-2026-105475 cPanel NUL byte bypass contact data exfiltration"; flow:established,to_server; http.uri; content:"/webmail"; nocase; content:"|00|"; classtype:attempted-recon; sid:521300005; rev:1;)
+
+# --- CVE-2026-105476: cPanel symlink arbitrary root file write (HIGH) ---
+alert http any any -> any any (msg:"CVE-2026-105476 cPanel symlink root file write privilege escalation"; flow:established,to_server; http.uri; content:"/filemanager"; nocase; http.request_body; content:"symlink"; nocase; classtype:attempted-admin; sid:521300006; rev:1;)
+
+# --- CVE-2026-116768: Absolute Secure Access DoS (HIGH) ---
+alert tcp any any -> any any (msg:"CVE-2026-116768 Absolute Secure Access persistent DoS first connection"; flow:established,to_server; dsize:>4096; content:"|41 42 53 4F 4C|"; nocase; classtype:attempted-dos; sid:521300007; rev:1;)
+
+# --- CVE-2026-116766: Absolute Secure Access improper input handling DoS (HIGH) ---
+alert tcp any any -> any any (msg:"CVE-2026-116766 Absolute Secure Access server DoS input flooding"; flow:established,to_server; dsize:>8192; threshold:type:both,track:by_src,count:50,seconds:10; classtype:attempted-dos; sid:521300008; rev:1;)
+
+# --- CVE-2026-116767: Absolute Secure Access persistent DoS (HIGH) ---
+alert tcp any any -> any any (msg:"CVE-2026-116767 Absolute Secure Access persistent DoS authenticated"; flow:established,to_server; content:"|53 45 43 55 52 45|"; nocase; dsize:>4096; classtype:attempted-dos; sid:521300009; rev:1;)
+
+# --- CVE-2026-91899: Dell AWCC Improper Cryptographic Signature (MEDIUM) ---
+alert tcp any any -> any any (msg:"CVE-2026-91899 Dell AWCC improper signature validation privilege escalation"; flow:established,to_server; content:"SmartUpdate"; nocase; content:"|00 01 02 03|"; classtype:trojan-activity; sid:521300010; rev:1;)
+
+# --- CVE-2026-91901: Dell AWCC Custom URL Scheme CSRF (LOW) ---
+alert http any any -> any any (msg:"CVE-2026-91901 Dell AWCC custom URL scheme request forgery"; flow:established,to_server; http.uri; content:"alienware://"; nocase; classtype:attempted-recon; sid:521300011; rev:1;)
+
+# --- CVE-2026-91897: Dell AWCC Improper Certificate Validation (MEDIUM) ---
+alert tls any any -> any any (msg:"CVE-2026-91897 Dell AWCC improper certificate validation code execution"; flow:established; tls.cert_subject; content:"Alienware"; nocase; tls.issuer_dn; content!"Dell"; classtype:trojan-activity; sid:521300012; rev:1;)
+
+# --- CVE-2026-91900: Dell AWCC URL Scheme Remote Execution (MEDIUM) ---
+alert http any any -> any any (msg:"CVE-2026-91900 Dell AWCC URL scheme unauthenticated remote execution"; flow:established,to_server; http.uri; content:"awcc://"; nocase; http.method; content:"GET"; classtype:attempted-admin; sid:521300013; rev:1;)
+
+# --- CVE-2026-91895: Dell AWCC Incorrect Default Permissions (HIGH) ---
+alert file any any -> any any (msg:"CVE-2026-91895 Dell AWCC incorrect default permissions file tampering"; filemagic; content:"PE32"; offset:0; filesize:<1048576; classtype:trojan-activity; sid:521300014; rev:1;)
+
+# --- CVE-2026-91898: Dell AWCC Improper Authorization (HIGH) ---
+alert http any any -> any any (msg:"CVE-2026-91898 Dell AWCC improper authorization arbitrary command execution"; flow:established,to_server; http.header; content:"AWCC-Command"; nocase; classtype:attempted-admin; sid:521300015; rev:1;)
+
+# --- CVE-2026-91894: Dell AWCC Least Privilege Violation (MEDIUM) ---
+alert tcp any any -> any any (msg:"CVE-2026-91894 Dell AWCC least privilege violation elevation"; flow:established,to_server; content:"SmartExecute"; nocase; dsize:>1024; classtype:trojan-activity; sid:521300016; rev:1;)
+
+# --- CVE-2026-58927: Android EVS AIDL HAL Use-After-Free ---
+alert tcp any any -> any any (msg:"CVE-2026-58927 Android EVS HAL UAF openCamera race condition"; flow:established; content:"|65 76 73 5F 65 6E 75 6D|"; nocase; dsize:>256; classtype:attempted-user; sid:521300017; rev:1;)
+
+# --- CVE-2026-58926: Android EVS HAL UAF buffer_handle_t ---
+alert tcp any any -> any any (msg:"CVE-2026-58926 Android EVS HAL UAF doneWithFrame race condition"; flow:established; content:"|64 6F 6E 65 57 69 74 68 46 72 61 6D 65|"; nocase; classtype:attempted-user; sid:521300018; rev:1;)
+
+# --- CVE-2026-58925: Android EVS HAL UAF setExtendedInfo ---
+alert tcp any any -> any any (msg:"CVE-2026-58925 Android EVS HAL UAF setExtendedInfo concurrent access"; flow:established; content:"setExtendedInfo"; nocase; threshold:type:both,track:by_src,count:5,seconds:2; classtype:attempted-user; sid:521300019; rev:1;)
+
+# --- CVE-2026-58924: Android EVS HAL OOB Read getStreamList ---
+alert tcp any any -> any any (msg:"CVE-2026-58924 Android EVS HAL heap OOB read getStreamList metadata"; flow:established; content:"getStreamList"; nocase; content:"CameraDesc.metadata"; nocase; classtype:attempted-recon; sid:521300020; rev:1;)
+
+# --- CVE-2026-58930: Android SystemUI RemoteQCController BAL ---
+alert http any any -> any any (msg:"CVE-2026-58930 Android SystemUI RemoteQCController spoofed content URI injection"; flow:established,to_server; http.uri; content:"content://"; nocase; http.request_body; content:"RemoteQCController"; nocase; classtype:attempted-user; sid:521300021; rev:1;)
+
+# --- CVE-2026-58915: Android AAOS MUMD PassengerKeyguard Bypass ---
+alert http any any -> any any (msg:"CVE-2026-58915 Android AAOS passenger keyguard bypass HUN notification"; flow:established,to_server; content:"HeadsUpNotification"; nocase; content:"passenger"; nocase; classtype:attempted-user; sid:521300022; rev:1;)
+
+# --- CVE-2026-49903: Android ClusterRenderingService dump confused deputy ---
+alert tcp any any -> any any (msg:"CVE-2026-49903 Android ClusterRenderingService dump confused deputy Settings.Global write"; flow:established; content:"OVERLAY_DISPLAY_DEVICES"; nocase; content:"dump"; nocase; classtype:attempted-admin; sid:521300023; rev:1;)
+
+# --- CVE-2026-49906: Android ClusterHomeSample permission bypass ---
+alert http any any -> any any (msg:"CVE-2026-49906 Android ClusterHomeSample permission bypass navigation focus"; flow:established,to_server; content:"android.car.cluster.NAVIGATION"; nocase; classtype:attempted-user; sid:521300024; rev:1;)
+
+# --- CVE-2026-58873: Android WindowManagerService addDragDropListener privilege escalation ---
+alert tcp any any -> any any (msg:"CVE-2026-58873 Android WMS addDragDropListener missing permission check LPE"; flow:established; content:"addDragDropListener"; nocase; classtype:attempted-user; sid:521300025; rev:1;)
+
+# --- CVE-2026-59045: Android kernel memory corruption race condition ---
+alert tcp any any -> any any (msg:"CVE-2026-59045 Android kernel memory corruption race condition LPE"; flow:established; dsize:>4096; threshold:type:both,track:by_src,count:10,seconds:1; classtype:attempted-user; sid:521300026; rev:1;)
+
+# --- CVE-2026-59042: Android pkvm mmu OOB write race condition ---
+alert tcp any any -> any any (msg:"CVE-2026-59042 Android pkvm __pkvm_pages_to_ppages OOB write"; flow:established; content:"|70 6B 76 6D|"; nocase; dsize:>2048; classtype:attempted-user; sid:521300027; rev:1;)
+
+# --- CVE-2026-59043: Android io-pgtable arm_lpae_split_blk_unmap memory corruption ---
+alert tcp any any -> any any (msg:"CVE-2026-59043 Android io-pgtable arm_lpae_split_blk_unmap memory corruption"; flow:established; content:"arm_lpae_split_blk_unmap"; nocase; classtype:attempted-user; sid:521300028; rev:1;)
+
+# --- CVE-2026-58977: Android Wear timed_cache_item OOB write ---
+alert tcp any any -> any any (msg:"CVE-2026-58977 Android Wear timed_cache_item OOB write privilege escalation"; flow:established; content:"is_valid_header"; nocase; content:"timed_cache_item"; nocase; classtype:attempted-user; sid:521300029; rev:1;)
+
+# --- CVE-2026-58976: Android ProviderUtil cross-user data leak ---
+alert http any any -> any any (msg:"CVE-2026-58976 Android ProviderUtil getSelectionBySubIds cross-user data leak"; flow:established,to_server; content:"getSelectionBySubIds"; nocase; classtype:attempted-recon; sid:521300030; rev:1;)
+
+# --- CVE-2026-59008: Android DevicePolicyManagerService DoS resource exhaustion ---
+alert http any any -> any any (msg:"CVE-2026-59008 Android DevicePolicyManagerService setApplicationRestrictions DoS"; flow:established,to_server; content:"setApplicationRestrictions"; nocase; dsize:>1048576; classtype:attempted-dos; sid:521300031; rev:1;)
+
+# --- CVE-2026-59006: Android WindowState tapjacking overlay ---
+alert http any any -> any any (msg:"CVE-2026-59006 Android WindowState getTouchOcclusionMode tapjacking"; flow:established; content:"getTouchOcclusionMode"; nocase; content:"overlay"; nocase; classtype:attempted-user; sid:521300032; rev:1;)
+
+# --- CVE-2026-59047: Android kernel DoS logic error ---
+alert tcp any any -> any any (msg:"CVE-2026-59047 Android kernel logic error denial of service"; flow:established; dsize:>2048; threshold:type:both,track:by_src,count:20,seconds:5; classtype:attempted-dos; sid:521300033; rev:1;)
+
+# --- CVE-2026-59028: Android resolveAidConflictLocked permission bypass ---
+alert tcp any any -> any any (msg:"CVE-2026-59028 Android resolveAidConflictLocked permission bypass NFC"; flow:established; content:"resolveAidConflictLocked"; nocase; classtype:attempted-user; sid:521300034; rev:1;)
+
+# --- CVE-2026-59044: Android UAF logic error multiple locations ---
+alert tcp any any -> any any (msg:"CVE-2026-59044 Android UAF logic error privilege escalation"; flow:established; dsize:>1024; threshold:type:both,track:by_src,count:5,seconds:2; classtype:attempted-user; sid:521300035; rev:1;)
+
+# --- CVE-2026-16305: INFINITT PACS SmartUpdate privilege escalation ---
+alert tcp any any -> any any (msg:"CVE-2026-16305 INFINITT PACS SmartUpdate local privilege escalation"; flow:established; content:"SmartUpdate.exe"; nocase; content:"execlist.txt"; nocase; classtype:trojan-activity; sid:521300036; rev:1;)
+
+# --- CVE-2026-120503: GeekezBrowser information disclosure ---
+alert http any any -> any any (msg:"CVE-2026-120503 GeekezBrowser /api/status information disclosure"; flow:established,to_server; http.uri; content:"/api/status"; nocase; http.response_body; content:"version"; nocase; classtype:attempted-recon; sid:521300037; rev:1;)
+
+# --- CVE-2026-116958: konflux-ci arbitrary code execution shell injection ---
+alert http any any -> any any (msg:"CVE-2026-116958 konflux-ci shell variable injection arbitrary code execution"; flow:established,to_server; http.request_body; content:"$("; nocase; content:"deploy"; nocase; classtype:attempted-admin; sid:521300038; rev:1;)
+
+# --- MITRE ATT&CK T1046: Network Service Discovery ---
+alert udp any any -> any any (msg:"MITRE T1046 Network service discovery via nmap UDP probe"; dsize:0; ttl:64; threshold:type:both,track:by_src,count:20,seconds:10; classtype:network-scan; sid:521300039; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1046 Network service discovery SYN scan rapid port sweep"; flags:S,12; threshold:type:both,track:by_src,count:50,seconds:5; classtype:network-scan; sid:521300040; rev:1;)
+
+# --- MITRE ATT&CK T1049: System Network Connections Discovery ---
+alert tcp any any -> any any (msg:"MITRE T1049 System network connections discovery netstat enumeration"; flow:established,to_server; content:"netstat"; nocase; content:"-an"; nocase; classtype:attempted-recon; sid:521300041; rev:1;)
+
+# --- MITRE ATT&CK T1057: Process Discovery ---
+alert tcp any any -> any any (msg:"MITRE T1057 Process discovery via ps aux enumeration"; flow:established,to_server; content:"ps aux"; nocase; classtype:attempted-recon; sid:521300042; rev:1;)
+
+# --- MITRE ATT&CK T1082: System Information Discovery ---
+alert tcp any any -> any any (msg:"MITRE T1082 System information discovery via uname and hostname"; flow:established,to_server; content:"uname"; nocase; content:"-a"; nocase; classtype:attempted-recon; sid:521300043; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1082 System information discovery via /proc/version access"; flow:established,to_server; content:"cat /proc/version"; nocase; classtype:attempted-recon; sid:521300044; rev:1;)
+
+# --- MITRE ATT&CK T1087: Account Discovery ---
+alert tcp any any -> any any (msg:"MITRE T1087 Account discovery via /etc/passwd enumeration"; flow:established,to_server; content:"cat /etc/passwd"; nocase; classtype:attempted-recon; sid:521300045; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1087 Account discovery via whoami and id commands"; flow:established,to_server; content:"whoami"; nocase; content:"id"; nocase; classtype:attempted-recon; sid:521300046; rev:1;)
+
+# --- MITRE ATT&CK T1135: Network Share Discovery ---
+alert tcp any any -> any any (msg:"MITRE T1135 Network share discovery via net share enumeration"; flow:established,to_server; content:"net share"; nocase; classtype:attempted-recon; sid:521300047; rev:1;)
+
+# --- MITRE ATT&CK T1490: Inhibit System Recovery ---
+alert tcp any any -> any any (msg:"MITRE T1490 Inhibit system recovery via vssadmin delete shadows"; flow:established,to_server; content:"vssadmin delete shadows"; nocase; classtype:attempted-dos; sid:521300048; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1490 Inhibit system recovery via wbadmin delete catalog"; flow:established,to_server; content:"wbadmin delete catalog"; nocase; classtype:attempted-dos; sid:521300049; rev:1;)
+
+# --- MITRE ATT&CK T1562: Impair Defenses ---
+alert tcp any any -> any any (msg:"MITRE T1562 Impair defenses via Windows Defender exclusion path"; flow:established,to_server; content:"Add-MpPreference"; nocase; content:"-ExclusionPath"; nocase; classtype:trojan-activity; sid:521300050; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1562 Impair defenses via Set-MpPreference DisableRealtimeMonitoring"; flow:established,to_server; content:"Set-MpPreference"; nocase; content:"DisableRealtimeMonitoring"; nocase; classtype:trojan-activity; sid:521300051; rev:1;)
+
+# --- MITRE ATT&CK T1071: Application Layer Protocol ---
+alert dns any any -> any any (msg:"MITRE T1071 Application layer protocol DNS tunneling high entropy query"; dns.query; pcre:"/^[A-Za-z0-9]{40,}/"; classtype:trojan-activity; sid:521300052; rev:1;)
+alert dns any any -> any any (msg:"MITRE T1071 Application layer protocol DNS tunneling long TXT record query"; dns.query; content:"TXT"; dns.query; pcre:"/.+\.[a-z]{2,4}$/"; classtype:trojan-activity; sid:521300053; rev:1;)
+
+# --- MITRE ATT&CK T1572: Protocol Tunneling ---
+alert tcp any any -> any any (msg:"MITRE T1572 Protocol tunneling via SSH dynamic port forwarding"; flow:established; content:"SSH-2.0"; nocase; dsize:>32768; threshold:type:both,track:by_src,count:10,seconds:30; classtype:trojan-activity; sid:521300054; rev:1;)
+
+# --- MITRE ATT&CK T1573: Encrypted Channel ---
+alert tls any any -> any any (msg:"MITRE T1573 Encrypted channel suspicious TLS to dynamic DNS domain"; flow:established; tls.sni; pcre:"/[a-z0-9]+\.(duckdns|noip|ddns)\./"; classtype:trojan-activity; sid:521300055; rev:1;)
+
+# --- MITRE ATT&CK T1105: Ingress Tool Transfer ---
+alert http any any -> any any (msg:"MITRE T1105 Ingress tool transfer via curl piped to bash"; flow:established,to_server; http.response_body; content:"curl"; nocase; content:"bash"; nocase; classtype:trojan-activity; sid:521300056; rev:1;)
+alert http any any -> any any (msg:"MITRE T1105 Ingress tool transfer via wget silent executable download"; flow:established,to_server; http.uri; content:".elf"; nocase; http.header; content:"wget"; nocase; classtype:trojan-activity; sid:521300057; rev:1;)
+
+# --- MITRE ATT&CK T1027: Obfuscated Files ---
+alert http any any -> any any (msg:"MITRE T1027 Obfuscated file transfer via base64 encoded payload in URI"; flow:established,to_server; http.uri; pcre:"/[A-Za-z0-9+\/]{80,}={0,2}/"; classtype:trojan-activity; sid:521300058; rev:1;)
+
+# --- MITRE ATT&CK T1140: Deobfuscate/Decode ---
+alert tcp any any -> any any (msg:"MITRE T1140 Deobfuscate decode via base64 piped to python/bash"; flow:established,to_server; content:"base64"; nocase; content:"-d"; nocase; content:"|"; classtype:trojan-activity; sid:521300059; rev:1;)
+
+# --- MITRE ATT&CK T1548: Abuse Elevation Control Mechanism ---
+alert tcp any any -> any any (msg:"MITRE T1548 Abuse elevation control via setuid bit on unusual binary"; flow:established,to_server; content:"chmod"; nocase; content:"u+s"; nocase; classtype:attempted-privilege-escalation; sid:521300060; rev:1;)
+
+# --- MITRE ATT&CK T1068: Exploitation for Privilege Escalation ---
+alert tcp any any -> any any (msg:"MITRE T1068 Exploitation for privilege escalation via sudo CVE check"; flow:established,to_server; content:"sudo"; nocase; content:"-l"; nocase; classtype:attempted-privilege-escalation; sid:521300061; rev:1;)
+
+# --- MITRE ATT&CK T1110: Brute Force ---
+alert ssh any any -> any any (msg:"MITRE T1110 Brute force SSH password attack rapid auth failures"; flow:established; content:"SSH-2.0"; nocase; threshold:type:both,track:by_src,count:10,seconds:30; classtype:attempted-admin; sid:521300062; rev:1;)
+alert http any any -> any any (msg:"MITRE T1110 Brute force HTTP basic auth rapid 401 responses"; flow:established,from_server; http.status_code; content:"401"; threshold:type:both,track:by_dst,count:20,seconds:60; classtype:attempted-admin; sid:521300063; rev:1;)
+
+# --- MITRE ATT&CK T1190: Exploit Public-Facing Application ---
+alert http any any -> any any (msg:"MITRE T1190 Exploit public facing app via Log4Shell JNDI injection"; flow:established,to_server; http.header; content:"${jndi:ldap"; nocase; classtype:attempted-admin; sid:521300064; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 Exploit public facing app via Spring4Shell class loader"; flow:established,to_server; http.header; content:"class.module.classLoader"; nocase; classtype:attempted-admin; sid:521300065; rev:1;)
+alert http any any -> any any (msg:"MITRE T1190 Exploit public facing app via reverse shell in HTTP header"; flow:established,to_server; http.header; content:"/bin/sh"; nocase; classtype:attempted-admin; sid:521300066; rev:1;)
+
+# --- MITRE ATT&CK T1505: Server Software Component ---
+alert http any any -> any any (msg:"MITRE T1505 Server software component web shell uploaded via POST"; flow:established,to_server; http.method; content:"POST"; http.uri; content:".php"; nocase; http.request_body; content:"eval"; nocase; content:"base64_decode"; nocase; classtype:trojan-activity; sid:521300067; rev:1;)
+alert http any any -> any any (msg:"MITRE T1505 Server software component web shell command execution via cmd"; flow:established,to_server; http.uri; content:"cmd="; nocase; http.query; content:"system"; nocase; classtype:trojan-activity; sid:521300068; rev:1;)
+
+# --- MITRE ATT&CK T1059: Command and Scripting Interpreter ---
+alert tcp any any -> any any (msg:"MITRE T1059 Command and scripting interpreter via PowerShell encoded command"; flow:established,to_server; content:"powershell"; nocase; content:"-enc"; nocase; classtype:trojan-activity; sid:521300069; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1059 Command and scripting interpreter via Python reverse shell"; flow:established,to_server; content:"python"; nocase; content:"socket"; nocase; content:"connect"; nocase; classtype:trojan-activity; sid:521300070; rev:1;)
+
+# --- MITRE ATT&CK T1566: Phishing ---
+alert http any any -> any any (msg:"MITRE T1566 Phishing via credential harvesting login page impersonation"; flow:established,to_server; http.uri; content:"login"; nocase; http.response_body; content:"password"; nocase; content:"verify"; nocase; classtype:trojan-activity; sid:521300071; rev:1;)
+
+# --- MITRE ATT&CK T1486: Data Encrypted for Impact ---
+alert tcp any any -> any any (msg:"MITRE T1486 Data encrypted for impact via mass file extension change to .locked"; flow:established; dsize:>512; content:".locked"; nocase; threshold:type:both,track:by_src,count:100,seconds:30; classtype:trojan-activity; sid:521300072; rev:1;)
+
+# --- MITRE ATT&CK T1041: Exfiltration Over C2 Channel ---
+alert tcp any any -> any any (msg:"MITRE T1041 Exfiltration over C2 channel via large outbound data transfer"; flow:established,to_server; dsize:>10485760; threshold:type:both,track:by_src,count:5,seconds:60; classtype:trojan-activity; sid:521300073; rev:1;)
+
+# --- MITRE ATT&CK T1567: Exfiltration Over Web Service ---
+alert http any any -> any any (msg:"MITRE T1567 Exfiltration over web service via large upload to cloud storage"; flow:established,to_server; http.method; content:"PUT"; http.uri; content:"blob"; nocase; dsize:>5242880; classtype:trojan-activity; sid:521300074; rev:1;)
+
+# --- MITRE ATT&CK T1090: Proxy ---
+alert tcp any any -> any any (msg:"MITRE T1090 Proxy via Tor exit node connection pattern"; flow:established,to_server; dsize:>512; threshold:type:both,track:by_src,count:5,seconds:60; classtype:trojan-activity; sid:521300075; rev:1;)
+
+# --- MITRE ATT&CK T1219: Remote Access Software ---
+alert tcp any any -> any any (msg:"MITRE T1219 Remote access software via TeamViewer unauthorized corporate"; flow:established; content:"TeamViewer"; nocase; dsize:>256; classtype:trojan-activity; sid:521300076; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1219 Remote access software via AnyDesk unauthorized connection"; flow:established; content:"AnyDesk"; nocase; dsize:>256; classtype:trojan-activity; sid:521300077; rev:1;)
+
+# --- MITRE ATT&CK T1039: Data from Network Shared Drive ---
+alert smb any any -> any any (msg:"MITRE T1039 Data from network shared drive via SMB mass file access"; flow:established; content:"|FF 53 4D 42|"; nocase; threshold:type:both,track:by_src,count:100,seconds:30; classtype:trojan-activity; sid:521300078; rev:1;)
+
+# --- MITRE ATT&CK T1005: Data from Local System ---
+alert tcp any any -> any any (msg:"MITRE T1005 Data from local system via mass file read /etc and /home"; flow:established,to_server; content:"find /home"; nocase; content:"-type f"; nocase; classtype:attempted-recon; sid:521300079; rev:1;)
+
+# --- MITRE ATT&CK T1555: Credentials from Password Stores ---
+alert tcp any any -> any any (msg:"MITRE T1555 Credentials from password stores via mimikatz LSASS access"; flow:established; content:"mimikatz"; nocase; content:"sekurlsa"; nocase; classtype:credential-theft; sid:521300080; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1555 Credentials from password stores via LaZagne credential harvest"; flow:established; content:"LaZagne"; nocase; classtype:credential-theft; sid:521300081; rev:1;)
+
+# --- MITRE ATT&CK T1112: Modify Registry ---
+alert tcp any any -> any any (msg:"MITRE T1112 Modify registry via reg add persistence key"; flow:established,to_server; content:"reg add"; nocase; content:"Run"; nocase; content:"HKLM"; nocase; classtype:trojan-activity; sid:521300082; rev:1;)
+
+# --- MITRE ATT&CK T1136: Create Account ---
+alert tcp any any -> any any (msg:"MITRE T1136 Create account via net user add for persistence"; flow:established,to_server; content:"net user"; nocase; content:"/add"; nocase; classtype:attempted-admin; sid:521300083; rev:1;)
+
+# --- MITRE ATT&CK T1547: Boot or Logon Autostart Execution ---
+alert tcp any any -> any any (msg:"MITRE T1547 Boot or logon autostart via crontab modification"; flow:established,to_server; content:"crontab"; nocase; content:"-e"; nocase; classtype:trojan-activity; sid:521300084; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1547 Boot or logon autostart via systemd service creation"; flow:established,to_server; content:"systemctl"; nocase; content:"enable"; nocase; content:".service"; nocase; classtype:trojan-activity; sid:521300085; rev:1;)
+
+# --- MITRE ATT&CK T1489: Service Stop ---
+alert tcp any any -> any any (msg:"MITRE T1489 Service stop via net stop for security services"; flow:established,to_server; content:"net stop"; nocase; content:"antivirus"; nocase; classtype:attempted-dos; sid:521300086; rev:1;)
+
+# --- MITRE ATT&CK T1496: Resource Hijacking ---
+alert tcp any any -> any any (msg:"MITRE T1496 Resource hijacking via cryptominer xmrig process"; flow:established; content:"xmrig"; nocase; content:"pool"; nocase; classtype:trojan-activity; sid:521300087; rev:1;)
+alert tcp any any -> any any (msg:"MITRE T1496 Resource hijacking via stratum mining protocol connection"; flow:established,to_server; content:"mining.subscribe"; nocase; classtype:trojan-activity; sid:521300088; rev:1;)
+
+# --- MITRE ATT&CK T1078: Valid Accounts ---
+alert ssh any any -> any any (msg:"MITRE T1078 Valid accounts via SSH login from new geographic location"; flow:established; content:"SSH-2.0"; nocase; threshold:type:single,track:by_src,count:1,seconds:86400; classtype:attempted-admin; sid:521300089; rev:1;)
+
+# --- MITRE ATT&CK T1133: External Remote Services ---
+alert rdp any any -> any any (msg:"MITRE T1133 External remote services via RDP from external IP"; flow:established; content:"|03 00 00 13|"; dsize:>100; classtype:attempted-admin; sid:521300090; rev:1;)
+
+# --- MITRE ATT&CK T1021: Remote Services ---
+alert tcp any any -> any any (msg:"MITRE T1021 Remote services via SSH lateral movement internal"; flow:established; content:"SSH-2.0"; nocase; threshold:type:both,track:by_src,count:10,seconds:60; classtype:attempted-admin; sid:521300091; rev:1;)
+
+# --- MITRE ATT&CK T1550: Use Alternate Authentication Material ---
+alert tcp any any -> any any (msg:"MITRE T1550 Use alternate auth material via pass-the-hash Windows"; flow:established; content:"NtlmHash"; nocase; content:"pass"; nocase; classtype:credential-theft; sid:521300092; rev:1;)
+
+# --- MITRE ATT&CK T1620: Reflective Code Loading ---
+alert tcp any any -> any any (msg:"MITRE T1620 Reflective code loading via DLL injection in memory"; flow:established; content:"VirtualAlloc"; nocase; content:"WriteProcessMemory"; nocase; classtype:trojan-activity; sid:521300093; rev:1;)
+
+# --- MITRE ATT&CK T1623: Two-Factor Authentication Request Generation ---
+alert http any any -> any any (msg:"MITRE T1623 Two-factor auth request generation via MFA push bombing"; flow:established,to_server; http.uri; content:"/mfa/push"; nocase; threshold:type:both,track:by_src,count:10,seconds:60; classtype:trojan-activity; sid:521300094; rev:1;)
+
+# --- MITRE ATT&CK T1534: Internal Spearphishing ---
+alert smtp any any -> any any (msg:"MITRE T1534 Internal spearphishing via internal email with executable attachment"; flow:established; content:"Content-Type|3a| application/x-msdos-program"; nocase; classtype:trojan-activity; sid:521300095; rev:1;)
+
+# --- MITRE ATT&CK T1053: Scheduled Task/Job ---
+alert tcp any any -> any any (msg:"MITRE T1053 Scheduled task creation via schtasks for persistence"; flow:established,to_server; content:"schtasks"; nocase; content:"/create"; nocase; content:"/sc"; nocase; classtype:trojan-activity; sid:521300096; rev:1;)
+
+# --- MITRE ATT&CK T1106: Native API ---
+alert tcp any any -> any any (msg:"MITRE T1106 Native API usage via CreateRemoteThread injection"; flow:established; content:"CreateRemoteThread"; nocase; content:"LoadLibrary"; nocase; classtype:trojan-activity; sid:521300097; rev:1;)
+
+# --- MITRE ATT&CK T1498: Network Denial of Service ---
+alert udp any any -> any any (msg:"MITRE T1498 Network DoS via UDP flood amplification attack"; dsize:>1024; threshold:type:both,track:by_src,count:500,seconds:10; classtype:attempted-dos; sid:521300098; rev:1;)
+
+# --- MITRE ATT&CK T1611: Escape to Host ---
+alert tcp any any -> any any (msg:"MITRE T1611 Escape to host via container breakout privileged mount"; flow:established,to_server; content:"/proc/1/root"; nocase; content:"nsenter"; nocase; classtype:attempted-privilege-escalation; sid:521300099; rev:1;)
