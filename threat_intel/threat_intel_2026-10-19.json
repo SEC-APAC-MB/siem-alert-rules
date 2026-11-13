@@ -1,0 +1,3350 @@
+[
+  {
+    "ghsa_id": "GHSA-953h-535j-jg2v",
+    "cve_id": null,
+    "url": "https://api.github.com/advisories/GHSA-953h-535j-jg2v",
+    "html_url": "https://github.com/advisories/GHSA-953h-535j-jg2v",
+    "summary": "agent-router: MCP session resume does not verify the embedded anti-hijacking subject; default Helm seed makes session IDs forgeable",
+    "description": "## Summary\n\nThe MCP proxy's client-facing session ID embeds the authenticated caller's\nsubject (JWT `sub` claim) specifically as an anti-hijacking discriminator —\nmatching the Model Context Protocol specification's documented session-hijacking\nguidance (https://modelcontextprotocol.io/specification/2025-06-18/basic/security_best_practices#session-hijacking).\nHowever, the session-resume path never checks that discriminator against the\ncurrent caller's identity, so any client that obtains a session ID (its own or\nanother user's) can resume that session and act with it — including on\nroutes with per-user backend sessions. This is aggravated by the official\nHelm chart shipping a literal, publicly known default seed\n(`\"default-insecure-seed\"`) for the key that encrypts these session IDs.\n\n## Impact\n\nAn attacker who obtains (or, under the default seed, forges) another user's\n`Mcp-Session-Id` value can resume that user's MCP session against the backend\nMCP server(s) bound to the route — reading conversation/tool-call state and\ninvoking further JSON-RPC methods (e.g. `tools/call`, `resources/read`) in the\ncontext of that other user's already-initialized backend session. On a\nmulti-tenant AI Gateway deployment, this crosses the exact trust boundary the\nsubject-embedding was added to protect.\n\n## Location\n\n- `internal/mcpproxy/session.go` — `clientToGatewaySessionID.backendSessionIDs()`\n  (around line 707-765): parses `{routeName}@{subject}@{backends}` and returns\n  only `(perBackendSessionIDs, route, error)`. The comment at the subject-parsing\n  site reads: \"The subject ... is retained inside the encrypted session ID for\n  anti-hijacking purposes but is not needed during parsing.\" — the subject is\n  discarded, never returned, never compared.\n- `internal/mcpproxy/mcpproxy.go` — `sessionFromID(id, lastEvent)` (around line\n  282-323): resumes a session purely from the decrypted blob; it is never passed\n  the current request's authenticated subject, so there is nothing to compare\n  against even if `backendSessionIDs()` did return it.\n- `internal/mcpproxy/legacy.go` — `extractSubject(r)` (around line 1549-1562) is\n  called exactly once, only at session creation (`handleInitializeRequest` ->\n  `newSession`, line ~307/484/491) to embed the subject when the session ID is\n  minted. All three session-resume call sites (`serveGET`/`servePOST`/`serverDELETE`\n  paths, lines ~133, 167, 216) call `sessionFromID` with no subject argument at all.\n- `internal/mcpproxy/mcpproxy.go` line 259 (`clientToGatewaySessionIDFromEntries`)\n  is where the subject is embedded at creation, confirming the intended design.\n- Aggravating factor: `manifests/charts/ai-gateway-helm/values.yaml` line 297\n  ships `seed: \"default-insecure-seed\"` as the out-of-the-box value for\n  `controller.mcp.sessionEncryption.seed`, which `templates/deployment.yaml`\n  passes straight to `--mcpSessionEncryptionSeed` (also literally defaulted to\n  `\"default-insecure-seed\"` in `cmd/controller/main.go` and\n  `cmd/extproc/mainlib/main.go` when the flag is omitted entirely). Session IDs\n  are `salt || nonce || ciphertext` (see `internal/mcpproxy/crypto.go`), so\n  knowing the seed and the (also-defaulted) PBKDF2 iteration count is sufficient\n  to derive the AES-GCM key and both decrypt observed session IDs and encrypt\n  new ones for an arbitrary chosen subject/backend-session combination.\n\n## Reproduction (code-level, not run against a live cluster)\n\n1. Deploy Envoy AI Gateway with an `MCPRoute` that has an OAuth/JWT\n   `SecurityPolicy` attached (so `internalapi.MCPSubjectHeader` is populated)\n   and at least one backend MCP server, using the Helm chart's default\n   `values.yaml` (`controller.mcp.sessionEncryption.seed` left at\n   `\"default-insecure-seed\"`).\n2. User A authenticates with a valid JWT (`sub: user-a`) and sends an\n   `initialize` JSON-RPC request to the route. The gateway creates backend\n   session(s) and returns `Mcp-Session-Id: <encrypted-blob-A>`, whose plaintext\n   is `{route}@user-a@{backend}:{base64(sessionID)}:{capHex}`.\n3. Attacker (any other authenticated user, or — since the seed is public and\n   default — even without ever having a legitimate session at all) constructs\n   `{route}@user-a@{backend}:{base64(<any-or-known-backend-session-id>)}:fff`,\n   derives the AES-GCM key via PBKDF2(sha256, \"default-insecure-seed\",\n   salt, 100000, 32) for a salt of their choosing, and encrypts it themselves\n   to produce a session ID that decrypts to the same structure `sessionFromID`\n   expects.\n4. Attacker sends a subsequent JSON-RPC request (e.g. `tools/call`) to the same\n   route with header `Mcp-Session-Id: <forged-or-captured-blob-A>`. The gateway\n   decrypts it, extracts `perBackendSessionIDs` for `backend`, and forwards the\n   attacker's call using that backend session — with no comparison to the\n   attacker's own JWT subject at any point in `sessionFromID` /\n   `backendSessionIDs()`.\n\n## Suggested fix\n\n- In `sessionFromID`, thread the current request's `extractSubject(r)` value\n  through to `backendSessionIDs()` (or a wrapping call) and reject resumption\n  (401/403) when the decrypted subject does not match the current caller's\n  subject — restoring the anti-hijacking check the embedding was built for.\n- Independently, change the Helm chart's default\n  `controller.mcp.sessionEncryption.seed` to be randomly generated per\n  install (e.g. via a Helm `lookup`/`randAlphaNum` in a pre-install hook, or a\n  required value with no default), rather than shipping a literal, fixed\n  string. At minimum, fail startup (rather than just logging) when the seed\n  equals the documented insecure default in a non-dev/insecure-allowed mode.\n\n## Detected by\n\nAeon vuln-scanner — agentic dataflow review (`internal/mcpproxy` entrypoint,\nEnvoy AI Gateway data-plane MCP proxy), followed by manual adversarial\nverification against the exact HEAD commit of `main`\n(`472da7db7984f769c9a77671d12c0354e75fc3ba`, confirmed to match\n`repos/theagentrouter/agent-router/commits/main` at time of report).\nDependency-CVE findings from this scan (osv-scanner, `go.mod`/`package-lock.json`)\nare not included here — they are all already covered by open Dependabot PRs\n(#2555, #2643, #2672, #2497, #2615) and are omitted to avoid duplicate filings.",
+    "type": "reviewed",
+    "severity": "medium",
+    "repository_advisory_url": "https://api.github.com/repos/theagentrouter/agent-router/security-advisories/GHSA-953h-535j-jg2v",
+    "source_code_location": "https://github.com/theagentrouter/agent-router",
+    "identifiers": [
+      {
+        "value": "GHSA-953h-535j-jg2v",
+        "type": "GHSA"
+      }
+    ],
+    "references": [
+      "https://github.com/theagentrouter/agent-router/security/advisories/GHSA-953h-535j-jg2v",
+      "https://github.com/theagentrouter/agent-router/pull/2740",
+      "https://github.com/theagentrouter/agent-router/pull/2755",
+      "https://github.com/theagentrouter/agent-router/commit/0d1e73037076d72251342d0ea578a36ffb7002c7",
+      "https://github.com/theagentrouter/agent-router/commit/994579660ae2a9f2feef3cb77766e155746858b4",
+      "https://github.com/advisories/GHSA-953h-535j-jg2v"
+    ],
+    "published_at": "2026-10-19T16:53:26Z",
+    "updated_at": "2026-10-19T16:53:27Z",
+    "github_reviewed_at": "2026-10-19T16:53:26Z",
+    "nvd_published_at": null,
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "go",
+          "name": "github.com/envoyproxy/ai-gateway"
+        },
+        "vulnerable_version_range": ">= 0.4.0-rc1, < 1.2.0-rc1",
+        "first_patched_version": "1.2.0-rc1",
+        "vulnerable_functions": [
+
+        ]
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+        "score": 6.8
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-798",
+        "name": "Use of Hard-coded Credentials"
+      },
+      {
+        "cwe_id": "CWE-863",
+        "name": "Incorrect Authorization"
+      }
+    ],
+    "credits": [
+      {
+        "user": {
+          "login": "aeonframework",
+          "id": 272311952,
+          "node_id": "U_kgDOEDsmkA",
+          "avatar_url": "https://avatars.githubusercontent.com/u/272311952?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/aeonframework",
+          "html_url": "https://github.com/aeonframework",
+          "followers_url": "https://api.github.com/users/aeonframework/followers",
+          "following_url": "https://api.github.com/users/aeonframework/following{/other_user}",
+          "gists_url": "https://api.github.com/users/aeonframework/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/aeonframework/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/aeonframework/subscriptions",
+          "organizations_url": "https://api.github.com/users/aeonframework/orgs",
+          "repos_url": "https://api.github.com/users/aeonframework/repos",
+          "events_url": "https://api.github.com/users/aeonframework/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/aeonframework/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "reporter"
+      },
+      {
+        "user": {
+          "login": "nacx",
+          "id": 446705,
+          "node_id": "MDQ6VXNlcjQ0NjcwNQ==",
+          "avatar_url": "https://avatars.githubusercontent.com/u/446705?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/nacx",
+          "html_url": "https://github.com/nacx",
+          "followers_url": "https://api.github.com/users/nacx/followers",
+          "following_url": "https://api.github.com/users/nacx/following{/other_user}",
+          "gists_url": "https://api.github.com/users/nacx/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/nacx/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/nacx/subscriptions",
+          "organizations_url": "https://api.github.com/users/nacx/orgs",
+          "repos_url": "https://api.github.com/users/nacx/repos",
+          "events_url": "https://api.github.com/users/nacx/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/nacx/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "remediation_developer"
+      },
+      {
+        "user": {
+          "login": "PraveenKumarInjam",
+          "id": 69673951,
+          "node_id": "MDQ6VXNlcjY5NjczOTUx",
+          "avatar_url": "https://avatars.githubusercontent.com/u/69673951?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/PraveenKumarInjam",
+          "html_url": "https://github.com/PraveenKumarInjam",
+          "followers_url": "https://api.github.com/users/PraveenKumarInjam/followers",
+          "following_url": "https://api.github.com/users/PraveenKumarInjam/following{/other_user}",
+          "gists_url": "https://api.github.com/users/PraveenKumarInjam/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/PraveenKumarInjam/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/PraveenKumarInjam/subscriptions",
+          "organizations_url": "https://api.github.com/users/PraveenKumarInjam/orgs",
+          "repos_url": "https://api.github.com/users/PraveenKumarInjam/repos",
+          "events_url": "https://api.github.com/users/PraveenKumarInjam/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/PraveenKumarInjam/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "reporter"
+      },
+      {
+        "user": {
+          "login": "kanywst",
+          "id": 45947799,
+          "node_id": "MDQ6VXNlcjQ1OTQ3Nzk5",
+          "avatar_url": "https://avatars.githubusercontent.com/u/45947799?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/kanywst",
+          "html_url": "https://github.com/kanywst",
+          "followers_url": "https://api.github.com/users/kanywst/followers",
+          "following_url": "https://api.github.com/users/kanywst/following{/other_user}",
+          "gists_url": "https://api.github.com/users/kanywst/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/kanywst/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/kanywst/subscriptions",
+          "organizations_url": "https://api.github.com/users/kanywst/orgs",
+          "repos_url": "https://api.github.com/users/kanywst/repos",
+          "events_url": "https://api.github.com/users/kanywst/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/kanywst/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "reporter"
+      }
+    ],
+    "comments": 10,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-pcc4-rvhr-2pr8",
+    "cve_id": null,
+    "url": "https://api.github.com/advisories/GHSA-pcc4-rvhr-2pr8",
+    "html_url": "https://github.com/advisories/GHSA-pcc4-rvhr-2pr8",
+    "summary": "Graphify Fortran extractor: incomplete cpp #include hardening allows arbitrary host-file read/exfiltration when indexing an untrusted repo",
+    "description": "## Summary\n\nThe Fortran extractor's C-preprocessor step (`graphify/extractors/fortran.py`, `_cpp_preprocess`) applies an incomplete `#include` hardening. The `-nostdinc -I /dev/null` flags it relies on (comment \"Security (F-007)\") do **not** stop a capital-`F` Fortran source file from including **absolute paths** (`#include \"/etc/passwd\"`) or from **path-traversing out of the corpus** (`#include \"../../../../home/victim/.ssh/id_rsa\"`). `cpp` always searches the directory of the file being preprocessed for quoted includes and always honours absolute include paths, regardless of `-nostdinc`/`-I`. As a result, indexing an untrusted repository that contains a `.F`/`.F90`/`.F95`/`.F03`/`.F08` file reads arbitrary local files off the host and inlines their contents into the knowledge graph, which is then shipped to the LLM/agent and written to the on-disk, shareable output (`graph.json`, `GRAPH_REPORT.md`, the Obsidian wiki, HTML/SVG exports).\n\nThis is the exact \"corpus-side file-exfiltration vector\" the F-007 comment says it is defending against; the mitigation is bypassable.\n\n## Severity\n\nHigh. Arbitrary local-file read on the host, triggered by graphify's core action (indexing an untrusted folder — \"turn any folder of code ... into a queryable knowledge graph\"), defeating a documented security control. It runs on the default, offline, no-API-key AST path (`graphify update .` / `graphify extract`) — no credentials, network, or LLM call required. CWE-73 (external control of file name/path) / CWE-22 (path traversal) / CWE-200 (information exposure).\n\n## Where\n\n`graphify/extractors/fortran.py`, `_cpp_preprocess()`:\n\n    result = subprocess.run(\n        [\"cpp\", \"-w\", \"-P\", \"-nostdinc\", \"-I\", \"/dev/null\", str(path.resolve())],\n        capture_output=True, timeout=30,\n    )\n\nReached from `extract_fortran()` (same file) for any suffix in `_FORTRAN_CPP_EXTS = {\".F\", \".F90\", \".F95\", \".F03\", \".F08\"}`, which are collected by default (`detect.CODE_EXTENSIONS`) and dispatched by `extract._DISPATCH`.\n\n## Why the mitigation does not work\n\n`-nostdinc` only removes the standard *system* include directories, and `-I /dev/null` only sets the *additional* search path. Neither affects:\n\n1. Absolute includes — `#include \"/etc/passwd\"` is opened directly by cpp.\n2. Quoted includes relative to the current file — cpp always searches the directory containing the file being preprocessed for `#include \"...\"`, so `#include \"../../../../etc/shadow\"` traverses out of the corpus.\n\n## Proof of concept (verified)\n\nReproduced against the shipped code with the exact command `_cpp_preprocess` builds (`cpp -w -P -nostdinc -I /dev/null <file>`), and against `extract_fortran()` directly.\n\nSecret on disk (`/tmp/secret.txt`): `TOP_SECRET_...`\n\n(a) Absolute include — `evil_abs.F90`:\n\n    program evil\n    #include \"/absolute/path/to/secret.txt\"\n    end program evil\n\n(b) Relative traversal — `evil_rel.F90`:\n\n    program evil\n    #include \"../secret.txt\"\n    end program evil\n\nBoth produce preprocessed output containing the full secret file contents (`\"SECRET IN OUTPUT: True\"` for both).\n\nSurfacing into the graph — `leak.F90` places the include in an identifier position via a free-form continuation so the leaked value becomes a node/edge:\n\n    module m\n    contains\n    subroutine s\n    use &\n    #include \"/path/to/token.secret\"\n    end subroutine s\n    end module m\n\n`extract_fortran()` on this file emits a node whose label is the entire single-line contents of `token.secret` and an `imports` edge to it. That node is written to `graph.json` / `GRAPH_REPORT.md` / the wiki and returned by the MCP `query_graph` / `get_node` / `get_neighbors` tools — i.e. exfiltrated into the agent's context and into persisted, shareable artifacts.\n\nFidelity note: Fortran is case-insensitive, so captured identifiers are lower-cased. Case-insensitive secrets (file paths, hostnames, usernames, hex tokens, connection-string fragments, and the mere existence/partial content of a readable file) leak cleanly; high-entropy case-sensitive blobs (base64/JWT) are partially corrupted by the lower-casing but still confirm readability and structure. Single-token-per-line secret files (API-key files, single-line credential/token files) leak that token in full (lower-cased). Requires `cpp`/gcc on PATH (near-ubiquitous on the dev/CI hosts graphify targets); it cleanly falls back to raw bytes when absent.\n\n## Suggested fix\n\nMirror the containment approach already used elsewhere in the codebase (`_project_xml_is_safe`, `security.validate_graph_path`): before invoking cpp, scan the source for `#include` directives and **refuse or neutralise any include whose target is absolute or resolves outside the corpus/repo root**. Concretely, in `_cpp_preprocess`:\n\n- Parse `#include \"...\"` / `#include <...>` directives.\n- Resolve each target against the file's directory; if it is absolute, or its `.resolve()` escapes the scan root, strip that line (or fall back to `path.read_bytes()` with no preprocessing).\n- Only allow includes that resolve to a path inside the corpus root.\n\nA blunter but safe alternative is to strip all `#include` lines before preprocessing (macros still expand; cross-file includes lose fidelity but no host files can be read). Running cpp inside a filesystem sandbox (bwrap/unshare with only the corpus mounted) would also close it but is heavier.\n\n## Detected by\n\nAeon vuln-scanner. Semgrep flagged the Fortran subprocess path; manual review of the F-007 mitigation plus an empirical `cpp` repro confirmed the bypass.",
+    "type": "reviewed",
+    "severity": "medium",
+    "repository_advisory_url": "https://api.github.com/repos/Graphify-Labs/graphify/security-advisories/GHSA-pcc4-rvhr-2pr8",
+    "source_code_location": "https://github.com/Graphify-Labs/graphify",
+    "identifiers": [
+      {
+        "value": "GHSA-pcc4-rvhr-2pr8",
+        "type": "GHSA"
+      }
+    ],
+    "references": [
+      "https://github.com/Graphify-Labs/graphify/security/advisories/GHSA-pcc4-rvhr-2pr8",
+      "https://github.com/Graphify-Labs/graphify/commit/e1d9deed6a437f2c85458ef3c42519159f322b7b",
+      "https://github.com/Graphify-Labs/graphify/releases/tag/v0.9.70",
+      "https://github.com/advisories/GHSA-pcc4-rvhr-2pr8"
+    ],
+    "published_at": "2026-10-19T16:51:36Z",
+    "updated_at": "2026-10-19T16:52:26Z",
+    "github_reviewed_at": "2026-10-19T16:51:36Z",
+    "nvd_published_at": null,
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "pip",
+          "name": "graphifyy"
+        },
+        "vulnerable_version_range": ">= 0.7.2, < 0.9.70",
+        "first_patched_version": "0.9.70",
+        "vulnerable_functions": [
+
+        ]
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+        "score": 6.8
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-22",
+        "name": "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')"
+      },
+      {
+        "cwe_id": "CWE-73",
+        "name": "External Control of File Name or Path"
+      }
+    ],
+    "credits": [
+      {
+        "user": {
+          "login": "aeonframework",
+          "id": 272311952,
+          "node_id": "U_kgDOEDsmkA",
+          "avatar_url": "https://avatars.githubusercontent.com/u/272311952?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/aeonframework",
+          "html_url": "https://github.com/aeonframework",
+          "followers_url": "https://api.github.com/users/aeonframework/followers",
+          "following_url": "https://api.github.com/users/aeonframework/following{/other_user}",
+          "gists_url": "https://api.github.com/users/aeonframework/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/aeonframework/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/aeonframework/subscriptions",
+          "organizations_url": "https://api.github.com/users/aeonframework/orgs",
+          "repos_url": "https://api.github.com/users/aeonframework/repos",
+          "events_url": "https://api.github.com/users/aeonframework/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/aeonframework/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "reporter"
+      }
+    ],
+    "comments": 1,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-rv4m-xm3f-3ccq",
+    "cve_id": "CVE-2026-111058",
+    "url": "https://api.github.com/advisories/GHSA-rv4m-xm3f-3ccq",
+    "html_url": "https://github.com/advisories/GHSA-rv4m-xm3f-3ccq",
+    "summary": "Mercury: Unauthenticated Remote Code Execution via /api/kernels",
+    "description": "Mercury runs a JupyterLab server with **anonymous access by default** (`mercury_app/__main__.py` sets `--IdentityProvider.token=''` when no `--token`/`MERCURY_TOKEN` is given; when tokenless it also sets `--ServerApp.disable_check_xsrf=True`). It relies on a **blocklist** (`mercury_app/block_handler.py` `BLOCKED_PATTERNS`: `/lab`, `/api/terminals`, `/api/shutdown`, `/files`) to keep anonymous users off dangerous Jupyter endpoints.\n\n## The vulnerability\n`/api/kernels` is **NOT** in the blocklist (and cannot be — Mercury needs kernels to run notebooks), and `patch_kernel_websocket_handler()` (`mercury_app/idle_timeout.py`) only tracks the idle-timeout: it wraps `on_message` to call `self.application._timeout_manager.touch()` and then invokes the original handler with **no filtering of `execute_request`**. So any unauthenticated network client can:\n\n```\nPOST /api/kernels {\"name\":\"python3\"}        -> 201, returns kernel id\nopen websocket /api/kernels/<id>/channels\nsend an execute_request with arbitrary code -> arbitrary Python execution = RCE\n```\n\n## Distinct from GHSA-f8c7-rwf9-fmgm (incomplete fix)\nGHSA-f8c7 was \"Unauthenticated RCE via `/api/terminals`\" — a missing-comma blocklist bypass. Its fix (add the comma so `/api/terminals` is blocked) does **NOT** address `/api/kernels`, which remains exploitable. The blocklist approach is fundamentally unable to cover kernels, so this is not a variant that another blocklist entry fixes.\n\n## Runtime-proven (on the patched version)\nOn **mercury 3.2.4** — the release that fixed GHSA-f8c7 — with the default (tokenless) config, as an unauthenticated client: `POST /api/terminals` returns **403** (the f8c7 fix is present), but `POST /api/kernels` returns **201**; opening the kernel websocket and sending an `execute_request` executed attacker-supplied Python (ran `whoami` as the server process user and wrote a marker file `/tmp/PWNED_MERCURY_RCE`). Full unauthenticated remote code execution. Deterministic PoC (client script + notebook) included.\n\n## Impact\nUnauthenticated, network-reachable arbitrary code execution as the Mercury server process user on every default deployment — complete compromise of the host/container and any data/secrets it can reach. \n\n## Fix\nThe blocklist cannot secure an anonymous kernel-backed server. Require real per-request authentication (a token or password) by default, or restrict the kernel message channel so anonymous websocket clients cannot issue `execute_request` outside Mercury's own controlled execution flow.\n\n## Dedup (3-method)\nOSV.dev CLEAN(0) for `mercury` and `mljar-mercury`; the repo's only advisory (GHSA-f8c7-rwf9-fmgm) covers `/api/terminals` only (description does not mention kernels); no issue/PR describes the `/api/kernels` RCE (#219/#134/#262 are \"add auth\" feature requests that merely confirm anonymous-by-default). Sink independently confirmed on current HEAD (blocklist omits `/api/kernels`; `token=''` default; `patch_kernel_websocket_handler` does no execute filtering).\n\nFinder: Abdullah Kareem (GitHub: CyberKareem).",
+    "type": "reviewed",
+    "severity": "critical",
+    "repository_advisory_url": "https://api.github.com/repos/mljar/mercury/security-advisories/GHSA-rv4m-xm3f-3ccq",
+    "source_code_location": "https://github.com/mljar/mercury",
+    "identifiers": [
+      {
+        "value": "GHSA-rv4m-xm3f-3ccq",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-111058",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://github.com/mljar/mercury/security/advisories/GHSA-rv4m-xm3f-3ccq",
+      "https://github.com/mljar/mercury/commit/73a40ceb0becf057f495a5738ad7f5a5222a53e1",
+      "https://github.com/mljar/mercury/releases/tag/3.2.6",
+      "https://github.com/advisories/GHSA-rv4m-xm3f-3ccq"
+    ],
+    "published_at": "2026-10-19T16:49:08Z",
+    "updated_at": "2026-10-19T16:49:08Z",
+    "github_reviewed_at": "2026-10-19T16:49:08Z",
+    "nvd_published_at": null,
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "pip",
+          "name": "mercury"
+        },
+        "vulnerable_version_range": "<= 3.2.5",
+        "first_patched_version": "3.2.6",
+        "vulnerable_functions": [
+
+        ]
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "score": 9.8
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-862",
+        "name": "Missing Authorization"
+      }
+    ],
+    "credits": [
+      {
+        "user": {
+          "login": "CyberKareem",
+          "id": 67718280,
+          "node_id": "MDQ6VXNlcjY3NzE4Mjgw",
+          "avatar_url": "https://avatars.githubusercontent.com/u/67718280?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/CyberKareem",
+          "html_url": "https://github.com/CyberKareem",
+          "followers_url": "https://api.github.com/users/CyberKareem/followers",
+          "following_url": "https://api.github.com/users/CyberKareem/following{/other_user}",
+          "gists_url": "https://api.github.com/users/CyberKareem/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/CyberKareem/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/CyberKareem/subscriptions",
+          "organizations_url": "https://api.github.com/users/CyberKareem/orgs",
+          "repos_url": "https://api.github.com/users/CyberKareem/repos",
+          "events_url": "https://api.github.com/users/CyberKareem/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/CyberKareem/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "finder"
+      }
+    ],
+    "comments": 1,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "score": 9.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-vx2m-gpq4-8j5q",
+    "cve_id": "CVE-2026-108372",
+    "url": "https://api.github.com/advisories/GHSA-vx2m-gpq4-8j5q",
+    "html_url": "https://github.com/advisories/GHSA-vx2m-gpq4-8j5q",
+    "summary": "LoopX serve-status permissive CORS policy exposes control-plane state and private Markdown files",
+    "description": "## Summary\n\n`loopx serve-status` sends `Access-Control-Allow-Origin: *` on **every** response,\nincluding its unauthenticated `GET` routes. Because the endpoint is unauthenticated and\nbound to a fixed, well-known loopback port, **any website the operator visits can read\nLoopX control-plane state and the contents of Markdown files inside every registered goal\nrepo**, using a plain `fetch()` with no user interaction.\n\nThe write endpoints are *not* affected — they are correctly Origin-checked. This report is\nstrictly about the **read** paths.\n\n## Impact\n\nWhile `loopx serve-status` is running, a page on any origin can run:\n\n```js\n// no interaction, no preflight, no credentials needed\nconst s = await (await fetch('http://127.0.0.1:8766/status.json')).json();\nfor (const g of s.goals ?? []) {\n  const m = await (await fetch(\n    `http://127.0.0.1:8766/review-material?goal_id=${g.id}&path=design-notes.md`\n  )).json();\n  exfiltrate(m.content);\n}\n```\n\nand read back:\n\n* **`GET /status.json`** — the whole status projection: goal ids, run history, and local\n  absolute paths (`registry`, `runtime_root`). With `--global-registry` this covers\n  **every project registered on the machine**, not just one.\n* **`GET /review-material?goal_id=…&path=…`** — the *content* of any `.md`/`.markdown`\n  file under a goal's repo root, state dir, or runtime dir. In practice that is the\n  operator's private design notes, handoff docs, and evidence write-ups.\n* **`GET /`** — endpoint discovery, including which write APIs are enabled.\n* **`POST /control-plane/configure-goal/dry-run`** — this route has **no Origin check at\n  all**, and `do_OPTIONS` returns `Access-Control-Allow-Headers: Content-Type`, so a\n  cross-origin JSON POST passes preflight. The response leaks the `before`/`after`\n  control-plane configuration for a goal. (It does not write — I verified `written=false`.)\n\n`docs/public-private-boundary.md` classifies \"local absolute paths\", \"task ids\", \"raw logs\nand metrics\" and \"active goal state that reveals current user context\" as material that\nmust stay private. All of it is currently readable by any origin.\n\nTwo things make this more than theoretical:\n\n1. **Fixed default ports.** `8765` (project) and `8766` (global) are hardcoded defaults, so\n   an attacker page can simply try both — no discovery step needed.\n2. **It is documented as a persistent service.** `docs/guides/getting-started.md` documents\n   `loopx serve-status`, and `scripts/macos-dashboard-launchagent.sh` installs a LaunchAgent\n   that keeps `serve-status --global-registry --port 8766` running **after every login**. For\n   anyone following that guide, this is an always-on, machine-wide read surface.\n\nI have graded this **High** on the basis of zero-interaction exfiltration of private local\nmaterial from a persistent service. It is read-only and scope-limited, so if you read the\nexposure as lower I would not argue the point — you know your users' setups better than I do.\n\n## Location\n\n`loopx/status_server.py:136-146` — `StatusRequestHandler._send_json()`:\n\n```python\ndef _send_json(self, payload: dict[str, Any], *, status: int = 200) -> None:\n    ...\n    self.send_header(\"Access-Control-Allow-Origin\", \"*\")   # <-- line 142\n```\n\n`_send_json` is the single response path for *all* routes, so the wildcard is applied to\n`/status.json`, `/review-material`, `/healthz`, `/` and the dry-run POSTs alike.\n`do_OPTIONS` (`:148-153`) repeats it.\n\nConfirmed present at `main` HEAD (`b0c8e315`, blob `c9e53d1a`) at the time of writing.\n\n## What is NOT affected (I checked, so you don't have to)\n\nI tried to refute this before reporting. These controls all hold:\n\n* **Writes are properly defended.** With `--enable-reward-write-api` and\n  `--enable-control-plane-write-api` both on, `POST /reward/append` and\n  `POST /control-plane/configure-goal/apply` return **403 \"only accepts loopback browser\n  origins\"** for a foreign `Origin`. `is_loopback_origin()` does its job. There is no\n  cross-origin write, and DNS rebinding does not defeat it either (the rebound page still\n  carries its own non-loopback origin).\n* **No path traversal.** `../../../../etc/hostname` → 400; an absolute `.md` outside the\n  goal roots → 400 (\"outside the goal repo/state/runtime roots\"). `path_is_under()` is\n  correct.\n* **Extension allowlist holds.** `secrets.env` inside the repo → 400. Only `.md`/`.markdown`\n  can be read.\n* **Dry-run does not write.** `configure_goal_with_global_sync(execute=False)` returns\n  before any write; I observed `written=false`.\n\nSo the exposure is confined to: status JSON + Markdown under registered goal roots. That is\nstill private material, but it is not arbitrary file read and it is not remote code\nexecution.\n\n## Proof of concept\n\nRun against an unmodified clone at HEAD, **default flags** (no write APIs enabled):\n\n```\nGET /healthz                 Origin: https://evil.example  -> 200  ACAO: '*'\nGET /                        Origin: https://evil.example  -> 200  ACAO: '*'\nGET /status.json             Origin: https://evil.example  -> 200  ACAO: '*'\nGET /review-material?goal_id=victim-goal&path=internal-design-notes.md\n                             Origin: https://evil.example  -> 200  ACAO: '*'\n   content: \"# Internal notes\\n\\nPROD_DB_HOST=db.internal.corp\\nCONFIDENTIAL: ...\"\n```\n\nThe file content came back verbatim to a foreign origin. Matched controls from the same\nharness, with **both write flags enabled** (i.e. the configuration most favourable to the\ncurrent design):\n\n```\nPOST /reward/append                        Origin: https://evil.example -> 403 (origin check)\nPOST /control-plane/configure-goal/apply   Origin: https://evil.example -> 403 (origin check)\nGET  /review-material  ../../../../etc/hostname                        -> 400 (traversal blocked)\nGET  /review-material  <abs path outside roots>.md                     -> 400 (root check)\nGET  /review-material  secrets.env                                     -> 400 (extension check)\nGET  /status.json                          Origin: https://evil.example -> 200 ACAO '*'  <-- still readable\n```\n\nI am happy to send the exact harness script if it is useful; it is ~120 lines of stdlib\nPython and touches no file in the repo.\n\n## Suggested fix\n\nYou already have the right predicate in this file — `is_loopback_origin()`. The minimal fix\nis to stop emitting the wildcard and instead echo the request origin only when it passes\nthat check:\n\n```python\ndef _send_json(self, payload: dict[str, Any], *, status: int = 200) -> None:\n    body = json.dumps(payload, ensure_ascii=False, indent=2).encode(\"utf-8\")\n    self.send_response(status)\n    self.send_header(\"Content-Type\", \"application/json; charset=utf-8\")\n    self.send_header(\"Content-Length\", str(len(body)))\n    self.send_header(\"Cache-Control\", \"no-store\")\n    origin = self.headers.get(\"Origin\")\n    if origin and is_loopback_origin(origin):\n        self.send_header(\"Access-Control-Allow-Origin\", origin)\n        self.send_header(\"Vary\", \"Origin\")\n    # no Origin header (curl, the CLI, a same-origin fetch) -> send no ACAO at all\n    self.end_headers()\n    self.wfile.write(body)\n```\n\nand the same in `do_OPTIONS`. This keeps the dashboard working — it is served from\n`http://127.0.0.1:5174` and fetches `127.0.0.1:8765/8766`, which is cross-origin between two\nloopback ports, which I assume is exactly why the wildcard was added — while denying every\nnon-loopback origin.\n\nTwo optional hardening steps, if you want them:\n\n* Apply the existing `is_loopback_origin()` check to `POST /control-plane/configure-goal/dry-run`\n  and `POST /reward/dry-run` too, so the config projection is not readable cross-origin.\n* Add a `Host` header check (reject a `Host` that is not loopback) to close DNS rebinding\n  against clients that do not send `Origin`.\n\n## Scope of review\n\nReviewed 26/52 identified entrypoints across 758 files (360,618 LOC) of the `loopx` package\nand dashboard; tools: semgrep 1.172.0, trufflehog 3.96.0, osv-scanner 2.4.0, plus a manual\ndataflow pass. Skipped: `tests/`, `regression/`, `examples/`, `docs/`, and the benchmark\nadapters under `loopx/benchmark_adapters/`. Coverage confidence: partial.\n\nOther things I looked at and did **not** find a problem with, in case it saves you time:\nself-update (`curl | bash` is over HTTPS to a hardcoded `raw.githubusercontent.com` URL; the\n`LOOPX_ARCHIVE_URL` override requires environment control, i.e. privileges the attacker\nwould have to already have); project/slash-command skill installation (strict id regex plus\n`_assert_project_boundary()` containment); the `shell=True` worker tick (the value is a\nuser-configured shell command by design, and `demo_supervisor.build_visible_worker_turn_command`\npasses the objective through `shlex.quote`); outbound SSRF surfaces (`content_ops/surface.py`\nblocks private/loopback/link-local ranges and refuses redirects). No `pickle`, `yaml.load`,\n`eval`, or `os.system` anywhere in the package.\n\n3 dependency advisories exist in dev/docs tooling only (`pymdown-extensions`, `idna`,\n`postcss`); none are reachable from the runtime package, which declares no dependencies, so\nI have not opened a bump PR.\n\n## Detected by\n\n[Aeon](https://github.com/aeonfun/aeon), an automated security review. Findings are\nreproduced at HEAD and manually verified before reporting. Reported privately via GitHub PVR\nbecause that is the intake channel your `SECURITY.md` designates.",
+    "type": "reviewed",
+    "severity": "high",
+    "repository_advisory_url": "https://api.github.com/repos/loopx-project/loopx/security-advisories/GHSA-vx2m-gpq4-8j5q",
+    "source_code_location": "https://github.com/huangruiteng/loopx",
+    "identifiers": [
+      {
+        "value": "GHSA-vx2m-gpq4-8j5q",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-108372",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://github.com/huangruiteng/loopx/security/advisories/GHSA-vx2m-gpq4-8j5q",
+      "https://github.com/loopx-project/loopx/security/advisories/GHSA-vx2m-gpq4-8j5q",
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-108372",
+      "https://github.com/loopx-project/loopx/pull/3137",
+      "https://github.com/loopx-project/loopx/commit/838720fba42bd22f71b5bb763ec406f7bdf4c940",
+      "https://github.com/loopx-project/loopx/releases/tag/v0.4.5",
+      "https://github.com/advisories/GHSA-vx2m-gpq4-8j5q"
+    ],
+    "published_at": "2026-10-19T16:11:57Z",
+    "updated_at": "2026-10-19T16:11:59Z",
+    "github_reviewed_at": "2026-10-19T16:11:57Z",
+    "nvd_published_at": "2026-10-16T22:17:14Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+      {
+        "package": {
+          "ecosystem": "pip",
+          "name": "loopx"
+        },
+        "vulnerable_version_range": ">= 0.0.1, < 0.4.5",
+        "first_patched_version": "0.4.5",
+        "vulnerable_functions": [
+
+        ]
+      }
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N",
+        "score": 7.1
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-346",
+        "name": "Origin Validation Error"
+      },
+      {
+        "cwe_id": "CWE-942",
+        "name": "Permissive Cross-domain Security Policy with Untrusted Domains"
+      }
+    ],
+    "credits": [
+      {
+        "user": {
+          "login": "aeonframework",
+          "id": 272311952,
+          "node_id": "U_kgDOEDsmkA",
+          "avatar_url": "https://avatars.githubusercontent.com/u/272311952?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/aeonframework",
+          "html_url": "https://github.com/aeonframework",
+          "followers_url": "https://api.github.com/users/aeonframework/followers",
+          "following_url": "https://api.github.com/users/aeonframework/following{/other_user}",
+          "gists_url": "https://api.github.com/users/aeonframework/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/aeonframework/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/aeonframework/subscriptions",
+          "organizations_url": "https://api.github.com/users/aeonframework/orgs",
+          "repos_url": "https://api.github.com/users/aeonframework/repos",
+          "events_url": "https://api.github.com/users/aeonframework/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/aeonframework/received_events",
+          "type": "User",
+          "user_view_type": "public",
+          "site_admin": false
+        },
+        "type": "reporter"
+      }
+    ],
+    "comments": 1,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    },
+    "epss": {
+      "percentage": 0.00223,
+      "percentile": 0.11976
+    }
+  },
+  {
+    "ghsa_id": "GHSA-qr8m-h82x-78hv",
+    "cve_id": "CVE-2026-86375",
+    "url": "https://api.github.com/advisories/GHSA-qr8m-h82x-78hv",
+    "html_url": "https://github.com/advisories/GHSA-qr8m-h82x-78hv",
+    "summary": "Dell Application Installer, versions prior to 26.09.0.1, contain a Missing Encryption of...",
+    "description": "Dell Application Installer, versions prior to 26.09.0.1, contain a Missing Encryption of Sensitive Data vulnerability. An unauthenticated attacker with local access could potentially exploit this vulnerability, leading to Unauthorized access.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-qr8m-h82x-78hv",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-86375",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-86375",
+      "https://www.dell.com/support/kbdoc/en-us/000510641/dsa-2026-423-security-update-for-dell-application-installer-for-a-missing-encryption-of-sensitive-data-vulnerability",
+      "https://github.com/advisories/GHSA-qr8m-h82x-78hv"
+    ],
+    "published_at": "2026-10-19T15:32:42Z",
+    "updated_at": "2026-10-19T15:32:51Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T15:17:08Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+        "score": 6.2
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-311",
+        "name": "Missing Encryption of Sensitive Data"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "score": 6.2
+    }
+  },
+  {
+    "ghsa_id": "GHSA-32x8-68x9-4hfv",
+    "cve_id": "CVE-2026-112329",
+    "url": "https://api.github.com/advisories/GHSA-32x8-68x9-4hfv",
+    "html_url": "https://github.com/advisories/GHSA-32x8-68x9-4hfv",
+    "summary": "The Sensei LMS WordPress plugin before 4.26.4 contains a broken access control vulnerability in...",
+    "description": "The Sensei LMS WordPress plugin before 4.26.4 contains a broken access control vulnerability in the legacy save_new_message handler hooked on the init action, which validates only a generic nonce without verifying course enrollment or restricting post_id to valid post types. Authenticated attackers, including unprivileged Subscribers, can supply an arbitrary post_id for any course, lesson, or quiz to create a private message addressed to that post's author, bypassing the enrollment checks enforced by the newer REST send-message controller.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-32x8-68x9-4hfv",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112329",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112329",
+      "https://senseilms.com/release-notes",
+      "https://www.vulncheck.com/advisories/sensei-lms-broken-access-control-via-save-new-message",
+      "https://github.com/advisories/GHSA-32x8-68x9-4hfv"
+    ],
+    "published_at": "2026-10-19T15:32:42Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T15:17:06Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+        "score": 4.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-862",
+        "name": "Missing Authorization"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+      "score": 4.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-p84f-43q4-5hp8",
+    "cve_id": "CVE-2026-112151",
+    "url": "https://api.github.com/advisories/GHSA-p84f-43q4-5hp8",
+    "html_url": "https://github.com/advisories/GHSA-p84f-43q4-5hp8",
+    "summary": "A weakness has been identified in vraj404 Criminal Management System up to...",
+    "description": "A weakness has been identified in vraj404 Criminal Management System up to 2808d057e7ddc5295519a487365b0cacfd0ba8c4. Affected by this vulnerability is an unknown functionality of the file home.php of the component Submission Form. This manipulation of the argument id/name/offName/crime/dob/arrDate/crimeDate/sex/address/folder/more causes sql injection. The attack is possible to be carried out remotely. The exploit has been made available to the public and could be used for attacks. This product adopts a rolling release strategy to maintain continuous delivery. Therefore, version details for affected or updated releases cannot be specified. The project was informed of the problem early through an issue report but has not responded yet.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-p84f-43q4-5hp8",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112151",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112151",
+      "https://github.com/vraj404/Criminal-Management-System/issues/3",
+      "https://vuldb.com/cve/CVE-2026-112151",
+      "https://vuldb.com/submit/1014017",
+      "https://vuldb.com/vuln/422258",
+      "https://vuldb.com/vuln/422258/cti",
+      "https://github.com/advisories/GHSA-p84f-43q4-5hp8"
+    ],
+    "published_at": "2026-10-19T15:32:42Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T15:17:05Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "score": 7.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N/E:P/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.5
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-74",
+        "name": "Improper Neutralization of Special Elements in Output Used by a Downstream Component ('Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "score": 7.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-66hj-rrx7-m6pr",
+    "cve_id": "CVE-2026-112150",
+    "url": "https://api.github.com/advisories/GHSA-66hj-rrx7-m6pr",
+    "html_url": "https://github.com/advisories/GHSA-66hj-rrx7-m6pr",
+    "summary": "A security flaw has been discovered in vraj404 Criminal-Management-System up to...",
+    "description": "A security flaw has been discovered in vraj404 Criminal-Management-System up to 2808d057e7ddc5295519a487365b0cacfd0ba8c4. Affected is an unknown function of the file search.php. The manipulation of the argument Search results in sql injection. The attack can be executed remotely. The exploit has been released to the public and may be used for attacks. This product implements a rolling release for ongoing delivery, which means version information for affected or updated releases is unavailable. The project was informed of the problem early through an issue report but has not responded yet.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-66hj-rrx7-m6pr",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112150",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112150",
+      "https://github.com/vraj404/Criminal-Management-System/issues/2",
+      "https://github.com/vraj404/Criminal-Management-System",
+      "https://vuldb.com/cve/CVE-2026-112150",
+      "https://vuldb.com/submit/1014016",
+      "https://vuldb.com/vuln/422257",
+      "https://vuldb.com/vuln/422257/cti",
+      "https://github.com/advisories/GHSA-66hj-rrx7-m6pr"
+    ],
+    "published_at": "2026-10-19T15:32:42Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T15:17:05Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "score": 7.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N/E:P/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.5
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-74",
+        "name": "Improper Neutralization of Special Elements in Output Used by a Downstream Component ('Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "score": 7.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-3hm9-hgv5-w9hg",
+    "cve_id": "CVE-2026-112328",
+    "url": "https://api.github.com/advisories/GHSA-3hm9-hgv5-w9hg",
+    "html_url": "https://github.com/advisories/GHSA-3hm9-hgv5-w9hg",
+    "summary": "The Sensei LMS WordPress plugin before 4.26.4 contains a broken access control vulnerability in...",
+    "description": "The Sensei LMS WordPress plugin before 4.26.4 contains a broken access control vulnerability in the add_new_module_term AJAX handler that allows authenticated Teacher-role attackers to assign module taxonomy terms to arbitrary courses by supplying a crafted course_id, since the handler validates only a generic nonce and checks manage_options solely for slug prefixing rather than verifying course edit permissions. Attackers can reuse a nonce obtained from their own course metabox to call wp_set_object_terms against courses owned by other teachers or administrators, enabling unauthorized modification of course content they do not own.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-3hm9-hgv5-w9hg",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112328",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112328",
+      "https://senseilms.com/release-notes",
+      "https://www.vulncheck.com/advisories/sensei-lms-broken-access-control-via-add-new-module-term-ajax",
+      "https://github.com/advisories/GHSA-3hm9-hgv5-w9hg"
+    ],
+    "published_at": "2026-10-19T15:32:42Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T15:17:06Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+        "score": 4.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-862",
+        "name": "Missing Authorization"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+      "score": 4.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-c4x3-mrrr-qp35",
+    "cve_id": "CVE-2026-112293",
+    "url": "https://api.github.com/advisories/GHSA-c4x3-mrrr-qp35",
+    "html_url": "https://github.com/advisories/GHSA-c4x3-mrrr-qp35",
+    "summary": "BoxyHQ Enterprise SaaS Starter Kit through 1.6.0 contains a missing authorization vulnerability...",
+    "description": "BoxyHQ Enterprise SaaS Starter Kit through 1.6.0 contains a missing authorization vulnerability that allows non-owner team members to manage billing because payment routes skip the team_payments permission check. Authenticated MEMBER or ADMIN users can call create-portal-link, create-checkout-session, and products to open Stripe billing portals, view invoices, change payment methods, or alter subscriptions.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-c4x3-mrrr-qp35",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112293",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112293",
+      "https://github.com/boxyhq/saas-starter-kit/issues/2511",
+      "https://github.com/boxyhq/saas-starter-kit/blob/v1.6.0/lib/permissions.ts",
+      "https://github.com/boxyhq/saas-starter-kit/blob/v1.6.0/pages/api/teams/%5Bslug%5D/payments/create-checkout-session.ts",
+      "https://github.com/boxyhq/saas-starter-kit/blob/v1.6.0/pages/api/teams/%5Bslug%5D/payments/create-portal-link.ts",
+      "https://github.com/boxyhq/saas-starter-kit/blob/v1.6.0/pages/api/teams/%5Bslug%5D/payments/products.ts",
+      "https://www.vulncheck.com/advisories/boxyhq-saas-starter-kit-through-1.6.0-missing-authorization-on-team-payment-api",
+      "https://github.com/advisories/GHSA-c4x3-mrrr-qp35"
+    ],
+    "published_at": "2026-10-19T15:32:42Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:08Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N",
+        "score": 5.4
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-862",
+        "name": "Missing Authorization"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N",
+      "score": 5.4
+    }
+  },
+  {
+    "ghsa_id": "GHSA-mc9q-gx24-2r44",
+    "cve_id": "CVE-2026-112147",
+    "url": "https://api.github.com/advisories/GHSA-mc9q-gx24-2r44",
+    "html_url": "https://github.com/advisories/GHSA-mc9q-gx24-2r44",
+    "summary": "A vulnerability was found in ai-genius-automations octoally up to 1.0.87. The impacted element is...",
+    "description": "A vulnerability was found in ai-genius-automations octoally up to 1.0.87. The impacted element is an unknown function of the file server/src/index.ts. Performing a manipulation of the argument path results in information disclosure. The attack may be initiated remotely. The exploit has been made public and could be used. Upgrading to version 1.0.88 is sufficient to resolve this issue. The patch is named 3898085c4e701be21377ebd9e91e10b941e47168. It is recommended to upgrade the affected component.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-mc9q-gx24-2r44",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112147",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112147",
+      "https://github.com/ai-genius-automations/octoally/issues/24",
+      "https://github.com/ai-genius-automations/octoally/commit/3898085c4e701be21377ebd9e91e10b941e47168",
+      "https://github.com/ai-genius-automations/octoally",
+      "https://github.com/ai-genius-automations/octoally/releases/tag/v1.0.88",
+      "https://vuldb.com/cve/CVE-2026-112147",
+      "https://vuldb.com/submit/1013490",
+      "https://vuldb.com/submit/1013491",
+      "https://vuldb.com/vuln/422254",
+      "https://vuldb.com/vuln/422254/cti",
+      "https://github.com/advisories/GHSA-mc9q-gx24-2r44"
+    ],
+    "published_at": "2026-10-19T15:32:42Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T15:16:56Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+        "score": 5.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N/E:P/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.5
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-200",
+        "name": "Exposure of Sensitive Information to an Unauthorized Actor"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+      "score": 5.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-6rvc-qx3r-7g96",
+    "cve_id": "CVE-2026-112149",
+    "url": "https://api.github.com/advisories/GHSA-6rvc-qx3r-7g96",
+    "html_url": "https://github.com/advisories/GHSA-6rvc-qx3r-7g96",
+    "summary": "A vulnerability was identified in vraj404 Criminal-Management-System up to...",
+    "description": "A vulnerability was identified in vraj404 Criminal-Management-System up to 2808d057e7ddc5295519a487365b0cacfd0ba8c4. This impacts the function move_uploaded_file of the file home.php. The manipulation of the argument my_img leads to unrestricted upload. Remote exploitation of the attack is possible. The exploit is publicly available and might be used. This product follows a rolling release approach for continuous delivery, so version details for affected or updated releases are not provided. The project was informed of the problem early through an issue report but has not responded yet.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-6rvc-qx3r-7g96",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112149",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112149",
+      "https://github.com/vraj404/Criminal-Management-System/issues/1",
+      "https://github.com/vraj404/Criminal-Management-System",
+      "https://vuldb.com/cve/CVE-2026-112149",
+      "https://vuldb.com/submit/1014014",
+      "https://vuldb.com/vuln/422256",
+      "https://vuldb.com/vuln/422256/cti",
+      "https://github.com/advisories/GHSA-6rvc-qx3r-7g96"
+    ],
+    "published_at": "2026-10-19T15:32:42Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T15:17:03Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "score": 7.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N/E:P/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.5
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-284",
+        "name": "Improper Access Control"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "score": 7.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-4f98-277j-6qvj",
+    "cve_id": "CVE-2026-8168",
+    "url": "https://api.github.com/advisories/GHSA-4f98-277j-6qvj",
+    "html_url": "https://github.com/advisories/GHSA-4f98-277j-6qvj",
+    "summary": "Uncontrolled recursion in the SVG parser and renderer of the Qt SVG module (QtSvg) in Qt Group Qt...",
+    "description": "Uncontrolled recursion in the SVG parser and renderer of the Qt SVG module (QtSvg) in Qt Group Qt allows attackers to cause a denial of service (application crash via stack exhaustion) via a crafted SVG file with deeply nested elements.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-4f98-277j-6qvj",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-8168",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-8168",
+      "https://codereview.qt-project.org/c/qt/qtsvg/+/730501",
+      "https://codereview.qt-project.org/c/qt/qtsvg/+/730590",
+      "https://codereview.qt-project.org/c/qt/qtsvg/+/730591",
+      "https://codereview.qt-project.org/c/qt/qtsvg/+/730892",
+      "https://codereview.qt-project.org/c/qt/qtsvg/+/731257",
+      "https://codereview.qt-project.org/c/qt/qtsvg/+/733245",
+      "https://codereview.qt-project.org/c/qt/qtsvg/+/738811",
+      "https://codereview.qt-project.org/c/qt/qtsvg/+/743488",
+      "https://codereview.qt-project.org/c/qt/qtsvg/+/748966",
+      "https://codereview.qt-project.org/c/qt/qtsvg/+/756512",
+      "https://wiki.qt.io/List_of_known_vulnerabilities_in_Qt_products#CVE-2026-8168:",
+      "https://github.com/advisories/GHSA-4f98-277j-6qvj"
+    ],
+    "published_at": "2026-10-19T15:32:42Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:08Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": null,
+        "score": 0.0
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 7.1
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-674",
+        "name": "Uncontrolled Recursion"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": null,
+      "score": null
+    }
+  },
+  {
+    "ghsa_id": "GHSA-pp6m-j5rg-683m",
+    "cve_id": "CVE-2026-112295",
+    "url": "https://api.github.com/advisories/GHSA-pp6m-j5rg-683m",
+    "html_url": "https://github.com/advisories/GHSA-pp6m-j5rg-683m",
+    "summary": "FlyCms through commit edfdf724 contains a mass assignment vulnerability that allows authenticated...",
+    "description": "FlyCms through commit edfdf724 contains a mass assignment vulnerability that allows authenticated users to overwrite protected account columns by submitting extra User bean fields to /ucenter/account_update. Attackers can change their review status, rename themselves, or duplicate another account's username, email or mobile to break that victim's login.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-pp6m-j5rg-683m",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112295",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112295",
+      "https://github.com/sunkaifei/FlyCms/issues/19",
+      "https://github.com/sunkaifei/FlyCms/blob/edfdf724c3b944310f60c29aa755d03a00a75837/backend/src/main/java/com/flycms/module/user/service/UserService.java",
+      "https://github.com/sunkaifei/FlyCms/blob/edfdf724c3b944310f60c29aa755d03a00a75837/backend/src/main/java/com/flycms/web/front/UserController.java",
+      "https://github.com/sunkaifei/FlyCms/blob/edfdf724c3b944310f60c29aa755d03a00a75837/backend/src/main/resources/mapper/user__UserDao.xml",
+      "https://www.vulncheck.com/advisories/flycms-through-commit-edfdf724-mass-assignment-via-ucenter-account-update",
+      "https://github.com/advisories/GHSA-pp6m-j5rg-683m"
+    ],
+    "published_at": "2026-10-19T15:32:42Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:08Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:L",
+        "score": 5.4
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-915",
+        "name": "Improperly Controlled Modification of Dynamically-Determined Object Attributes"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:L",
+      "score": 5.4
+    }
+  },
+  {
+    "ghsa_id": "GHSA-v455-8jmh-chm4",
+    "cve_id": "CVE-2026-112294",
+    "url": "https://api.github.com/advisories/GHSA-v455-8jmh-chm4",
+    "html_url": "https://github.com/advisories/GHSA-v455-8jmh-chm4",
+    "summary": "FlyCms through commit edfdf724 contains a missing authorization vulnerability in ActionService...",
+    "description": "FlyCms through commit edfdf724 contains a missing authorization vulnerability in ActionService.counter() that allows authenticated users to modify other users' content rows because checkRowOwner never verifies ownership. Any registered user can send requests to /ucenter/action/{modelCode}/{id}/counter or /ucenter/action/compose to add arbitrary deltas to numeric fields like price, stock, or points.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-v455-8jmh-chm4",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112294",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112294",
+      "https://github.com/sunkaifei/FlyCms/issues/19",
+      "https://github.com/sunkaifei/FlyCms/blob/edfdf724c3b944310f60c29aa755d03a00a75837/backend/src/main/java/com/flycms/module/model/service/ActionService.java",
+      "https://github.com/sunkaifei/FlyCms/blob/edfdf724c3b944310f60c29aa755d03a00a75837/backend/src/main/java/com/flycms/web/front/ActionController.java",
+      "https://www.vulncheck.com/advisories/flycms-through-commit-edfdf724-missing-authorization-via-action-counter-endpoint",
+      "https://github.com/advisories/GHSA-v455-8jmh-chm4"
+    ],
+    "published_at": "2026-10-19T15:32:42Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:08Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+        "score": 4.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-639",
+        "name": "Authorization Bypass Through User-Controlled Key"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+      "score": 4.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-6phq-6cxr-q574",
+    "cve_id": "CVE-2026-112296",
+    "url": "https://api.github.com/advisories/GHSA-6phq-6cxr-q574",
+    "html_url": "https://github.com/advisories/GHSA-6phq-6cxr-q574",
+    "summary": "FlyCms through commit edfdf724 contains a default credentials vulnerability that allows...",
+    "description": "FlyCms through commit edfdf724 contains a default credentials vulnerability that allows unauthenticated remote attackers to gain super administrator access via the flycms account with password admin123. Attackers can log in through POST /api/auth/login, solving only the image captcha, to obtain full control of site content, users and configuration.",
+    "type": "unreviewed",
+    "severity": "critical",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-6phq-6cxr-q574",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112296",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112296",
+      "https://github.com/sunkaifei/FlyCms/issues/19",
+      "https://github.com/sunkaifei/FlyCms/blob/edfdf724c3b944310f60c29aa755d03a00a75837/README.md",
+      "https://github.com/sunkaifei/FlyCms/blob/edfdf724c3b944310f60c29aa755d03a00a75837/sql/flycms_20260928_093335.sql",
+      "https://www.vulncheck.com/advisories/flycms-through-commit-edfdf724-default-super-administrator-credentials",
+      "https://github.com/advisories/GHSA-6phq-6cxr-q574"
+    ],
+    "published_at": "2026-10-19T15:32:42Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:08Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "score": 9.8
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 9.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-1392",
+        "name": "Use of Default Credentials"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "score": 9.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-6p4m-p9g8-5x3c",
+    "cve_id": "CVE-2026-112291",
+    "url": "https://api.github.com/advisories/GHSA-6p4m-p9g8-5x3c",
+    "html_url": "https://github.com/advisories/GHSA-6p4m-p9g8-5x3c",
+    "summary": "Flarum Extension Manager 2.0.0-beta.1 before 2.0.0-beta.8 lacks authentication and admin checks...",
+    "description": "Flarum Extension Manager 2.0.0-beta.1 before 2.0.0-beta.8 lacks authentication and admin checks on the TaskResource index endpoint, allowing unauthenticated information disclosure. Remote attackers can send GET requests to /api/extension-manager-tasks to read task output revealing filesystem paths, installed extensions, versions, and PHP version.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-6p4m-p9g8-5x3c",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112291",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112291",
+      "https://github.com/flarum/framework/issues/4386",
+      "https://github.com/flarum/framework/commit/257989e71fd8cc7ddab20f31dcde1aa760b1a08f",
+      "https://github.com/flarum/framework/blob/v2.0.0-beta.6/extensions/package-manager/src/Api/Resource/TaskResource.php",
+      "https://github.com/flarum/framework/releases/tag/v2.0.0-beta.8",
+      "https://www.vulncheck.com/advisories/flarum-extension-manager-2.0.0-beta.1-before-2.0.0-beta.8-missing-authorization-via-task-api",
+      "https://github.com/advisories/GHSA-6p4m-p9g8-5x3c"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:07Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+        "score": 5.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:N/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.9
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-862",
+        "name": "Missing Authorization"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N",
+      "score": 5.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-52m4-ffr8-945g",
+    "cve_id": "CVE-2026-112292",
+    "url": "https://api.github.com/advisories/GHSA-52m4-ffr8-945g",
+    "html_url": "https://github.com/advisories/GHSA-52m4-ffr8-945g",
+    "summary": "CheckCle through 1.6.0 contains a missing authorization vulnerability that allows unauthenticated...",
+    "description": "CheckCle through 1.6.0 contains a missing authorization vulnerability that allows unauthenticated attackers to read, modify and delete records because shipped PocketBase collections use empty API rules. Attackers can query /api/collections/<name>/records endpoints to steal server_token values and alert_configurations secrets, disable alerting, alter status pages, or delete monitoring data.",
+    "type": "unreviewed",
+    "severity": "critical",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-52m4-ffr8-945g",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112292",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112292",
+      "https://github.com/operacle/checkcle/issues/214",
+      "https://github.com/operacle/checkcle/commit/f2c338ced9162b7820b2495e298d5578df92bf75",
+      "https://github.com/operacle/checkcle/blob/v1.6.0/application/public/upload/data/pb_schema_latest.json",
+      "https://www.vulncheck.com/advisories/checkcle-through-1.6.0-missing-authorization-via-empty-pocketbase-api-rules",
+      "https://github.com/advisories/GHSA-52m4-ffr8-945g"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:07Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+        "score": 9.8
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 9.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-862",
+        "name": "Missing Authorization"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+      "score": 9.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-w4jm-jj2f-69q8",
+    "cve_id": "CVE-2026-112290",
+    "url": "https://api.github.com/advisories/GHSA-w4jm-jj2f-69q8",
+    "html_url": "https://github.com/advisories/GHSA-w4jm-jj2f-69q8",
+    "summary": "Intelligence Community UI Kit @ukic/canary-web-components 3.0.0-canary.12 before 3.0.0-canary.48...",
+    "description": "Intelligence Community UI Kit @ukic/canary-web-components 3.0.0-canary.12 before 3.0.0-canary.48 contains a DOM-based cross-site scripting vulnerability in ic-tree-item that re-parses router-item slot text as HTML. When tree item truncation is enabled, attackers who influence a tree item label can have escaped markup decoded by truncateTreeItemLabel() and executed as JavaScript in visitors' browsers.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-w4jm-jj2f-69q8",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112290",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112290",
+      "https://github.com/mi6/ic-ui-kit/commit/e0eb0f16597dcb994a75c5230cd9243647ad7b3d",
+      "https://github.com/aaronamran/Public-Vulnerability-Disclosures/blob/main/2026/dom-xss-mi6-ic-ui-kit/README.md",
+      "https://github.com/mi6/ic-ui-kit/blob/7b32c7c2b53b74a915f40984fb7b0a2d825fc49c/packages/canary-web-components/src/components/ic-tree-item/ic-tree-item.tsx",
+      "https://www.vulncheck.com/advisories/mi6-ukic-canary-web-components-3.0.0-canary.12-before-3.0.0-canary.48-dom-xss-via-ic-tree-item",
+      "https://github.com/advisories/GHSA-w4jm-jj2f-69q8"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:50Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:07Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:L/I:L/A:N",
+        "score": 4.7
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:P/VC:L/VI:L/VA:N/SC:L/SI:L/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 2.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-79",
+        "name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:L/I:L/A:N",
+      "score": 4.7
+    }
+  },
+  {
+    "ghsa_id": "GHSA-c5rj-qvgf-xg6f",
+    "cve_id": "CVE-2026-112287",
+    "url": "https://api.github.com/advisories/GHSA-c5rj-qvgf-xg6f",
+    "html_url": "https://github.com/advisories/GHSA-c5rj-qvgf-xg6f",
+    "summary": "Krayin CRM before 2.2.7 contains a broken object level authorization vulnerability in...",
+    "description": "Krayin CRM before 2.2.7 contains a broken object level authorization vulnerability in EmailController write actions that allows scope-restricted authenticated users to manipulate other users' emails by supplying their numeric IDs. Attackers can call update, destroy, mass-update or mass-destroy endpoints to edit, re-send via is_draft=0, trash or permanently delete emails and disclose their subject, body and linked lead and person data.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-c5rj-qvgf-xg6f",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112287",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112287",
+      "https://github.com/krayin/laravel-crm/pull/2683",
+      "https://github.com/krayin/laravel-crm/commit/64b9125f33a7eb2ef9916d0e5fd8215c7f6a8c28",
+      "https://github.com/krayin/laravel-crm/blob/v2.2.6/packages/Webkul/Admin/src/Http/Controllers/Mail/EmailController.php",
+      "https://github.com/krayin/laravel-crm/releases/tag/v2.2.7",
+      "https://www.vulncheck.com/advisories/krayin-crm-before-2.2.7-broken-object-level-authorization-in-mail-module",
+      "https://github.com/advisories/GHSA-c5rj-qvgf-xg6f"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:46Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:07Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:H/A:N",
+        "score": 7.1
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:H/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 7.1
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-639",
+        "name": "Authorization Bypass Through User-Controlled Key"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:H/A:N",
+      "score": 7.1
+    }
+  },
+  {
+    "ghsa_id": "GHSA-2xfh-28f7-pm5w",
+    "cve_id": "CVE-2026-112283",
+    "url": "https://api.github.com/advisories/GHSA-2xfh-28f7-pm5w",
+    "html_url": "https://github.com/advisories/GHSA-2xfh-28f7-pm5w",
+    "summary": "VideoLAN libbluray through 1.5.1 contains an uncontrolled memory allocation vulnerability in...",
+    "description": "VideoLAN libbluray through 1.5.1 contains an uncontrolled memory allocation vulnerability in _parse_extent_start_points() in clpi_parse.c that trusts the num_point field without bounds checking. Attackers can supply a crafted .clpi file on a disc, image, or directory with a huge num_point to exhaust memory and CPU, causing denial of service.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-2xfh-28f7-pm5w",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112283",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112283",
+      "https://code.videolan.org/videolan/libbluray/-/blob/1.5.1/src/libbluray/bdnav/clpi_parse.c",
+      "https://hackmd.io/@haindpwn/libbluray-clpi-ep-map-oob-read",
+      "https://www.vulncheck.com/advisories/libbluray-through-1.5.1-uncontrolled-memory-allocation-via-parse-extent-start-points",
+      "https://github.com/advisories/GHSA-2xfh-28f7-pm5w"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:46Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:06Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+        "score": 5.5
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.8
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-789",
+        "name": "Memory Allocation with Excessive Size Value"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+      "score": 5.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-x3j6-3979-c9q8",
+    "cve_id": "CVE-2026-112282",
+    "url": "https://api.github.com/advisories/GHSA-x3j6-3979-c9q8",
+    "html_url": "https://github.com/advisories/GHSA-x3j6-3979-c9q8",
+    "summary": "VideoLAN libbluray through 1.5.1 contains an out-of-bounds read vulnerability in...",
+    "description": "VideoLAN libbluray through 1.5.1 contains an out-of-bounds read vulnerability in clpi_access_point() that allows attackers to crash applications by supplying a ClipInfo file with an empty EP-map fine table. Attackers can place a crafted .clpi file in BDMV/CLIPINF with num_ep_fine set to zero and an unclamped ref_ep_fine_id, triggering reads during seeking for denial of service.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-x3j6-3979-c9q8",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112282",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112282",
+      "https://code.videolan.org/videolan/libbluray/-/blob/1.5.1/src/libbluray/bdnav/clpi_parse.c",
+      "https://hackmd.io/@haindpwn/libbluray-clpi-ep-map-oob-read",
+      "https://www.vulncheck.com/advisories/videolan-libbluray-through-1.5.1-out-of-bounds-read-via-clpi-access-point",
+      "https://github.com/advisories/GHSA-x3j6-3979-c9q8"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:06Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+        "score": 5.5
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.8
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+      "score": 5.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-xjh5-97m9-9vqf",
+    "cve_id": "CVE-2026-112288",
+    "url": "https://api.github.com/advisories/GHSA-xjh5-97m9-9vqf",
+    "html_url": "https://github.com/advisories/GHSA-xjh5-97m9-9vqf",
+    "summary": "Krayin CRM 2.2.5 before 2.2.7 contains a server-side request forgery filter bypass that allows...",
+    "description": "Krayin CRM 2.2.5 before 2.2.7 contains a server-side request forgery filter bypass that allows users with webhook permissions to reach internal addresses via DNS rebinding. Attackers can return a public address during WebhookService::isSafeEndpoint() validation and an internal address when Guzzle re-resolves, sending blind requests to internal services and cloud metadata endpoints.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-xjh5-97m9-9vqf",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112288",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112288",
+      "https://github.com/krayin/laravel-crm/pull/2683",
+      "https://github.com/krayin/laravel-crm/commit/64b9125f33a7eb2ef9916d0e5fd8215c7f6a8c28",
+      "https://github.com/krayin/laravel-crm/blob/v2.2.6/packages/Webkul/Automation/src/Services/WebhookService.php",
+      "https://github.com/krayin/laravel-crm/releases/tag/v2.2.7",
+      "https://www.vulncheck.com/advisories/krayin-crm-2.2.5-before-2.2.7-ssrf-filter-bypass-via-dns-rebinding",
+      "https://github.com/advisories/GHSA-xjh5-97m9-9vqf"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:07Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:H/PR:H/UI:N/S:U/C:L/I:L/A:N",
+        "score": 3.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:H/AT:P/PR:H/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 2.1
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-918",
+        "name": "Server-Side Request Forgery (SSRF)"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:H/PR:H/UI:N/S:U/C:L/I:L/A:N",
+      "score": 3.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-pgf4-9h53-rfcj",
+    "cve_id": "CVE-2026-112280",
+    "url": "https://api.github.com/advisories/GHSA-pgf4-9h53-rfcj",
+    "html_url": "https://github.com/advisories/GHSA-pgf4-9h53-rfcj",
+    "summary": "libaribb24 (aribb24) through 1.0.3 contains a heap-based buffer overflow vulnerability in src...",
+    "description": "libaribb24 (aribb24) through 1.0.3 contains a heap-based buffer overflow vulnerability in src/parser.c that allows attackers to corrupt heap memory via an oversized caption data unit. Attackers can supply a crafted caption PES packet in a media file or broadcast stream, processed through arib_parse_pes(), to crash FFmpeg or VLC and possibly corrupt further memory.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-pgf4-9h53-rfcj",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112280",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112280",
+      "https://github.com/nkoriyama/aribb24/blob/v1.0.3/src/parser.c",
+      "https://hackmd.io/@haindpwn/aribb24-caption-data-unit-and-csi-oob-write",
+      "https://www.vulncheck.com/advisories/libaribb24-aribb24-through-1.0.3-heap-buffer-overflow-via-parse-data-unit-statement-body",
+      "https://github.com/advisories/GHSA-pgf4-9h53-rfcj"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:06Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:H",
+        "score": 6.1
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:N/VI:L/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.9
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-122",
+        "name": "Heap-based Buffer Overflow"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:H",
+      "score": 6.1
+    }
+  },
+  {
+    "ghsa_id": "GHSA-j67m-qx25-v22p",
+    "cve_id": "CVE-2026-112285",
+    "url": "https://api.github.com/advisories/GHSA-j67m-qx25-v22p",
+    "html_url": "https://github.com/advisories/GHSA-j67m-qx25-v22p",
+    "summary": "Thelia before 3.1.5 and 3.2.x before 3.2.4 contains a business logic vulnerability that allows...",
+    "description": "Thelia before 3.1.5 and 3.2.x before 3.2.4 contains a business logic vulnerability that allows authenticated customers to bypass coupon usage limits because usage is counted only when orders become paid. Attackers can place multiple pay-later orders while a usage remains, or cancel paid orders to inflate max_usage, gaining unlimited discounts.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-j67m-qx25-v22p",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112285",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://github.com/thelia/thelia/security/advisories/GHSA-pq5m-7g9w-ppg8",
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112285",
+      "https://github.com/thelia/thelia/commit/1c3ed9c7ad57fec8ea959aa2d2f506f9892777ea",
+      "https://github.com/thelia/thelia/commit/edb7078bfce5ea31b40868d340b0b49dcc6cf00c",
+      "https://github.com/thelia/thelia/blob/3.2.3/core/lib/Thelia/Action/Coupon.php",
+      "https://github.com/thelia/thelia/blob/3.2.3/core/lib/Thelia/Domain/Promotion/Coupon/Service/CouponManager.php",
+      "https://github.com/thelia/thelia/blob/3.2.3/core/lib/Thelia/Domain/Promotion/Coupon/Service/OrderCouponUsageManager.php",
+      "https://github.com/thelia/thelia/releases/tag/3.1.5",
+      "https://github.com/thelia/thelia/releases/tag/3.2.4",
+      "https://www.vulncheck.com/advisories/thelia-before-3.1.5-and-3.2.4-coupon-usage-limit-bypass-via-pay-later-orders",
+      "https://github.com/advisories/GHSA-j67m-qx25-v22p"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:06Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+        "score": 4.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-837",
+        "name": "Improper Enforcement of a Single, Unique Action"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+      "score": 4.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-6rxg-9w2c-f7x4",
+    "cve_id": "CVE-2026-112281",
+    "url": "https://api.github.com/advisories/GHSA-6rxg-9w2c-f7x4",
+    "html_url": "https://github.com/advisories/GHSA-6rxg-9w2c-f7x4",
+    "summary": "libaribb24 (aribb24) through 1.0.3 contains a stack-based buffer overflow vulnerability in...",
+    "description": "libaribb24 (aribb24) through 1.0.3 contains a stack-based buffer overflow vulnerability in decoder_handle_csi() in src/decoder.c that allows attackers to write past a fixed 256-entry array by supplying unbounded CSI parameter bytes. Attackers can embed a caption statement with a CSI introducer and over 256 parameter bytes in media files or broadcast streams to crash FFmpeg or VLC or corrupt the return address.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-6rxg-9w2c-f7x4",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112281",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112281",
+      "https://github.com/nkoriyama/aribb24/blob/v1.0.3/src/decoder.c",
+      "https://hackmd.io/@haindpwn/aribb24-caption-data-unit-and-csi-oob-write",
+      "https://hackmd.io/@haindpwn/cve-2026-112280-112281-aribb24-caption-data-unit-and-csi-oob-write",
+      "https://www.vulncheck.com/advisories/libaribb24-through-1.0.3-stack-buffer-overflow-via-decoder-handle-csi",
+      "https://github.com/advisories/GHSA-6rxg-9w2c-f7x4"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:06Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:H",
+        "score": 6.1
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:N/VI:L/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.9
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-121",
+        "name": "Stack-based Buffer Overflow"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:H",
+      "score": 6.1
+    }
+  },
+  {
+    "ghsa_id": "GHSA-fppf-7fvr-hr9c",
+    "cve_id": "CVE-2026-112286",
+    "url": "https://api.github.com/advisories/GHSA-fppf-7fvr-hr9c",
+    "html_url": "https://github.com/advisories/GHSA-fppf-7fvr-hr9c",
+    "summary": "Krayin CRM before 2.2.7 contains an insecure direct object reference vulnerability that allows...",
+    "description": "Krayin CRM before 2.2.7 contains an insecure direct object reference vulnerability that allows scope-restricted authenticated users to read other users' quotes by bypassing per-user data scope checks in QuoteController. Attackers can query the quotes search and lead-products endpoints to retrieve quote addresses, totals, contact details, and product pricing belonging to any user or lead.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-fppf-7fvr-hr9c",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112286",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112286",
+      "https://github.com/krayin/laravel-crm/pull/2683",
+      "https://github.com/krayin/laravel-crm/commit/64b9125f33a7eb2ef9916d0e5fd8215c7f6a8c28",
+      "https://github.com/krayin/laravel-crm/blob/v2.2.6/packages/Webkul/Admin/src/Http/Controllers/Quote/QuoteController.php",
+      "https://github.com/krayin/laravel-crm/releases/tag/v2.2.7",
+      "https://www.vulncheck.com/advisories/krayin-crm-before-2.2.7-idor-via-quote-search-and-lead-products-endpoints",
+      "https://github.com/advisories/GHSA-fppf-7fvr-hr9c"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:06Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
+        "score": 6.5
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:H/VI:N/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 7.1
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-639",
+        "name": "Authorization Bypass Through User-Controlled Key"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N",
+      "score": 6.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-3rm3-gwm3-q9hj",
+    "cve_id": "CVE-2026-112279",
+    "url": "https://api.github.com/advisories/GHSA-3rm3-gwm3-q9hj",
+    "html_url": "https://github.com/advisories/GHSA-3rm3-gwm3-q9hj",
+    "summary": "rdesktop through 1.9.0 contains a heap out-of-bounds read vulnerability in process_bmpcache2() in...",
+    "description": "rdesktop through 1.9.0 contains a heap out-of-bounds read vulnerability in process_bmpcache2() in orders.c that allows malicious RDP servers to crash clients via crafted revision-2 bitmap cache orders. Attackers can send an uncompressed order with large width/height or an underflowing mode nibble and short payload, causing memcpy() reads past the receive buffer and denial of service.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-3rm3-gwm3-q9hj",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112279",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112279",
+      "https://github.com/rdesktop/rdesktop/issues/436",
+      "https://github.com/rdesktop/rdesktop/pull/437",
+      "https://github.com/rdesktop/rdesktop/blob/v1.9.0/orders.c",
+      "https://hackmd.io/@haindpwn/rdesktop-bitmap-decompress-oob-read",
+      "https://www.vulncheck.com/advisories/rdesktop-through-1.9.0-heap-out-of-bounds-read-via-process-bmpcache2",
+      "https://github.com/advisories/GHSA-3rm3-gwm3-q9hj"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:05Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+        "score": 6.5
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 7.1
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+      "score": 6.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-jjwq-w2jx-jw8v",
+    "cve_id": "CVE-2026-112284",
+    "url": "https://api.github.com/advisories/GHSA-jjwq-w2jx-jw8v",
+    "html_url": "https://github.com/advisories/GHSA-jjwq-w2jx-jw8v",
+    "summary": "libaribcaption 1.1.0 through 1.1.2 contains a global out-of-bounds read in DecoderImpl:...",
+    "description": "libaribcaption 1.1.0 through 1.1.2 contains a global out-of-bounds read in DecoderImpl::HandleGLGR() that reads past the 78-entry kLatinSpecialTable without an upper bound check. Attackers can supply crafted captions designating the Latin special set with ESC 28 4C followed by bytes 0x6F-0x7E to leak adjacent read-only data or crash decoding.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-jjwq-w2jx-jw8v",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112284",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112284",
+      "https://github.com/xqq/libaribcaption/commit/9917cb311c93d884cb820d122911a211042da26c",
+      "https://github.com/xqq/libaribcaption/blob/v1.1.2/src/decoder/b24_conv_tables.hpp",
+      "https://github.com/xqq/libaribcaption/blob/v1.1.2/src/decoder/decoder_impl.cpp",
+      "https://hackmd.io/@haindpwn/libaribcaption-latin-special-table-oob-read",
+      "https://www.vulncheck.com/advisories/libaribcaption-1.1.0-through-1.1.2-out-of-bounds-read-via-decoderimpl-handleglgr",
+      "https://github.com/advisories/GHSA-jjwq-w2jx-jw8v"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:06Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:L",
+        "score": 3.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 4.8
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:L",
+      "score": 3.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-3rx2-qcp6-mwjp",
+    "cve_id": "CVE-2026-112289",
+    "url": "https://api.github.com/advisories/GHSA-3rx2-qcp6-mwjp",
+    "html_url": "https://github.com/advisories/GHSA-3rx2-qcp6-mwjp",
+    "summary": "Koalixcrm through 1.14.0 contains a stored cross-site scripting vulnerability that allows staff...",
+    "description": "Koalixcrm through 1.14.0 contains a stored cross-site scripting vulnerability that allows staff users to inject script by storing malicious task titles rendered unescaped by Task.link_to_task(). Attackers can embed HTML or script that executes when administrators open the task changelist or change form, enabling actions like creating a superuser.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-3rx2-qcp6-mwjp",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112289",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112289",
+      "https://github.com/KoalixSwitzerland/koalixcrm/issues/444",
+      "https://github.com/KoalixSwitzerland/koalixcrm/blob/1.14.0/koalixcrm/crm/reporting/task.py",
+      "https://www.vulncheck.com/advisories/koalixcrm-through-1.14.0-stored-xss-via-task-title-in-django-admin",
+      "https://github.com/advisories/GHSA-3rx2-qcp6-mwjp"
+    ],
+    "published_at": "2026-10-19T15:32:41Z",
+    "updated_at": "2026-10-19T15:32:42Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:07Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:N",
+        "score": 5.4
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:P/VC:L/VI:L/VA:N/SC:L/SI:L/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.1
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-79",
+        "name": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:R/S:C/C:L/I:L/A:N",
+      "score": 5.4
+    }
+  },
+  {
+    "ghsa_id": "GHSA-8gqw-q36r-ch2f",
+    "cve_id": "CVE-2026-112277",
+    "url": "https://api.github.com/advisories/GHSA-8gqw-q36r-ch2f",
+    "html_url": "https://github.com/advisories/GHSA-8gqw-q36r-ch2f",
+    "summary": "rdesktop through 1.9.0 contains a heap out-of-bounds read vulnerability in process_plane() in...",
+    "description": "rdesktop through 1.9.0 contains a heap out-of-bounds read vulnerability in process_plane() in bitmap.c that allows malicious RDP servers to crash clients by sending malformed 32 bpp compressed bitmaps. Attackers can declare a large bitmap geometry with a short compressed body in bitmap update PDUs or bitmap cache orders, causing unbounded reads past the receive buffer and denial of service.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-8gqw-q36r-ch2f",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112277",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112277",
+      "https://github.com/rdesktop/rdesktop/issues/436",
+      "https://github.com/rdesktop/rdesktop/pull/437",
+      "https://github.com/rdesktop/rdesktop/blob/v1.9.0/bitmap.c",
+      "https://hackmd.io/@haindpwn/rdesktop-bitmap-decompress-oob-read",
+      "https://www.vulncheck.com/advisories/rdesktop-through-1.9.0-heap-out-of-bounds-read-via-process-plane",
+      "https://github.com/advisories/GHSA-8gqw-q36r-ch2f"
+    ],
+    "published_at": "2026-10-19T15:32:40Z",
+    "updated_at": "2026-10-19T15:32:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:05Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+        "score": 6.5
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 7.1
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+      "score": 6.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-3gg9-cc9m-vj8c",
+    "cve_id": "CVE-2026-112271",
+    "url": "https://api.github.com/advisories/GHSA-3gg9-cc9m-vj8c",
+    "html_url": "https://github.com/advisories/GHSA-3gg9-cc9m-vj8c",
+    "summary": "libdisplay-info through 0.4.0 contains a heap out-of-bounds read vulnerability in the DisplayID...",
+    "description": "libdisplay-info through 0.4.0 contains a heap out-of-bounds read vulnerability in the DisplayID v1 section parser in displayid.c that occurs when a data block's declared length exceeds the section. Attackers can supply a crafted EDID from a malicious monitor, KVM, capture device, or EDID file to make is_all_zeroes read past the buffer, causing a possible crash.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-3gg9-cc9m-vj8c",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112271",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112271",
+      "https://gitlab.freedesktop.org/emersion/libdisplay-info",
+      "https://gitlab.freedesktop.org/emersion/libdisplay-info/-/blob/0.4.0/displayid.c#L603-L689",
+      "https://hackmd.io/@haindpwn/cve-2026-112271-112272-libdisplay-info-displayid-datablock-overrun-oob-read",
+      "https://hackmd.io/@haindpwn/libdisplay-info-displayid-datablock-overrun-oob-read",
+      "https://www.vulncheck.com/advisories/libdisplay-info-through-0.4.0-heap-out-of-bounds-read-via-displayid-v1-parser",
+      "https://github.com/advisories/GHSA-3gg9-cc9m-vj8c"
+    ],
+    "published_at": "2026-10-19T15:32:40Z",
+    "updated_at": "2026-10-19T15:32:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:04Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+        "score": 5.5
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.8
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+      "score": 5.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-4c37-573g-qpf9",
+    "cve_id": "CVE-2026-112274",
+    "url": "https://api.github.com/advisories/GHSA-4c37-573g-qpf9",
+    "html_url": "https://github.com/advisories/GHSA-4c37-573g-qpf9",
+    "summary": "libtins through 4.6 contains an out-of-bounds read vulnerability in DNS::soa_record::init that...",
+    "description": "libtins through 4.6 contains an out-of-bounds read vulnerability in DNS::soa_record::init that allows remote attackers to read past buffer bounds by supplying SOA data lacking NUL terminators. Attackers can feed raw SOA RDATA without a zero byte to applications using the buffer constructor, causing strlen to overrun the heap buffer and possibly crash.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-4c37-573g-qpf9",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112274",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112274",
+      "https://github.com/mfontanini/libtins",
+      "https://github.com/mfontanini/libtins/blob/v4.6/src/dns.cpp#L698-L710",
+      "https://hackmd.io/@haindpwn/libtins-dns-name-parsing-oob-read",
+      "https://www.vulncheck.com/advisories/libtins-through-4.6-out-of-bounds-read-via-dns-soa-record-init",
+      "https://github.com/advisories/GHSA-4c37-573g-qpf9"
+    ],
+    "published_at": "2026-10-19T15:32:40Z",
+    "updated_at": "2026-10-19T15:32:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:05Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "score": 3.7
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "score": 3.7
+    }
+  },
+  {
+    "ghsa_id": "GHSA-f67q-4w46-jr64",
+    "cve_id": "CVE-2026-112278",
+    "url": "https://api.github.com/advisories/GHSA-f67q-4w46-jr64",
+    "html_url": "https://github.com/advisories/GHSA-f67q-4w46-jr64",
+    "summary": "rdesktop through 1.9.0 contains a heap out-of-bounds read vulnerability in process_raw_bmpcache()...",
+    "description": "rdesktop through 1.9.0 contains a heap out-of-bounds read vulnerability in process_raw_bmpcache() in orders.c that allows malicious RDP servers to crash clients. Attackers can send a raw bitmap cache order declaring large width, height, and bpp values with a tiny payload, causing memcpy() to read past the receive buffer and crash the client.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-f67q-4w46-jr64",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112278",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112278",
+      "https://github.com/rdesktop/rdesktop/pull/437",
+      "https://github.com/rdesktop/rdesktop/blob/v1.9.0/orders.c",
+      "https://hackmd.io/@haindpwn/rdesktop-bitmap-decompress-oob-read",
+      "https://www.vulncheck.com/advisories/rdesktop-through-1.9.0-heap-out-of-bounds-read-via-process-raw-bmpcache",
+      "https://github.com/advisories/GHSA-f67q-4w46-jr64"
+    ],
+    "published_at": "2026-10-19T15:32:40Z",
+    "updated_at": "2026-10-19T15:32:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:05Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+        "score": 6.5
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 7.1
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+      "score": 6.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-qvww-h55c-pg37",
+    "cve_id": "CVE-2026-112272",
+    "url": "https://api.github.com/advisories/GHSA-qvww-h55c-pg37",
+    "html_url": "https://github.com/advisories/GHSA-qvww-h55c-pg37",
+    "summary": "Libdisplay-info 0.4.0 contains a heap out-of-bounds read vulnerability in the DisplayID v2...",
+    "description": "Libdisplay-info 0.4.0 contains a heap out-of-bounds read vulnerability in the DisplayID v2 section parser in displayid2.c that allows attackers to read past the EDID buffer via oversized data block lengths. Attackers can supply a crafted EDID from a malicious monitor, KVM, capture device, or file to over-advance the parse cursor and crash applications.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-qvww-h55c-pg37",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112272",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112272",
+      "https://gitlab.freedesktop.org/emersion/libdisplay-info",
+      "https://gitlab.freedesktop.org/emersion/libdisplay-info/-/blob/0.4.0/displayid2.c#L84-L143",
+      "https://hackmd.io/@haindpwn/libdisplay-info-displayid-datablock-overrun-oob-read",
+      "https://www.vulncheck.com/advisories/libdisplay-info-0.4.0-heap-out-of-bounds-read-via-displayid-v2-parser",
+      "https://github.com/advisories/GHSA-qvww-h55c-pg37"
+    ],
+    "published_at": "2026-10-19T15:32:40Z",
+    "updated_at": "2026-10-19T15:32:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:04Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+        "score": 5.5
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.8
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H",
+      "score": 5.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-g5r3-p9v9-9mrm",
+    "cve_id": "CVE-2026-112275",
+    "url": "https://api.github.com/advisories/GHSA-g5r3-p9v9-9mrm",
+    "html_url": "https://github.com/advisories/GHSA-g5r3-p9v9-9mrm",
+    "summary": "Netpbm through 11.16.00 contains a heap out-of-bounds write vulnerability in the rasttopnm Sun...",
+    "description": "Netpbm through 11.16.00 contains a heap out-of-bounds write vulnerability in the rasttopnm Sun rasterfile run-length decoder pr_load_image in converter/other/rast.c. Attackers can supply a byte-encoded rasterfile with tiny dimensions and a long run-length body to write controlled bytes past md_image, causing memory corruption and crashes.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-g5r3-p9v9-9mrm",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112275",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112275",
+      "https://hackmd.io/@haindpwn/netpbm-sunraster-rle-oob-write-palette-oob-read",
+      "https://netpbm.sourceforge.net",
+      "https://sourceforge.net/p/netpbm/code/5400/tree/advanced/converter/other/rast.c",
+      "https://sourceforge.net/p/netpbm/code/5400/tree/super_stable/converter/other/rast.c",
+      "https://www.vulncheck.com/advisories/netpbm-through-11.16.00-heap-out-of-bounds-write-via-rasttopnm-pr-load-image",
+      "https://github.com/advisories/GHSA-g5r3-p9v9-9mrm"
+    ],
+    "published_at": "2026-10-19T15:32:40Z",
+    "updated_at": "2026-10-19T15:32:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:05Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:H",
+        "score": 6.1
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:N/VI:L/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.9
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-787",
+        "name": "Out-of-bounds Write"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:L/A:H",
+      "score": 6.1
+    }
+  },
+  {
+    "ghsa_id": "GHSA-287f-cv9c-ggfj",
+    "cve_id": "CVE-2026-112276",
+    "url": "https://api.github.com/advisories/GHSA-287f-cv9c-ggfj",
+    "html_url": "https://github.com/advisories/GHSA-287f-cv9c-ggfj",
+    "summary": "Netpbm through 11.16.00 contains a heap out-of-bounds read vulnerability in rasttopnm that allows...",
+    "description": "Netpbm through 11.16.00 contains a heap out-of-bounds read vulnerability in rasttopnm that allows attackers to read heap memory by supplying Sun rasterfiles with short colormaps. Attackers can craft colormapped rasterfiles with pixel bytes exceeding the palette length to leak up to 255 adjacent heap bytes into the PNM output or crash the program.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-287f-cv9c-ggfj",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112276",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112276",
+      "https://hackmd.io/@haindpwn/cve-2026-112275-112276-netpbm-sunraster-rle-oob-write-palette-oob-read",
+      "https://hackmd.io/@haindpwn/netpbm-sunraster-rle-oob-write-palette-oob-read",
+      "https://netpbm.sourceforge.net",
+      "https://sourceforge.net/p/netpbm/code/5400/tree/advanced/converter/other/rast.c",
+      "https://sourceforge.net/p/netpbm/code/5400/tree/advanced/converter/other/rasttopnm.c",
+      "https://www.vulncheck.com/advisories/netpbm-through-11.16.00-heap-out-of-bounds-read-via-rasttopnm-colormap",
+      "https://github.com/advisories/GHSA-287f-cv9c-ggfj"
+    ],
+    "published_at": "2026-10-19T15:32:40Z",
+    "updated_at": "2026-10-19T15:32:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:05Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:L/I:N/A:H",
+        "score": 6.1
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:L/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.9
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:L/I:N/A:H",
+      "score": 6.1
+    }
+  },
+  {
+    "ghsa_id": "GHSA-q9cp-6gg7-9cpm",
+    "cve_id": "CVE-2026-112273",
+    "url": "https://api.github.com/advisories/GHSA-q9cp-6gg7-9cpm",
+    "html_url": "https://github.com/advisories/GHSA-q9cp-6gg7-9cpm",
+    "summary": "libtins through 4.6 contains a heap out-of-bounds read vulnerability in DNS::compose_name in src...",
+    "description": "libtins through 4.6 contains a heap out-of-bounds read vulnerability in DNS::compose_name in src/dns.cpp that allows remote attackers to read past the packet buffer by sending a label ending exactly at the packet end. Attackers can deliver crafted DNS packets whose additional, answer, or authority records trigger a one-byte read when parsed, crashing applications on hardened allocators.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-q9cp-6gg7-9cpm",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112273",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112273",
+      "https://github.com/mfontanini/libtins",
+      "https://github.com/mfontanini/libtins/blob/v4.6/src/dns.cpp#L338-L389",
+      "https://hackmd.io/@haindpwn/libtins-dns-name-parsing-oob-read",
+      "https://www.vulncheck.com/advisories/libtins-through-4.6-heap-out-of-bounds-read-via-dns-compose-name",
+      "https://github.com/advisories/GHSA-q9cp-6gg7-9cpm"
+    ],
+    "published_at": "2026-10-19T15:32:40Z",
+    "updated_at": "2026-10-19T15:32:41Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:05Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+        "score": 5.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:L/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.9
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-125",
+        "name": "Out-of-bounds Read"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L",
+      "score": 5.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-qh4g-vhpv-7389",
+    "cve_id": "CVE-2026-112222",
+    "url": "https://api.github.com/advisories/GHSA-qh4g-vhpv-7389",
+    "html_url": "https://github.com/advisories/GHSA-qh4g-vhpv-7389",
+    "summary": "Missing Authorization vulnerability in Surfer Surfer surferseo allows Exploiting Incorrectly...",
+    "description": "Missing Authorization vulnerability in Surfer Surfer surferseo allows Exploiting Incorrectly Configured Access Control Security Levels.This issue affects Surfer: from n/a through 1.8.0.744.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-qh4g-vhpv-7389",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112222",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112222",
+      "https://patchstack.com/database/wordpress/plugin/surferseo/vulnerability/wordpress-surfer-plugin-1-8-0-744-broken-access-control-vulnerability?_s_id=cve",
+      "https://github.com/advisories/GHSA-qh4g-vhpv-7389"
+    ],
+    "published_at": "2026-10-19T15:32:39Z",
+    "updated_at": "2026-10-19T15:32:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:02Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N",
+        "score": 5.4
+      },
+      "cvss_v4": {
+        "vector_string": null,
+        "score": 0.0
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-862",
+        "name": "Missing Authorization"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:N",
+      "score": 5.4
+    }
+  },
+  {
+    "ghsa_id": "GHSA-3gxp-rhmf-rxp4",
+    "cve_id": "CVE-2026-112145",
+    "url": "https://api.github.com/advisories/GHSA-3gxp-rhmf-rxp4",
+    "html_url": "https://github.com/advisories/GHSA-3gxp-rhmf-rxp4",
+    "summary": "A security vulnerability has been detected in speaches-ai speaches up to 0.9.0-rc.3. This...",
+    "description": "A security vulnerability has been detected in speaches-ai speaches up to 0.9.0-rc.3. This vulnerability affects the function PyannoteDiarizationModelManager._load_fn of the file src/speaches/executors/pyannote_diarization.py of the component Pyannote Diarization Model Loading. The manipulation of the argument model leads to use of externally-controlled input to select classes or code. It is possible to initiate the attack remotely. The exploit has been disclosed publicly and may be used. The feature was introduced in PR #628 (feat/switch to pyannote audio), merged as commit 870e1e16a73452496e99d49f759eabd692a8e0e0. The project was informed of the problem early through an issue report but has not responded yet.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-3gxp-rhmf-rxp4",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112145",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112145",
+      "https://github.com/speaches-ai/speaches/issues/679",
+      "https://github.com/speaches-ai/speaches",
+      "https://github.com/user-attachments/files/33028601/poc.zip",
+      "https://vuldb.com/cve/CVE-2026-112145",
+      "https://vuldb.com/submit/1013214",
+      "https://vuldb.com/vuln/422250",
+      "https://vuldb.com/vuln/422250/cti",
+      "https://github.com/advisories/GHSA-3gxp-rhmf-rxp4"
+    ],
+    "published_at": "2026-10-19T15:32:39Z",
+    "updated_at": "2026-10-19T15:32:45Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:02Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "score": 7.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N/E:P/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.5
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-470",
+        "name": "Use of Externally-Controlled Input to Select Classes or Code ('Unsafe Reflection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "score": 7.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-fhp9-g9f5-9vmv",
+    "cve_id": "CVE-2026-112143",
+    "url": "https://api.github.com/advisories/GHSA-fhp9-g9f5-9vmv",
+    "html_url": "https://github.com/advisories/GHSA-fhp9-g9f5-9vmv",
+    "summary": "A security flaw has been discovered in satya-vinay Events-Management-System up to...",
+    "description": "A security flaw has been discovered in satya-vinay Events-Management-System up to 437c77ceb69bf9fe2e3f4f46f7871b83f425383a. Affected by this issue is some unknown functionality. Performing a manipulation results in missing authentication. The attack is possible to be carried out remotely. The exploit has been released to the public and may be used for attacks. This product adopts a rolling release strategy to maintain continuous delivery. Therefore, version details for affected or updated releases cannot be specified. Multiple endpoints are affected. The project was informed of the problem early through an issue report but has not responded yet.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-fhp9-g9f5-9vmv",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112143",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112143",
+      "https://github.com/satya-vinay/Events-Management-System/issues/4",
+      "https://github.com/satya-vinay/Events-Management-System",
+      "https://vuldb.com/cve/CVE-2026-112143",
+      "https://vuldb.com/submit/1013211",
+      "https://vuldb.com/vuln/422248",
+      "https://vuldb.com/vuln/422248/cti",
+      "https://github.com/advisories/GHSA-fhp9-g9f5-9vmv"
+    ],
+    "published_at": "2026-10-19T15:32:39Z",
+    "updated_at": "2026-10-19T15:32:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:01Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+        "score": 7.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N/E:P/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.5
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-287",
+        "name": "Improper Authentication"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:L",
+      "score": 7.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-423x-xr22-cpm3",
+    "cve_id": "CVE-2026-111938",
+    "url": "https://api.github.com/advisories/GHSA-423x-xr22-cpm3",
+    "html_url": "https://github.com/advisories/GHSA-423x-xr22-cpm3",
+    "summary": "Frappe CRM before 1.74.0 contains a missing authorization vulnerability that allows authenticated...",
+    "description": "Frappe CRM before 1.74.0 contains a missing authorization vulnerability that allows authenticated Sales Users to modify other users' call logs by supplying arbitrary call_sid values. Attackers can call the add_note_to_call_log and add_task_to_call_log endpoints to attach attacker-written notes and tasks that appear on victims' call logs, leads, and deals.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-423x-xr22-cpm3",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-111938",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://github.com/frappe/crm/security/advisories/GHSA-843p-qp2f-p2v8",
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-111938",
+      "https://github.com/frappe/crm/commit/7872f4d178bd9338dba2eb4fc4808f4060914be6",
+      "https://github.com/frappe/crm/commit/e30df91094033d8583a72e429726ba7bebc1534f",
+      "https://github.com/frappe/crm/blob/v1.73.2/crm/integrations/api.py",
+      "https://github.com/frappe/crm/releases/tag/v1.74.0",
+      "https://www.vulncheck.com/advisories/frappe-crm-before-1.74.0-missing-authorization-via-add-note-to-call-log",
+      "https://github.com/advisories/GHSA-423x-xr22-cpm3"
+    ],
+    "published_at": "2026-10-19T15:32:39Z",
+    "updated_at": "2026-10-19T15:32:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:01Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+        "score": 4.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:N/VI:L/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-862",
+        "name": "Missing Authorization"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:L/A:N",
+      "score": 4.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-wwwx-2xcj-h3pf",
+    "cve_id": "CVE-2026-112146",
+    "url": "https://api.github.com/advisories/GHSA-wwwx-2xcj-h3pf",
+    "html_url": "https://github.com/advisories/GHSA-wwwx-2xcj-h3pf",
+    "summary": "A vulnerability was detected in D-Link E15, M32, R15 and R32. This issue affects some unknown...",
+    "description": "A vulnerability was detected in D-Link E15, M32, R15 and R32. This issue affects some unknown processing of the file /etc/emDaemon/passwd of the component MQTT Broker. The manipulation results in hard-coded credentials. It is possible to launch the attack remotely. The exploit is now public and may be used.",
+    "type": "unreviewed",
+    "severity": "low",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-wwwx-2xcj-h3pf",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112146",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112146",
+      "https://github.com/XueDugu/dlink-eaglepro-easymesh-mqtt-credential-evidence",
+      "https://github.com/XueDugu/dlink-eaglepro-easymesh-mqtt-credential-evidence/tree/master/poc",
+      "https://vuldb.com/cve/CVE-2026-112146",
+      "https://vuldb.com/submit/1013245",
+      "https://vuldb.com/vuln/422251",
+      "https://vuldb.com/vuln/422251/cti",
+      "https://www.dlink.com",
+      "https://github.com/advisories/GHSA-wwwx-2xcj-h3pf"
+    ],
+    "published_at": "2026-10-19T15:32:39Z",
+    "updated_at": "2026-10-19T15:32:44Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:02Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:L",
+        "score": 7.4
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:L/SI:L/SA:L/E:P/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 2.1
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-259",
+        "name": "Use of Hard-coded Password"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:L/I:L/A:L",
+      "score": 7.4
+    }
+  },
+  {
+    "ghsa_id": "GHSA-mg89-3m78-qwqg",
+    "cve_id": "CVE-2026-112267",
+    "url": "https://api.github.com/advisories/GHSA-mg89-3m78-qwqg",
+    "html_url": "https://github.com/advisories/GHSA-mg89-3m78-qwqg",
+    "summary": "SGLang through 0.5.22 in prefill/decode disaggregation mode contains a server-side request...",
+    "description": "SGLang through 0.5.22 in prefill/decode disaggregation mode contains a server-side request forgery vulnerability that allows unauthenticated attackers to trigger outbound requests via client-supplied bootstrap_host and bootstrap_port fields. Attackers sending crafted requests to the Decode worker's /generate endpoint can probe internal hosts and ports and block the shared scheduler loop, delaying other inference requests.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-mg89-3m78-qwqg",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112267",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112267",
+      "https://github.com/sgl-project/sglang/issues/45008",
+      "https://github.com/sgl-project/sglang/blob/v0.5.22/python/sglang/srt/disaggregation/common/conn.py#L1157-L1181",
+      "https://github.com/sgl-project/sglang/blob/v0.5.22/python/sglang/srt/disaggregation/decode.py#L1150-L1175",
+      "https://www.vulncheck.com/advisories/sglang-through-0.5.22-ssrf-via-bootstrap-host-and-bootstrap-port-on-decode-worker",
+      "https://github.com/advisories/GHSA-mg89-3m78-qwqg"
+    ],
+    "published_at": "2026-10-19T15:32:39Z",
+    "updated_at": "2026-10-19T15:32:41Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:04Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:L",
+        "score": 6.5
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:N/VI:L/VA:L/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 6.9
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-918",
+        "name": "Server-Side Request Forgery (SSRF)"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:L",
+      "score": 6.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-8v54-r9x8-p94v",
+    "cve_id": "CVE-2026-112266",
+    "url": "https://api.github.com/advisories/GHSA-8v54-r9x8-p94v",
+    "html_url": "https://github.com/advisories/GHSA-8v54-r9x8-p94v",
+    "summary": "SGLang through 0.5.22 contains a denial of service vulnerability that allows API clients to abort...",
+    "description": "SGLang through 0.5.22 contains a denial of service vulnerability that allows API clients to abort other users' in-flight generation requests by supplying a short client-controlled rid. Attackers can submit streaming /generate requests with single hex character rids and disconnect, triggering prefix-matching abort logic that terminates all other clients' requests.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-8v54-r9x8-p94v",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112266",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112266",
+      "https://github.com/sgl-project/sglang/issues/41474",
+      "https://github.com/sgl-project/sglang/issues/45002",
+      "https://github.com/sgl-project/sglang/blob/v0.5.22/python/sglang/srt/managers/scheduler.py#L5458-L5590",
+      "https://github.com/sgl-project/sglang/blob/v0.5.22/python/sglang/srt/managers/tokenizer_manager.py#L2240-L2256",
+      "https://github.com/sgl-project/sglang/blob/v0.5.22/python/sglang/srt/managers/tokenizer_manager.py#L2425-L2436",
+      "https://www.vulncheck.com/advisories/sglang-through-0.5.22-cross-request-abort-via-rid-prefix-matching",
+      "https://github.com/advisories/GHSA-8v54-r9x8-p94v"
+    ],
+    "published_at": "2026-10-19T15:32:39Z",
+    "updated_at": "2026-10-19T15:32:40Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:03Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "score": 5.9
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 8.2
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-187",
+        "name": "Partial String Comparison"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "score": 5.9
+    }
+  },
+  {
+    "ghsa_id": "GHSA-q6x7-8366-3wrx",
+    "cve_id": "CVE-2026-112268",
+    "url": "https://api.github.com/advisories/GHSA-q6x7-8366-3wrx",
+    "html_url": "https://github.com/advisories/GHSA-q6x7-8366-3wrx",
+    "summary": "sglang-router (sgl-model-gateway) through 0.3.2 contains an authorization bypass vulnerability...",
+    "description": "sglang-router (sgl-model-gateway) through 0.3.2 contains an authorization bypass vulnerability that allows holders of the data-plane API key to access mesh HA management routes because /ha/* endpoints skip control-plane Admin role checks. Attackers can read cluster topology, write gossiped configuration, change global rate limits, and call POST /ha/shutdown to silently dissolve HA coordination.",
+    "type": "unreviewed",
+    "severity": "medium",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-q6x7-8366-3wrx",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112268",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112268",
+      "https://github.com/sgl-project/sglang/issues/45006",
+      "https://github.com/sgl-project/sglang/pull/45017",
+      "https://github.com/sgl-project/sglang/blob/v0.5.22/sgl-model-gateway/src/server.rs#L641-L675",
+      "https://www.vulncheck.com/advisories/sglang-router-through-0.3.2-authorization-bypass-via-mesh-ha-management-routes",
+      "https://github.com/advisories/GHSA-q6x7-8366-3wrx"
+    ],
+    "published_at": "2026-10-19T15:32:39Z",
+    "updated_at": "2026-10-19T15:32:40Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:04Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L",
+        "score": 6.3
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:L/AT:N/PR:L/UI:N/VC:L/VI:L/VA:L/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 5.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-863",
+        "name": "Incorrect Authorization"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:L/A:L",
+      "score": 6.3
+    }
+  },
+  {
+    "ghsa_id": "GHSA-9qhw-7fv2-2hgm",
+    "cve_id": "CVE-2026-112269",
+    "url": "https://api.github.com/advisories/GHSA-9qhw-7fv2-2hgm",
+    "html_url": "https://github.com/advisories/GHSA-9qhw-7fv2-2hgm",
+    "summary": "SGLang through 0.5.22 with the Mooncake disaggregation backend accepts unauthenticated decode...",
+    "description": "SGLang through 0.5.22 with the Mooncake disaggregation backend accepts unauthenticated decode registration messages on the Prefill rank ZMQ PULL socket, allowing denial of service. Network-adjacent attackers can send many registrations with unique mooncake_session_id values and large nested-buffer frames to exhaust Prefill memory until the scheduler is OOM-killed.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-9qhw-7fv2-2hgm",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112269",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112269",
+      "https://github.com/sgl-project/sglang/issues/45012",
+      "https://github.com/sgl-project/sglang/blob/v0.5.22/python/sglang/srt/disaggregation/common/utils.py#L47-L69",
+      "https://github.com/sgl-project/sglang/blob/v0.5.22/python/sglang/srt/disaggregation/mooncake/conn.py#L2885-L2935",
+      "https://github.com/sgl-project/sglang/blob/v0.5.22/python/sglang/srt/disaggregation/mooncake/conn.py#L889-L909",
+      "https://www.vulncheck.com/advisories/sglang-through-0.5.22-memory-exhaustion-via-unauthenticated-mooncake-decode-registrations",
+      "https://github.com/advisories/GHSA-9qhw-7fv2-2hgm"
+    ],
+    "published_at": "2026-10-19T15:32:39Z",
+    "updated_at": "2026-10-19T15:32:40Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:04Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "score": 6.5
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:A/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 7.1
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-770",
+        "name": "Allocation of Resources Without Limits or Throttling"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "score": 6.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-73v9-9646-vcm5",
+    "cve_id": "CVE-2026-112265",
+    "url": "https://api.github.com/advisories/GHSA-73v9-9646-vcm5",
+    "html_url": "https://github.com/advisories/GHSA-73v9-9646-vcm5",
+    "summary": "LangBot through 4.11.0 contains a missing authenticity verification vulnerability that allows...",
+    "description": "LangBot through 4.11.0 contains a missing authenticity verification vulnerability that allows unauthenticated attackers to inject forged Lark/Feishu events by skipping signature checks. Attackers knowing a bot UUID can POST fabricated im.message.receive_v1 or card.action.trigger events to drive the LLM pipeline, tools, and approvals as other users.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-73v9-9646-vcm5",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112265",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112265",
+      "https://github.com/langbot-app/LangBot/issues/2627",
+      "https://github.com/langbot-app/LangBot/commit/43c481d74a6388657b84baa7d292c613c75c24f9",
+      "https://github.com/langbot-app/LangBot/blob/v4.11.0/src/langbot/pkg/api/http/controller/groups/webhooks.py",
+      "https://github.com/langbot-app/LangBot/blob/v4.11.0/src/langbot/pkg/platform/adapters/lark/adapter.py",
+      "https://github.com/langbot-app/LangBot/blob/v4.11.0/src/langbot/pkg/platform/sources/lark.py",
+      "https://www.vulncheck.com/advisories/langbot-through-4.11.0-missing-lark-feishu-webhook-authenticity-verification",
+      "https://github.com/advisories/GHSA-73v9-9646-vcm5"
+    ],
+    "published_at": "2026-10-19T15:32:39Z",
+    "updated_at": "2026-10-19T15:32:40Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:03Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:H/A:N",
+        "score": 6.5
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:N/AC:H/AT:P/PR:N/UI:N/VC:L/VI:H/VA:N/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 8.3
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-345",
+        "name": "Insufficient Verification of Data Authenticity"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:H/A:N",
+      "score": 6.5
+    }
+  },
+  {
+    "ghsa_id": "GHSA-rq23-h86h-7v4x",
+    "cve_id": "CVE-2026-112264",
+    "url": "https://api.github.com/advisories/GHSA-rq23-h86h-7v4x",
+    "html_url": "https://github.com/advisories/GHSA-rq23-h86h-7v4x",
+    "summary": "BentoML through 1.4.39 contains a Dockerfile instruction injection vulnerability that allows...",
+    "description": "BentoML through 1.4.39 contains a Dockerfile instruction injection vulnerability that allows attackers to add arbitrary build instructions by embedding newlines in docker.env mapping keys rendered by the legacy base.j2 template. Attackers can supply a crafted bentofile.yaml or imported bento archive so that bentoml containerize executes injected RUN instructions during docker build, accessing build secrets and poisoning images.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-rq23-h86h-7v4x",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112264",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112264",
+      "https://github.com/bentoml/BentoML/blob/v1.4.39/src/bentoml/_internal/bento/build_config.py",
+      "https://github.com/bentoml/BentoML/blob/v1.4.39/src/bentoml/_internal/container/__init__.py",
+      "https://github.com/bentoml/BentoML/blob/v1.4.39/src/bentoml/_internal/container/frontend/dockerfile/templates/base.j2",
+      "https://github.com/bentoml/BentoML/blob/v1.4.39/src/bentoml/_internal/container/generate.py",
+      "https://github.com/geo-chen/oss/blob/main/BentoML.md",
+      "https://www.vulncheck.com/advisories/bentoml-through-1.4.39-dockerfile-instruction-injection-via-docker-env-keys",
+      "https://github.com/advisories/GHSA-rq23-h86h-7v4x"
+    ],
+    "published_at": "2026-10-19T15:32:39Z",
+    "updated_at": "2026-10-19T15:32:40Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:03Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+        "score": 7.8
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:L/AC:L/AT:N/PR:N/UI:P/VC:H/VI:H/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 8.5
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-78",
+        "name": "Improper Neutralization of Special Elements used in an OS Command ('OS Command Injection')"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H",
+      "score": 7.8
+    }
+  },
+  {
+    "ghsa_id": "GHSA-q322-x26r-gm37",
+    "cve_id": "CVE-2026-112270",
+    "url": "https://api.github.com/advisories/GHSA-q322-x26r-gm37",
+    "html_url": "https://github.com/advisories/GHSA-q322-x26r-gm37",
+    "summary": "SGLang through 0.5.22 with the Mooncake disaggregation backend contains an uncontrolled memory...",
+    "description": "SGLang through 0.5.22 with the Mooncake disaggregation backend contains an uncontrolled memory allocation vulnerability in handle_staging_rsp() that lets unauthenticated network-adjacent attackers exhaust Prefill memory. Attackers can obtain the rank address from the /route endpoint and send STAGING_RSP messages with huge chunk_idx values under fresh room IDs, causing the scheduler to be OOM-killed.",
+    "type": "unreviewed",
+    "severity": "high",
+    "repository_advisory_url": null,
+    "source_code_location": "",
+    "identifiers": [
+      {
+        "value": "GHSA-q322-x26r-gm37",
+        "type": "GHSA"
+      },
+      {
+        "value": "CVE-2026-112270",
+        "type": "CVE"
+      }
+    ],
+    "references": [
+      "https://nvd.nist.gov/vuln/detail/CVE-2026-112270",
+      "https://github.com/sgl-project/sglang/issues/45014",
+      "https://github.com/sgl-project/sglang/blob/v0.5.22/python/sglang/srt/disaggregation/common/staging_handler.py#L505-L548",
+      "https://github.com/sgl-project/sglang/blob/v0.5.22/python/sglang/srt/disaggregation/mooncake/conn.py#L2885-L2935",
+      "https://www.vulncheck.com/advisories/sglang-through-0.5.22-memory-exhaustion-via-mooncake-staging-rsp-chunk-idx",
+      "https://github.com/advisories/GHSA-q322-x26r-gm37"
+    ],
+    "published_at": "2026-10-19T15:32:39Z",
+    "updated_at": "2026-10-19T15:32:40Z",
+    "github_reviewed_at": null,
+    "nvd_published_at": "2026-10-19T14:17:04Z",
+    "withdrawn_at": null,
+    "vulnerabilities": [
+
+    ],
+    "cvss_severities": {
+      "cvss_v3": {
+        "vector_string": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+        "score": 6.5
+      },
+      "cvss_v4": {
+        "vector_string": "CVSS:4.0/AV:A/AC:L/AT:N/PR:N/UI:N/VC:N/VI:N/VA:H/SC:N/SI:N/SA:N/E:X/CR:X/IR:X/AR:X/MAV:X/MAC:X/MAT:X/MPR:X/MUI:X/MVC:X/MVI:X/MVA:X/MSC:X/MSI:X/MSA:X/S:X/AU:X/R:X/V:X/RE:X/U:X",
+        "score": 7.1
+      }
+    },
+    "cwes": [
+      {
+        "cwe_id": "CWE-770",
+        "name": "Allocation of Resources Without Limits or Throttling"
+      }
+    ],
+    "credits": [
+
+    ],
+    "comments": 0,
+    "cvss": {
+      "vector_string": "CVSS:3.1/AV:A/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "score": 6.5
+    }
+  }
+]
